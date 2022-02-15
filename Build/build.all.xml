@@ -30,7 +30,7 @@
     </ItemGroup>
     <MSBuild Targets="Build" Projects="build.net.xml" Properties="%(TargetFramework.NetProperties);Configuration=$(Configuration)" />
   </Target> 
-  <Target Name="CleanCore" BeforeTargets="Clean">
+  <Target Name="CleanCore" BeforeTargets="Clean" Configuration="$(Configuration)">
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Clean" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="BuildCore" BeforeTargets="Build">
