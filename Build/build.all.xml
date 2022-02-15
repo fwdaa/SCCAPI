@@ -34,6 +34,7 @@
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Clean" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="BuildCore" BeforeTargets="Build">
+    <MSBuild Targets="Restore" Projects="SCCAPI.NET.Core.sln" />
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Build" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="CleanJava" BeforeTargets="Clean">
