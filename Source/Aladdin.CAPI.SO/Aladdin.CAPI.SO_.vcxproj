@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{e85834b3-2aa6-4fa4-8ea8-f341943f64e9}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>Aladdin_CAPI_SO_</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{2238F9CD-F817-4ECC-BD14-2524D2669B35}</LinuxProjectType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <RemoteCopyIncludeDirectories>$(OPENSSL_INC);$(WXWIDGETS_INC)</RemoteCopyIncludeDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <RemoteCopyIncludeDirectories>$(OPENSSL_INC);$(WXWIDGETS_INC)</RemoteCopyIncludeDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <RemoteCopyIncludeDirectories>$(OPENSSL_INC);$(WXWIDGETS_INC)</RemoteCopyIncludeDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <RemoteCopyIncludeDirectories>$(OPENSSL_INC);$(WXWIDGETS_INC)</RemoteCopyIncludeDirectories>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="env_.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="env_.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="env_.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="env_.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <RemoteProjectDir>$(RemoteRootDir)</RemoteProjectDir>
+    <OutDir>..\..\Library\Ubuntu\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Ubuntu\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>libcapiso</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <RemoteProjectDir>$(RemoteRootDir)</RemoteProjectDir>
+    <OutDir>..\..\Library\Ubuntu\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Ubuntu\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>libcapiso</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <RemoteProjectDir>$(RemoteRootDir)</RemoteProjectDir>
+    <OutDir>..\..\Library\Ubuntu\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Ubuntu\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>libcapiso</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <RemoteProjectDir>$(RemoteRootDir)</RemoteProjectDir>
+    <OutDir>..\..\Library\Ubuntu\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Ubuntu\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>libcapiso</TargetName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Include\Aladdin.CAPI.COM.h" />
+    <ClInclude Include="..\..\Include\Aladdin.CAPI.h" />
+    <ClInclude Include="..\..\Include\Aladdin.CAPI.OpenSSL.h" />
+    <ClInclude Include="StdAfx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Aladdin.CAPI.SO.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="StdAfx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <DataFilesToCopyRemotely Include="..\..\Trace\*.*;..\..\Library\Ubuntu\$(Platform)\$(Configuration)\libcapissl.a" />
+  </ItemGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Include;..\..\Trace;$(OPENSSL_INC);%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-fPIC `wx-config --cxxflags` -Wno-conversion %(AdditionalOptions)</AdditionalOptions>
+      <PositionIndependentCode>false</PositionIndependentCode>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>..\..\Library\Ubuntu\$(Platform)\$(Configuration);$(OPENSSL_LIB);$(WXWIDGETS_LIB);%(Link.AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>capissl;crypto;pthread;wx_baseu-3.0;wx_gtk3u_core-3.0;</LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Include;..\..\Trace;$(OPENSSL_INC);%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-fPIC `wx-config --cxxflags` -Wno-conversion %(AdditionalOptions)</AdditionalOptions>
+      <PositionIndependentCode>false</PositionIndependentCode>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>..\..\Library\Ubuntu\$(Platform)\$(Configuration);$(OPENSSL_LIB);$(WXWIDGETS_LIB);%(Link.AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>capissl;crypto;pthread;X11;wx_baseu-3.0;wx_gtk3u_core-3.0;</LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Include;..\..\Trace;$(OPENSSL_INC);%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-fPIC `wx-config --cxxflags` -Wno-conversion %(AdditionalOptions)</AdditionalOptions>
+      <PositionIndependentCode>false</PositionIndependentCode>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>..\..\Library\Ubuntu\$(Platform)\$(Configuration);$(OPENSSL_LIB);$(WXWIDGETS_LIB);%(Link.AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>capissl;crypto;pthread;X11;wx_baseu-3.0;wx_gtk3u_core-3.0;</LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Include;..\..\Trace;$(OPENSSL_INC);%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-fPIC `wx-config --cxxflags` -Wno-conversion %(AdditionalOptions)</AdditionalOptions>
+      <PositionIndependentCode>false</PositionIndependentCode>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>..\..\Library\Ubuntu\$(Platform)\$(Configuration);$(OPENSSL_LIB);$(WXWIDGETS_LIB);%(Link.AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>capissl;crypto;pthread;X11;wx_baseu-3.0;wx_gtk3u_core-3.0;</LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

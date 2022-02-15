@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{555FEBF3-9841-41F2-9718-C60B73CA34FD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin</RootNamespace>
+    <AssemblyName>Aladdin.CAPI.STB</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ASN1\STB\BDHKeyTransParams.cs" />
+    <Compile Include="ASN1\STB\BDHParams.cs" />
+    <Compile Include="ASN1\STB\BDHParamsInitData.cs" />
+    <Compile Include="ASN1\STB\BDHParamsList.cs" />
+    <Compile Include="ASN1\STB\BDSBDHKeyValue.cs" />
+    <Compile Include="ASN1\STB\BDSBDHParams.cs" />
+    <Compile Include="ASN1\STB\BDSBDHParamsList.cs" />
+    <Compile Include="ASN1\STB\BDSParams.cs" />
+    <Compile Include="ASN1\STB\BDSParamsInitData.cs" />
+    <Compile Include="ASN1\STB\BDSParamsList.cs" />
+    <Compile Include="ASN1\STB\Curve.cs" />
+    <Compile Include="ASN1\STB\DomainParameters.cs" />
+    <Compile Include="ASN1\STB\ECParameters.cs" />
+    <Compile Include="ASN1\STB\FieldID.cs" />
+    <Compile Include="ASN1\STB\GOSTParams.cs" />
+    <Compile Include="ASN1\STB\GOSTSBlock.cs" />
+    <Compile Include="ASN1\STB\OID.cs" />
+    <Compile Include="ASN1\STB\PublicKeyParameters.cs" />
+    <Compile Include="ASN1\STB\SBlock.cs" />
+    <Compile Include="ASN1\STB\SBoxReference.cs" />
+    <Compile Include="CAPI\STB\Cipher\GOST28147.cs" />
+    <Compile Include="CAPI\STB\Cipher\STB34101.cs" />
+    <Compile Include="CAPI\STB\Engine\STB34101.cs" />
+    <Compile Include="CAPI\STB\Culture\STB1176.cs" />
+    <Compile Include="CAPI\STB\Culture\STB1176Pro.cs" />
+    <Compile Include="CAPI\STB\Culture\STB34101.cs" />
+    <Compile Include="CAPI\STB\Culture\STB34101_256.cs" />
+    <Compile Include="CAPI\STB\Culture\STB34101_384.cs" />
+    <Compile Include="CAPI\STB\Culture\STB34101_512.cs" />
+    <Compile Include="CAPI\STB\Hash\STB11761.cs" />
+    <Compile Include="CAPI\STB\Hash\STB34101.cs" />
+    <Compile Include="CAPI\STB\Derive\STB34101.cs" />
+    <Compile Include="CAPI\STB\Keys\STB34101.cs" />
+    <Compile Include="CAPI\STB\Keyx\STB11762\KeyAgreement.cs" />
+    <Compile Include="CAPI\STB\Keyx\STB11762\TransportKeyUnwrap.cs" />
+    <Compile Include="CAPI\STB\Keyx\STB11762\TransportKeyWrap.cs" />
+    <Compile Include="CAPI\STB\Keyx\STB34101\TransportKeyUnwrap.cs" />
+    <Compile Include="CAPI\STB\Keyx\STB34101\TransportKeyWrap.cs" />
+    <Compile Include="CAPI\STB\MAC\STB34101.cs" />
+    <Compile Include="CAPI\STB\Mode\STB34101\CBC.cs" />
+    <Compile Include="CAPI\STB\Mode\STB34101\CTR.cs" />
+    <Compile Include="CAPI\STB\Mode\STB34101\CTR_ENC.cs" />
+    <Compile Include="CAPI\STB\Mode\STB34101\ECB.cs" />
+    <Compile Include="CAPI\STB\Sign\STB11762\SignData.cs" />
+    <Compile Include="CAPI\STB\Sign\STB11762\SignDataPro.cs" />
+    <Compile Include="CAPI\STB\Sign\STB11762\SignHash.cs" />
+    <Compile Include="CAPI\STB\Sign\STB11762\VerifyData.cs" />
+    <Compile Include="CAPI\STB\Sign\STB11762\VerifyDataPro.cs" />
+    <Compile Include="CAPI\STB\Sign\STB11762\VerifyHash.cs" />
+    <Compile Include="CAPI\STB\Sign\STB34101\SignHash.cs" />
+    <Compile Include="CAPI\STB\Sign\STB34101\VerifyHash.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDHKeyFactory.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDHKeyPairGenerator.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDHNamedParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDHParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDHPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDHPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSBDHKeyFactory.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSBDHKeyPairGenerator.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSBDHNamedParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSBDHParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSBDHPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSBDHPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSKeyFactory.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSKeyPairGenerator.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSNamedParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\BDSPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDHParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDHPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDHPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDSBDHParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDSBDHPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDSBDHPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDSParameters.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDSPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB11762\IBDSPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB34101\IParameters.cs" />
+    <Compile Include="CAPI\STB\STB34101\IPrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB34101\IPublicKey.cs" />
+    <Compile Include="CAPI\STB\STB34101\KeyFactory.cs" />
+    <Compile Include="CAPI\STB\STB34101\KeyPairGenerator.cs" />
+    <Compile Include="CAPI\STB\STB34101\NamedParameters.cs" />
+    <Compile Include="CAPI\STB\STB34101\Parameters.cs" />
+    <Compile Include="CAPI\STB\STB34101\PrivateKey.cs" />
+    <Compile Include="CAPI\STB\STB34101\PublicKey.cs" />
+    <Compile Include="CAPI\STB\Test.cs" />
+    <Compile Include="CAPI\STB\Wrap\STB34101.cs" />
+    <Compile Include="CAPI\STB\Factory.cs" />
+    <Compile Include="Properties\GlobalSuppressions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8B81FE5B-82F1-41D5-A2AF-F9237CC5C953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48DBFC14-A9A2-4B1C-836A-9673E9BDA85B}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST\Aladdin.CAPI.GOST.csproj">
+      <Project>{3d97ff8b-b036-425c-8ae2-fec685d1326c}</Project>
+      <Name>Aladdin.CAPI.GOST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS12\Aladdin.CAPI.PKCS12.csproj">
+      <Project>{c0155fce-cb12-43ef-9632-3b8adc246dc5}</Project>
+      <Name>Aladdin.CAPI.PKCS12</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422F4EE1-D424-4396-92B1-A62B332A0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5AE748D8-A9E3-4BFA-A047-A644E92C43F5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

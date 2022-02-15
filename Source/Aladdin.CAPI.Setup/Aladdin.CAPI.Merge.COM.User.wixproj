@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(ProjectDir)..\..\Build\version.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">Win32</Platform>
+    <ProductVersion>3.0</ProductVersion>
+    <ProjectGuid>{8BCFE0ED-81F2-4982-87EA-E7C9615DC392}</ProjectGuid>
+    <SchemaVersion>3.8</SchemaVersion>
+    <OutputName>Aladdin.CAPI.Merge.COM.User</OutputName>
+    <OutputType>Module</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+    <InstallerPlatform>x86</InstallerPlatform>
+    <OutputPath>..\..\Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug;InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+    <WixVariables>
+    </WixVariables>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
+    <InstallerPlatform>x86</InstallerPlatform>
+    <OutputPath>..\..\Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <WixVariables>
+    </WixVariables>
+    <DefineConstants>InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <InstallerPlatform>x64</InstallerPlatform>
+    <DefineConstants>Debug;InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+    <WixVariables>
+    </WixVariables>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <OutputPath>..\..\Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <InstallerPlatform>x64</InstallerPlatform>
+    <WixVariables>
+    </WixVariables>
+    <DefineConstants>InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <OutputPath>..\..\Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="MergeCOM.User.wxs" />
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <Import Project="$(ProjectDir)..\..\Build\build.targets" />
+  <Target Name="BeforeBuild">
+    <PropertyGroup Condition="'$(CLSID_CAPI_COM)'==''">
+      <CLSID_CAPI_COM>$([System.Guid]::NewGuid())</CLSID_CAPI_COM>
+    </PropertyGroup>
+    <Message Text="CLSID_CAPI_COM = $(CLSID_CAPI_COM)" Importance="high" />
+    <PropertyGroup>
+      <DefineConstants>$(DefineConstants);CLSID_CAPI_COM=$(CLSID_CAPI_COM)</DefineConstants>
+    </PropertyGroup>
+  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

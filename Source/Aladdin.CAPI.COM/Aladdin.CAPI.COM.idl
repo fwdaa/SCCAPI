@@ -1,0 +1,184 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[uuid(24B8909F-12FF-4AAE-A410-872CDD543F32), version(1.0)]
+library Aladdin_CAPI_COM
+{
+importlib("mscorlib.tlb");
+
+///////////////////////////////////////////////////////////////////////////////
+// Предварительные объявления
+///////////////////////////////////////////////////////////////////////////////
+interface ICertificate;
+interface IPrivateKey;
+
+///////////////////////////////////////////////////////////////////////////////
+// Способ использования ключа
+///////////////////////////////////////////////////////////////////////////////
+typedef [uuid(344234F8-4CD6-3BAF-B47E-AF5E63F639C8), version(1.0)]
+enum KeyUsage {
+	None					= 0x0000,
+    DigitalSignature		= 0x0001,
+    NonRepudiation			= 0x0002,
+    KeyEncipherment			= 0x0004,
+    DataEncipherment		= 0x0008,
+    KeyAgreement			= 0x0010,
+    KeyExchange				= 0x0014,
+    CertificateSignature	= 0x0020,
+    CrlSignature			= 0x0040,
+    DataSignature			= 0x0061,
+    EncipherOnly			= 0x0080,
+    DecipherOnly			= 0x0100
+} KeyUsage;
+
+///////////////////////////////////////////////////////////////////////////////
+// Отличимое имя 
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(66DB98AD-E92E-4EAA-BA26-7154215D6C84), dual, nonextensible, oleautomation]
+interface IDistinctName : IDispatch
+{
+	// бинарное представление 
+    [propget] HRESULT Encoded([out, retval] BSTR* pRetVal);
+
+	// строковое представление
+    HRESULT ToString([out, retval] BSTR* pRetVal); 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Сертификат открытого ключа
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(6F692A98-C3F2-4C92-9A2E-C9EB57E4F2FB), dual, nonextensible, oleautomation]
+interface ICertificate : mscorlib.IDisposable 
+{
+	// бинарное представление сертификата
+    [propget] HRESULT Encoded([out, retval] BSTR* pRetVal);
+    
+	// издатель и субъект сертификата
+    [propget] HRESULT Issuer ([out, retval] IDistinctName** pRetVal);
+    [propget] HRESULT Subject([out, retval] IDistinctName** pRetVal);
+
+	// идентификатор (OID) ключа
+    [propget] HRESULT KeyOID([out, retval] BSTR* pRetVal); 
+	// способ использования сертификата
+	[propget] HRESULT KeyUsage([out, retval] KeyUsage* pRetVal);
+
+	// зашифровать данные    
+    HRESULT Encrypt([in] BSTR data, [out, retval] BSTR* pRetVal);
+        
+	// проверить подпись
+	HRESULT VerifySign([in] BSTR data, [out, retval] BSTR* pRetVal);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Способ аутентификации
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(F3DA8703-6A1E-4E3E-ACFE-8656121504CA), nonextensible]
+interface IAuthentication : IUnknown
+{
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Личный ключ
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(817521D9-1254-4A98-B9CD-7ACCA4F5D3C3), dual, nonextensible, oleautomation]
+interface IPrivateKey : mscorlib.IDisposable 
+{
+	// строковое представление
+	HRESULT ToString([out, retval] BSTR* pRetVal);
+
+	// сертификат открытого ключа
+	[propget] HRESULT Certificate([out, retval] ICertificate** pRetVal);
+	// связать контекст сертификата с ключом
+	HRESULT SetCertificateContext([in] void* pCertificateContext);
+
+	// установить способ аутентификации
+	[propput] HRESULT Authentication([in] IAuthentication* pAuthentication); 
+	// указать пароль контейнера
+	[propput] HRESULT Password([in] BSTR password); 
+
+	// зашифровать данные    
+    HRESULT Encrypt([in] ICertificate* pCertificate, [in] BSTR data, [out, retval] BSTR* pRetVal);
+	// расшифровать данные    
+	HRESULT Decrypt([in] BSTR data, [out, retval] BSTR* pRetVal);
+	// подписать данные        
+	HRESULT SignData([in] BSTR data, [out, retval] BSTR* pRetVal);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Фабрика ключей
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(DB2FA986-BD78-4A1D-8BF2-700FFCF16A73), dual, nonextensible, oleautomation]
+interface IFactory : mscorlib.IDisposable 
+{
+	// идентификатор локализации
+	[propget] HRESULT LCID([out, retval] long* pRetVal);
+    
+	// интерактивная парольная аутентификация
+	HRESULT PasswordAuthentication([in] void* hwnd, [out, retval] IAuthentication** pRetVal); 
+
+	// сгенерировать случайные данные
+	HRESULT GenerateRandom([in] long cb, [out, retval] BSTR* pRetVal); 
+
+	// зашифровать данные на пароле
+	HRESULT PasswordEncrypt([in] BSTR cultureOID, [in] BSTR password, [in] BSTR data, [out, retval] BSTR* pRetVal); 
+	// расшифровать данные на пароле
+	HRESULT PasswordDecrypt([in] BSTR password, [in] BSTR data, [out, retval] BSTR* pRetVal); 
+
+	// раскодировать сертификат
+    HRESULT DecodeCertificate([in] BSTR encoded, [out, retval] ICertificate** pRetVal);
+    // создать объект личного ключа
+    HRESULT DecodePrivateKey([in] BSTR encoded, [out, retval] IPrivateKey** pRetVal);
+    // раскодировать контейнер PKCS12
+    HRESULT DecodePKCS12([in] BSTR encoded, [in] BSTR password, [out, retval] IPrivateKey** pRetVal);
+
+	// найти сертификат для проверки подписи
+	HRESULT FindVerifyCertificate([in] BSTR data, 
+        [in] SAFEARRAY(BSTR) saCertificates, [out, retval] ICertificate** pRetVal
+	);
+	// найти ключ для расшифрования
+	HRESULT FindDecryptPrivateKey([in] BSTR data, 
+        [in] SAFEARRAY(BSTR) saPrivateKeys, [out, retval] IPrivateKey** pRetVal
+	);
+    // перечислить личные ключи    
+	HRESULT EnumeratePrivateKeys([in] void* hwnd, [in] KeyUsage keyUsage,  
+		[in] VARIANT_BOOL systemOnly, [out, retval] SAFEARRAY(BSTR)* pRetVal
+	);
+	// выбрать личный ключ SSL
+    HRESULT SelectPrivateKeySSL([in] void* hwnd, [out, retval] IPrivateKey** pRetVal);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Точка входа
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(89A132B9-4552-47BB-A9AF-7E0B36EB4368), dual, nonextensible, oleautomation]
+interface IEntry : IDispatch 
+{
+	// создать фабрику ключей
+	HRESULT CreateFactory([in] LCID lid, 
+		[in] BSTR fileName, [out, retval] IFactory** pRetVal
+	);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Интерфейс фабрики объектов .NET
+///////////////////////////////////////////////////////////////////////////////
+[odl, uuid(1C3B2FFC-71E2-46F8-A234-0600832ECD19), nonextensible, oleautomation]
+interface IClassFactoryNET : IClassFactory
+{
+	// установить версию среды выполнения
+	[propput] HRESULT Runtime([in] BSTR ver);
+
+    // получить версию среды выполнения
+	[propget] HRESULT Runtime([out, retval] BSTR* ver);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Компонент точки входа диспетчера
+///////////////////////////////////////////////////////////////////////////////
+[uuid(CLSID_CAPI_COM)] 
+coclass Dispatcher
+{ 
+    // указать реализованные интерфейсы
+    [default] interface IEntry; 
+}; 
+};

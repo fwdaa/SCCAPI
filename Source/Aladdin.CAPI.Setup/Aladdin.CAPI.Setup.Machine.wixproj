@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="Aladdin.CAPI.Setup.Machine.props" />
+  <PropertyGroup>
+    <ProjectGuid>{946d2083-7e9d-4d0b-abc0-4068542df70b}</ProjectGuid>
+    <SetupDir>..\..\Setup\Windows\$(InstallerPlatform)\$(Configuration)\</SetupDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+    <DefineConstants>Debug;InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug;InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
+    <DefineConstants>InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DefineConstants>InstallerPlatform=$(InstallerPlatform);VERSION=$(VERSION)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Product.Machine.wxs" />
+    <None Include="Product_en-us.wxl"   />
+    <None Include="Product_ru-ru.wxl"   />
+  </ItemGroup>
+  <Target Name="Clean">
+    <Delete  Files="$(TargetPath);$(SetupDir)..\..\..\$(OutputName).$(VERSION)_$(InstallerPlatform)_$(Configuration).msi" ContinueOnError="true"/>
+    <MSBuild Targets="Clean" Projects="$(ProjectProps)" Properties="Cultures=en-US" />
+    <MSBuild Targets="Clean" Projects="$(ProjectProps)" Properties="Cultures=ru-RU" />
+  </Target>
+  <Target Name="Build">
+    <MSBuild Targets="Rebuild" Projects="$(ProjectProps)" Properties="Cultures=en-US;CLSID_CAPI_COM=$(CLSID_CAPI_COM)" />
+    <Copy SourceFiles="$(TargetDir)en-US\$(TargetFileName)" DestinationFiles="$(TargetPath)" />
+    <MSBuild Targets="Rebuild" Projects="$(ProjectProps)" Properties="Cultures=ru-RU;CLSID_CAPI_COM=$(CLSID_CAPI_COM)" />
+    <Exec WorkingDirectory="$(WixExtDir)" Command="torch.exe -p -t language $(TargetPath) $(TargetDir)ru-RU\$(TargetFileName) -out $(TargetDir)ru.mst" />
+    <Exec WorkingDirectory="$(ProjectDir)..\..\Build" Command="cscript wisubstg.vbs $(TargetPath) $(TargetDir)ru.mst 1049" />
+    <Exec WorkingDirectory="$(ProjectDir)..\..\Build" Command="cscript wilangid.vbs $(TargetPath) Package 1033,1049" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(SetupDir)..\..\..\$(OutputName).$(VERSION)_$(InstallerPlatform)_$(Configuration).msi" />
+    <ItemGroup>
+      <SignFiles Include="$(SetupDir)..\..\..\$(OutputName).$(VERSION)_$(InstallerPlatform)_$(Configuration).msi"/> 
+    </ItemGroup>
+  </Target>
+</Project>

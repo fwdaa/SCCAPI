@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2A907461-174A-4BFB-A7FC-45FB3F70AC1E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.ISO7816</RootNamespace>
+    <AssemblyName>Aladdin.ISO7816</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BER\AnswerToReset.cs" />
+    <Compile Include="BER\ApplicationIdentifier.cs" />
+    <Compile Include="BER\ApplicationLabel.cs" />
+    <Compile Include="BER\ApplicationTemplate.cs" />
+    <Compile Include="ATR.cs" />
+    <Compile Include="Authority.cs" />
+    <Compile Include="BER\AuthorityTemplate.cs" />
+    <Compile Include="BER\Command.cs" />
+    <Compile Include="BER\HistoricalBytes.cs" />
+    <Compile Include="BER\SE.cs" />
+    <Compile Include="CardLock.cs" />
+    <Compile Include="BER\CRT.cs" />
+    <Compile Include="Cryptogram.cs" />
+    <Compile Include="DataObject.cs" />
+    <Compile Include="DataObjectFile.cs" />
+    <Compile Include="DataObjectTemplate.cs" />
+    <Compile Include="BER\CardCapabilities.cs" />
+    <Compile Include="CardClient.cs" />
+    <Compile Include="BER\CardExpirationDate.cs" />
+    <Compile Include="BER\CardIssuerData.cs" />
+    <Compile Include="BER\CardServiceData.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="CompactTLV.cs" />
+    <Compile Include="BER\CountryIndicator.cs" />
+    <Compile Include="CardSession.cs" />
+    <Compile Include="BER\MechanismID.cs" />
+    <Compile Include="DataCoding.cs" />
+    <Compile Include="BER\DataOffset.cs" />
+    <Compile Include="DedicatedFile.cs" />
+    <Compile Include="BER\DiscretionaryData.cs" />
+    <Compile Include="BER\DiscretionaryTemplate.cs" />
+    <Compile Include="ElementaryFile.cs" />
+    <Compile Include="BER\ElementList.cs" />
+    <Compile Include="Encoding.cs" />
+    <Compile Include="ExtendedHeader.cs" />
+    <Compile Include="BER\ExtendedHeaderList.cs" />
+    <Compile Include="File.cs" />
+    <Compile Include="FileCategory.cs" />
+    <Compile Include="BER\FileControlInformation.cs" />
+    <Compile Include="BER\FileControlParameters.cs" />
+    <Compile Include="BER\FileManagementData.cs" />
+    <Compile Include="BER\FileReference.cs" />
+    <Compile Include="FileStructure.cs" />
+    <Compile Include="Header.cs" />
+    <Compile Include="BER\HeaderList.cs" />
+    <Compile Include="HistoricalBytes.cs" />
+    <Compile Include="BER\InitialAccessData.cs" />
+    <Compile Include="CardEnvironment.cs" />
+    <Compile Include="INS.cs" />
+    <Compile Include="BER\InterindustryTemplate.cs" />
+    <Compile Include="BER\IssuerIndicator.cs" />
+    <Compile Include="BER\LifeCycle.cs" />
+    <Compile Include="LogicalChannel.cs" />
+    <Compile Include="Occurence.cs" />
+    <Compile Include="BER\PreIssuingData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecordFile.cs" />
+    <Compile Include="Response.cs" />
+    <Compile Include="ResponseException.cs" />
+    <Compile Include="SecureClient.cs" />
+    <Compile Include="BER\SecureMessaging.cs" />
+    <Compile Include="SecureModule.cs" />
+    <Compile Include="SecureType.cs" />
+    <Compile Include="SecurityEnvironment.cs" />
+    <Compile Include="SimpleTLV.cs" />
+    <Compile Include="Tag.cs" />
+    <Compile Include="BER\TagList.cs" />
+    <Compile Include="TagScheme.cs" />
+    <Compile Include="TransparentFile.cs" />
+    <Compile Include="BER\URL.cs" />
+    <Compile Include="BER\Wrapper.cs" />
+    <Compile Include="WriteType.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
+    <Compile Include="ResponseException40.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &lt; 40">
+    <Compile Include="ResponseException20.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

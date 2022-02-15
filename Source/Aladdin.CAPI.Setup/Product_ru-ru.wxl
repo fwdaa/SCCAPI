@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="ru-ru" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="Product.Name">Аладдин Крипто API</String>
+  <String Id="Company.Name">ЗАО Аладдин Р.Д.</String>
+  <String Id="Error.CheckWindows"  >Для [ProductName] требуется Windows 2000 и выше.</String>
+  <String Id="Error.CheckFramework">Для [ProductName] требуется Microsoft.NET 4.0 и выше.</String>
+  <String Id="Error.CheckUCRT64"   >Для [ProductName] требуется установка Universal CRT x64.</String>
+  <String Id="Error.CheckUCRT32"   >Для [ProductName] требуется установка Universal CRT x86.</String>
+  <String Id="Error.CheckUCRT64D"  >Для [ProductName] требуется установка Universal Debug CRT x64.</String>
+  <String Id="Error.CheckUCRT32D"  >Для [ProductName] требуется установка Universal Debug CRT x86.</String>
+  <String Id="Error.CheckProduct"  >Установлена более поздняя версия [ProductName].</String>
+  <String Id="Error.CheckAdmin"    >Для установки [ProductName] требуется наличие привилегий администратора.</String>
+</WixLocalization>

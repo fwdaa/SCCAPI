@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4F4FF097-1CAD-4035-906F-14542B1AE818}</ProjectGuid>
+    <RootNamespace>AladdinCAPISCardAPDU</RootNamespace>
+    <Keyword>ManagedCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v2.0' ">
+    <ClrVersion>20</ClrVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v3.0' ">
+    <ClrVersion>30</ClrVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v3.5' ">
+    <ClrVersion>35</ClrVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v4.0' ">
+    <ClrVersion>40</ClrVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v4.5' ">
+    <ClrVersion>45</ClrVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="env.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="env.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="env.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="env.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntDir>
+    <LinkKeyFile>keypair.snk</LinkKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntDir>
+    <LinkKeyFile>keypair.snk</LinkKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntDir>
+    <LinkKeyFile>keypair.snk</LinkKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntDir>
+    <LinkKeyFile>keypair.snk</LinkKeyFile>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(LIBAPDU_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CLR_VERSION=$(ClrVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>$(PrecompiledHeaderUse)</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4793;6320;6387;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Library\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AssemblyDebug>true</AssemblyDebug>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(LIBAPDU_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CLR_VERSION=$(ClrVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>$(PrecompiledHeaderUse)</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4793;6320;6387;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>advapi32.lib</AdditionalDependencies>
+      <AssemblyDebug>true</AssemblyDebug>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>..\Library\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <AdditionalIncludeDirectories>$(LIBAPDU_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CLR_VERSION=$(ClrVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>$(PrecompiledHeaderUse)</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4793;6320;6387;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>advapi32.lib</AdditionalDependencies>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>..\Library\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <AdditionalIncludeDirectories>$(LIBAPDU_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CLR_VERSION=$(ClrVersion);$(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>$(PrecompiledHeaderUse)</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4793;6320;6387;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>advapi32.lib</AdditionalDependencies>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>..\Library\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Xml">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Bio.Athena\Aladdin.CAPI.Bio.Athena.csproj">
+      <Project>{3df117d7-a678-4c13-ac1c-c4cfd80f1189}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Bio.BSAPI\Aladdin.CAPI.Bio.BSAPI.csproj">
+      <Project>{4f6252e3-521e-4fb0-90fb-9b936b3036a4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Proxy\Aladdin.CAPI.Proxy.csproj">
+      <Project>{ea35f4a1-c8c8-4832-b6b0-8c86908b42d3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.SCard\Aladdin.CAPI.SCard.csproj">
+      <Project>{3e0ba621-3020-4424-bf4f-ddc27f06f0c9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422f4ee1-d424-4396-92b1-a62b332a0281}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ISO7816\Aladdin.ISO7816.csproj">
+      <Project>{2a907461-174a-4bfb-a7fc-45fb3f70ac1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PCSC\Aladdin.PCSC.csproj">
+      <Project>{2e4bfc61-99f9-4335-9ce3-3fe14e57708b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PKCS11\Aladdin.PKCS11.csproj">
+      <Project>{f053e5c7-fb57-4083-b17e-f449f0381573}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Applet.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="AppletInfo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="AppletAuth.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="DataApplet.cpp" />
+    <ClCompile Include="DataFormat.cpp" />
+    <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="FamilyET.cpp" />
+    <ClCompile Include="AppletFile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="FamilyJC.cpp" />
+    <ClCompile Include="GostApplet.cpp" />
+    <ClCompile Include="GostFormat.cpp" />
+    <ClCompile Include="LaserApplet.cpp" />
+    <ClCompile Include="LaserAuth.cpp" />
+    <ClCompile Include="LaserFormat.cpp" />
+    <ClCompile Include="ProApplet.cpp" />
+    <ClCompile Include="ProAuth.cpp" />
+    <ClCompile Include="ProFormat.cpp" />
+    <ClCompile Include="Provider.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Sender.cpp" />
+    <ClCompile Include="Stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Applet.h" />
+    <ClInclude Include="AppletAuth.h" />
+    <ClInclude Include="DataApplet.h" />
+    <ClInclude Include="Family.h" />
+    <ClInclude Include="GostApplet.h" />
+    <ClInclude Include="GostFormat.h" />
+    <ClInclude Include="LaserApplet.h" />
+    <ClInclude Include="LaserAuth.h" />
+    <ClInclude Include="LaserFormat.h" />
+    <ClInclude Include="NativeAPI.h" />
+    <ClInclude Include="ProApplet.h" />
+    <ClInclude Include="ProAuth.h" />
+    <ClInclude Include="ProFormat.h" />
+    <ClInclude Include="Provider.h" />
+    <ClInclude Include="Sender.h" />
+    <ClInclude Include="Stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VERSION_MAJ=$(VERSION_MAJ);VERSION_MIN=$(VERSION_MIN);VERSION_SP=$(VERSION_SP);VERSION_BLD=$(VERSION_BLD);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\vcxproj.targets" />
+  <Target Name="AfterBuild" AfterTargets="Build" BeforeTargets="SignFiles">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

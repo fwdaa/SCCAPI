@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E4BFC61-99F9-4335-9CE3-3FE14E57708B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.PCSC</RootNamespace>
+    <AssemblyName>Aladdin.PCSC</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="API.cs" />
+    <Compile Include="Card.cs" />
+    <Compile Include="CardState.cs" />
+    <Compile Include="CloseMode.cs" />
+    <Compile Include="Encoding.cs" />
+    <Compile Include="Exception.cs" />
+    <None Include="ModuleMethods.cs" />
+    <Compile Include="ICard.cs" />
+    <Compile Include="IReader.cs" />
+    <Compile Include="Provider.cs" />
+    <Compile Include="Reader.cs" />
+    <Compile Include="ReaderFilter.cs" />
+    <Compile Include="Module.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="OpenMode.cs" />
+    <Compile Include="ReaderGroup.cs" />
+    <Compile Include="IReaderHandler.cs" />
+    <Compile Include="ReaderListener.cs" />
+    <Compile Include="ReaderSession.cs" />
+    <Compile Include="ReaderState.cs" />
+    <Compile Include="ReaderStatus.cs" />
+    <Compile Include="MaskATR.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReaderScope.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ISO7816\Aladdin.ISO7816.csproj">
+      <Project>{2a907461-174a-4bfb-a7fc-45fb3f70ac1e}</Project>
+      <Name>Aladdin.ISO7816</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

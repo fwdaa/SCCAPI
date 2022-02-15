@@ -1,0 +1,82 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(ProjectDir)..\..\Build\version.props" />
+  <PropertyGroup>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">Win32</Platform>
+    <MergeToolset>$(PlatformToolset.Remove(0,1))</MergeToolset>
+    <DefineSolutionProperties>false</DefineSolutionProperties>
+    <ProjectProps>$(MSBuildThisFile)</ProjectProps>
+    <OutputName>Aladdin.CAPI.Machine</OutputName>
+    <ProductVersion>3.8</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputType>Package</OutputType>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <LeaveTemporaryFiles>No</LeaveTemporaryFiles>
+    <SuppressIces>ICE03;ICE82</SuppressIces>
+    <LinkerAdditionalOptions>-sw1055</LinkerAdditionalOptions>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+    <InstallerPlatform>x86</InstallerPlatform>
+    <IntermediateOutputPath>..\..\Temporary\$(OutputName).Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\Temporary\$(OutputName).Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <DefineConstants>Debug;InstallerPlatform=$(InstallerPlatform);MergeToolset=$(MergeToolset);VERSION=$(VERSION);Locale=$(Cultures)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
+    <InstallerPlatform>x86</InstallerPlatform>
+    <IntermediateOutputPath>..\..\Temporary\$(OutputName).Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\Temporary\$(OutputName).Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <DefineConstants>InstallerPlatform=$(InstallerPlatform);MergeToolset=$(MergeToolset);VERSION=$(VERSION);Locale=$(Cultures)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <InstallerPlatform>x64</InstallerPlatform>
+    <IntermediateOutputPath>..\..\Temporary\$(OutputName).Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\Temporary\$(OutputName).Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <DefineConstants>Debug;InstallerPlatform=$(InstallerPlatform);MergeToolset=$(MergeToolset);VERSION=$(VERSION);Locale=$(Cultures)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <InstallerPlatform>x64</InstallerPlatform>
+    <IntermediateOutputPath>..\..\Temporary\$(OutputName).Setup\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\Temporary\$(OutputName).Setup\Windows\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <DefineConstants>InstallerPlatform=$(InstallerPlatform);MergeToolset=$(MergeToolset);VERSION=$(VERSION);Locale=$(Cultures)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>C:\Program Files\Windows Installer XML v3\bin\WixUIExtension.dll</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Cultures)' != ''">
+    <Compile          Include="Product.Machine.wxs" />
+    <EmbeddedResource Include="Product_en-us.wxl"   />
+    <EmbeddedResource Include="Product_ru-ru.wxl"   />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\Exclam.ico" 		/>
+    <Content Include="resources\Info.ico" 		    />
+    <Content Include="resources\New.ico" 		    />
+    <Content Include="resources\Up.ico" 		    />
+    <Content Include="resources\en-us\Dialog.bmp" 	/>
+    <Content Include="resources\en-us\license.rtf" 	/>
+    <Content Include="resources\en-us\banner.bmp" 	/>
+    <Content Include="resources\ru-ru\Dialog.bmp" 	/>
+    <Content Include="resources\ru-ru\license.rtf" 	/>
+    <Content Include="resources\ru-ru\banner.bmp" 	/>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <Import Project="$(ProjectDir)..\..\Build\build.targets" />
+  <Target Name="LocateMergeDir" BeforeTargets="BeforeBuild">
+    <DevEnvVariable DevEnvDir="$(DevEnvDir)" Name="VCToolsRedistDir">
+      <Output TaskParameter="Value"  PropertyName="VCToolsRedistDir"/>
+    </DevEnvVariable>
+    <Message Importance="high" Text="VCToolsRedistDir=$(VCToolsRedistDir)"/>
+    <PropertyGroup>
+      <DefineConstants>VCToolsRedistDir=$(VCToolsRedistDir);$(DefineConstants)</DefineConstants>
+    </PropertyGroup>
+  </Target>
+</Project>

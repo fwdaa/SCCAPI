@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+  <?define BIN										= "..\..\Binary\Java\lib"                           ?>
+  <?define BIN13									= "..\..\Binary\Java\lib\jre13"                     ?>
+  <?define BIN14									= "..\..\Binary\Java\lib\jre14"                     ?>
+  <?if $(var.InstallerPlatform)  			        = "x86"												?>
+  <?define BINXX									= "..\..\Binary\Windows\Win32\$(var.Configuration)"	?>
+  <?define FOLDER									= "ProgramFilesFolder"		                        ?>
+  <?endif																								?>
+  <?if $(var.InstallerPlatform)  			        = "x64"												?>
+  <?define BINXX									= "..\..\Binary\Windows\x64\$(var.Configuration)"	?>
+  <?define FOLDER									= "ProgramFiles64Folder"		                    ?>
+  <?endif																																					        ?>
+
+
+  <?if $(var.InstallerPlatform) 			        = "x86"							          ?>
+  <?define PACKAGEID        					    = "4D36FC15-DB51-4A57-A68E-F4ABE8F6B6B6"  ?>
+  <?define GUID_Aladdin.jar                         = "082D16E4-37A7-483E-92A8-E67354DAA744"  ?>
+  <?define GUID_Aladdin.IO.jar                      = "F4032C2E-9A23-485C-8BF0-DE32A31C2A07"  ?>
+  <?define GUID_Aladdin.Net.jar                     = "62C7C35F-C22C-4100-AA69-C792ABC82380"  ?>
+  <?define GUID_Aladdin.Net.TCP.jar                 = "32DCC029-7A6A-4141-9C53-B8DE31091228"  ?>
+  <?define GUID_Aladdin.Math.jar                    = "8F225139-9177-41D2-AC20-7A2F95E6634A"  ?>
+  <?define GUID_Aladdin.ASN1.jar                    = "BA023366-BF4C-4288-9330-D123417773AD"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.jar                = "6166445F-3329-41E0-BC11-A749EA25FF77"  ?>
+  <?define GUID_Aladdin.PKCS11.JNI.dll              = "D588AC4A-FF53-4991-A17D-328BCB4F2C9C"  ?>
+  <?define GUID_Aladdin.PKCS11.jar                  = "0041A837-05F4-4FCB-BBA7-C0E70903CD5A"  ?>
+  <?define GUID_Aladdin.PCSC.JNI.dll                = "400E62B5-5A1B-4677-9E66-D6F4CD01A76E"  ?>
+  <?define GUID_Aladdin.PCSC.jar                    = "1DD2452E-8E72-4794-8538-19A94A580199"  ?>
+  <?define GUID_Aladdin.ISO7816.jar                 = "8267CB24-1FDC-44B3-A529-307163850B97"  ?>
+  <?define GUID_Aladdin.CAPI.jar                    = "F5742BD1-2C99-4F1B-83D0-9231AE1290C0"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.jar              = "F1F1788C-E3CE-4F42-B50D-2D4414B77FFF"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.jar              = "733FAE3B-6156-4C27-B407-91FD81D2E223"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.jar             = "E2A9973F-A43B-472E-B23B-44CB2025201D"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.jar         = "CE308751-C335-4C0C-92BF-CC2FF81EF3B7"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.jar      = "7C251D6A-5FC3-4378-93EA-802059B8981F"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.jar     = "9ADF3C6F-9564-4F10-850D-C008CB1E874C"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.jar             = "846CBD67-7C55-438F-9DED-35CE8BA29A6E"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.jar        = "D0155F41-006F-4785-B8F0-1A134332A8A9"  ?>
+  <?define GUID_Aladdin.CAPI.JCP.jar                = "99B84EF0-EFC1-4ED5-A4F6-7843586CEF61"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.jar               = "6DEA3C71-29DF-44C1-BC10-3D3322D8082D"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.jar        = "40CCD646-712D-475C-97B3-C442E251766D"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.jar               = "DA17EA97-3144-4F07-A16B-36C6646445EB"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.jar        = "5CB60147-57EC-477B-8481-63B10D4CBB60"  ?>
+  <?define GUID_Aladdin.CAPI.STB.jar                = "8E164204-5D8F-4594-BE17-FEC11AFE6D4D"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.jar                 = "FE66BCC1-BD51-43E1-BBF7-78D82364AF41"  ?>
+  <?define GUID_Aladdin.1.3.jar                     = "F4673E74-3602-4869-BF20-8AC992820F16"  ?>
+  <?define GUID_Aladdin.IO.1.3.jar                  = "A5480C63-B796-4AB8-B113-C3877F9D0079"  ?>
+  <?define GUID_Aladdin.Net.1.3.jar                 = "B6BE5F49-6EEE-427A-B32D-AC3340DAFC11"  ?>
+  <?define GUID_Aladdin.Net.TCP.1.3.jar             = "ADFC28E5-6409-49B1-810F-74DA4B35361A"  ?>
+  <?define GUID_Aladdin.Math.1.3.jar                = "7853967E-017D-4FF6-946A-678E38C1ED42"  ?>
+  <?define GUID_Aladdin.ASN1.1.3.jar                = "5E771B2D-A0F1-4FB0-BABB-D93DDD1DDD75"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.1.3.jar            = "75C3789D-3ECC-4A75-B753-FAB440F950B2"  ?>
+  <?define GUID_Aladdin.PKCS11.1.3.jar              = "2C3E3378-E781-4538-B63A-028AB45410EF"  ?>
+  <?define GUID_Aladdin.PCSC.1.3.jar                = "71B8C81A-F2B3-44BE-B1FF-FE1AD38428C1"  ?>
+  <?define GUID_Aladdin.ISO7816.1.3.jar             = "C039551C-8F81-4822-9B15-E4DB68EE7722"  ?>
+  <?define GUID_Aladdin.CAPI.Retro.1.3.jar          = "974CEE82-AF0C-42A5-A460-F7447D48A735"  ?>
+  <?define GUID_Aladdin.CAPI.1.3.jar                = "EE6A2768-CFF7-4F69-873C-D0B42E72950A"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.1.3.jar          = "91D9C958-A249-4A4B-953B-F2DFE15158B1"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.1.3.jar          = "D940C8A5-FD5B-4475-9ECE-B15D05CA5EBB"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.1.3.jar         = "4883AAF6-8C3A-449C-A9DB-F81575679E30"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.1.3.jar     = "31A2BCDC-3643-4988-AFE7-8E88F7308050"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.1.3.jar  = "C14CFBF4-750D-4982-8AF3-C90DDD3F4BDB"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.1.3.jar = "55A11082-A310-49BC-BBF3-3F126072843D"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.1.3.jar         = "04D59EBE-8F5E-4B34-8D45-C0DADF6F1221"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.1.3.jar           = "2DD03B86-1F7A-4EAB-814A-448F774B9B98"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.1.3.jar    = "C42243C6-E616-4919-9291-BF64748A8B56"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.1.3.jar           = "420F4451-C1F9-479D-9EE7-29146990EC05"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.1.3.jar    = "AD32A001-8690-4362-97A7-11A65DE9BBE0"  ?>
+  <?define GUID_Aladdin.CAPI.STB.1.3.jar            = "028863E5-9F47-4CB4-9D12-8597D4C986E3"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.1.3.jar             = "7272135A-A554-4EAC-944F-69B4341DB09B"  ?>
+  <?define GUID_Aladdin.1.4.jar                     = "C9E708F6-0243-4177-95B3-FEADFF70A83A"  ?>
+  <?define GUID_Aladdin.IO.1.4.jar                  = "EEE29EB1-8670-4FDE-AE12-E36A88E392AA"  ?>
+  <?define GUID_Aladdin.Net.1.4.jar                 = "FBFFC67D-0A61-470A-B156-BD30AB05766A"  ?>
+  <?define GUID_Aladdin.Net.TCP.1.4.jar             = "E39BB63D-36DC-4474-A992-502B59137DB0"  ?>
+  <?define GUID_Aladdin.Math.1.4.jar                = "33ABC488-5329-47B9-A55C-9F1209E01442"  ?>
+  <?define GUID_Aladdin.ASN1.1.4.jar                = "CA1141A0-86E3-4E01-86EE-0CF22E83C6E8"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.1.4.jar            = "717F8753-54BF-48A9-B921-C57FCB173263"  ?>
+  <?define GUID_Aladdin.PKCS11.1.4.jar              = "D090A486-DE29-4E2C-AB12-CDA8B6ADAB4F"  ?>
+  <?define GUID_Aladdin.PCSC.1.4.jar                = "57507DFE-2CC0-4EEB-B1B0-5C64DD92B712"  ?>
+  <?define GUID_Aladdin.ISO7816.1.4.jar             = "5530DE9A-254A-4500-8D29-1C5E25D736F3"  ?>
+  <?define GUID_Aladdin.CAPI.Retro.1.4.jar          = "34557FEB-4532-43F7-BEED-6AEE53A158C4"  ?>
+  <?define GUID_Aladdin.CAPI.1.4.jar                = "3A01DFAB-57A3-4816-BD2E-9A4ABBB73E20"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.1.4.jar          = "DB5F4494-3AEC-4507-A007-60FEF98BC32D"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.1.4.jar          = "FED9A76D-A20D-4F5E-8992-4327756B0891"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.1.4.jar         = "2C98FAFC-9100-4B63-BB67-E3E4B3FAC183"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.1.4.jar     = "BD7A8DCD-BDC4-41D2-9429-57E1B1A56909"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.1.4.jar  = "55E3D56C-B63F-4979-A271-A6E528D60F02"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.1.4.jar = "DAAB4B2F-DDCD-488B-9D81-E84BA4E353F5"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.1.4.jar         = "BF320723-012E-4AC8-9F51-4378028E4F3F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.1.4.jar           = "4D539769-4F64-44CB-BF81-1ACACBB82352"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.1.4.jar    = "8D9678EF-086B-4460-A512-75AA255E52D3"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.1.4.jar           = "76893A2E-599E-4375-B70A-B559CC5551E6"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.1.4.jar    = "26750CC6-412E-4927-9F90-A037DF6ECF4F"  ?>
+  <?define GUID_Aladdin.CAPI.STB.1.4.jar            = "D8AA7128-969E-4620-98E7-C06A8FA97A9F"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.1.4.jar             = "6D89D2A2-5138-45DA-B98A-6D9B80E503A6"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.1.4.jar    = "F65538A4-ADE1-4DAD-A5EC-7D67DB04EE91"  ?>
+  <?define GUID_Aladdin.CAPI.JCP.1.4.jar            = "4EE49BD0-A06D-4890-AEFE-B3B856FE598A"  ?>
+  <?endif															                  		  ?>
+  <?if $(var.InstallerPlatform) 			        = "x64"						              ?>
+  <?define PACKAGEID        					    = "AFD12182-07D4-4201-922E-F530C156825F"  ?>
+  <?define GUID_Aladdin.jar                         = "49C92DA1-C96B-456E-87EA-4171BF007537"  ?>
+  <?define GUID_Aladdin.IO.jar                      = "885EB838-94DB-4843-BDC8-715182BD8D5C"  ?>
+  <?define GUID_Aladdin.Net.jar                     = "5F4304B8-394B-43DF-B15F-078C976AF568"  ?>
+  <?define GUID_Aladdin.Net.TCP.jar                 = "0EAA0B64-69A9-481A-84DD-B3B442C0995D"  ?>
+  <?define GUID_Aladdin.Math.jar                    = "1AF274B8-1715-4D6D-BE6C-25E1A5C5928B"  ?>
+  <?define GUID_Aladdin.ASN1.jar                    = "523BD1A5-F742-4ED9-BE96-E9C0BA3DDDA2"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.jar                = "5D2ADCA5-ACF1-4EC6-9140-7CB9029765CD"  ?>
+  <?define GUID_Aladdin.PKCS11.JNI.dll              = "203D417A-4EEB-4ED2-8C5A-4674D3E54A6C"  ?>
+  <?define GUID_Aladdin.PKCS11.jar                  = "EFB50F27-762A-4C6C-B32E-CAFB474828CE"  ?>
+  <?define GUID_Aladdin.PCSC.JNI.dll                = "3A21A87F-1EAE-46B9-A14D-5C716A719965"  ?>
+  <?define GUID_Aladdin.PCSC.jar                    = "5DAFCB38-717B-46B5-9F60-DEBAE111321F"  ?>
+  <?define GUID_Aladdin.ISO7816.jar                 = "D491512E-7C1F-47FD-A673-5FC53ADD2A9A"  ?>
+  <?define GUID_Aladdin.CAPI.jar                    = "C66285F0-507B-42EB-9173-CC7E1766061B"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.jar              = "20FFD9D6-8564-490D-BF96-C1E02D2CC77D"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.jar              = "CB7D4BB1-E971-48EB-B76D-90298FF049B1"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.jar             = "F74035E2-95B9-40E7-AD96-584AF0952035"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.jar         = "CF2325BE-5231-4FAE-BF08-8509A37B2B65"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.jar      = "5539631A-B538-449F-9129-B5B9F70674C9"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.jar     = "BCF83692-0E85-4638-9E63-6715B7A96F09"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.jar             = "E7619059-CC56-4D8C-B743-9AD0728114A5"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.jar        = "C2D50A7B-87CC-4A80-9680-3287B2333326"  ?>
+  <?define GUID_Aladdin.CAPI.JCP.jar                = "DF87D74A-5A3B-4101-BB31-CCCB63E57160"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.jar               = "084AD2CE-865B-4DA5-B528-D4F21C60219E"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.jar        = "6E1661FE-7D2A-4605-97CE-4759FE0A9DB3"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.jar               = "A5CF97AB-17D3-4D7D-BC82-8D3CF7DF2A80"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.jar        = "87F5BE9B-E11D-42E6-A54A-555BDB2E2B04"  ?>
+  <?define GUID_Aladdin.CAPI.STB.jar                = "4BB9C6C2-9EC1-4AA1-99CB-46450FB3822F"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.jar                 = "7990D360-621B-47BD-8B9A-0DDFC877901E"  ?>
+  <?define GUID_Aladdin.1.3.jar                     = "FC673EFF-5D69-43EA-B276-181F1EAF80A8"  ?>
+  <?define GUID_Aladdin.IO.1.3.jar                  = "F4502C56-4696-4380-97F7-F9F3DD157308"  ?>
+  <?define GUID_Aladdin.Net.1.3.jar                 = "8AD2BB2A-6228-4DAC-857F-9E669D032320"  ?>
+  <?define GUID_Aladdin.Net.TCP.1.3.jar             = "1C217CAE-51D8-497F-BE7C-AAEA48AFFF0B"  ?>
+  <?define GUID_Aladdin.Math.1.3.jar                = "936BE23D-EFD8-436F-8B88-B25DE3BA1698"  ?>
+  <?define GUID_Aladdin.ASN1.1.3.jar                = "5FF9AE9A-CC4D-4E19-AAEE-FE6708E5E75A"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.1.3.jar            = "63F6EC92-435F-4D67-B279-D5E6B6B0C3A1"  ?>
+  <?define GUID_Aladdin.PKCS11.1.3.jar              = "C7F5635D-302C-41B9-BD36-FE5AC7DBB4DB"  ?>
+  <?define GUID_Aladdin.PCSC.1.3.jar                = "7FE45C91-B176-4BED-B076-C99B0E14514F"  ?>
+  <?define GUID_Aladdin.ISO7816.1.3.jar             = "A9E2A229-0E57-46E6-990C-1ED9C05DA0B0"  ?>
+  <?define GUID_Aladdin.CAPI.Retro.1.3.jar          = "464FD215-2CD0-4D8F-9189-841F8D87F1D4"  ?>
+  <?define GUID_Aladdin.CAPI.1.3.jar                = "C088B7A1-28B0-4AC8-8915-D83F899EE080"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.1.3.jar          = "506FF0D3-D2FA-4E77-BAB0-325A2F00421C"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.1.3.jar          = "CB3C439B-72F0-4DBF-BB3B-AEF0160986E3"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.1.3.jar         = "6B2C6FD3-5508-41A5-AB0B-C5CA6FD389A4"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.1.3.jar     = "0FC2DFF5-5658-4C05-B1DE-78BB75513FDE"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.1.3.jar  = "3C2BE7F9-26EB-4E36-99DA-764A9B456B03"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.1.3.jar = "4DDFA330-9849-4D30-8F6A-69A254BA87FE"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.1.3.jar         = "89778578-6FD8-403D-9BD0-B33682D6322D"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.1.3.jar           = "C9C0893F-BE53-4488-B806-28D8576D5972"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.1.3.jar    = "008BC91D-5848-4628-B276-E289714D4D68"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.1.3.jar           = "D17AB1B2-E5E6-4F5C-832B-454C5AD489B7"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.1.3.jar    = "0BC2D5DB-B246-4C56-A2F4-60A4E5C615DC"  ?>
+  <?define GUID_Aladdin.CAPI.STB.1.3.jar            = "57014A0C-732D-4743-BF84-9457190E9C9F"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.1.3.jar             = "AC0CBF9A-8DD1-489D-93EF-55048789C3F9"  ?>
+  <?define GUID_Aladdin.1.4.jar                     = "E9BB02D0-0386-4603-A1B2-D2DF406F0A7E"  ?>
+  <?define GUID_Aladdin.IO.1.4.jar                  = "A48991F9-B601-4185-A606-F0CFED53A758"  ?>
+  <?define GUID_Aladdin.Net.1.4.jar                 = "1515FC7C-11F8-42BB-ADE6-DE98D18A8C13"  ?>
+  <?define GUID_Aladdin.Net.TCP.1.4.jar             = "10D28289-209B-4AFA-A292-06748175C2F2"  ?>
+  <?define GUID_Aladdin.Math.1.4.jar                = "4CA2E25F-6A26-44BB-8940-E32D88A747BD"  ?>
+  <?define GUID_Aladdin.ASN1.1.4.jar                = "ED0BF99D-B6C6-4692-AB79-1752BAD0575E"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.1.4.jar            = "63C45E4D-FCE6-460E-9542-06E63711A9E6"  ?>
+  <?define GUID_Aladdin.PKCS11.1.4.jar              = "4FB2A191-5FBE-46F7-BF10-147BD5B0371B"  ?>
+  <?define GUID_Aladdin.PCSC.1.4.jar                = "EBEA3731-D5AE-41BB-8559-2CF1E9466AD0"  ?>
+  <?define GUID_Aladdin.ISO7816.1.4.jar             = "9348FCAC-B26F-4B92-A8B8-945F86D1306A"  ?>
+  <?define GUID_Aladdin.CAPI.Retro.1.4.jar          = "85BD3816-30E8-4BFF-98A9-DCDF5F29753E"  ?>
+  <?define GUID_Aladdin.CAPI.1.4.jar                = "EAF12A2A-4F8A-40CC-875E-1E6C560F8F9B"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.1.4.jar          = "DF5CD3D1-460F-4AFC-B9AE-CBE6ECE8655A"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.1.4.jar          = "47793D2C-6903-49D2-92DD-224FAAA3908D"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.1.4.jar         = "E5F59DF3-6FC0-40AE-B24C-96A0D20D4BBA"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.1.4.jar     = "000679AB-67D7-40C1-BD5F-5B41139440C0"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.1.4.jar  = "66039F5E-C53A-44F8-844D-EE742D7EDEAC"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.1.4.jar = "82DAA3FA-FF09-4D53-8626-A4437219B045"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.1.4.jar         = "3133B618-877F-4CE2-8345-D0536A76CF7C"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.1.4.jar           = "6A9D8AA7-07A1-4DB9-BA9E-684D701D6D28"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.1.4.jar    = "767AFA3B-42A4-4915-BD80-65629F574DC3"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.1.4.jar           = "76E77E27-7AAF-40CE-94C5-2FD8F43EB6F9"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.1.4.jar    = "29616BFE-7B5D-4928-9979-FF43A7829B51"  ?>
+  <?define GUID_Aladdin.CAPI.STB.1.4.jar            = "7F8786F6-5061-471A-81AB-7739D260039D"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.1.4.jar             = "9357EBBD-9674-4411-9F98-230E5EA005DF"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.1.4.jar    = "C0BAC5A8-46DC-4E56-AFE0-360055257765"  ?>
+  <?define GUID_Aladdin.CAPI.JCP.1.4.jar            = "15174AF7-26FF-4A3F-AA29-BEDD7E196444"  ?>
+  <?endif															                  																			?>
+
+  <Module Id="CAPI" Language="1033" Version="$(var.VERSION)">
+    <Package Id="$(var.PACKAGEID)" InstallerVersion="300" Manufacturer="Aladdin R.D." Description="CAPI Library" InstallScope="perMachine"/>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.FOLDER)">
+        <Directory Id="Aladdin" Name="Aladdin">
+          <Directory Id="CAPI" Name="CAPI">
+            <Directory Id="INSTALLDIR" Name="Java">
+              <Component Id="Aladdin.jar" Guid="$(var.GUID_Aladdin.jar)" SharedDllRefCount="yes">
+                <File Name="Aladdin.jar" Source="$(var.BIN)\Aladdin.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.IO.jar" Guid="$(var.GUID_Aladdin.IO.jar)" SharedDllRefCount="yes">
+                <File Name="Aladdin.IO.jar" Source="$(var.BIN)\Aladdin.IO.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.Net.jar" Guid="$(var.GUID_Aladdin.Net.jar)" SharedDllRefCount="yes">
+                <File Name="Aladdin.Net.jar" Source="$(var.BIN)\Aladdin.Net.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.Net.TCP.jar" Guid="$(var.GUID_Aladdin.Net.TCP.jar)" SharedDllRefCount="yes">
+                <File Name="Aladdin.Net.TCP.jar" Source="$(var.BIN)\Aladdin.Net.TCP.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.Math.jar" Guid="$(var.GUID_Aladdin.Math.jar)" SharedDllRefCount="yes">
+                <File Name="Aladdin.Math.jar" Source="$(var.BIN)\Aladdin.Math.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.ASN1.jar" Guid="$(var.GUID_Aladdin.ASN1.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.ASN1.jar" Name="Aladdin.ASN1.jar" Source="$(var.BIN)\Aladdin.ASN1.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.ASN1.ISO.jar" Guid="$(var.GUID_Aladdin.ASN1.ISO.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.ASN1.ISO.jar" Name="Aladdin.ASN1.ISO.jar" Source="$(var.BIN)\Aladdin.ASN1.ISO.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.PKCS11.JNI.dll" Guid="$(var.GUID_Aladdin.PKCS11.JNI.dll)" SharedDllRefCount="yes">
+                <File Id="Aladdin.PKCS11.JNI.dll" Name="pkcs11jni.dll" Source="$(var.BINXX)\pkcs11jni.dll" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.PKCS11.jar" Guid="$(var.GUID_Aladdin.PKCS11.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.PKCS11.jar" Name="Aladdin.PKCS11.jar" Source="$(var.BIN)\Aladdin.PKCS11.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.PCSC.JNI.dll" Guid="$(var.GUID_Aladdin.PCSC.JNI.dll)" SharedDllRefCount="yes">
+                <File Id="Aladdin.PCSC.JNI.dll" Name="pcscjni.dll" Source="$(var.BINXX)\pcscjni.dll" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.PCSC.jar" Guid="$(var.GUID_Aladdin.PCSC.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.PCSC.jar" Name="Aladdin.PCSC.jar" Source="$(var.BIN)\Aladdin.PCSC.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.ISO7816.jar" Guid="$(var.GUID_Aladdin.ISO7816.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.ISO7816.jar" Name="Aladdin.ISO7816.jar" Source="$(var.BIN)\Aladdin.ISO7816.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.jar" Guid="$(var.GUID_Aladdin.CAPI.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.jar" Name="Aladdin.CAPI.jar" Source="$(var.BIN)\Aladdin.CAPI.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.Proxy.jar" Guid="$(var.GUID_Aladdin.CAPI.Proxy.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.Proxy.jar" Name="Aladdin.CAPI.Proxy.jar" Source="$(var.BIN)\Aladdin.CAPI.Proxy.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.SCard.jar" Guid="$(var.GUID_Aladdin.CAPI.SCard.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.SCard.jar" Name="Aladdin.CAPI.SCard.jar" Source="$(var.BIN)\Aladdin.CAPI.SCard.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.PKCS11.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.PKCS11.jar" Name="Aladdin.CAPI.PKCS11.jar" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.PKCS11.AKS.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.AKS.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.PKCS11.AKS.jar" Name="Aladdin.CAPI.PKCS11.AKS.jar" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.AKS.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.PKCS11.Athena.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.Athena.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.PKCS11.Athena.jar" Name="Aladdin.CAPI.PKCS11.Athena.jar" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.Athena.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.PKCS11.JaCarta.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.JaCarta.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.PKCS11.JaCarta.jar" Name="Aladdin.CAPI.PKCS11.JaCarta.jar" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.JaCarta.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.PKCS12.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS12.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.PKCS12.jar" Name="Aladdin.CAPI.PKCS12.jar" Source="$(var.BIN)\Aladdin.CAPI.PKCS12.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.Environment.jar" Guid="$(var.GUID_Aladdin.CAPI.Environment.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.Environment.jar" Name="Aladdin.CAPI.Environment.jar" Source="$(var.BIN)\Aladdin.CAPI.Environment.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.JCP.jar" Guid="$(var.GUID_Aladdin.CAPI.JCP.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.JCP.jar" Name="Aladdin.CAPI.JCP.jar" Source="$(var.BIN)\Aladdin.CAPI.JCP.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.ANSI.jar" Guid="$(var.GUID_Aladdin.CAPI.ANSI.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.ANSI.jar" Name="Aladdin.CAPI.ANSI.jar" Source="$(var.BIN)\Aladdin.CAPI.ANSI.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.ANSI.PKCS11.jar" Guid="$(var.GUID_Aladdin.CAPI.ANSI.PKCS11.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.ANSI.PKCS11.jar" Name="Aladdin.CAPI.ANSI.PKCS11.jar" Source="$(var.BIN)\Aladdin.CAPI.ANSI.PKCS11.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.GOST.jar" Guid="$(var.GUID_Aladdin.CAPI.GOST.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.GOST.jar" Name="Aladdin.CAPI.GOST.jar" Source="$(var.BIN)\Aladdin.CAPI.GOST.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.GOST.PKCS11.jar" Guid="$(var.GUID_Aladdin.CAPI.GOST.PKCS11.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.GOST.PKCS11.jar" Name="Aladdin.CAPI.GOST.PKCS11.jar" Source="$(var.BIN)\Aladdin.CAPI.GOST.PKCS11.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.STB.jar" Guid="$(var.GUID_Aladdin.CAPI.STB.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.STB.jar" Name="Aladdin.CAPI.STB.jar" Source="$(var.BIN)\Aladdin.CAPI.STB.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.KZ.jar" Guid="$(var.GUID_Aladdin.CAPI.KZ.jar)" SharedDllRefCount="yes">
+                <File Id="Aladdin.CAPI.KZ.jar" Name="Aladdin.CAPI.KZ.jar" Source="$(var.BIN)\Aladdin.CAPI.KZ.jar" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Directory Id="jre13" Name="jre13">
+                <Component Id="Aladdin.1.3.jar" Guid="$(var.GUID_Aladdin.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.1.3.jar" Name="Aladdin.jar" Source="$(var.BIN13)\Aladdin.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.IO.1.3.jar" Guid="$(var.GUID_Aladdin.IO.1.3.jar)" SharedDllRefCount="yes">
+                  <File Name="Aladdin.IO.1.3.jar" Source="$(var.BIN13)\Aladdin.IO.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.Net.1.3.jar" Guid="$(var.GUID_Aladdin.Net.1.3.jar)" SharedDllRefCount="yes">
+                  <File Name="Aladdin.Net.1.3.jar" Source="$(var.BIN13)\Aladdin.Net.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.Net.TCP.1.3.jar" Guid="$(var.GUID_Aladdin.Net.TCP.1.3.jar)" SharedDllRefCount="yes">
+                  <File Name="Aladdin.Net.TCP.1.3.jar" Source="$(var.BIN13)\Aladdin.Net.TCP.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.Math.1.3.jar" Guid="$(var.GUID_Aladdin.Math.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.Math.1.3.jar" Name="Aladdin.Math.jar" Source="$(var.BIN13)\Aladdin.Math.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.ASN1.1.3.jar" Guid="$(var.GUID_Aladdin.ASN1.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.ASN1.1.3.jar" Name="Aladdin.ASN1.jar" Source="$(var.BIN13)\Aladdin.ASN1.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.ASN1.ISO.1.3.jar" Guid="$(var.GUID_Aladdin.ASN1.ISO.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.ASN1.ISO.1.3.jar" Name="Aladdin.ASN1.ISO.jar" Source="$(var.BIN13)\Aladdin.ASN1.ISO.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.PKCS11.1.3.jar" Guid="$(var.GUID_Aladdin.PKCS11.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.PKCS11.1.3.jar" Name="Aladdin.PKCS11.jar" Source="$(var.BIN13)\Aladdin.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.PCSC.1.3.jar" Guid="$(var.GUID_Aladdin.PCSC.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.PCSC.1.3.jar" Name="Aladdin.PCSC.jar" Source="$(var.BIN13)\Aladdin.PCSC.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.ISO7816.1.3.jar" Guid="$(var.GUID_Aladdin.ISO7816.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.ISO7816.1.3.jar" Name="Aladdin.ISO7816.jar" Source="$(var.BIN13)\Aladdin.ISO7816.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.Retro.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.Retro.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.Retro.1.3.jar" Name="Aladdin.CAPI.Retro.jar" Source="$(var.BIN13)\Aladdin.CAPI.Retro.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.1.3.jar" Name="Aladdin.CAPI.jar" Source="$(var.BIN13)\Aladdin.CAPI.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.Proxy.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.Proxy.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.Proxy.1.3.jar" Name="Aladdin.CAPI.Proxy.jar" Source="$(var.BIN13)\Aladdin.CAPI.Proxy.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.SCard.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.SCard.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.SCard.1.3.jar" Name="Aladdin.CAPI.SCard.jar" Source="$(var.BIN13)\Aladdin.CAPI.SCard.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.1.3.jar" Name="Aladdin.CAPI.PKCS11.jar" Source="$(var.BIN13)\Aladdin.CAPI.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.AKS.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.AKS.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.AKS.1.3.jar" Name="Aladdin.CAPI.PKCS11.AKS.jar" Source="$(var.BIN13)\Aladdin.CAPI.PKCS11.AKS.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.Athena.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.Athena.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.Athena.1.3.jar" Name="Aladdin.CAPI.PKCS11.Athena.jar" Source="$(var.BIN13)\Aladdin.CAPI.PKCS11.Athena.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.JaCarta.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.JaCarta.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.JaCarta.1.3.jar" Name="Aladdin.CAPI.PKCS11.JaCarta.jar" Source="$(var.BIN13)\Aladdin.CAPI.PKCS11.JaCarta.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS12.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS12.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS12.1.3.jar" Name="Aladdin.CAPI.PKCS12.jar" Source="$(var.BIN13)\Aladdin.CAPI.PKCS12.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.ANSI.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.ANSI.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.ANSI.1.3.jar" Name="Aladdin.CAPI.ANSI.jar" Source="$(var.BIN13)\Aladdin.CAPI.ANSI.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.ANSI.PKCS11.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.ANSI.PKCS11.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.ANSI.PKCS11.1.3.jar" Name="Aladdin.CAPI.ANSI.PKCS11.jar" Source="$(var.BIN13)\Aladdin.CAPI.ANSI.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.GOST.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.GOST.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.GOST.1.3.jar" Name="Aladdin.CAPI.GOST.jar" Source="$(var.BIN13)\Aladdin.CAPI.GOST.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.GOST.PKCS11.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.GOST.PKCS11.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.GOST.PKCS11.1.3.jar" Name="Aladdin.CAPI.GOST.PKCS11.jar" Source="$(var.BIN13)\Aladdin.CAPI.GOST.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.STB.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.STB.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.STB.1.3.jar" Name="Aladdin.CAPI.STB.jar" Source="$(var.BIN13)\Aladdin.CAPI.STB.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.KZ.1.3.jar" Guid="$(var.GUID_Aladdin.CAPI.KZ.1.3.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.KZ.1.3.jar" Name="Aladdin.CAPI.KZ.jar" Source="$(var.BIN13)\Aladdin.CAPI.KZ.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+              </Directory>
+              <Directory Id="jre14" Name="jre14">
+                <Component Id="Aladdin.1.4.jar" Guid="$(var.GUID_Aladdin.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.1.4.jar" Name="Aladdin.jar" Source="$(var.BIN14)\Aladdin.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.IO.1.4.jar" Guid="$(var.GUID_Aladdin.IO.1.4.jar)" SharedDllRefCount="yes">
+                  <File Name="Aladdin.IO.1.4.jar" Source="$(var.BIN14)\Aladdin.IO.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.Net.1.4.jar" Guid="$(var.GUID_Aladdin.Net.1.4.jar)" SharedDllRefCount="yes">
+                  <File Name="Aladdin.Net.1.4.jar" Source="$(var.BIN14)\Aladdin.Net.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.Net.TCP.1.4.jar" Guid="$(var.GUID_Aladdin.Net.TCP.1.4.jar)" SharedDllRefCount="yes">
+                  <File Name="Aladdin.Net.TCP.1.4.jar" Source="$(var.BIN14)\Aladdin.Net.TCP.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.Math.1.4.jar" Guid="$(var.GUID_Aladdin.Math.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.Math.1.4.jar" Name="Aladdin.Math.jar" Source="$(var.BIN14)\Aladdin.Math.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.ASN1.1.4.jar" Guid="$(var.GUID_Aladdin.ASN1.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.ASN1.1.4.jar" Name="Aladdin.ASN1.jar" Source="$(var.BIN14)\Aladdin.ASN1.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.ASN1.ISO.1.4.jar" Guid="$(var.GUID_Aladdin.ASN1.ISO.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.ASN1.ISO.1.4.jar" Name="Aladdin.ASN1.ISO.jar" Source="$(var.BIN14)\Aladdin.ASN1.ISO.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.PKCS11.1.4.jar" Guid="$(var.GUID_Aladdin.PKCS11.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.PKCS11.1.4.jar" Name="Aladdin.PKCS11.jar" Source="$(var.BIN14)\Aladdin.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.PCSC.1.4.jar" Guid="$(var.GUID_Aladdin.PCSC.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.PCSC.1.4.jar" Name="Aladdin.PCSC.jar" Source="$(var.BIN14)\Aladdin.PCSC.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.ISO7816.1.4.jar" Guid="$(var.GUID_Aladdin.ISO7816.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.ISO7816.1.4.jar" Name="Aladdin.ISO7816.jar" Source="$(var.BIN14)\Aladdin.ISO7816.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.Retro.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.Retro.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.Retro.1.4.jar" Name="Aladdin.CAPI.Retro.jar" Source="$(var.BIN14)\Aladdin.CAPI.Retro.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.1.4.jar" Name="Aladdin.CAPI.jar" Source="$(var.BIN14)\Aladdin.CAPI.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.Proxy.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.Proxy.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.Proxy.1.4.jar" Name="Aladdin.CAPI.Proxy.jar" Source="$(var.BIN14)\Aladdin.CAPI.Proxy.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.SCard.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.SCard.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.SCard.1.4.jar" Name="Aladdin.CAPI.SCard.jar" Source="$(var.BIN14)\Aladdin.CAPI.SCard.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.1.4.jar" Name="Aladdin.CAPI.PKCS11.jar" Source="$(var.BIN14)\Aladdin.CAPI.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.AKS.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.AKS.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.AKS.1.4.jar" Name="Aladdin.CAPI.PKCS11.AKS.jar" Source="$(var.BIN14)\Aladdin.CAPI.PKCS11.AKS.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.Athena.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.Athena.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.Athena.1.4.jar" Name="Aladdin.CAPI.PKCS11.Athena.jar" Source="$(var.BIN14)\Aladdin.CAPI.PKCS11.Athena.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS11.JaCarta.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.JaCarta.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS11.JaCarta.1.4.jar" Name="Aladdin.CAPI.PKCS11.JaCarta.jar" Source="$(var.BIN14)\Aladdin.CAPI.PKCS11.JaCarta.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.PKCS12.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.PKCS12.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.PKCS12.1.4.jar" Name="Aladdin.CAPI.PKCS12.jar" Source="$(var.BIN14)\Aladdin.CAPI.PKCS12.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.ANSI.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.ANSI.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.ANSI.1.4.jar" Name="Aladdin.CAPI.ANSI.jar" Source="$(var.BIN14)\Aladdin.CAPI.ANSI.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.ANSI.PKCS11.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.ANSI.PKCS11.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.ANSI.PKCS11.1.4.jar" Name="Aladdin.CAPI.ANSI.PKCS11.jar" Source="$(var.BIN14)\Aladdin.CAPI.ANSI.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.GOST.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.GOST.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.GOST.1.4.jar" Name="Aladdin.CAPI.GOST.jar" Source="$(var.BIN14)\Aladdin.CAPI.GOST.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.GOST.PKCS11.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.GOST.PKCS11.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.GOST.PKCS11.1.4.jar" Name="Aladdin.CAPI.GOST.PKCS11.jar" Source="$(var.BIN14)\Aladdin.CAPI.GOST.PKCS11.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.STB.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.STB.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.STB.1.4.jar" Name="Aladdin.CAPI.STB.jar" Source="$(var.BIN14)\Aladdin.CAPI.STB.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.KZ.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.KZ.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.KZ.1.4.jar" Name="Aladdin.CAPI.KZ.jar" Source="$(var.BIN14)\Aladdin.CAPI.KZ.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.Environment.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.Environment.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.Environment.1.4.jar" Name="Aladdin.CAPI.Environment.jar" Source="$(var.BIN14)\Aladdin.CAPI.Environment.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+                <Component Id="Aladdin.CAPI.JCP.1.4.jar" Guid="$(var.GUID_Aladdin.CAPI.JCP.1.4.jar)" SharedDllRefCount="yes">
+                  <File Id="Aladdin.CAPI.JCP.1.4.jar" Name="Aladdin.CAPI.JCP.jar" Source="$(var.BIN14)\Aladdin.CAPI.JCP.jar" KeyPath="yes" DiskId="1" />
+                </Component>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Module>
+</Wix>

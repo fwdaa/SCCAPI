@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A30DE012-A631-4C43-8D87-55DEB4585910}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.CAPI.SCard.Windows</RootNamespace>
+    <AssemblyName>Aladdin.CAPI.SCard.Windows</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Provider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.CAPI.SCard\Aladdin.CAPI.SCard.csproj">
+      <Project>{3e0ba621-3020-4424-bf4f-ddc27f06f0c9}</Project>
+      <Name>Aladdin.CAPI.SCard</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422f4ee1-d424-4396-92b1-a62b332a0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ISO7816\Aladdin.ISO7816.csproj">
+      <Project>{2a907461-174a-4bfb-a7fc-45fb3f70ac1e}</Project>
+      <Name>Aladdin.ISO7816</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PCSC.Windows\Aladdin.PCSC.Windows.csproj">
+      <Project>{795032ef-cb9b-4e43-998d-9d278f3c8aa6}</Project>
+      <Name>Aladdin.PCSC.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PCSC\Aladdin.PCSC.csproj">
+      <Project>{2e4bfc61-99f9-4335-9ce3-3fe14e57708b}</Project>
+      <Name>Aladdin.PCSC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

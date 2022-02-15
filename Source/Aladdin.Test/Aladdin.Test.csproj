@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8F20BCCE-E5EA-4C37-9EF8-DCFF8E5ACEA1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.Test</RootNamespace>
+    <AssemblyName>Aladdin.Test</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8b81fe5b-82f1-41d5-a2af-f9237cc5c953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CNG.Microsoft\Aladdin.CAPI.ANSI.CNG.Microsoft.vcxproj">
+      <Project>{974304e5-6bb7-4f61-aceb-2033b7c3d62e}</Project>
+      <Name>Aladdin.CAPI.ANSI.CNG.Microsoft</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CSP.AKS\Aladdin.CAPI.ANSI.CSP.AKS.vcxproj">
+      <Project>{8c9a2d92-0b6f-49fb-844d-97d39985aa83}</Project>
+      <Name>Aladdin.CAPI.ANSI.CSP.AKS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CSP.Athena\Aladdin.CAPI.ANSI.CSP.Athena.vcxproj">
+      <Project>{ca2507ce-0cdb-49a9-b216-af45c4280b9d}</Project>
+      <Name>Aladdin.CAPI.ANSI.CSP.Athena</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CSP.Microsoft\Aladdin.CAPI.ANSI.CSP.Microsoft.vcxproj">
+      <Project>{8c0107d0-e7b3-418d-968d-3516e45339a4}</Project>
+      <Name>Aladdin.CAPI.ANSI.CSP.Microsoft</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.PKCS11\Aladdin.CAPI.ANSI.PKCS11.csproj">
+      <Project>{26c89adf-2387-4ae4-afa6-01cd383359b8}</Project>
+      <Name>Aladdin.CAPI.ANSI.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI\Aladdin.CAPI.ANSI.csproj">
+      <Project>{25c83bcc-185c-4eed-a0c0-6f0c9ad20cd4}</Project>
+      <Name>Aladdin.CAPI.ANSI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Bio.Athena\Aladdin.CAPI.Bio.Athena.csproj">
+      <Project>{3df117d7-a678-4c13-ac1c-c4cfd80f1189}</Project>
+      <Name>Aladdin.CAPI.Bio.Athena</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.CNG\Aladdin.CAPI.CNG.vcxproj">
+      <Project>{6ec87544-c585-4421-b2f7-5c5e55624c64}</Project>
+      <Name>Aladdin.CAPI.CNG</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.CSP\Aladdin.CAPI.CSP.vcxproj">
+      <Project>{a34c365d-3b60-41ff-92b1-98ab77fce45a}</Project>
+      <Name>Aladdin.CAPI.CSP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Environment\Aladdin.CAPI.Environment.csproj">
+      <Project>{cb835c0c-e96b-424e-8c82-e52eb59bc020}</Project>
+      <Name>Aladdin.CAPI.Environment</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST.CSP.CryptoPro\Aladdin.CAPI.GOST.CSP.CryptoPro.vcxproj">
+      <Project>{c22ece82-4e81-45f7-ab9f-716c55b2bdcd}</Project>
+      <Name>Aladdin.CAPI.GOST.CSP.CryptoPro</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST.GUI\Aladdin.CAPI.GOST.GUI.csproj">
+      <Project>{e85168e7-9366-4335-9094-23131aa8fc69}</Project>
+      <Name>Aladdin.CAPI.GOST.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST.PKCS11\Aladdin.CAPI.GOST.PKCS11.csproj">
+      <Project>{0a1925fb-b58a-4221-9e70-63d04234ca7d}</Project>
+      <Name>Aladdin.CAPI.GOST.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST\Aladdin.CAPI.GOST.csproj">
+      <Project>{3d97ff8b-b036-425c-8ae2-fec685d1326c}</Project>
+      <Name>Aladdin.CAPI.GOST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GUI\Aladdin.CAPI.GUI.csproj">
+      <Project>{141f433d-9338-4314-8db3-725d7ba6ecca}</Project>
+      <Name>Aladdin.CAPI.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.KZ.GUI\Aladdin.CAPI.KZ.GUI.csproj">
+      <Project>{888a1913-d930-46ea-be2c-80128c457ef0}</Project>
+      <Name>Aladdin.CAPI.KZ.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.KZ.CSP.Tumar\Aladdin.CAPI.KZ.CSP.Tumar.vcxproj">
+      <Project>{2259dd25-6fce-4de2-bd6c-81e14763d4c9}</Project>
+      <Name>Aladdin.CAPI.KZ.CSP.Tumar</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.KZ\Aladdin.CAPI.KZ.csproj">
+      <Project>{eb64498d-28aa-4b6b-b311-ae23b2c32fe0}</Project>
+      <Name>Aladdin.CAPI.KZ</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11.AKS\Aladdin.CAPI.PKCS11.AKS.csproj">
+      <Project>{ae1089e4-dcd0-42ef-97d0-b60ac1f53c7b}</Project>
+      <Name>Aladdin.CAPI.PKCS11.AKS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11.Athena\Aladdin.CAPI.PKCS11.Athena.csproj">
+      <Project>{b3f0d4ca-7d57-4883-9f9c-3baf8118041e}</Project>
+      <Name>Aladdin.CAPI.PKCS11.Athena</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11.JaCarta\Aladdin.CAPI.PKCS11.JaCarta.csproj">
+      <Project>{66aea718-4566-4cd9-8905-3634d67e65e8}</Project>
+      <Name>Aladdin.CAPI.PKCS11.JaCarta</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11\Aladdin.CAPI.PKCS11.csproj">
+      <Project>{3f44a580-c939-4c47-a8da-1e8b27b85749}</Project>
+      <Name>Aladdin.CAPI.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS12\Aladdin.CAPI.PKCS12.csproj">
+      <Project>{c0155fce-cb12-43ef-9632-3b8adc246dc5}</Project>
+      <Name>Aladdin.CAPI.PKCS12</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Rnd.Accord\Aladdin.CAPI.Rnd.Accord.vcxproj">
+      <Project>{f2beeed1-3ca2-47d2-947b-15a70c5ab249}</Project>
+      <Name>Aladdin.CAPI.Rnd.Accord</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Rnd.Bio\Aladdin.CAPI.Rnd.Bio.vcxproj">
+      <Project>{7f6cfedc-1733-47f4-9779-80db5c7daec7}</Project>
+      <Name>Aladdin.CAPI.Rnd.Bio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Rnd.Sobol\Aladdin.CAPI.Rnd.Sobol.vcxproj">
+      <Project>{fcb2a596-0d6f-4625-b646-f2abbf808024}</Project>
+      <Name>Aladdin.CAPI.Rnd.Sobol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Rnd\Aladdin.CAPI.Rnd.vcxproj">
+      <Project>{5fffe30d-ed44-4122-b869-896a221f25c5}</Project>
+      <Name>Aladdin.CAPI.Rnd</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.SCard\Aladdin.CAPI.SCard.csproj">
+      <Project>{3e0ba621-3020-4424-bf4f-ddc27f06f0c9}</Project>
+      <Name>Aladdin.CAPI.SCard</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.STB.GUI\Aladdin.CAPI.STB.GUI.csproj">
+      <Project>{9498062b-15c6-4df5-8c9f-bf6164c1f0ca}</Project>
+      <Name>Aladdin.CAPI.STB.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.STB\Aladdin.CAPI.STB.csproj">
+      <Project>{555febf3-9841-41f2-9718-c60b73ca34fd}</Project>
+      <Name>Aladdin.CAPI.STB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422f4ee1-d424-4396-92b1-a62b332a0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5ae748d8-a9e3-4bfa-a047-a644e92c43f5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PKCS11\Aladdin.PKCS11.csproj">
+      <Project>{f053e5c7-fb57-4083-b17e-f449f0381573}</Project>
+      <Name>Aladdin.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <BatFiles Include="$(ProjectDir)*.bat" />
+    </ItemGroup>
+    <Copy SourceFiles="@(BatFiles)" DestinationFolder="$(OutputPath)" />
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

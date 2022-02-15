@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?define BIN         = "..\..\Binary\$(var.TargetFrameworkVersion)\AnyCPU\$(var.Configuration)" ?>
+  <?if $(var.InstallerPlatform) = "x86"                                                           ?>
+  <?define BINXX       = "..\..\Binary\$(var.TargetFrameworkVersion)\Win32\$(var.Configuration)"  ?>
+  <?endif                                                                                         ?>
+  <?if $(var.InstallerPlatform) = "x64"                                                           ?>
+  <?define BINXX       = "..\..\Binary\$(var.TargetFrameworkVersion)\x64\$(var.Configuration)"    ?>
+  <?endif                                                                                         ?>
+
+  <?define VC_DIR                     = "..\Microsoft"                                            ?>
+  <?if $(var.Configuration)           = "Debug"                                                   ?>
+  <?define VC_SUBDIR140               = "Microsoft.VC140.DebugCRT"                                ?>
+  <?define VC_VCRT140                 = "vcruntime140d.dll"                                       ?>
+  <?define VC_VCCOR140                = "vccorlib140d.dll"                                        ?>
+  <?define VC_MSVCP140                = "msvcp140d.dll"                                           ?>
+  <?define VC_CONCRT140               = "concrt140d.dll"                                          ?>
+  <?define VC_SUBDIR90                = "Microsoft.VC90.DebugCRT"                                 ?>
+  <?define VC_MSVCR90                 = "msvcr90d.dll"                                            ?>
+  <?define VC_MSVCP90                 = "msvcp90d.dll"                                            ?>
+  <?define VC_MSVCM90                 = "msvcm90d.dll"                                            ?>
+  <?else                                                                                          ?>
+  <?define VC_SUBDIR140               = "Microsoft.VC140.CRT"                                     ?>
+  <?define VC_VCRT140                 = "vcruntime140.dll"                                        ?>
+  <?define VC_VCCOR140                = "vccorlib140.dll"                                         ?>
+  <?define VC_MSVCP140                = "msvcp140.dll"                                            ?>
+  <?define VC_CONCRT140               = "concrt140.dll"                                           ?>
+  <?define VC_SUBDIR90                = "Microsoft.VC90.CRT"                                      ?>
+  <?define VC_MSVCR90                 = "msvcr90.dll"                                             ?>
+  <?define VC_MSVCP90                 = "msvcp90.dll"                                             ?>
+  <?define VC_MSVCM90                 = "msvcm90.dll"                                             ?>
+  <?endif                                                                                         ?>
+
+  <?if $(var.TargetFrameworkVersion)  = "v2.0"                                                    ?>
+  <?define MsCorLibVersion            = "v2.0.50727"                                              ?>
+  <?define ClrVersion                 = "20"                                                      ?>
+  <?define CrtVersion                 = "90"                                                      ?>
+  <?endif                                                                                         ?>
+  <?if $(var.TargetFrameworkVersion)  = "v3.0"                                                    ?>
+  <?define MsCorLibVersion            = "v2.0.50727"                                              ?>
+  <?define ClrVersion                 = "30"                                                      ?>
+  <?define CrtVersion                 = "90"                                                      ?>
+  <?endif                                                                                         ?>
+  <?if $(var.TargetFrameworkVersion)  = "v3.5"                                                    ?>
+  <?define MsCorLibVersion            = "v2.0.50727"                                              ?>
+  <?define ClrVersion                 = "35"                                                      ?>
+  <?define CrtVersion                 = "90"                                                      ?>
+  <?endif                                                                                         ?>
+  <?if $(var.TargetFrameworkVersion)  = "v4.0"                                                    ?>
+  <?define MsCorLibVersion            = "v4.0.30319"                                              ?>
+  <?define ClrVersion                 = "40"                                                      ?>
+  <?define CrtVersion                 = "140"                                                     ?>
+  <?endif                                                                                         ?>
+  <?if $(var.TargetFrameworkVersion)  = "v4.5"                                                    ?>
+  <?define MsCorLibVersion            = "v4.0.30319"                                              ?>
+  <?define ClrVersion                 = "45"                                                      ?>
+  <?define CrtVersion                 = "140"                                                     ?>
+  <?endif                                                                                         ?>
+
+  <?define VERSION_COM_NET                              = "$(var.VERSION)$(var.ClrVersion)"       ?>
+
+  <?if $(var.TargetFrameworkVersion)                    = "v2.0"                                  ?>
+  <?if $(var.InstallerPlatform)                         = "x86"                                   ?>
+  <?define PACKAGEID                                    = "75D9E345-D92C-417C-8F79-E7F11EF9133C"  ?>
+  <?define GUID_Aladdin.dll                             = "F30FD948-5DB4-4724-8790-8B0077DD3410"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "A1FBCCB1-35B4-4392-A5ED-77217FDD4B20"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "DAF57325-B3CE-4597-8905-2B813FC35796"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "A89253E7-37C8-444E-95AB-F68A6EC0A891"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "8A6D8240-B34E-4C59-9E39-2EE64C8B9BD2"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "1CCD4567-1A46-4474-8AB7-D51C25F41104"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "80B6B67F-4665-4FD9-A822-19576D999980"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "BB343BD6-A808-43CA-B124-8F60023E215E"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "222D7322-A2F8-4D02-88A5-66411DEEDC25"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "58E0EE6B-781A-49FF-9623-5E4528444B2F"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "53D2687C-EABC-45C9-8099-B33314F81C42"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "58CFC196-174C-4229-A231-3D1AD72B4399"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "A76AD9F4-5163-46A4-8A05-58C6EA7A48B2"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "83E224BF-37DC-436A-8612-D5E60D64E62E"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "672322BA-540A-4D10-B2B6-DECD3633BC44"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "14C12821-8578-4E83-89DD-A5D69058860C"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "4597905D-C959-4FE5-9803-3E20EA213C61"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "444BFA73-C6E4-466B-A106-2518B9ABCECF"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "3AD12FD0-3E9A-4EC6-8FD8-4A126D442DDD"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "8BADF7D7-8715-457C-9229-AD3E06B5FC7C"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "6AF02E4B-37F3-4070-9590-796F70BC82A7"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "9FBA3661-B063-4A16-AFD1-71C0192E14BE"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "71980A0E-394C-41C9-BBA2-1C9DE81DED4B"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "BEEDF0A1-A076-4459-B5C3-5C399BC605E7"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "71A9DB16-DEA7-48AC-AE1F-AF9336DC70E2"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "8ECDF115-5B88-4EEF-94B9-F7A28F7CD140"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "84037C44-B064-483B-8F4C-43DAA4CEB228"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "D1202FA2-3FC6-41B5-9F22-A060451C2823"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "25AD8082-A796-465C-8708-3BCF08F1C5A2"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "A8F99EF2-AEC6-41ED-B19A-BA30E6255F19"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "728790C9-1F75-4F3D-A2EF-45F7FC3EBBE8"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "95102CB9-42A3-4487-AC83-C03FE6CC81AE"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "093CBFF3-A75D-4061-9617-C15574308DE6"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "D3E5F695-C85A-43A5-A365-137EA7DF1D6C"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "45C3717A-F77B-4990-AABB-8090669D2D27"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "4210746C-4FB4-451A-AB44-64C1C0272494"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "0B0A13E2-58F7-4012-B4BA-99FFBFF79338"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "779D47A1-13BA-4537-86F6-108054C589FE"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "F8C8457E-520C-4E68-BDE9-3BB0BD2A820C"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "63309EF7-A554-420F-8D29-98AC95514CCA"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "32A967B6-83BA-4A51-99E7-350DA0386BBD"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "DB80FAA6-6F70-4C7C-8AF6-D6401A982736"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "6E85906C-188B-4E0D-84A3-4FB33141DADB"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "123E2A8D-96A4-44D2-B430-803188BE631C"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "BE2D648C-2D06-4D28-AB62-5850FB23D148"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "9C9319B0-75BB-4161-B8D6-079D04F95AE8"  ?>
+  <?define GUID_VC                                      = "66935409-A16E-4526-B54F-177D28BAACBA"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "9D7ABCDD-0605-47E8-9D8D-4655D7FCE29B"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "36B81701-C556-4C42-9696-4AFD3B7EDF4F"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "DD1F0367-1B32-4D39-8F10-B7A4BA405647"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "4157B252-B2DD-4CC8-94B1-89C5CE8E9406"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "685083B3-2B23-46CB-899E-EACDAC7F8901"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "7E10E135-C66B-483D-8E88-8131DE59F530"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "AAD57264-4A22-428C-B15C-6CA77184BC8E"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "3BC84380-9F26-492B-9666-F5D27A6BFEBC"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "9D251076-3CA5-4052-9BD7-9F0395FC1277"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "F5452BC0-2C89-4230-9019-F93880111FD0"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "84E03FBF-25B0-4296-9E33-3CE3008E3840"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "B8938CD9-EA79-44FD-81C0-87BB90A4CCF9"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "2952EB59-249F-45FE-9A03-76A0307D8E37"  ?>
+  <?endif                                                                                         ?>
+  <?if $(var.InstallerPlatform)                         = "x64"                                   ?>
+  <?define PACKAGEID                                    = "FB28E474-4C22-446D-9C2E-822FC6746A23"  ?>
+  <?define GUID_Aladdin.dll                             = "572D4676-EE99-45C0-ACD8-7A92897F875A"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "5B790139-3590-43DE-8740-094026F894BF"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "1DC8FBF8-55B7-40C9-8E6B-518F9CF13B8C"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "71B098EC-61A4-4900-B1A1-23B852A7B7DD"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "69FB2F07-1685-4359-A8CA-5B6460EFB016"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "535860E3-B1D5-4EE1-AD34-8CD644172E46"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "6A350693-6B17-42AA-8046-D8A9EE54F127"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "7CE82C40-BC05-413A-BCD1-8A90EFB1581A"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "4F29E252-B7FE-4654-A607-62058CF0F0E8"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "A0CD1C1C-8AB4-40B7-A1E3-E3C051983F4C"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "6B56EFC7-FF12-4461-9C14-38286ACAA7EB"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "515ADB91-3F6D-485D-8195-D122488FD5F9"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "0150AE1F-0C56-4D04-82E1-E31E4F5F2FD3"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "5C512992-A701-49D3-94AE-26FC36385412"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "6B94942C-3A7D-4077-AEAE-3E82D8F794C3"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "2C98B86B-9DE5-46E8-8944-9ABFEE50DC99"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "C0011C8C-E831-4C9B-ACE6-489A199B8B3C"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "37BEE7B6-54BB-4238-832F-4339A4921435"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "FFF72840-D4D9-4971-B545-BE550F16C785"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "21FE6001-0022-47B8-8182-27A591575101"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "BECA7272-451F-4CE9-8F2D-83FD35E75F65"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "35A40525-09B3-4011-8F4A-5239767A693A"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "3E4FF872-C217-4FF8-B907-5D37B6E89D89"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "72B47196-DA60-4982-AD2C-840524C0E964"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "0AF95844-50C7-4B04-BD05-D0E66E50E550"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "77A043DB-0FC7-46C9-B4B7-4D81911CC440"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "720BB291-F763-4CDC-BC51-AC03BD5171FF"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "169230A0-B5DB-4965-8A66-F1A938664738"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "947DBA21-CA04-41CB-B738-05F00F184448"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "C44E496C-FC42-4D9C-A63A-D914F6DF6AC1"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "6CB43914-1881-490D-A42C-D2BEEFED1FC9"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "3B404FCF-A2AD-4CDB-BD58-EC55110C6ACF"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "927478FF-F3FB-4910-8163-010D2EE8AC99"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "8F79E02C-C12A-4378-8E77-127E4891BE05"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "16AE1CD4-F86A-4108-8B2B-74773D847197"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "8DE7F685-AEFE-4157-A0CD-FA72EEF11757"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "E7B7F573-C3F7-4956-BC3A-E7EB7DD1BAB7"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "8A0C1030-3572-4BD1-ADB2-B94F7D354868"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "D08CFDB8-0599-43A4-B3D7-5A9D7C194798"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "08291ABA-B27D-44EE-9639-2ACBCF4FB7CC"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "62BCC9AA-F136-4965-AC24-157199C7DA50"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "30DA190C-941B-4D43-B803-70A6E106203C"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "BF11980D-2C7D-45EE-BB3F-3DC9B6BEE0CB"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "231FB79F-625A-48F9-9E76-9285350DF222"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "E1394BDE-C80B-40CE-99E9-218596B4220B"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "E5797721-62EF-49C6-A964-F4240C776D96"  ?>
+  <?define GUID_VC                                      = "A393E616-3B43-4BB8-AAB4-E7207EFEF41C"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "ED1B0817-6D0F-48F0-A01C-F5F3BCA31BB1"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "E5C5248D-14AD-41DF-BF90-C280EC58E92F"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "4A0B2639-D3A0-4732-A3B8-AABD151E604C"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "487970BF-3567-409F-B929-B48C845CAC25"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "2B2987BF-CBBA-48A3-B5DC-3A912A060D33"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "5A115618-CA96-48BC-836C-5EEBA7E988AB"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "ABEDE496-56F5-4685-B97C-88D2FA2D3EF9"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "066C3456-E7EF-4DC7-B9F3-D533AECB6C90"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "421798C3-9493-4E02-8CC4-6457E2220CBC"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "C686B374-9894-452F-B05B-E73FB8F7BBDB"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "EEF3E246-06DD-47BB-AC90-A2F07F37E4B9"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "F1479440-5768-4DC0-B776-41A4D51C3907"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "AEDDA600-EF71-48F8-A3E4-6A389F7FE8C1"  ?>
+  <?endif                                                                                         ?>
+  <?endif                                                                                         ?>
+
+  <?if $(var.TargetFrameworkVersion)                    = "v3.0"                                  ?>
+  <?if $(var.InstallerPlatform)                         = "x86"                                   ?>
+  <?define PACKAGEID                                    = "362DEEA2-2657-4CF2-953F-F2B096397CB0"  ?>
+  <?define GUID_Aladdin.dll                             = "7ADB5CD9-5B35-43BD-B4CC-700E19995993"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "09E20179-C17C-43A1-A6E3-4F75A8A9026D"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "A71F5C39-C992-4DC7-875E-49A70D029DCB"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "E6F4DFAF-1F4A-4AF5-9179-4836DD82483D"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "69FAAD88-E03C-4400-BA5E-5BFA536394BA"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "872C1561-B364-4725-B9F5-121970FBF304"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "7328B7BF-5882-4C60-8124-CB91662A7876"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "2FF9CEB6-1238-4078-A8CF-0EA3F86F65E3"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "C5D94995-4D12-42F1-88B7-CA2EBA61D32F"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "A2635BEC-04CE-4E4A-BDF4-EC21D7F37D49"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "C690116E-4AE4-4EE4-83A3-70F09973621A"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "DD5173FF-91E9-461D-87B5-4503B6E23553"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "B20A8080-AD35-455B-973D-6B0EE1740930"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "D75CBA7F-01F0-4698-852F-CC55C35C1547"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "0B799F38-0A8B-43BF-A705-6A6405A4F46D"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "12D1DFED-697B-464A-9E0D-2A0407CB32A9"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "B5BBDE9B-03D9-498D-94CF-AD7AD559D1F8"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "F05483DA-0023-4654-9D25-9B0ED27D69A9"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "D87A5E56-F568-4343-AA83-7D8F4C6C3B05"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "7AE6888A-4C04-42AB-A563-291BB84DBFCC"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "2457136B-0B66-471D-B0DB-CF76CCC8A317"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "1AEC0214-134B-409F-A28F-EC80E93226F7"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "56BAC16A-C336-42EE-AC4F-0AC6E10F6313"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "3BA88473-8B99-46D9-9DDB-AB9E53754CE6"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "96148C5B-C8DB-41B0-8F68-E9C83FA67E6B"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "9FB3CB40-06CA-4110-BC39-8FBD94F35DE0"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "2D58FE59-6FB1-4C68-A82C-3026A33CFADF"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "AA432C90-1056-4D19-A0E9-90011CA33584"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "FFA2CBC9-59CB-4494-8572-AB0B92BBBAFC"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "9017EA0B-8097-45C8-8B2E-ACFCEB1795E5"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "6C0617BB-1931-4747-9709-E91E174B931C"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "8ED4F919-297D-4579-BA91-A6BA6E37E016"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "ED3E6536-E699-44D1-AEB8-48B6483ED95B"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "B8D5BDB0-47C5-421F-949D-68802C9B3887"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "D1902C0F-ECFC-4BA0-A9D6-10A7F200C0BA"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "961773BF-0096-49D4-9FBC-39EEE986382E"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "515A2C1B-3CB6-48D3-84CF-8B3C73888A14"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "E8543944-5AA2-409C-B218-4607706C775D"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "EBA895A3-2E29-4C29-84A1-7BB5100236FF"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "669839E9-2939-4CA7-BF53-0950F99B9AE2"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "42283B80-9234-4C08-AFE8-885B8A47CC12"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "497E5DE7-E90C-4BAD-AAE5-47306182D0DB"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "4FC8A20C-070A-4AC3-9B92-1CBBF5E66323"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "99D90F67-F997-443E-B51C-37EBCDA1D889"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "AE547BE0-EF7E-4CEF-9FBD-4C7CD823F0CC"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "7FF14562-5F79-465C-9DB1-1E9C494CC4FF"  ?>
+  <?define GUID_VC                                      = "6EC71288-3B40-40F9-85F3-EE527281EF05"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "85AF686A-CC1C-4C51-8DC2-A1E6518C27CA"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "AEEFACA7-7A3F-42C3-9A85-2A7A2008179B"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "01AFADDC-6559-4DFF-8D7E-F1AAAC6929D8"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "865DA485-B379-41DC-A232-1F03399D39ED"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "5270691A-FC45-4043-A2D4-D1B5E7E72478"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "73E85DE6-16AA-40C0-87BD-21163F266482"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "F2624FF6-2A90-44A6-A0BF-EBBF69434F4C"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "B2AFB779-22DA-44CC-883C-F853B2690823"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "8D78EB56-3426-43C6-ADD3-40BDE21EC02F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "E86FADCF-2452-48F4-8489-C6E41A314403"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "9E7C1228-881E-4F55-A0D7-0660D05D9D18"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "CBE2BAFD-B09D-431B-BA95-B777187B9F7B"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "A44B186F-637F-44A4-9853-E17A13FA2374"  ?>
+  <?endif                                                                                         ?>
+  <?if $(var.InstallerPlatform)                         = "x64"                                   ?>
+  <?define PACKAGEID                                    = "6914B75A-DC64-4A33-964B-BD81F72B93EB"  ?>
+  <?define GUID_Aladdin.dll                             = "BC4CBD51-CC86-4478-91A7-22D9127269A7"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "8010C0B0-B01B-47A8-9357-FC51CAC502E4"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "6254C69C-E2FF-4E89-931C-FD9A4BFA9260"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "FBCCD570-68A7-4E9D-9916-DA229262CF71"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "AE340501-8A03-48D3-A37F-81A818589055"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "77B15AF2-26C2-45EB-ADB8-92D1B3272BC0"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "7DD93794-D3C0-48E4-B625-8261B109C06B"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "18DD38DA-070F-4AD9-8F73-18063D979B42"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "BDB1EFA1-96CC-44B8-BA38-31DABA872F06"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "EED576AB-75AF-442C-8304-BF25AACF068C"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "772D6294-85BA-4689-B58F-BA3CDE09F9DA"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "6BFACDCB-5D7B-4B89-9558-BF7DC3B5E563"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "E8C6C989-2D57-444C-B342-6C04BBA2568C"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "21B581E4-EDE0-478F-84EC-718E1930786A"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "10BC4A67-B8E1-4DDD-BA78-59DC582CA2C2"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "1F7802D8-DA33-4B27-8927-F1FF10528AF4"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "2B10CBE2-F398-414B-9CD6-350391E7C688"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "F9E7F1C2-9A7D-4F44-9AD0-3642BD0F2B8A"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "055224EE-39A2-4546-ABFF-8F2767D99F16"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "07615DB6-0883-4478-89A8-F7CB489F162C"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "21C0772C-6014-4851-B7D1-97E325E46B5F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "0A4B72BC-E095-419C-B710-5859150FA1D3"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "0CE49556-52A7-4C8F-AC10-C0AC9BDC4B13"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "F1774AEA-7533-4B7F-8E72-FF4047AE24BA"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "3301C722-1202-4EB5-AFF2-165BEA68F8F0"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "8F516E68-42F4-430F-8579-AE8EE26112FC"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "42F7DF11-F220-4C96-857C-0B831E34412A"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "56AD409A-5D40-4B34-9451-82D39389932A"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "483211AF-E6FC-4925-85F2-55C70D6C2C9E"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "4073AE2D-1441-4859-928C-55BCE9906A0E"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "C380B958-62AF-4B9F-BEF4-A9FA8968A261"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "5975D466-951B-46B6-B84B-36D5AF2B6C92"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "5EA7E47A-391C-48DB-873D-27EF37512EE2"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "073820E2-E4F7-417E-8719-CAAEFE329BE7"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "CFC4F3F1-B4A0-4EFC-9FF8-180ACC0A3A31"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "E05F9CCF-D1E4-474B-A147-D89934131B13"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "B0C6D2FE-A87E-443A-B6FD-A13EA9E302C3"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "1A652932-5E56-4B1B-93A8-C6213043A54E"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "AA5E4E52-CCD7-4F47-A735-32E996C59956"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "11CF375C-C249-4505-A1EA-CC035946A10E"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "E4EE4DB0-E1E0-4B52-AEC2-48EE6CF2478D"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "75B11D9A-520E-4FE7-8A97-D636CD43D732"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "F2284CB2-51F2-480A-8948-AFE688531686"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "26EC231B-CAF5-401C-ADCC-08B94ADD12A6"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "8F025B36-F6AB-4340-8663-4B98C2150CF3"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "2E66C00A-4782-4C54-9C0E-864FEC98D18E"  ?>
+  <?define GUID_VC                                      = "C751581A-8E38-4165-94A9-FCCB336AA828"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "0C993009-3278-4B74-9E30-5C7A3470EBFA"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "5FA721CE-49C2-4557-AF6A-EA088BEB5709"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "7C0AD50F-EF8A-4E1B-B5E2-5988B2B78F2B"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "FB1BEAEF-B82A-4B39-98A3-368579CBEB21"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "44355C2B-5886-4733-9AF7-0F83083382FB"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "1CE4C333-3E47-4A64-8C1F-33A6694843AE"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "B5692232-B431-47D5-9413-CE19169D5674"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "83B10CB8-CC7D-4274-BA14-06ACE3943BA2"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "5FB189CB-D2C1-48E2-9A50-19E30F2B3108"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "ABD43E71-2786-4A15-9B2D-F5EC0D8ED938"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "193D9B61-B1B6-46F6-B41C-293A980D2F93"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "5F77D52D-21E4-4B81-B5BE-9BEC07D404AE"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "413FA381-727D-4CAC-A31A-E1C0D52A1767"  ?>
+  <?endif                                                                                         ?>
+  <?endif                                                                                         ?>
+
+  <?if $(var.TargetFrameworkVersion)                    = "v3.5"                                  ?>
+  <?if $(var.InstallerPlatform)                         = "x86"                                   ?>
+  <?define PACKAGEID                                    = "1851A89F-2F45-402B-A5FB-6EDEE854A0DF"  ?>
+  <?define GUID_Aladdin.dll                             = "58F47D6C-AB34-4ECA-8C81-4F199A9916B6"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "852BADF5-F549-421C-9DB3-708C9CE1DD18"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "C1C120C7-D723-4462-A401-7F5DF5E3E15B"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "63054121-5886-4C4C-AAC5-79621A090DB5"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "5A8A7CD2-62C4-41D4-BF8D-B9C155642D8F"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "47BE2BC7-B544-4387-82A1-6E70531ED1FD"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "63AE802E-7DBC-42A8-8F55-CDB301042C0D"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "B430839F-7AD8-4E8A-A3CE-22F22EF783F3"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "F730409A-A027-4CC7-993F-6D605D038513"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "6B299071-9F6B-4878-BD83-2EB48FC32839"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "6F91A4D0-101D-4F7D-8A20-FA10A29134E7"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "B5534C45-735E-4319-B3EC-88644BC60705"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "A8D57D31-8761-4A1A-BAC9-CFC46A575B84"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "FF408B3D-4D06-4D92-AEC1-4A7A2294F46F"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "11C39806-9B57-437D-9E50-F72A7EB2BD22"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "5F05162C-E751-42C7-8019-B7B56726678B"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "F8B3AB3A-8DB7-49BC-9649-386DD7CF0463"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "CBBE4DE2-6F4A-463A-8AD9-10733A8E9D15"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "AB3C7113-AB58-4B11-8464-A72F0479ED3A"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "0F0A9423-6D2A-426A-80BB-573FEB0F93C4"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "9D1C9163-215C-494B-B2F3-5A5C7A02D656"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "07A0CCF3-FFE3-41B3-A06A-D0C4FB281FEB"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "80CB37D3-33DC-458A-932A-B06288AA7B8E"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "600A391D-D771-41CE-9F00-58B3A03D1A9E"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "5F0A980E-A961-46E4-8F70-8B52DB7E89FB"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "CC6482E4-6A16-436A-A5A9-364BBA48F117"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "2C6A8426-C71A-4659-AFF1-2855378B024D"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "222BB435-6A86-412E-A80F-B84541DA4791"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "AE71687F-E077-4BD3-ABAF-002B1E8A7DF7"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "7CD0BF12-0195-47FE-9729-357BB2616411"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "BD8AD764-226A-40F5-AE04-C56DB6BAB920"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "4674CD02-27B0-4CF4-B7B8-768F9CD67B48"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "63657F69-B70D-4910-BBDE-B128CD46A5A8"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "2042A158-44EB-4937-B152-618AC76C1768"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "2CC93B4B-D22F-424A-B9D1-86B99E8A909E"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "E4842B26-245F-4685-9F15-653CBA7BB77E"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "79ACA0F2-6BDE-4A3F-863E-90E3F28CCECF"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "281507AB-6CB0-4FFB-9F23-40D531CECF95"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "9B1B12C1-3E84-4A26-81F9-1FE10A1230BD"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "29EFA69C-A915-49B1-9DFE-02F187ADF72E"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "3E1E4801-F706-48F7-A80D-DC9E2C14EB5D"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "676AB638-D369-43E1-B4F3-87FCD97253E8"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "059D5231-E7E8-419F-A52C-45C9DB990C31"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "0A8E131B-50AF-4BFE-97D5-87CD8E5D1F88"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "9EAC535C-349C-472F-8DAD-93F08C8FD5ED"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "DBD68888-E432-4BF5-887C-12D2BCD16768"  ?>
+  <?define GUID_VC                                      = "A14FB1AB-77DB-46F4-9B7C-DF94264E3725"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "5A6B68D0-6148-4FD2-9FAE-544D33123D72"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "6562EB07-0436-4E3A-A950-C747BB912CD9"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "FA994EF0-A213-4982-A2AF-6871D21D9A34"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "D74D8CBA-1B8D-4CCE-9786-2CC4CF5EDC5D"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "6FC0F8A7-1A02-4919-928C-C22F259D84ED"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "9529A2F1-5869-46D7-80FC-67F0233CC605"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "8564203E-64E4-4CCA-91A0-CE750F76C88F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "9F18CAB7-094B-44AE-93A1-E5C7E9B950AA"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "89A5F444-1AA9-4825-A561-AD31D02E8872"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "DF488446-4B0D-4FD1-872B-67706C1825D5"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "5B4A23B1-4D41-4887-BF79-EE66257D1426"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "B81BC0E9-E4EC-4801-8B45-5B854549E117"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "39D95214-748E-4D0C-9AEB-20C40D2F8B0D"  ?>
+  <?endif                                                                                         ?>
+  <?if $(var.InstallerPlatform)                         = "x64"                                   ?>
+  <?define PACKAGEID                                    = "5BB48DAA-F5D5-4F2E-9F5F-E127646A6E04"  ?>
+  <?define GUID_Aladdin.dll                             = "7CAF6973-1116-44F3-BF20-6ED72AFFC290"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "FD7C0A01-07E1-4425-B1EC-051D5663650D"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "CE1CD4FE-4869-4E9B-8A3E-6F5B2A88EC84"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "2E741E32-CBCB-409B-9B88-D273AE3E6BD2"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "56CB08DD-2B00-49D5-951D-95BD2DEDAF9D"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "DBF551A6-9158-481A-9B96-9CD545056BB9"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "48BD9864-8E16-494B-AB8D-D03338C8EDC6"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "4C2E0062-2CCF-4271-A75B-96600231D6A6"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "60F44C7A-6B4A-4585-BB9C-4CF42C0C164A"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "985F7C9A-1F4D-4E9B-80D3-91D49450FB97"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "49DB373B-89C6-4427-8B5A-28E8C8BE1BC7"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "D5C9C6DC-8597-4192-A521-7257F14C7567"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "72FE7A86-B933-40D2-9854-DF13EAD8C878"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "2040F689-05DF-4A6B-B20A-299CD764796A"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "D3B3275A-7567-4B83-90B0-C337C7F583BF"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "84ACE55D-52BF-4311-81C6-4947B3AD1CC8"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "41175834-C4CC-4AAF-9A1D-031E1AD41922"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "F121B8F7-2A6E-4980-B6D0-A94AD84FE13B"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "89859880-0E81-48ED-BAFE-3F90B7E31174"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "61AD97AE-B538-40CF-94CD-6F6AC3D9F236"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "77E94744-AFEE-4825-A1F3-1E703D29B715"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "1F9270E7-3D98-42C8-B3B0-A0E2781211DE"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "22C9225A-2E3D-4EA6-B526-DC4A5E476C15"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "A24A87DE-1A3C-4A26-9364-0EFFB8568F5A"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "9997CF82-D9F0-4B76-8BEA-A264DC88750D"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "EA6879B3-5AFC-4F32-977E-6F0E700A442D"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "8082C92C-4A73-4880-A355-E977014816B2"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "CBCBCF20-D69E-4E64-BEA6-60E31F613892"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "4D452242-E9C4-4264-89FB-869667D91C81"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "14F6D65C-9D9F-45AE-99FB-6D62804DF699"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "DDB0D3B3-A737-426A-875D-9E9D0600BC5B"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "41A7AC5E-B39D-4062-BAD7-E9BBF2FA8C0F"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "B8DB9545-7610-40E3-AF3D-B5819D5958E9"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "2B45B5F5-2499-4962-AAEB-E22F58512215"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "5D12E07A-4F4F-41BF-A056-DA28F5DAC198"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "48A30B37-7E15-4502-A5AE-780D10376225"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "97816DD7-7649-4A05-9AEF-6EEA87C92DF3"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "0992DFEB-2658-44EA-B212-FE387521C061"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "86AF4B84-CB89-4BE6-AB9E-120DC374C8E4"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "CC31150E-0F2D-4AAB-9D26-7088D1F4914B"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "9FCBC829-6226-4C6C-8505-DCACB363C07B"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "3970B965-3F81-442C-9AA9-AD600BB9458A"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "470F0855-1B05-4BEF-A510-DC9065EBD704"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "413A5DB5-1469-4048-B49A-B1D75A5FAA03"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "1AEC60BC-4C55-49D2-99C1-317F497A7813"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "87C80C32-E969-4292-97CD-21B5D2357B4B"  ?>
+  <?define GUID_VC                                      = "DF301CB7-6CFC-4B03-BF26-DFC672490BFD"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "7F421413-AE98-4167-AC7C-A5EC835EF051"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "7FCBB479-7AD9-42B0-839D-FD63C4ABC858"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "F79A06DE-DA23-4F37-ADC9-1F220F2181CA"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "6635DA01-9BF2-4208-8817-A5C8CC17A659"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "CE17C3F4-1189-48B1-99D2-FF01121150A5"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "D1A29688-EDC3-4966-9875-51CA4FE10297"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "BE0F7629-3ACE-4828-AB64-056315FFC6BF"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "4BF9BA75-4BCC-49A3-97CE-715DAD5F900E"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "CA7EA181-3344-482B-B5DA-5A62FF5AC673"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "17A89B63-8B66-4085-87DC-5B98DBD43DB5"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "7245DED9-D261-480A-8DB7-CCF8BC93DDD6"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "42739EE6-F893-4FD7-BF41-AB2AEC5E48F5"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "429D4D7A-B00C-45D7-AC09-8E8C03C271C2"  ?>
+  <?endif                                                                                         ?>
+  <?endif                                                                                         ?>
+
+  <?if $(var.TargetFrameworkVersion)                    = "v4.0"                                  ?>
+  <?if $(var.InstallerPlatform)                         = "x86"                                   ?>
+  <?define PACKAGEID                                    = "24D859F6-D50A-49B8-A236-D6471EBD7F86"  ?>
+  <?define GUID_Aladdin.dll                             = "3C0C60FA-90CF-42C9-85EB-4715F48045A1"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "9157C9FD-2F76-4060-AF94-13E271660777"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "3F1FE4FE-08D7-459A-A204-EDF9DE5D31C1"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "CD4CC7AB-21EE-4F13-8776-E43715679972"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "DD72957A-2BD7-401F-B586-A342E6B7B17B"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "E8C31680-2716-40D8-867A-E3AE6F703A0C"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "EDC06D71-52E1-4293-BCF1-8527B5107969"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "665A5C3D-B77A-4DD1-9C99-0490D107C843"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "6F6DB51D-7F5C-4ABF-B37C-4FD19BFA3102"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "DEA7B98D-1554-4488-807D-85BC2941CA7C"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "89535A0E-27A3-4C55-BBC6-984DE6B26C45"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "CDB263BA-BC0E-41D8-A619-A07CA0CF4694"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "C761FF1F-825C-4BBE-A778-B3451419E08F"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "B3455748-48AC-441A-B5F7-9AC096D8A581"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "8DB18257-3357-4FC4-859C-DD9A77E86364"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "81D02B55-D68B-46F2-B706-8F77F4D27D8D"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "D97C0BED-38C0-4EA9-8055-FBEEACAA998C"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "11AD397D-C2BC-41CE-B4B2-5386564EBD0C"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "7C91BDB3-9F5B-41E1-BE67-129BE7346850"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "609554FE-B46A-40D2-BC7A-1C37DFD1C909"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "6B63E0DE-1E8E-4EDB-AE85-D94883B89DA3"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "6B05CD7B-3DC5-4955-BFE3-AEC238E4D696"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "660B8511-86C2-4660-A09E-B50075344440"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "277525C7-9830-4A32-8B33-56C100A25745"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "58069FBA-FD46-450C-990E-AAF272E9BDC1"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "7DAB9D06-8883-4080-B926-824893656928"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "5A075C10-B9AC-42F1-8AB7-859532E82944"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "D285A214-3621-4BC3-9753-6C346F11DB0A"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "34269943-9B52-4D46-9D93-095004A86F89"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "A19FF2B9-9A2B-4494-967F-FE754B9A4295"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "062DEE03-FE41-4350-BB2B-51F0001BBB36"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "4D5D689C-736F-4A65-A76A-489BAA54E664"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "2412280D-80F9-4B4D-BED8-EB9A3F631EB4"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "A968536E-320E-448F-8BF8-F5ECF95EF40F"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "7EC2BAFD-BA3C-437F-BD1A-35EF086C53A1"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "FAB09C76-F7AA-47B6-A3CF-C342B949577C"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "E07CD4B3-606A-4597-BC9D-60EF11273CF3"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "4F435F7B-CEB3-4EF7-910F-15C7E4625811"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "E456F091-D7F4-44CC-B827-78E30C174851"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "8020AB7F-8EE7-40CD-BD81-8D9F35CE52A2"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "48492FB3-7D16-4083-A452-609BE2AA000E"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "62FAB809-E145-4165-8EC4-8392966F2AEE"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "DF3F34BF-C69C-46C9-8661-14250109D97F"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "CF23F2EF-A28A-4113-8BC1-B57D9BCECA73"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "325FB73B-DA11-4B83-9466-255B1ED36866"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "43117038-0900-4788-A840-EAB812E53097"  ?>
+  <?define GUID_VC                                      = "CF92881E-026D-4616-B7D3-167B84DFB26C"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "1A3C5DF2-3D39-4B8E-A7F5-C9045B32B877"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "11076EF2-B4AF-4DB8-AEE9-331AB66B860E"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "293F9D1F-23D1-46C6-85B6-AA22A1DAD0BC"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "5F27C750-C7E4-42E0-9D75-BA6FFE6E54E5"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "C28A828F-2B54-4CDF-84BE-ADDDFEB8E022"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "C8E86B72-4A21-4142-8253-5CB7917558F7"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "C9A1A03A-5F8A-419A-9DC5-B811FAED3320"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "55A2576B-8B7D-41D5-A766-17BDEC804009"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "41D7B0CE-B1E8-445B-AB89-98192378040F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "35696395-832E-480A-9C55-70A455DCF822"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "680D979E-90F3-4B42-B6B5-E8BD0E87AED2"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "BBCD44D8-00AA-4719-ABFB-AE4A79024533"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "E56C1A9E-89B0-40F1-87FE-AF3B0D67342E"  ?>
+  <?endif                                                                                         ?>
+  <?if $(var.InstallerPlatform)                         = "x64"                                   ?>
+  <?define PACKAGEID                                    = "96309ED4-864E-42CB-A8E5-FAE6BB3C8E49"  ?>
+  <?define GUID_Aladdin.dll                             = "3305BA1E-CBDA-45E0-AEA6-1C4C23B6D6A1"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "9DED2B17-9813-4D4B-A46A-0B9D01F23F26"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "B42B83EF-775B-49B6-A202-6F6F6AC06F09"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "D25A06F6-05C5-4567-AD0C-CBD1FD59EB4D"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "5A6FABF2-45A4-4A38-9972-697B03704B5A"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "7F5BC225-ED1E-48D0-B19D-4B3B32EE9E8C"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "10D8ECD0-DA46-4D8E-AD6C-646AE7583CEF"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "71E48D87-A316-4DE8-9A88-F596D1B390AE"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "6A2D7EF1-DDD5-4B9E-80F9-0850E529EE7C"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "10BB2B87-3938-4B45-9BE4-4356C7E49D45"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "9E21576A-E5D8-49C8-AFCC-BA94BDEA971C"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "277CBBE1-6501-41FB-A276-124BC5AEFC81"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "9E33AB67-9A58-495D-A74D-39B88F12D85E"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "ADBBAE76-633C-4ACC-9C2E-65C100BC9BF3"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "AB53260D-6C5E-4D54-8733-F5FFB2B651F7"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "84D8096E-D370-491E-B6CB-E0ABA8FC019C"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "9D0F64B4-426C-436A-ADBF-F6341FAC668F"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "52DE5D07-3487-4FBB-BCC2-9719F1AD770E"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "A91ED3B1-943F-410A-8A85-B8F185E690D1"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "F4F80A4C-2002-4F28-AAFD-9F342301CE77"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "7B0FB85A-E83A-4132-895D-2F8D44C078E3"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "FCE1B02C-2475-4751-9A9D-CB76A21DB1ED"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "B1ABE902-760A-4309-BC8A-B96CD4D2571B"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "59BC7752-600F-4255-91AB-FC5C0F7E34C9"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "CB73C52B-1895-47FB-9DA0-9F2B0B1FD4BB"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "88C0047A-8CC4-40D5-99EF-24AF9A981DA1"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "86973CBB-6A6B-434B-8C26-9D9DC0F58645"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "0EA0A97B-E40B-4716-BDC1-46D8DA1575B6"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "0F615043-B385-4E8F-8C6D-BA30D8A017D0"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "DA8E9842-BE5F-45EB-9375-F2DE270FAD25"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "18B9D8A1-FA24-4119-B9BB-29A027EA143B"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "891A4FF5-1A11-4D10-B6E2-1305F6B39015"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "E1208D11-A64C-4279-A93C-0F70504BBFC0"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "53A2C80A-76CC-4B06-A0A1-056314DCFC31"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "04CF2359-5379-4885-976D-304987B58119"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "56240ED0-040A-4142-920F-19C032048D66"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "D61F557E-444F-4A22-B3D6-5BA1EF99C501"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "4032E82D-2D76-47FA-93A9-1CE0D67AC684"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "BC9662C0-CBF6-40D4-95F7-413B4EB799F6"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "8D91BF1F-4A24-4BD5-B9F7-3C5E7A05F89F"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "A5EC9FB4-DC1C-42D4-B50C-2D6E646D48E7"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "2CF3CD62-4EDD-4CA4-A0A3-E5371173327A"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "B89D507A-43D1-4444-8158-17EFD8E521D3"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "4563B5B9-0078-444F-81CA-71CB783F47BA"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "7C5185CE-B34B-455C-A59F-E14C52E6DA18"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "B7F18434-C469-4660-BA03-4648CCBC4445"  ?>
+  <?define GUID_VC                                      = "5679214C-1F2A-4380-9B47-1F764ADAAAC1"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "036044CA-DF18-4D4C-84F6-E163F7D51688"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "8284A489-0453-4C24-818B-0A9A844520F7"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "2190BA7D-C4E1-4135-93BB-482AC6F95037"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "9D919286-6117-4333-B731-5CAA6418840E"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "B59891A9-8ACD-4D0E-8247-E33384BCEB56"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "1582791A-EC0B-4535-9F1E-85575C97B798"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "046C8A01-EA92-4B10-AAE6-8F6F978A457D"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "5BB42ECD-C7EB-4867-923E-F61788F1EB13"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "9AEE2EE5-04DC-4C52-978E-0DBB60EA79FB"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "D03BF98F-C74E-4090-966D-3E18A4A57093"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "19D80A61-9BA1-424D-AC48-36B0738AE35C"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "D46F8162-11B7-419A-8D1C-0BDC4E408596"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "B387AF10-8AC8-41F3-8BD1-8EF6159DF348"  ?>
+  <?endif                                                                                         ?>
+  <?endif                                                                                         ?>
+
+  <?if $(var.TargetFrameworkVersion)                    = "v4.5"                                  ?>
+  <?if $(var.InstallerPlatform)                         = "x86"                                   ?>
+  <?define PACKAGEID                                    = "E9AE8B49-082E-49B5-9371-B29C931DA52D"  ?>
+  <?define GUID_Aladdin.dll                             = "5189AD26-70FB-4C81-9AA3-B91DCA3781B7"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "4AD2F6E5-2840-4AF3-9E68-630D7FCC7CE1"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "38F4167B-7405-4057-AD92-04D8A0835488"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "4292CF38-C2ED-49A8-97EA-1A27F6F47BB4"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "3C94C47C-7D23-4D9A-B8F4-1F3A0081735D"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "D47818FC-FBD1-40C7-9E32-708869E5EC00"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "89E2F0D4-FBBE-435D-94EA-728E153D1670"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "7FFA2E03-4534-4DDB-ACD8-3002A2763AB0"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "DC2AC7A4-F7F2-4BEC-9C7B-02A568800C80"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "A2E517D9-691D-4D34-B244-60B649CE7239"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "A28C0117-E4D3-4499-9534-9CD5A12EAEE6"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "E7F9F0B7-6A25-4276-9361-930235BEB4F8"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "F8CCE4D9-18F3-4E29-9D67-CEFBE562379F"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "73DC5300-CBCF-44B2-9249-CBE10534B65E"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "9E26E176-3810-44A7-BBB6-4F3282554BF4"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "30599994-46A4-4054-9ABF-3121676E28A2"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "ACF31556-2958-489D-AFB8-7A1AD3C63D76"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "8EA688F3-75D0-4972-A4F1-111C883DEABA"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "7B6FAAA1-6CE1-4025-86D4-C3B57C3F2CF1"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "A8CBC612-6637-423A-91DD-2535D945AB23"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "DED79395-9EBF-4F9D-9D9C-E4E4367A003A"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "734C6826-9289-43E1-8AA7-8020022A046F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "97AA272B-D1EF-457E-AE02-421ECF6B0D41"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "61D88FEC-F4E5-416F-85A0-A1932F29BB23"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "A23471CA-E5B6-48B7-95BA-7CD5AF30F58B"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "AEC15989-3630-47E6-BA4A-46467BFEBA42"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "5545CF2F-D1F4-4046-A344-5963E9A2DCD9"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "2F774A2E-FF20-46D7-B66D-F72BECC56B28"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "0642EB50-ACD7-4844-8461-A60A1A8FF116"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "A906CFE2-2D88-4BDF-A613-8678D57CDAE9"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "924B477C-F29C-4437-8801-A7D0E8DDBBDA"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "E70D1545-B9F1-4F35-B356-498CE6E6050A"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "CF7C643D-312F-40F5-BEC2-3AF39FBC84B3"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "9F4B23A4-A3D0-496B-9C6A-29644783652D"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "458B22B6-F783-4318-BB2A-CF3166EA411A"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "D590DE57-B24A-40AE-8E41-54FD633C49DE"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "9F314865-91B0-45DA-9FEE-EE39EE87D80C"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "5B2B27C3-E644-4839-B329-8917FAE55096"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "E5C6BE00-BC69-4A8A-A07E-179E09AEAC6A"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "0D4445F1-7E01-4B0F-AA18-D08E672648C0"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "50194EA1-30F1-4792-BFDD-DA7BFA2A7AEE"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "F8855E53-AB70-4B29-BAEB-6FD715A00623"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "D0DA5188-4551-4B01-8515-7EAE3B091AC7"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "3F5A76DE-EFF7-492E-B87C-70489A8BB6F1"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "9970D4AE-BFBA-43B1-8D6D-4224694C35DB"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "49C67262-5D13-4BD2-B16F-2240159659CA"  ?>
+  <?define GUID_VC                                      = "9C678844-BB1E-4342-870F-AE2FD9CC64D9"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "5C449BFF-02FB-482D-9B18-1244050201A5"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "42D0D70E-F001-4E9B-86B8-5F555305D3D2"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "3EA89B31-F1E8-473C-B3C0-66F6F79EC337"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "9B1BC48D-E6A4-4A21-82BE-A490A9B281DC"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "363A0188-8539-4526-A0AF-9898C9AAA241"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "A84B3437-4D79-4191-AF31-6A7A5FDBD0BF"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "674E82FF-266E-413A-A8D0-5D7A9CA2CE9F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "F3231950-A856-4A32-AE72-550B838DF618"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "6BC2AB57-235D-4C94-AAC7-966301DF1922"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "284B58BF-483C-4B51-A37E-75A5C4A82E7A"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "286E60B6-E626-4197-94E7-2AD59D0E1AE0"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "F757B3D6-638C-448A-A7FD-2FBF8817C3BB"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "711EC70A-A439-403B-9CD1-25C50DC0553A"  ?>
+  <?endif                                                                                         ?>
+  <?if $(var.InstallerPlatform)                         = "x64"                                   ?>
+  <?define PACKAGEID                                    = "BF246F2B-B6B5-4446-BF99-795A90B3D5F2"  ?>
+  <?define GUID_Aladdin.dll                             = "A164276C-E108-414F-9DC0-4F49D5199537"  ?>
+  <?define GUID_Aladdin.IO.dll                          = "12F34694-A161-4406-A8C1-F5543276263A"  ?>
+  <?define GUID_Aladdin.Net.dll                         = "753A2A4A-2606-463C-B6F4-D9732E0953F9"  ?>
+  <?define GUID_Aladdin.Net.TCP.dll                     = "D876BDA6-B953-4E18-AE67-655427ADB4B6"  ?>
+  <?define GUID_Aladdin.Math.dll                        = "C8914A34-E5B7-4F11-B53E-9E6A8C0D069F"  ?>
+  <?define GUID_Aladdin.GUI.dll                         = "D0E5B607-8207-41F2-9B53-898326850503"  ?>
+  <?define GUID_Aladdin.GUI.resources.ru.dll            = "A2A73D1F-3C42-48DE-837F-8475F5CFF4AA"  ?>
+  <?define GUID_Aladdin.ASN1.dll                        = "0FF3A9A8-35A7-4EBE-A856-796F4529A06F"  ?>
+  <?define GUID_Aladdin.ASN1.ISO.dll                    = "AD19306B-1800-4713-BA63-FAF3590B9DB8"  ?>
+  <?define GUID_Aladdin.PKCS11.dll                      = "F62CD07D-8B75-4CD2-A312-A07886223483"  ?>
+  <?define GUID_Aladdin.PCSC.dll                        = "31882149-83E5-4FCF-BA27-827C6F537639"  ?>
+  <?define GUID_Aladdin.PCSC.Windows.dll                = "D9F000EA-3E07-49B4-BCB4-7B9038E65FAF"  ?>
+  <?define GUID_Aladdin.ISO7816.dll                     = "E4BF0381-E002-4F5E-9230-DA5BD2AC3A8A"  ?>
+  <?define GUID_Aladdin.CAPI.dll                        = "D1C52581-EE66-4A0D-970F-C1412DD096B2"  ?>
+  <?define GUID_Aladdin.CAPI.resources.ru.dll           = "08BC7A4B-DE99-427D-9818-0D104098634F"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.dll                  = "955CF37D-34E8-4419-B1B0-A1CCBA55B8AE"  ?>
+  <?define GUID_Aladdin.CAPI.Proxy.Windows.dll          = "1BDC3CB0-6403-47C1-B08C-2BEC606E3F6B"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.dll                    = "DD90A450-2D97-4A1E-9410-6E4D82F2BF09"  ?>
+  <?define GUID_Aladdin.CAPI.GUI.resources.ru.dll       = "B3E4E82C-EDCF-4269-A208-7682DE82B1FC"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.dll                   = "ACA7A824-16C7-4D10-B982-72A510D3E28E"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.dll               = "3CA2BB7F-D79C-40FF-80DD-1F2418EA6B17"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll  = "6663E0DD-A23F-437F-B8E4-56F91BE99741"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.PKCS11.dll            = "DEAE9776-B3C6-4CDC-A227-27C9523C7D20"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.dll                   = "A418F6C1-7DCC-453D-B7A4-0E8F4488B4D1"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.dll               = "029DC817-7557-4AA8-BFB9-CD1B79672CFD"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll  = "E3838CCC-D5CE-4662-810C-8F2363085533"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.PKCS11.dll            = "12C3B8F9-3E5D-42F4-BF0B-A899C1426EEA"  ?>
+  <?define GUID_Aladdin.CAPI.STB.dll                    = "97A5E4D3-B22F-497E-B869-4CAF08626AC2"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.dll                = "BE97C6D5-C866-464E-89CF-0D68717DBC1C"  ?>
+  <?define GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll   = "B328FF19-FF00-40BF-B3CE-37265004E2AC"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.dll                     = "5BF9430D-5816-495B-B88C-F2BF41897637"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.dll                 = "816CE12E-CDA6-4786-9EC7-FF90F3A52B1B"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll    = "4E1893CF-8FE6-4A57-932F-6EB09E8D01CE"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.dll                 = "3061CD07-B328-4271-AA9F-6C76042BF6B3"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.AKS.dll             = "46287A78-5CCB-4F6B-A753-858FDE4D9CCC"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.Athena.dll          = "E009B588-9742-4AA0-B3B1-700325D5D7C0"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS11.JaCarta.dll         = "52F824A1-C70B-4491-90A9-66791467861C"  ?>
+  <?define GUID_Aladdin.CAPI.PKCS12.dll                 = "1133CEDB-3ECB-4C34-BBD9-34D9159FB977"  ?>
+  <?define GUID_Aladdin.CAPI.Environment.dll            = "E47D8BD3-89EB-41A2-91DC-84CA946144D6"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.BSAPI.dll              = "D2092F47-54D6-447A-8A58-FEFB83BECFF5"  ?>
+  <?define GUID_Aladdin.CAPI.Bio.Athena.dll             = "C0532039-E83F-4E09-98D8-53ADD9325098"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.dll                  = "787E7BE6-FE8B-4C08-B53D-75EC84B13061"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.Windows.dll          = "940B6416-AE58-47E7-9D7B-FF42CCD25EF8"  ?>
+  <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "6A15E5F0-7905-453E-B957-6084608D18F6"  ?>
+  <?define GUID_Aladdin.CAPI.COM.NET.dll                = "6B209B73-A931-483D-B017-28054F7B3740"  ?>
+  <?define GUID_pb_flex_h_net.dll                       = "FE9B21A0-AFB4-4E59-9780-2F6EFAF06216"  ?>
+  <?define GUID_VC                                      = "7CE5B337-E4B4-44DE-B9C4-88E0683B07DF"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.dll                    = "656C4949-9711-4D87-A1A9-B5DDE0C82769"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "4354834E-9DE9-4E92-B463-8374912D25F2"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "2D44BF8C-A062-4272-A8B0-F050928C5C01"  ?>
+  <?define GUID_Aladdin.CAPI.Rnd.Bio.dll                = "B81EFC95-C13F-4FA9-A750-252E66DFEE8F"  ?>
+  <?define GUID_Aladdin.CAPI.CSP.dll                    = "40B237BA-0DF9-46DC-A35E-0B2EEA693465"  ?>
+  <?define GUID_Aladdin.CAPI.CNG.dll                    = "6B18BABA-568D-43E8-9243-C624BCBA02E7"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll     = "F6BFEE37-E0F0-4135-8669-E086A72258CF"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll           = "D238FAB0-F808-4E37-8F99-B0C77530BEB2"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll        = "DC4908D7-CBB6-4775-90E6-CB80D8678F5F"  ?>
+  <?define GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll     = "1497B612-75C1-4F8C-89B4-43A7762C649E"  ?>
+  <?define GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll     = "E5DAE990-DDA2-4D48-9402-7F7E14A17BF2"  ?>
+  <?define GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll           = "D0ED15C4-EE7C-422A-B2FF-3E79A4F32EAF"  ?>
+  <?define GUID_Aladdin.CAPI.SCard.APDU.dll             = "789117A9-4361-409E-B1D4-2C1847822249"  ?>
+  <?endif                                                                                         ?>
+  <?endif                                                                                         ?>
+
+  <Module Id="CAPI" Language="1033" Version="$(var.VERSION)">
+    <Package Id="$(var.PACKAGEID)" InstallerVersion="300" Manufacturer="Aladdin R.D." Description="CAPI Library" InstallScope="perUser"/>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="AppDataFolder">
+        <Directory Id="Aladdin" Name="Aladdin">
+          <Directory Id="CAPI" Name="CAPI">
+            <Directory Id="Platform" Name="$(var.InstallerPlatform)">
+              <Directory Id="Version" Name="$(var.VERSION)">
+                <Directory Id="INSTALLDIR" Name="$(var.TargetFrameworkVersion)">
+                  <Component Id="VC" Guid="$(var.GUID_VC)" SharedDllRefCount="yes">
+                    <?if $(var.CrtVersion) = "90"?>
+                    <File Name="$(var.VC_MSVCR90)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR90)\$(var.VC_MSVCR90)" KeyPath="yes" DiskId="1" />
+                    <File Name="$(var.VC_MSVCP90)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR90)\$(var.VC_MSVCP90)" KeyPath="no"  DiskId="1" />
+                    <File Name="$(var.VC_MSVCM90)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR90)\$(var.VC_MSVCM90)" KeyPath="no"  DiskId="1" />
+                    <?endif?>
+                    <?if $(var.CrtVersion) = "140"?>
+                    <File Name="$(var.VC_VCRT140)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_VCRT140) "  KeyPath="yes" DiskId="1" />
+                    <File Name="$(var.VC_VCCOR140)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_VCCOR140)"  KeyPath="no"  DiskId="1" />
+                    <File Name="$(var.VC_MSVCP140)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_MSVCP140)"  KeyPath="no"  DiskId="1" />
+                    <File Name="$(var.VC_CONCRT140)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_CONCRT140)" KeyPath="no"  DiskId="1" />
+                    <?endif?>
+                  </Component>
+                  <Component Id="Aladdin.dll" Guid="$(var.GUID_Aladdin.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.dll" Source="$(var.BIN)\Aladdin.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.IO.dll" Guid="$(var.GUID_Aladdin.IO.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.IO.dll" Source="$(var.BIN)\Aladdin.IO.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.Net.dll" Guid="$(var.GUID_Aladdin.Net.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.Net.dll" Source="$(var.BIN)\Aladdin.Net.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.Net.TCP.dll" Guid="$(var.GUID_Aladdin.Net.TCP.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.Net.TCP.dll" Source="$(var.BIN)\Aladdin.Net.TCP.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.Math.dll" Guid="$(var.GUID_Aladdin.Math.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.Math.dll" Source="$(var.BIN)\Aladdin.Math.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.GUI.dll" Guid="$(var.GUID_Aladdin.GUI.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.GUI.dll" Source="$(var.BIN)\Aladdin.GUI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.ASN1.dll" Guid="$(var.GUID_Aladdin.ASN1.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.ASN1.dll" Source="$(var.BIN)\Aladdin.ASN1.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.ASN1.ISO.dll" Guid="$(var.GUID_Aladdin.ASN1.ISO.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.ASN1.ISO.dll" Source="$(var.BIN)\Aladdin.ASN1.ISO.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.PKCS11.dll" Guid="$(var.GUID_Aladdin.PKCS11.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.PKCS11.dll" Source="$(var.BIN)\Aladdin.PKCS11.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.PCSC.dll" Guid="$(var.GUID_Aladdin.PCSC.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.PCSC.dll" Source="$(var.BIN)\Aladdin.PCSC.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.PCSC.Windows.dll" Guid="$(var.GUID_Aladdin.PCSC.Windows.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.PCSC.Windows.dll" Source="$(var.BIN)\Aladdin.PCSC.Windows.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.ISO7816.dll" Guid="$(var.GUID_Aladdin.ISO7816.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.ISO7816.dll" Source="$(var.BIN)\Aladdin.ISO7816.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.dll" Guid="$(var.GUID_Aladdin.CAPI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.dll" Source="$(var.BIN)\Aladdin.CAPI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Proxy.dll" Guid="$(var.GUID_Aladdin.CAPI.Proxy.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Proxy.dll" Source="$(var.BIN)\Aladdin.CAPI.Proxy.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Proxy.Windows.dll" Guid="$(var.GUID_Aladdin.CAPI.Proxy.Windows.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Proxy.Windows.dll" Source="$(var.BIN)\Aladdin.CAPI.Proxy.Windows.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.GUI.dll" Guid="$(var.GUID_Aladdin.CAPI.GUI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.GUI.dll" Source="$(var.BIN)\Aladdin.CAPI.GUI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.dll" Source="$(var.BIN)\Aladdin.CAPI.ANSI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.GUI.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.GUI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.GUI.dll" Source="$(var.BIN)\Aladdin.CAPI.ANSI.GUI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.PKCS11.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.PKCS11.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.PKCS11.dll" Source="$(var.BIN)\Aladdin.CAPI.ANSI.PKCS11.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.CSP.Microsoft.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.CSP.Microsoft.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.CSP.Microsoft.dll" Source="$(var.BINXX)\Aladdin.CAPI.ANSI.CSP.Microsoft.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.CSP.AKS.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.CSP.AKS.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.CSP.AKS.dll" Source="$(var.BINXX)\Aladdin.CAPI.ANSI.CSP.AKS.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.CSP.Athena.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.CSP.Athena.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.CSP.Athena.dll" Source="$(var.BINXX)\Aladdin.CAPI.ANSI.CSP.Athena.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.ANSI.CNG.Microsoft.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.CNG.Microsoft.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.ANSI.CNG.dll" Source="$(var.BINXX)\Aladdin.CAPI.ANSI.CNG.Microsoft.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.GOST.dll" Guid="$(var.GUID_Aladdin.CAPI.GOST.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.GOST.dll" Source="$(var.BIN)\Aladdin.CAPI.GOST.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.GOST.GUI.dll" Guid="$(var.GUID_Aladdin.CAPI.GOST.GUI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.GOST.GUI.dll" Source="$(var.BIN)\Aladdin.CAPI.GOST.GUI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.GOST.PKCS11.dll" Guid="$(var.GUID_Aladdin.CAPI.GOST.PKCS11.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.GOST.PKCS11.dll" Source="$(var.BIN)\Aladdin.CAPI.GOST.PKCS11.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.GOST.CSP.CryptoPro.dll" Guid="$(var.GUID_Aladdin.CAPI.GOST.CSP.CryptoPro.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.GOST.CSP.CryptoPro.dll" Source="$(var.BINXX)\Aladdin.CAPI.GOST.CSP.CryptoPro.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.STB.dll" Guid="$(var.GUID_Aladdin.CAPI.STB.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.STB.dll" Source="$(var.BIN)\Aladdin.CAPI.STB.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.STB.GUI.dll" Guid="$(var.GUID_Aladdin.CAPI.STB.GUI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.STB.GUI.dll" Source="$(var.BIN)\Aladdin.CAPI.STB.GUI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.KZ.dll" Guid="$(var.GUID_Aladdin.CAPI.KZ.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.KZ.dll" Source="$(var.BIN)\Aladdin.CAPI.KZ.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.KZ.GUI.dll" Guid="$(var.GUID_Aladdin.CAPI.KZ.GUI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.KZ.GUI.dll" Source="$(var.BIN)\Aladdin.CAPI.KZ.GUI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.KZ.CSP.Tumar.dll" Guid="$(var.GUID_Aladdin.CAPI.KZ.CSP.Tumar.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.KZ.CSP.dll" Source="$(var.BINXX)\Aladdin.CAPI.KZ.CSP.Tumar.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.PKCS11.dll" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.PKCS11.dll" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.PKCS11.AKS.dll" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.AKS.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.PKCS11.AKS.dll" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.AKS.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.PKCS11.Athena.dll" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.Athena.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.PKCS11.Athena.dll" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.Athena.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.PKCS11.JaCarta.dll" Guid="$(var.GUID_Aladdin.CAPI.PKCS11.JaCarta.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.PKCS11.JaCarta.dll" Source="$(var.BIN)\Aladdin.CAPI.PKCS11.JaCarta.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.PKCS12.dll" Guid="$(var.GUID_Aladdin.CAPI.PKCS12.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.PKCS12.dll" Source="$(var.BIN)\Aladdin.CAPI.PKCS12.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Rnd.dll" Guid="$(var.GUID_Aladdin.CAPI.Rnd.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Rnd.dll" Source="$(var.BINXX)\Aladdin.CAPI.Rnd.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Rnd.Sobol.dll" Guid="$(var.GUID_Aladdin.CAPI.Rnd.Sobol.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Rnd.Sobol.dll" Source="$(var.BINXX)\Aladdin.CAPI.Rnd.Sobol.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Rnd.Accord.dll" Guid="$(var.GUID_Aladdin.CAPI.Rnd.Accord.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Rnd.Accord.dll" Source="$(var.BINXX)\Aladdin.CAPI.Rnd.Accord.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Rnd.Bio.dll" Guid="$(var.GUID_Aladdin.CAPI.Rnd.Bio.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Rnd.Bio.dll" Source="$(var.BINXX)\Aladdin.CAPI.Rnd.Bio.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.CSP.dll" Guid="$(var.GUID_Aladdin.CAPI.CSP.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.CSP.dll" Source="$(var.BINXX)\Aladdin.CAPI.CSP.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.CNG.dll" Guid="$(var.GUID_Aladdin.CAPI.CNG.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.CNG.dll" Source="$(var.BINXX)\Aladdin.CAPI.CNG.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Environment.dll" Guid="$(var.GUID_Aladdin.CAPI.Environment.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Environment.dll" Source="$(var.BIN)\Aladdin.CAPI.Environment.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.SCard.dll" Guid="$(var.GUID_Aladdin.CAPI.SCard.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.SCard.dll" Source="$(var.BIN)\Aladdin.CAPI.SCard.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.SCard.Windows.dll" Guid="$(var.GUID_Aladdin.CAPI.SCard.Windows.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.SCard.Windows.dll" Source="$(var.BIN)\Aladdin.CAPI.SCard.Windows.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.SCard.APDU.dll" Guid="$(var.GUID_Aladdin.CAPI.SCard.APDU.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.SCard.APDU.dll" Source="$(var.BINXX)\Aladdin.CAPI.SCard.APDU.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Bio.BSAPI.dll" Guid="$(var.GUID_Aladdin.CAPI.Bio.BSAPI.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Bio.BSAPI.dll" Source="$(var.BIN)\Aladdin.CAPI.Bio.BSAPI.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.Bio.Athena.dll" Guid="$(var.GUID_Aladdin.CAPI.Bio.Athena.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.Bio.Athena.dll" Source="$(var.BIN)\Aladdin.CAPI.Bio.Athena.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="pb_flex_h_net.dll" Guid="$(var.GUID_pb_flex_h_net.dll)"  SharedDllRefCount="yes">
+                    <File Name="pb_flex_h_net.dll" Source="$(var.BIN)\pb_flex_h_net.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.COM.Interop.dll" Guid="$(var.GUID_Aladdin.CAPI.COM.Interop.dll)"  SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.COM.Interop.dll" Source="$(var.BIN)\Aladdin.CAPI.COM.Interop.dll" KeyPath="yes"  DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.COM.NET.dll" Guid="$(var.GUID_Aladdin.CAPI.COM.NET.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.CAPI.COM.NET.dll" Source="$(var.BIN)\Aladdin.CAPI.COM.NET.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.CAPI.COM.NET.reg" Guid="$(var.CLSID_COM_NET)" SharedDllRefCount="yes">
+                    <RegistryValue Root="HKCU" Key="Software\Classes\Aladdin.CAPI.COM.Entry.$(var.VERSION_COM_NET)"                        Type="string" Value="Aladdin.CAPI.COM.Entry.$(var.VERSION_COM_NET)" KeyPath="yes"                                            />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\Aladdin.CAPI.COM.Entry.$(var.VERSION_COM_NET)\CLSID"                  Type="string" Value="{$(var.CLSID_COM_NET)}"                                                                                 />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}"                                         Type="string" Value="Aladdin.CAPI.COM.Entry.$(var.VERSION_COM_NET)"                                                          />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32"                          Type="string" Value="mscoree.dll"                                                                                            />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32" Name="Class"             Type="string" Value="Aladdin.CAPI.COM.Entry"                                                                                 />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32" Name="Assembly"          Type="string" Value="Aladdin.CAPI.COM.NET, Version=$(var.VERSION_COM_NET), Culture=neutral, PublicKeyToken=c7c86292dd1a865e" />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32" Name="CodeBase"          Type="string" Value="[INSTALLDIR]Aladdin.CAPI.COM.NET.dll"                                                                   />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32" Name="RuntimeVersion"    Type="string" Value="$(var.MsCorLibVersion)"                                                                                 />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32" Name="ThreadingModel"    Type="string" Value="Apartment"                                                                                              />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\InprocServer32\ProgId"                   Type="string" Value="Aladdin.CAPI.COM.Entry.$(var.VERSION_COM_NET)"                                                          />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}" Type="string" Value=""                                                                                 />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\Implemented Categories\{7DD95801-9882-11CF-9FA9-00AA006C42C4}" Type="string" Value=""                                                                                 />
+                    <RegistryValue Root="HKCU" Key="Software\Classes\CLSID\{$(var.CLSID_COM_NET)}\Implemented Categories\{7DD95802-9882-11CF-9FA9-00AA006C42C4}" Type="string" Value=""                                                                                 />
+                  </Component>
+                  <Directory Id="ru" Name="ru">
+                    <Component Id="Aladdin.GUI.resources.ru.dll" Guid="$(var.GUID_Aladdin.GUI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.GUI.resources.dll" Source="$(var.BIN)\ru\Aladdin.GUI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                    <Component Id="Aladdin.CAPI.resources.ru.dll" Guid="$(var.GUID_Aladdin.CAPI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.CAPI.resources.dll" Source="$(var.BIN)\ru\Aladdin.CAPI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                    <Component Id="Aladdin.CAPI.GUI.resources.ru.dll" Guid="$(var.GUID_Aladdin.CAPI.GUI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.CAPI.GUI.resources.dll" Source="$(var.BIN)\ru\Aladdin.CAPI.GUI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                    <Component Id="Aladdin.CAPI.ANSI.GUI.resources.ru.dll" Guid="$(var.GUID_Aladdin.CAPI.ANSI.GUI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.CAPI.ANSI.GUI.resources.dll" Source="$(var.BIN)\ru\Aladdin.CAPI.ANSI.GUI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                    <Component Id="Aladdin.CAPI.GOST.GUI.resources.ru.dll" Guid="$(var.GUID_Aladdin.CAPI.GOST.GUI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.CAPI.GOST.GUI.resources.dll" Source="$(var.BIN)\ru\Aladdin.CAPI.GOST.GUI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                    <Component Id="Aladdin.CAPI.STB.GUI.resources.ru.dll" Guid="$(var.GUID_Aladdin.CAPI.STB.GUI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.CAPI.STB.GUI.resources.dll" Source="$(var.BIN)\ru\Aladdin.CAPI.STB.GUI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                    <Component Id="Aladdin.CAPI.KZ.GUI.resources.ru.dll" Guid="$(var.GUID_Aladdin.CAPI.KZ.GUI.resources.ru.dll)"  SharedDllRefCount="yes">
+                      <File Name="Aladdin.CAPI.KZ.GUI.resources.dll" Source="$(var.BIN)\ru\Aladdin.CAPI.KZ.GUI.resources.dll" KeyPath="yes" DiskId="1" />
+                    </Component>
+                  </Directory>
+                </Directory>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Module>
+</Wix>
+

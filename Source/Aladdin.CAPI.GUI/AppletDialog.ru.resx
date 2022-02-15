@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="buttonOK.Location" type="System.Drawing.Point, System.Drawing">
+    <value>275, 360</value>
+  </data>
+  <data name="buttonOK.Size" type="System.Drawing.Size, System.Drawing">
+    <value>115, 26</value>
+  </data>
+  <data name="labelMaxRWSessions.Location" type="System.Drawing.Point, System.Drawing">
+    <value>334, 210</value>
+  </data>
+  <data name="labelMaxRWSessions.Size" type="System.Drawing.Size, System.Drawing">
+    <value>38, 13</value>
+  </data>
+  <data name="labelMaxPin.Location" type="System.Drawing.Point, System.Drawing">
+    <value>334, 185</value>
+  </data>
+  <data name="labelMaxPin.Size" type="System.Drawing.Size, System.Drawing">
+    <value>38, 13</value>
+  </data>
+  <data name="labelFreePrivate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>334, 163</value>
+  </data>
+  <data name="labelFreePrivate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>38, 13</value>
+  </data>
+  <data name="labelFreePublic.Location" type="System.Drawing.Point, System.Drawing">
+    <value>334, 140</value>
+  </data>
+  <data name="labelFreePublic.Size" type="System.Drawing.Size, System.Drawing">
+    <value>38, 13</value>
+  </data>
+  <data name="labelMaxSessions.Location" type="System.Drawing.Point, System.Drawing">
+    <value>142, 209</value>
+  </data>
+  <data name="labelMaxSessions.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 13</value>
+  </data>
+  <data name="labelMinPin.Location" type="System.Drawing.Point, System.Drawing">
+    <value>142, 185</value>
+  </data>
+  <data name="labelMinPin.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 13</value>
+  </data>
+  <data name="labelTotalPrivate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>142, 162</value>
+  </data>
+  <data name="labelTotalPrivate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 13</value>
+  </data>
+  <data name="labelTotalPublic.Location" type="System.Drawing.Point, System.Drawing">
+    <value>142, 139</value>
+  </data>
+  <data name="labelTotalPublic.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 13</value>
+  </data>
+  <data name="textBoxAppletFV.Location" type="System.Drawing.Point, System.Drawing">
+    <value>286, 12</value>
+  </data>
+  <data name="textBoxAppletFV.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 20</value>
+  </data>
+  <data name="textBoxAppletHV.Location" type="System.Drawing.Point, System.Drawing">
+    <value>120, 15</value>
+  </data>
+  <data name="textBoxAppletHV.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 20</value>
+  </data>
+  <data name="textBoxAppletModel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>120, 62</value>
+  </data>
+  <data name="textBoxAppletModel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>250, 20</value>
+  </data>
+  <data name="textBoxAppletVendor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>120, 39</value>
+  </data>
+  <data name="textBoxAppletVendor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>250, 20</value>
+  </data>
+  <data name="label18.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 209</value>
+  </data>
+  <data name="label18.Size" type="System.Drawing.Size, System.Drawing">
+    <value>144, 13</value>
+  </data>
+  <data name="label18.Text" xml:space="preserve">
+    <value>Макс. число R/W сеансов:</value>
+  </data>
+  <data name="label17.Size" type="System.Drawing.Size, System.Drawing">
+    <value>117, 13</value>
+  </data>
+  <data name="label17.Text" xml:space="preserve">
+    <value>Макс. число сеансов:</value>
+  </data>
+  <data name="label16.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 184</value>
+  </data>
+  <data name="label16.Size" type="System.Drawing.Size, System.Drawing">
+    <value>141, 13</value>
+  </data>
+  <data name="label16.Text" xml:space="preserve">
+    <value>Максимальная длина PIN:</value>
+  </data>
+  <data name="label15.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 13</value>
+  </data>
+  <data name="label15.Text" xml:space="preserve">
+    <value>Минимальная длина PIN:</value>
+  </data>
+  <data name="label14.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 162</value>
+  </data>
+  <data name="label14.Size" type="System.Drawing.Size, System.Drawing">
+    <value>151, 13</value>
+  </data>
+  <data name="label14.Text" xml:space="preserve">
+    <value>Свободно закрытой памяти:</value>
+  </data>
+  <data name="label13.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 13</value>
+  </data>
+  <data name="label13.Text" xml:space="preserve">
+    <value>Закрытая память:</value>
+  </data>
+  <data name="label12.Location" type="System.Drawing.Point, System.Drawing">
+    <value>183, 139</value>
+  </data>
+  <data name="label12.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 13</value>
+  </data>
+  <data name="label12.Text" xml:space="preserve">
+    <value>Свободно открытой памяти:</value>
+  </data>
+  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 13</value>
+  </data>
+  <data name="label11.Text" xml:space="preserve">
+    <value>Открытая память:</value>
+  </data>
+  <data name="label8.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 66</value>
+  </data>
+  <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
+    <value>49, 13</value>
+  </data>
+  <data name="label8.Text" xml:space="preserve">
+    <value>Модель:</value>
+  </data>
+  <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 42</value>
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 13</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>Производитель:</value>
+  </data>
+  <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 18</value>
+  </data>
+  <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>109, 13</value>
+  </data>
+  <data name="label5.Text" xml:space="preserve">
+    <value>Аппаратная версия:</value>
+  </data>
+  <data name="label6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>213, 17</value>
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>66, 13</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Версия ПО:</value>
+  </data>
+  <data name="textBoxAppletLabel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>120, 110</value>
+  </data>
+  <data name="textBoxAppletLabel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>237, 20</value>
+  </data>
+  <data name="groupBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>178, 137</value>
+  </data>
+  <data name="textBoxAppletSN.Location" type="System.Drawing.Point, System.Drawing">
+    <value>120, 88</value>
+  </data>
+  <data name="textBoxAppletSN.Size" type="System.Drawing.Size, System.Drawing">
+    <value>237, 20</value>
+  </data>
+  <data name="label19.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
+  </data>
+  <data name="label19.Text" xml:space="preserve">
+    <value>Метка:</value>
+  </data>
+  <data name="label20.Size" type="System.Drawing.Size, System.Drawing">
+    <value>96, 13</value>
+  </data>
+  <data name="label20.Text" xml:space="preserve">
+    <value>Серийный номер:</value>
+  </data>
+  <data name="groupBoxApplet.Size" type="System.Drawing.Size, System.Drawing">
+    <value>378, 244</value>
+  </data>
+  <data name="groupBoxApplet.Text" xml:space="preserve">
+    <value>Апплет</value>
+  </data>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>109, 13</value>
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Аппаратная версия:</value>
+  </data>
+  <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>212, 21</value>
+  </data>
+  <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>66, 13</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>Версия ПО:</value>
+  </data>
+  <data name="label3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 46</value>
+  </data>
+  <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 13</value>
+  </data>
+  <data name="label3.Text" xml:space="preserve">
+    <value>Производитель:</value>
+  </data>
+  <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 71</value>
+  </data>
+  <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>60, 13</value>
+  </data>
+  <data name="label4.Text" xml:space="preserve">
+    <value>Описание:</value>
+  </data>
+  <data name="textBoxReaderVendor.Location" type="System.Drawing.Point, System.Drawing">
+    <value>119, 42</value>
+  </data>
+  <data name="textBoxReaderVendor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>252, 20</value>
+  </data>
+  <data name="textBoxReaderHV.Location" type="System.Drawing.Point, System.Drawing">
+    <value>119, 17</value>
+  </data>
+  <data name="textBoxReaderHV.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 20</value>
+  </data>
+  <data name="textBoxReaderFV.Location" type="System.Drawing.Point, System.Drawing">
+    <value>285, 16</value>
+  </data>
+  <data name="textBoxReaderFV.Size" type="System.Drawing.Size, System.Drawing">
+    <value>86, 20</value>
+  </data>
+  <data name="textBoxReaderInfo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>119, 64</value>
+  </data>
+  <data name="textBoxReaderInfo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>252, 20</value>
+  </data>
+  <data name="groupBoxReader.Size" type="System.Drawing.Size, System.Drawing">
+    <value>377, 91</value>
+  </data>
+  <data name="groupBoxReader.Text" xml:space="preserve">
+    <value>Считыватель</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>402, 399</value>
+  </data>
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAIAEBAAAAAAIABoBAAAJgAAACAgAAAAACAAqBAAAI4EAAAoAAAAEAAAACAAAAABACAAAAAAAEAE
+        AAAAAAAAAAAAAAAAAAAAAAAA////Af///wH///8B////AQAAAAkAAAALAAAACwAAAAsAAAAnAAAALQAA
+        ABsAAAAD////Af///wH///8B////Af///wH///8BAAAAAw0LCSNxYVCNdWRSoXZlU59GOzFZL4jL/z6b
+        1f8wdK7NAAAAEwAAAAsAAAALAAAACf///wH///8B////AQAAAAunl4Lb1826/+DYxf/f1sP/ybqk/V2A
+        nP1GtO3/QJzV/yVfkqOAaE+heGZToXVlU4sAAAAJAAAABQAAAAsAAAATsZ6G/8Kxlv/Qw63/zsCo/7qn
+        jP++qpH/d5y2/1W+8f9Vt+r/YpnA/4ihsv+qnY3/AAAADWNWR0V3Z1WfdWVToZB+admoln7/ppJ3/62b
+        gv+einL/rp6I/7WiiP9eh6f/ZMr6/2DF+P9fxPn/RpfQ/yFHaDuLeWSL0L2i/9jMu//XzLv/1su7/9bK
+        u//Wy7v/1su7/9fMu//Vxq//gJam/3LU/v951fr/YLfl/2/R+v83dKmLjHlmi9PGsf/jlCv/6pwo//So
+        KP/8syn/+bAp//CkKP/nmCf/2Kpq/4acq/9x1vz/WrXk/9fKt/9buOb/Onmwh498Z4vSxrL/4pk4/+un
+        Q//wqTb/9q4w//OsMf/tpDH/5Zov/9KkZv+zp5j/T6PX/2bQ+P9VteX/UKHT/y9lkiuRf2qL0say/96S
+        NP/mokT/7K5Q/++yUv/ur0z/66pM/+alTv/OpXD/w6+a/9DDuP+TqLX/kaiz/7Srn/8AAAALk4Bsi9HF
+        sv/Zii//35lA/+WjSf/oqlP/6a9e/+ixZ//nsXD/yqV5/862pv8Aqkn/lYjU/42Gz//HuKf/AAAAC5aC
+        bovQxLH/1H8o/9qNN//fl0L/459M/+SkV//kqGH/5Kpr/8SccP/Ovq3/1rym/9G8oP/Uw6j/yLur/wAA
+        AAudiHSH5d/Q/83CsP/MwrD/zMKw/8zBr//Mwa//zMGu/8zBrv/Mv6v/0MOy/9/Swf/d0L//2sy6/8u+
+        r/8AAAALnYp3L7OhjOu8q5b/vKuW/7yrlv+8q5b/vKuV/7qpk/+7qpX/u6uW/7WgiP/Ou6L/zLmg/9LB
+        q//NwbL/AAAAC////wH///8B////Af///wH///8B////AZeEcIvs49j/3tG+/97Rv//d0L//3dC//93Q
+        vv/bzLr/z8O2/wAAAAv///8B////Af///wH///8B////Af///wGdiXSH9O/o/+vh1f/r4dX/6+HV/+vh
+        1f/r4dX/6+HV/9LHu/8AAAAJ////Af///wH///8B////Af///wH///8Bnot4L7Shi+u8q5X/vKuV/7yr
+        lf+8q5X/vKuV/7yslv+nkn2Z////AQAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA
+        //8AAP//AAD//wAA//8AAP//AAD//wAA//8oAAAAIAAAAEAAAAABACAAAAAAAIAQAAAAAAAAAAAAAAAA
+        AAAAAAAA////Af///wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8B////Af//
+        /wH///8BAAAABwAAABEAAAAXAAAAFwAAABcAAAARAAAAB////wH///8B////Af///wH///8B////Af//
+        /wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8BAAAABQAAAA0AAAAVAAAAFwAA
+        ABcAAAAXAAAAFQAAAA0AAAAVAAAAMwAAAEMAAABDAAAAQwAAADcAAAAdAAAAB////wH///8B////Af//
+        /wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8BAAAAAwAAAAkAAAAbAAAAMQAA
+        AD8AAABDAAAAQwAAAEMAAAA/AAAALwAAAC0jdb7/LHO1/y9zs/8wc7T/MHe2/wAAADcAAAAR////Af//
+        /wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8B////Af///wEAAAAJAAAAIxoW
+        E0mCcF3FlYBp/5R+aP+Tfmj/lH5o/5V/af+Cb1vBAAAASyFzvf9Mx/7/TcP4/03E+P84h8X/M3i2/wAA
+        ACcAAAAXAAAAFwAAABcAAAAXAAAAFwAAABUAAAANAAAABf///wH///8B////Af///wH///8B////AQAA
+        ABNkV0hznYpy/8W3pf/n4tb/9PDk//Pw5P/08OT/5+LW/8e5p/+jiWz7S3ee9zKP0/9Kwfj/S770/03D
+        +P8zdrX/AAAASQAAAEMAAABDAAAAQwAAAEMAAABDAAAAPwAAACsAAAAN////Af///wH///8B////Af//
+        /wH///8BAAAAF5+KdP/Yz73/3tXB/9PGrv/Owaf/zsCn/87Bp//Txq7/39XB/97Rv/+niGr/UXWX/zOP
+        z/9QxPn/UsX4/y9ysP8yd7b/Lnu//6iFYf+cg2f/mIFp/5eBaf+Xgmr/iXdixQAAABX///8B////Af//
+        /wH///8B////Af///wEAAAAToo54/8m6ov/Ar5T/vqyR/72rkP+9q5D/vauQ/76skf/Ar5T/ybmg/6OL
+        cv/cyKv/Zo+x/zaPz/9by/z/XMr6/13N/f8vc7X/J3a9/+TLqv/eyqz/3Mmt/9zMs/+dhGj/AAAAF///
+        /wEAAAAFAAAADQAAABUAAAAXAAAAFwAAAB+nk37/sp6B/7Cbfv/az7b/5NzL/+Tbyv/k3Mv/2s+2/7Cb
+        fv+xnID/ppJ7/9PErv/axKn/Z46x/zuT0f9l0f3/Zc77/2bR/f9SsOT/K3O3/yh0uf8/gLn/h6O4/6mE
+        Yf8AAAAdAAAAAwAAAA0AAAArAAAAPwAAAEMAAABDAAAARUxDOmuolYD5qZJ3/8/Cqv+8qYj/vKmI/7yp
+        iP/Pwqr/qZJ3/66ahP/GuKX/0sey/9THr//dya3/bJS1/0OX0v9x1f3/X8b4/0iy9P9Mt/f/TLj5/z+p
+        8f81is7/TH+r/wAAAC0AAAALAAAAFYl3YsWXg2z/lYFr/5WBav+UgGr/lIBp/5N/af+Sfmf/mYZx/5F8
+        Zv+RfWb/kXxm/5mGcf+Sfmf/kn5o/5F9Zv+RfGX/kXxk/5V9Y/+hf13/KXS5/2vR/v9Yvfb/ddX7/3nY
+        /P962fz/d9j+/1zF/f89j83/MWmZnwAAABUAAAAXl4Nu/9G6nf/Hr4//xq2O/8Wtjv/FrY7/xK2O/8Ss
+        jf/ErI3/xKyN/8Ssjf/ErI3/xKyN/8Ssjf/ErI3/xKyN/8Ssjf/FrY3/yK6N/9i1jv8nc7r/YMn+/4Hc
+        /v9/2/3/f9v+/3/d//+B3v//hOH//1q/9v88gLn/AAAAFwAAABeYhG3/0r2h/9nRvf/s7Of/6+zp/+rs
+        6f/q6+n/6erp/+nq6f/o6un/6Onp/+jq6f/p6un/6erp/+nr6f/q7On/6+zp/+zs5//b0rz/2LiT/yx6
+        vv9t1P//fNr9/3va/f9rx/H/QZHK/0KSzP9vzPT/cNj//zx+uP8AAAAXAAAAF5mEbv/Wwqj/0su4/+GO
+        JP/jkR7/6Zgi/+2dIv/zpCL/96oi//ywI///syP//bEj//irIv/0pSL/7qAi/+qZIv/mkyD/4YkZ/9PM
+        uP/bvpv/Knq//3La//932Pz/d9n9/z+Qyv///+n/6Mai/0OVzv923///PX+6/wAAABUAAAAXmYVw/9rI
+        sv/MxLP/45Ux/+eeOv/onS//7KEu//GoL//1rS//+rMw//64MP/7tTD/9q8v//KpL//upC//6Z4v/+WY
+        LP/hjyP/zsW0/9/DpP82d7H/a9H6/3LY/P9y2f3/QZLM/7qyqf+7s6v/RJjP/3LX/P8/grv/AAAACwAA
+        ABech3D/38+5/8e+rP/ilTL/5aBB/+qmRP/spTf/8KYw//OsMf/3sDH/+rIz//exM//0rTL/8agy/+yj
+        Mv/onjL/5Jgv/+GPJf/Iv63/4Mqv/2Z+kv9Cl9L/btr//27Y/f9ixvD/QpXN/0SW0P9kzPb/TJ7T/zh3
+        q48AAAADAAAAF5yIcv/k1cH/wbek/+GRMP/jnj3/6KZF/+6sTf/vrEX/8akz//OqL//0rDD/86ww//Gp
+        Mf/upTH/66Ex/+ecMP/ili7/4I0k/8G3pf/i0Ln/pIZo/02Ivv8/ldD/Ycz3/2rZ//9r2///Y9D6/0Wb
+        0/9NgrD/AAAAF////wEAAAAXnYlz/+jcyf+8sZ3/344u/+GZPP/moUL/6qhJ/+2vT//wtFX/8bVT//Gv
+        RP/wqzv/7KIs/+ugLf/nmyz/45cr/9+RKf/fiSH/vLCc/+TWwf+ehWz/5s+0/4iit/9Eg7r/MHq7/zB6
+        u/9EhLn/k7HK/6uLa/8AAAAX////AQAAABefi3X/7eLQ/7eplf/cjCz/35c6/+OdQP/no0X/6qlL/+yt
+        Uf/uslf/77Vd/++4Yv/wuWj/77pu/+u2av/rtm7/67l4/+q1c/+2p5L/6dzJ/6GHcv/pz73/6864/+vQ
+        sv/v1a3/7tSs/+TOrf/z6Nj/oYpx/wAAABf///8BAAAAF6CLdf/y6dj/saOO/9qGKf/ckjj/4Jk//+Of
+        Q//mpEj/6KhN/+qsUv/rr1f/67Fd/+uyYv/rtGb/6rRs/+m1cf/os3P/6a9v/7CgiP/w4tH/qol2/wCO
+        Qv8AjD3/8NK2/wAZ5/8AGOX/4c6t/+/n2v+finP/AAAAF////wEAAAAXoYx3//ju3/+snIb/1oIn/9iO
+        Nf/clD3/4JpB/+KfRv/ko0v/5qZQ/+eqVf/orFr/6K1f/+euY//nr2j/5rBt/+avcf/mrW7/q5iA//To
+        2f+qiHj/AMhW/wDGUv/s0Lb/eWb//3Zl///eza7/8Oje/5+Jc/8AAAAX////AQAAABejjnf/+/Tn/6eW
+        fv/TfSb/1ocy/9mPOf/dlD7/35lF/+KdSP/joU3/5KRT/+WmWP/lqF3/5ali/+SsZv/kq2v/5K1w/+Ws
+        bv+mknj/+O7g/6SKdv/pz8L/583A/+HOuv/g0bT/39Cz/9nKsv/w6+D/oIp0/wAAABf///8BAAAAF6SO
+        ef//+u7/oo1z/9N5IP/Ufyn/14Yw/9yNNf/dkTv/4ZdB/+KaRv/jnUz/5KFR/+SjVv/kpVv/5KZh/+Sn
+        Zv/kqWz/5qlt/6GKb//89ef/oYt3/8arjP/Eqov/wqqK/8KqiP/BqIb/2Mq2//Ls5P+gi3T/AAAAF///
+        /wEAAAAVppB6////9f+ZgGH/m4Zp/5uHbP+ahmz/moZr/5qFa/+ahWr/mYRq/5mEaf+ZhGn/mYNo/5mD
+        aP+Zg2f/mYNn/5qDZv+agmT/mX9f///47P+ijXb/wqmI/8Cnhv+/pob/v6aF/76lg//Yyrb/9O/o/6GM
+        df8AAAAX////AQAAAA2ok33////3////9P////b////2////9v////b////2////9v////b////2////
+        9v////b////2////9v////b////2////9f////T///7z/6KMdv///////fv6//z6+v/8+vr//fr6/9fI
+        tf/28Or/oo12/wAAABf///8BAAAABaWRfbOnknz/z8Kt/83Bq//NwKv/zcCr/83Aq//NwKv/zcCr/83A
+        q//NwKv/zcCr/83Aqv/MwKr/zMCq/83Aqv/NwKv/zcCr/87CrP+lkHv/u6mV/9zPvP/azLn/2cu4/9nL
+        uP/Zy7j/2Mm2//f07P+jjnf/AAAAF////wH///8BAAAABamVgbGtmYP/rJeC/6yXgv+sl4L/rJeC/6yX
+        gv+sl4L/rJeC/6yXgv+sl4L/q5aA/6iTff+ok33/qZR//6mUgP+qlYD/qpWB/7Oehv/Eq4z/wqmK/8Go
+        if/BqIn/wKiI/7+mhf/azLn/+fXw/6SPeP8AAAAX////Af///wH///8B////Af///wH///8B////Af//
+        /wH///8B////Af///wH///8B////AQAAABelj3r//vv2/97Pvf/Ap4X/waiG/8Gohv/BqIf/waeG/8Cn
+        hv+/pob/v6aG/7+mhv+/poX/vqSD/9vLuf/79/L/pI95/wAAABf///8B////Af///wH///8B////Af//
+        /wH///8B////Af///wH///8B////Af///wH///8BAAAAF6WQev/8+fb/2su3//z7+P/8+/j//Pr4//v6
+        +P/7+vj/+/r4//v6+P/7+vj/+/r4//v6+P/7+vj/2sq2//v49P+lkHn/AAAAF////wH///8B////Af//
+        /wH///8B////Af///wH///8B////Af///wH///8B////Af///wEAAAAVppF7//z69//ayrb/2sm1/9rJ
+        tf/aybX/2sm1/9rJtf/aybX/2sm1/9rJtf/aybX/2sm1/9rJtf/ayrb//Pr3/6aRe/8AAAAV////Af//
+        /wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8B////AQAAAA2plH3////9//36
+        9//8+fX//Pn1//z59f/8+fX//Pn1//z59f/8+fX//Pn1//z59f/8+fX//Pn1//369/////3/qZR9/wAA
+        AA3///8B////Af///wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8BAAAABaaS
+        frOpk33/zsGr/8zAqf/Mv6n/zL+p/8y/qf/Mv6n/zL+p/8y/qf/Mv6n/zL+p/8y/qf/MwKn/zsGr/6mT
+        ff+mkn6zAAAABf///wH///8B////Af///wH///8B////Af///wH///8B////Af///wH///8B////Af//
+        /wH///8BAAAABamVgbGtmIP/rJeC/6yXgv+sl4L/rJeC/6yXgv+sl4L/rJeC/6yXgv+sl4L/rJeC/6yX
+        gv+tmIP/qZWBsQAAAAX///8B////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Свойства апплета</value>
+  </data>
+</root>

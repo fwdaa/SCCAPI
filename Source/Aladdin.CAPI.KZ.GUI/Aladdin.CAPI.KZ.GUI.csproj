@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{888A1913-D930-46EA-BE2C-80128C457EF0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.CAPI.KZ.GUI</RootNamespace>
+    <AssemblyName>Aladdin.CAPI.KZ.GUI</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Culture.cs" />
+    <Compile Include="CultureControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CultureControl.designer.cs">
+      <DependentUpon>CultureControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8b81fe5b-82f1-41d5-a2af-f9237cc5c953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.GUI\Aladdin.CAPI.ANSI.GUI.csproj">
+      <Project>{a7f48dac-0965-4c9a-b202-999fdc2624d1}</Project>
+      <Name>Aladdin.CAPI.ANSI.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI\Aladdin.CAPI.ANSI.csproj">
+      <Project>{25c83bcc-185c-4eed-a0c0-6f0c9ad20cd4}</Project>
+      <Name>Aladdin.CAPI.ANSI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Environment\Aladdin.CAPI.Environment.csproj">
+      <Project>{cb835c0c-e96b-424e-8c82-e52eb59bc020}</Project>
+      <Name>Aladdin.CAPI.Environment</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST\Aladdin.CAPI.GOST.csproj">
+      <Project>{3d97ff8b-b036-425c-8ae2-fec685d1326c}</Project>
+      <Name>Aladdin.CAPI.GOST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GUI\Aladdin.CAPI.GUI.csproj">
+      <Project>{141f433d-9338-4314-8db3-725d7ba6ecca}</Project>
+      <Name>Aladdin.CAPI.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.KZ\Aladdin.CAPI.KZ.csproj">
+      <Project>{eb64498d-28aa-4b6b-b311-ae23b2c32fe0}</Project>
+      <Name>Aladdin.CAPI.KZ</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS12\Aladdin.CAPI.PKCS12.csproj">
+      <Project>{c0155fce-cb12-43ef-9632-3b8adc246dc5}</Project>
+      <Name>Aladdin.CAPI.PKCS12</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422F4EE1-D424-4396-92B1-A62B332A0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.GUI\Aladdin.GUI.csproj">
+      <Project>{eacc2c52-c417-481f-bd35-d4ee7bb72ee0}</Project>
+      <Name>Aladdin.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5ae748d8-a9e3-4bfa-a047-a644e92c43f5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CultureControl.resx">
+      <DependentUpon>CultureControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CultureControl.ru.resx">
+      <DependentUpon>CultureControl.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <Delete Files="$(TargetDir)ru\$(TargetName).resources.dll" ContinueOnError="true" />
+    <ItemGroup>
+      <Resources Include="$(IntermediateOutputPath)*.ru.resources" />
+    </ItemGroup>
+    <Message Text="TargetFrameworkToolsDir = $(TargetFrameworkToolsDir)" Importance="high" />
+    <AL SdkToolsPath="$(TargetFrameworkToolsDir)" TemplateFile="$(TargetPath)" Culture="ru" EmbedResources="@(Resources)" KeyContainer="$(KeyContainerName)" KeyFile="$(KeyOriginatorFile)" DelaySign="$(DelaySign)" OutputAssembly="$(TargetDir)ru\$(TargetName).resources.dll" />
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath);$(TargetDir)ru\$(TargetName).resources.dll" />
+    </ItemGroup>
+  </Target>
+</Project>

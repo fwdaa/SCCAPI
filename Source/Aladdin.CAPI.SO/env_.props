@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <OPENSSL_INC>/usr/local/ssl/include</OPENSSL_INC>
+    <OPENSSL_LIB>/usr/local/ssl/lib</OPENSSL_LIB>
+    <WXWIDGETS_INC>/usr/local/include/wx-3.0</WXWIDGETS_INC>
+    <WXWIDGETS_LIB>/usr/local/lib</WXWIDGETS_LIB>
+  </PropertyGroup>
+  <ItemDefinitionGroup />
+  <ItemGroup>
+  </ItemGroup>
+</Project>

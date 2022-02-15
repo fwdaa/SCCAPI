@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?if $(var.InstallerPlatform) = "x86"                                                                         ?>
+  <?define FOLDER			  = "ProgramFilesFolder"		                                                    ?>
+  <?define BIN                = "..\..\Binary\Windows\Win32\$(var.Configuration)"                               ?>
+  <?define BINOPENSSL         = "..\..\Externals\OpenSSL\Binary\openssl\Windows\Win32\$(var.Configuration)"     ?>
+  <?endif                                                                                                       ?>
+  <?if $(var.InstallerPlatform) = "x64"                                                                         ?>
+  <?define FOLDER			  = "ProgramFiles64Folder"		                                                    ?>
+  <?define BIN                = "..\..\Binary\Windows\x64\$(var.Configuration)"                                 ?>
+  <?define BINOPENSSL         = "..\..\Externals\OpenSSL\Binary\openssl\Windows\x64\$(var.Configuration)"       ?>
+  <?endif                                                                                                       ?>
+
+  <?if $(var.InstallerPlatform)           = "x86"                                          ?>
+  <?define PACKAGEID                      = "523D1DCB-1EDB-4184-8A29-C4ADA20BEE61"         ?> <!-- external references -->
+  <?define GUID_Aladdin.CAPI.COM.dll      = "95F7A5F7-1926-420E-B849-0CE60BF92279"         ?>
+  <?define GUID_Aladdin.CAPI.SO.dll       = "1803FA8F-7439-46DF-B5EA-82A57E641C32"         ?>
+  <?endif                                                                                  ?>
+  <?if $(var.InstallerPlatform)           = "x64"                                          ?>
+  <?define PACKAGEID                      = "F472966B-52FB-4A7B-A30D-78716697A382"         ?> <!-- external references -->
+  <?define GUID_Aladdin.CAPI.COM.dll      = "4C1950F3-8F2A-4536-B02E-F3134813BCA9"         ?>
+  <?define GUID_Aladdin.CAPI.SO.dll       = "79544463-4764-457A-AC61-749F794D5ADA"         ?>
+  <?endif                                                                                  ?>
+
+  <Module Id="CAPI" Language="1033" Version="$(var.VERSION)">
+    <Package Id="$(var.PACKAGEID)" InstallerVersion="300" Manufacturer="Aladdin R.D." Description="CAPI Library" InstallScope="perMachine"/>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.FOLDER)">
+        <Directory Id="Aladdin" Name="Aladdin">
+          <Directory Id="CAPI" Name="CAPI">
+            <Directory Id="INSTALLDIR" Name="$(var.VERSION)">
+              <Component Id="Aladdin.CAPI.COM.dll" Guid="$(var.GUID_Aladdin.CAPI.COM.dll)" SharedDllRefCount="yes">
+                <File Name="Aladdin.CAPI.COM.dll" Source="$(var.BIN)\Aladdin.CAPI.COM.dll" KeyPath="yes" DiskId="1" />
+              </Component>
+              <Component Id="Aladdin.CAPI.COM.reg" Guid="$(var.CLSID_CAPI_COM)" SharedDllRefCount="yes">
+                <RegistryValue Root="HKLM" Key="Software\Classes\Aladdin.CAPI.COM.Dispatcher.$(var.VERSION)"                          Type="string" Value="Aladdin.CAPI.COM.Dispatcher.$(var.VERSION)" KeyPath="yes" />
+                <RegistryValue Root="HKLM" Key="Software\Classes\Aladdin.CAPI.COM.Dispatcher.$(var.VERSION)\CLSID"                    Type="string" Value="{$(var.CLSID_CAPI_COM)}"                    KeyPath="no"  />
+                <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.CLSID_CAPI_COM)}"                                       Type="string" Value="Aladdin.CAPI.COM.Dispatcher.$(var.VERSION)" KeyPath="no"  />
+                <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.CLSID_CAPI_COM)}\InprocServer32"                        Type="string" Value="[INSTALLDIR]Aladdin.CAPI.COM.dll"           KeyPath="no"  />
+                <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.CLSID_CAPI_COM)}\InprocServer32"  Name="ThreadingModel" Type="string" Value="Both"                                       KeyPath="no"  />
+                <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.CLSID_CAPI_COM)}\ProgId"                                Type="string" Value="Aladdin.CAPI.COM.Dispatcher.$(var.VERSION)" KeyPath="no"  />
+              </Component>
+              <Component Id="Aladdin.CAPI.SO.dll" Guid="$(var.GUID_Aladdin.CAPI.SO.dll)" SharedDllRefCount="yes">
+                <File Name="Aladdin.CAPI.SO.dll" Source="$(var.BIN)\Aladdin.CAPI.SO.dll"     KeyPath="yes" DiskId="1" />
+                <File Name="libcrypto-3.dll"     Source="$(var.BINOPENSSL)\libcrypto-3.dll"  KeyPath="no"  DiskId="1" />
+                <File Name="capi.dll"            Source="$(var.BINOPENSSL)\capi.dll"         KeyPath="no"  DiskId="1" />
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Module>
+</Wix>

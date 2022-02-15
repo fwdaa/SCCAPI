@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0A1925FB-B58A-4221-9E70-63D04234CA7D}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Aladdin.CAPI.GOST.PKCS11</AssemblyName>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.CAPI.GOST.PKCS11</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <SignAssembly>true</SignAssembly>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugType>pdbonly</DebugType>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cipher\GOST28147.cs" />
+    <Compile Include="Cipher\GOST28147_RFC4357.cs" />
+    <Compile Include="Cipher\GOST28147_ECB.cs" />
+    <Compile Include="Creator.cs" />
+    <Compile Include="Derive\TC26.cs" />
+    <Compile Include="Derive\RFC4357.cs" />
+    <Compile Include="GOSTR3410\KeyPairGenerator.cs" />
+    <Compile Include="GOSTR3410\PrivateKey.cs" />
+    <Compile Include="GOSTR3410\PublicKey.cs" />
+    <Compile Include="Hash\GOSTR3411_1994.cs" />
+    <Compile Include="Hash\GOSTR3411_2012.cs" />
+    <Compile Include="Keyx\GOSTR3410\KeyAgreement2001.cs" />
+    <Compile Include="Keyx\GOSTR3410\KeyAgreement2012.cs" />
+    <Compile Include="Keyx\GOSTR3410\TransportKeyUnwrap.cs" />
+    <Compile Include="Keyx\GOSTR3410\TransportKeyWrap.cs" />
+    <Compile Include="MAC\GOST28147.cs" />
+    <Compile Include="MAC\HMAC_GOSTR3411_1994.cs" />
+    <Compile Include="MAC\HMAC_GOSTR3411_2012.cs" />
+    <Compile Include="Parameters.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider.cs" />
+    <Compile Include="Sign\GOSTR3410\SignData.cs" />
+    <Compile Include="Sign\GOSTR3410\SignData2001.cs" />
+    <Compile Include="Sign\GOSTR3410\SignHash.cs" />
+    <Compile Include="Sign\GOSTR3410\VerifyData.cs" />
+    <Compile Include="Sign\GOSTR3410\VerifyData2001.cs" />
+    <Compile Include="Sign\GOSTR3410\VerifyHash.cs" />
+    <Compile Include="Test.cs" />
+    <Compile Include="Wrap\RFC4357.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8b81fe5b-82f1-41d5-a2af-f9237cc5c953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.GOST\Aladdin.CAPI.GOST.csproj">
+      <Project>{3d97ff8b-b036-425c-8ae2-fec685d1326c}</Project>
+      <Name>Aladdin.CAPI.GOST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11\Aladdin.CAPI.PKCS11.csproj">
+      <Project>{3f44a580-c939-4c47-a8da-1e8b27b85749}</Project>
+      <Name>Aladdin.CAPI.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422f4ee1-d424-4396-92b1-a62b332a0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5ae748d8-a9e3-4bfa-a047-a644e92c43f5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PKCS11\Aladdin.PKCS11.csproj">
+      <Project>{f053e5c7-fb57-4083-b17e-f449f0381573}</Project>
+      <Name>Aladdin.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

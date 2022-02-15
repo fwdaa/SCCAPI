@@ -1,0 +1,11 @@
+﻿namespace Aladdin.CAPI.STB.Mode.STB34101
+{
+    ///////////////////////////////////////////////////////////////////////////////
+    // Режим ECB
+    //////////////////////////////////////////////////////////////////////////////
+    public class ECB : CAPI.Mode.ECB
+    {
+        // конструктор
+	    public ECB(CAPI.Cipher engine) : base(engine, PaddingMode.CTS) {}
+    }
+}

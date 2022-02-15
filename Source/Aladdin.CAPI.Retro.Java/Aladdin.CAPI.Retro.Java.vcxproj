@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="jre13\build.xml" />
+    <Xml Include="jre14\build.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jre13\nbproject\project.properties" />
+    <None Include="jre14\nbproject\project.properties" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{52C2540F-263B-4ACA-A3C4-02D75C4E43C4}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\version.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="env.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.51106.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <OutDir>..\..\Binary\Java\lib</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
+    <NMakeBuildCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" jar -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" jar -f .\jre13\build.xml"
+</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean,jar -f .\jre14\build.xml"
+cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean,jar -f .\jre13\build.xml"
+</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean -f .\jre13\build.xml"
+</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutDir>..\..\Binary\Java\lib</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
+    <NMakeBuildCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" jar -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" jar -f .\jre13\build.xml"
+</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean,jar -f .\jre14\build.xml"
+cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean,jar -f .\jre13\build.xml"
+</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean -f .\jre13\build.xml"
+</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\vcxproj.targets" />
+  <Target Name="BeforeClean" BeforeTargets="Clean">
+    <SetEnvVariable Name="java_home" Value="$(JDK18_HOME)" />
+    <RemoveDir Directories="dist" />
+  </Target>
+  <Target Name="BeforeBuild" BeforeTargets="Rebuild;Build">
+    <SetEnvVariable Name="java_home" Value="$(JDK18_HOME)" />
+    <RemoveDir Directories="dist" />
+  </Target>
+  <Target Name="AfterBuild" AfterTargets="Rebuild;Build">
+    <ItemGroup>
+      <RetroFiles13 Include="jre13\lib\**\*.jar" />
+      <RetroFiles14 Include="jre14\lib\**\*.jar" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RetroFiles13)" DestinationFolder="$(ProjectDir)..\..\Binary\Java\retro" />
+    <Copy SourceFiles="@(RetroFiles14)" DestinationFolder="$(ProjectDir)..\..\Binary\Java\retro" />
+    <ItemGroup>
+      <JarFiles13 Include="jre13\dist\**\*.jar" />
+      <JarFiles14 Include="jre14\dist\**\*.jar" />
+    </ItemGroup>
+    <Copy SourceFiles="@(JarFiles13)" DestinationFolder="$(OutDir)\jre13" />
+    <Copy SourceFiles="@(JarFiles14)" DestinationFolder="$(OutDir)\jre14" />
+  </Target>
+</Project>

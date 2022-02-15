@@ -1,0 +1,810 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="radioPBKDF2_HMAC_STB34101.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 21</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_256.Name" xml:space="preserve">
+    <value>radioSTB34101_CTR_256</value>
+  </data>
+  <data name="labelSaltLengthPBE.Size" type="System.Drawing.Size, System.Drawing">
+    <value>65, 13</value>
+  </data>
+  <data name="groupBoxPBE.Size" type="System.Drawing.Size, System.Drawing">
+    <value>372, 257</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_128.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;radioPBKDF2_HMAC_STB34101.Name" xml:space="preserve">
+    <value>radioPBKDF2_HMAC_STB34101</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_256.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="textBoxSaltLengthPBE.Location" type="System.Drawing.Point, System.Drawing">
+    <value>287, 20</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="radioSTB34101_CBC_256.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBE.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_128.Name" xml:space="preserve">
+    <value>radioSTB34101_CFB_128</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2KDF.Parent" xml:space="preserve">
+    <value>groupBoxPBE</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_256.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2KDF.Name" xml:space="preserve">
+    <value>groupBoxPBES2KDF</value>
+  </data>
+  <data name="radioSTB34101_CBC_256.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="radioSTB34101_CFB_256.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_192.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="groupBoxHash.Text" xml:space="preserve">
+    <value>Hash</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2Cipher.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="groupBoxPBES2KDF.Text" xml:space="preserve">
+    <value>PBKDF2</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_256.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="TitleLabel.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_128.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="textBoxIterationsPBMAC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>291, 41</value>
+  </data>
+  <data name="groupBoxPBES2KDF.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="textBoxSaltLengthPBE.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2Cipher.Name" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBE.Parent" xml:space="preserve">
+    <value>groupBoxPBES2KDF</value>
+  </data>
+  <data name="radioPBKDF2_HMAC_STB34101.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBMAC.Parent" xml:space="preserve">
+    <value>groupBoxPBMAC</value>
+  </data>
+  <data name="textBoxIterationsPBE.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 21</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBE.Name" xml:space="preserve">
+    <value>textBoxIterationsPBE</value>
+  </data>
+  <data name="labelIterationsPBE.Size" type="System.Drawing.Size, System.Drawing">
+    <value>58, 13</value>
+  </data>
+  <data name="&gt;&gt;groupBoxHash.Parent" xml:space="preserve">
+    <value>groupBoxPBMAC</value>
+  </data>
+  <data name="radioSTB34101_CTR_256.Text" xml:space="preserve">
+    <value>STB 34.101-CTR (256)</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBE.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="groupBoxPBMAC.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="labelIterationsPBE.Text" xml:space="preserve">
+    <value>Iterations:</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2KDF.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="radioSTB34101_CBC_128.Text" xml:space="preserve">
+    <value>STB 34.101-CBC (128)</value>
+  </data>
+  <data name="groupBoxPBES2KDF.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 12</value>
+  </data>
+  <data name="radioSTB34101_CFB_192.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBMAC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBE.Name" xml:space="preserve">
+    <value>labelIterationsPBE</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBE.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_256.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_192.Name" xml:space="preserve">
+    <value>radioSTB34101_CTR_192</value>
+  </data>
+  <data name="labelIterationsPBMAC.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2Cipher.Parent" xml:space="preserve">
+    <value>groupBoxPBE</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBE.Parent" xml:space="preserve">
+    <value>groupBoxPBES2KDF</value>
+  </data>
+  <data name="groupBoxPBES2Cipher.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="TitleLabel.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 16px, style=Bold</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBMAC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="textBoxSaltLengthPBMAC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 21</value>
+  </data>
+  <data name="TitleLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="radioSTB34101.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="textBoxSaltLengthPBE.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 21</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBMAC.Name" xml:space="preserve">
+    <value>textBoxIterationsPBMAC</value>
+  </data>
+  <data name="radioSTB34101_CFB_256.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_192.Name" xml:space="preserve">
+    <value>radioSTB34101_CFB_192</value>
+  </data>
+  <data name="radioSTB34101_CBC_128.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="groupBoxPBE.Text" xml:space="preserve">
+    <value>PBES2</value>
+  </data>
+  <data name="labelIterationsPBE.Location" type="System.Drawing.Point, System.Drawing">
+    <value>199, 49</value>
+  </data>
+  <data name="groupBoxPBE.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 3</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBE.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2KDF.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBE.Parent" xml:space="preserve">
+    <value>groupBoxPBES2KDF</value>
+  </data>
+  <data name="groupBoxPBMAC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>361, 73</value>
+  </data>
+  <data name="labelIterationsPBE.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBMAC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBMAC.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="textBoxIterationsPBE.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;radioPBKDF2_HMAC_STB34101.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_128.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="textBoxSaltLengthPBE.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="groupBoxPBMAC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 266</value>
+  </data>
+  <data name="groupBoxHash.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 11</value>
+  </data>
+  <data name="groupBoxPBES2KDF.Size" type="System.Drawing.Size, System.Drawing">
+    <value>354, 73</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBE.Parent" xml:space="preserve">
+    <value>groupBoxPBES2KDF</value>
+  </data>
+  <data name="radioSTB34101_CTR_256.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="radioSTB34101.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="textBoxSaltLengthPBMAC.Text" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="labelSaltLengthPBE.TabIndex" type="System.Int32, mscorlib">
+    <value>26</value>
+  </data>
+  <data name="textBoxIterationsPBMAC.Text" xml:space="preserve">
+    <value>1000</value>
+  </data>
+  <data name="radioSTB34101.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 20</value>
+  </data>
+  <data name="$this.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Tahoma, 8.25pt</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_128.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_256.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBE.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="radioSTB34101_CFB_256.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBE.Name" xml:space="preserve">
+    <value>textBoxSaltLengthPBE</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>380, 350</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBMAC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBMAC.Parent" xml:space="preserve">
+    <value>groupBoxPBMAC</value>
+  </data>
+  <data name="radioSTB34101_CFB_128.Text" xml:space="preserve">
+    <value>STB 34.101-CFB (128)</value>
+  </data>
+  <data name="radioSTB34101_CTR_192.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="radioSTB34101_CBC_256.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="radioSTB34101.Text" xml:space="preserve">
+    <value>STB 34.101</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBMAC.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_192.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="radioSTB34101_CTR_192.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101.Name" xml:space="preserve">
+    <value>radioSTB34101</value>
+  </data>
+  <data name="textBoxSaltLengthPBMAC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>291, 14</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBE.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_256.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="labelSaltLengthPBE.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="radioSTB34101_CBC_256.Text" xml:space="preserve">
+    <value>STB 34.101-CBC (256)</value>
+  </data>
+  <data name="textBoxSaltLengthPBMAC.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="labelSaltLengthPBE.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_192.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="labelSaltLengthPBMAC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>65, 13</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBE.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBES2Cipher.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="radioPBKDF2_HMAC_STB34101.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_192.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBMAC.Parent" xml:space="preserve">
+    <value>groupBoxPBMAC</value>
+  </data>
+  <data name="radioSTB34101_CTR_128.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="textBoxIterationsPBE.Location" type="System.Drawing.Point, System.Drawing">
+    <value>287, 46</value>
+  </data>
+  <data name="groupBoxPBMAC.Text" xml:space="preserve">
+    <value>PBMAC</value>
+  </data>
+  <data name="radioSTB34101_CTR_128.Text" xml:space="preserve">
+    <value>STB 34.101-CTR (128)</value>
+  </data>
+  <data name="textBoxIterationsPBMAC.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="radioSTB34101_CFB_128.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="radioSTB34101_CBC_128.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101.Parent" xml:space="preserve">
+    <value>groupBoxHash</value>
+  </data>
+  <data name="radioSTB34101_CTR_128.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 57</value>
+  </data>
+  <data name="labelSaltLengthPBMAC.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="TitleLabel.Text" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="radioSTB34101_CTR_192.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_256.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="labelSaltLengthPBMAC.TabIndex" type="System.Int32, mscorlib">
+    <value>22</value>
+  </data>
+  <data name="radioSTB34101_CFB_256.Text" xml:space="preserve">
+    <value>STB 34.101-CFB (256)</value>
+  </data>
+  <data name="radioSTB34101_CFB_256.Location" type="System.Drawing.Point, System.Drawing">
+    <value>188, 33</value>
+  </data>
+  <data name="groupBoxPBES2Cipher.Text" xml:space="preserve">
+    <value>Encryption Scheme</value>
+  </data>
+  <data name="&gt;&gt;groupBoxHash.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_256.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_128.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBMAC.Name" xml:space="preserve">
+    <value>groupBoxPBMAC</value>
+  </data>
+  <data name="groupBoxHash.Size" type="System.Drawing.Size, System.Drawing">
+    <value>158, 49</value>
+  </data>
+  <data name="radioSTB34101_CBC_256.Location" type="System.Drawing.Point, System.Drawing">
+    <value>188, 13</value>
+  </data>
+  <data name="radioPBKDF2_HMAC_STB34101.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBE.Name" xml:space="preserve">
+    <value>groupBoxPBE</value>
+  </data>
+  <data name="radioSTB34101_CTR_256.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="TitleLabel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 11</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_128.Name" xml:space="preserve">
+    <value>radioSTB34101_CTR_128</value>
+  </data>
+  <data name="TitleLabel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 40</value>
+  </data>
+  <data name="labelSaltLengthPBMAC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>205, 17</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBMAC.Name" xml:space="preserve">
+    <value>labelSaltLengthPBMAC</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>STB34101Control</value>
+  </data>
+  <data name="groupBoxPBES2Cipher.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 91</value>
+  </data>
+  <data name="&gt;&gt;groupBoxHash.Name" xml:space="preserve">
+    <value>groupBoxHash</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBMAC.Name" xml:space="preserve">
+    <value>labelIterationsPBMAC</value>
+  </data>
+  <data name="groupBoxPBES2Cipher.Size" type="System.Drawing.Size, System.Drawing">
+    <value>353, 154</value>
+  </data>
+  <data name="labelSaltLengthPBE.Location" type="System.Drawing.Point, System.Drawing">
+    <value>199, 23</value>
+  </data>
+  <data name="groupBoxPBE.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="radioSTB34101_CBC_192.Text" xml:space="preserve">
+    <value>STB 34.101-CBC (192)</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_256.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="labelIterationsPBMAC.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Aladdin.CAPI.GUI.CultureControl, Aladdin.CAPI.GUI, Version=7.0.1.14240, Culture=neutral, PublicKeyToken=c7c86292dd1a865e</value>
+  </data>
+  <data name="radioSTB34101_CBC_192.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="textBoxIterationsPBMAC.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBMAC.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="radioSTB34101_CTR_256.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="radioSTB34101_CFB_192.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 106</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBE.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_128.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_256.Name" xml:space="preserve">
+    <value>radioSTB34101_CFB_256</value>
+  </data>
+  <data name="&gt;&gt;textBoxIterationsPBE.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="labelIterationsPBE.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="textBoxSaltLengthPBMAC.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBE.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="labelIterationsPBMAC.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="radioSTB34101_CTR_128.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="TitleLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="radioSTB34101_CFB_192.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="radioSTB34101_CTR_256.Location" type="System.Drawing.Point, System.Drawing">
+    <value>188, 55</value>
+  </data>
+  <data name="radioSTB34101_CFB_192.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="radioSTB34101_CFB_128.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 35</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_128.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="radioSTB34101_CTR_192.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 128</value>
+  </data>
+  <data name="labelIterationsPBMAC.Text" xml:space="preserve">
+    <value>Iterations:</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_128.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBE.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_256.Name" xml:space="preserve">
+    <value>radioSTB34101_CBC_256</value>
+  </data>
+  <data name="textBoxSaltLengthPBE.Text" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_128.Name" xml:space="preserve">
+    <value>radioSTB34101_CBC_128</value>
+  </data>
+  <data name="textBoxIterationsPBE.Text" xml:space="preserve">
+    <value>1000</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_192.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;TitleLabel.Name" xml:space="preserve">
+    <value>TitleLabel</value>
+  </data>
+  <data name="radioSTB34101_CTR_192.Text" xml:space="preserve">
+    <value>STB 34.101-CTR (192)</value>
+  </data>
+  <data name="&gt;&gt;TitleLabel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="radioSTB34101.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;groupBoxHash.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBMAC.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="labelIterationsPBMAC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>205, 44</value>
+  </data>
+  <data name="radioPBKDF2_HMAC_STB34101.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 17</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBMAC.Parent" xml:space="preserve">
+    <value>groupBoxPBMAC</value>
+  </data>
+  <data name="radioSTB34101.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 17</value>
+  </data>
+  <data name="radioSTB34101_CFB_128.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="radioPBKDF2_HMAC_STB34101.Text" xml:space="preserve">
+    <value>HMAC-STB 34.101</value>
+  </data>
+  <data name="&gt;&gt;groupBoxPBMAC.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="radioSTB34101_CBC_192.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 24</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_192.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="labelIterationsPBE.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CFB_192.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_192.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="radioSTB34101_CTR_128.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;radioPBKDF2_HMAC_STB34101.Parent" xml:space="preserve">
+    <value>groupBoxPBES2KDF</value>
+  </data>
+  <data name="groupBoxHash.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;radioPBKDF2_HMAC_STB34101.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="labelSaltLengthPBMAC.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_128.Parent" xml:space="preserve">
+    <value>groupBoxPBES2Cipher</value>
+  </data>
+  <data name="&gt;&gt;labelIterationsPBMAC.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="textBoxIterationsPBE.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CBC_192.Name" xml:space="preserve">
+    <value>radioSTB34101_CBC_192</value>
+  </data>
+  <data name="&gt;&gt;radioSTB34101_CTR_192.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="labelSaltLengthPBE.Text" xml:space="preserve">
+    <value>Salt Length:</value>
+  </data>
+  <data name="radioSTB34101_CFB_192.Text" xml:space="preserve">
+    <value>STB 34.101-CFB (192)</value>
+  </data>
+  <data name="labelIterationsPBMAC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>58, 13</value>
+  </data>
+  <data name="labelSaltLengthPBMAC.Text" xml:space="preserve">
+    <value>Salt Length:</value>
+  </data>
+  <data name="radioSTB34101_CBC_128.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="textBoxIterationsPBMAC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 21</value>
+  </data>
+  <data name="&gt;&gt;textBoxSaltLengthPBMAC.Name" xml:space="preserve">
+    <value>textBoxSaltLengthPBMAC</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBMAC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="radioSTB34101_CBC_192.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="radioSTB34101_CBC_192.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 85</value>
+  </data>
+  <data name="&gt;&gt;labelSaltLengthPBE.Name" xml:space="preserve">
+    <value>labelSaltLengthPBE</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+</root>

@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Class-Path: Aladdin.jar Aladdin.IO.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar

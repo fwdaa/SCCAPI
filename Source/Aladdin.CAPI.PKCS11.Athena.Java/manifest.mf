@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.ANSI.PKCS11.jar
+Main-Class: aladdin.capi.pkcs11.athena.Test

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(ProjectDir)..\..\Build\version.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">Win32</Platform>
+    <ProductVersion>3.8</ProductVersion>
+    <ProjectGuid>{788B6F2B-46E2-40A4-961C-29C1349A27D8}</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>Aladdin.CAPI.Merge.Java</OutputName>
+    <OutputType>Module</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+    <InstallerPlatform>x86</InstallerPlatform>
+    <OutputPath>..\..\Setup\Java\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\Java\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug;VERSION=$(VERSION);InstallerPlatform=$(InstallerPlatform)</DefineConstants>
+    <WixVariables>
+    </WixVariables>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
+    <InstallerPlatform>x86</InstallerPlatform>
+    <OutputPath>..\..\Setup\Java\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\Java\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <WixVariables>
+    </WixVariables>
+    <DefineConstants>VERSION=$(VERSION);InstallerPlatform=$(InstallerPlatform)</DefineConstants>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <InstallerPlatform>x64</InstallerPlatform>
+    <DefineConstants>Debug;VERSION=$(VERSION);InstallerPlatform=$(InstallerPlatform)</DefineConstants>
+    <WixVariables>
+    </WixVariables>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <OutputPath>..\..\Setup\Java\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\Java\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <InstallerPlatform>x64</InstallerPlatform>
+    <WixVariables>
+    </WixVariables>
+    <DefineConstants>VERSION=$(VERSION);InstallerPlatform=$(InstallerPlatform)</DefineConstants>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
+    <OutputPath>..\..\Setup\Java\$(InstallerPlatform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\Aladdin.CAPI.Setup\Java\$(InstallerPlatform)\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="MergeJava.wxs" />
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <Import Project="$(ProjectDir)..\..\Build\build.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

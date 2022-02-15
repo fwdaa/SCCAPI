@@ -1,0 +1,11 @@
+package aladdin.capi.gost.gostr3410;
+import java.math.*; 
+
+///////////////////////////////////////////////////////////////////////////
+// Открытый ключ алгоритма ГОСТ Р 34.10-1994
+///////////////////////////////////////////////////////////////////////////
+public interface IDHPublicKey extends aladdin.capi.IPublicKey 
+{
+    // значение ключа
+    BigInteger getY();
+}

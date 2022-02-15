@@ -1,0 +1,63 @@
+package aladdin.asn1.iso.pkix;
+
+public class OID
+{
+	public static final String AT_DOMAIN_COMPONENT              = "0.9.2342.19200300.100.1.25"; 
+	public static final String QT                               = "1.3.6.1.5.5.7.2"; 
+	public static final String QT_CPS                           = "1.3.6.1.5.5.7.2.1"; 
+	public static final String QT_UNOTICE                       = "1.3.6.1.5.5.7.2.2"; 
+	public static final String KP                               = "1.3.6.1.5.5.7.3"; 
+	public static final String KP_SERVER_AUTH                   = "1.3.6.1.5.5.7.3.1"; 
+	public static final String KP_CLIENT_AUTH                   = "1.3.6.1.5.5.7.3.2"; 
+	public static final String KP_CODE_SIGNING                  = "1.3.6.1.5.5.7.3.3"; 
+	public static final String KP_EMAIL_PROTECTION              = "1.3.6.1.5.5.7.3.4"; 
+	public static final String KP_TIME_STAMPING                 = "1.3.6.1.5.5.7.3.8"; 
+	public static final String KP_OCSP_SIGNING                  = "1.3.6.1.5.5.7.3.9"; 
+	public static final String AT                               = "2.5.4";
+	public static final String AT_COMMON_NAME                   = "2.5.4.3";
+	public static final String AT_SURNAME                       = "2.5.4.4";
+	public static final String AT_SERIAL_NUMBER                 = "2.5.4.5";
+	public static final String AT_COUNTRY_NAME                  = "2.5.4.6";
+	public static final String AT_LOCALITY_NAME                 = "2.5.4.7";
+	public static final String AT_STATE_OR_PROVINCE_NAME        = "2.5.4.8";
+	public static final String AT_ORGANIZATION_NAME             = "2.5.4.10";
+	public static final String AT_ORGANIZATIONAL_UNIT_NAME      = "2.5.4.11";
+	public static final String AT_TITLE                         = "2.5.4.12";
+	public static final String AT_NAME                          = "2.5.4.41";
+	public static final String AT_GIVEN_NAME                    = "2.5.4.42";
+	public static final String AT_INITIALS                      = "2.5.4.43";
+	public static final String AT_GENERATION_QUALIFIER          = "2.5.4.44";
+	public static final String AT_DN_QUALIFIER                  = "2.5.4.46";
+	public static final String AT_PSEUDONYM                     = "2.5.4.65";
+	public static final String AT_ROLE                          = "2.5.4.72"; 
+	public static final String CE                               = "2.5.29"; 
+	public static final String CE_AUTHORITY_KEY_IDENTIFIER_OLD  = "2.5.29.1"; 
+	public static final String CE_SUBJECT_DIRECTORY_ATTRIBUTES	= "2.5.29.9"; 
+	public static final String CE_SUBJECT_KEY_IDENTIFIER		= "2.5.29.14"; 
+	public static final String CE_KEY_USAGE                     = "2.5.29.15"; 
+	public static final String CE_PRIVATE_KEY_USAGE_PERIOD		= "2.5.29.16"; 
+	public static final String CE_SUBJECT_ALT_NAME				= "2.5.29.17"; 
+	public static final String CE_ISSUER_ALT_NAME				= "2.5.29.18"; 
+	public static final String CE_BASIC_CONSTRAINTS             = "2.5.29.19"; 
+	public static final String CE_CRL_NUMBER					= "2.5.29.20"; 
+	public static final String CE_CRL_REASONS					= "2.5.29.21"; 
+	public static final String CE_HOLD_INSTRUCTION_CODE         = "2.5.29.23"; 
+	public static final String CE_INVALIDITY_DATE				= "2.5.29.24"; 
+	public static final String CE_DELTA_CRL_INDICATOR			= "2.5.29.27"; 
+	public static final String CE_ISSUING_DISTRIBUTION_POINT	= "2.5.29.28"; 
+	public static final String CE_CERTIFICATE_ISSUER			= "2.5.29.29"; 
+	public static final String CE_NAME_CONSTRAINTS				= "2.5.29.30"; 
+	public static final String CE_CRL_DISTRIBUTION_POINTS		= "2.5.29.31"; 
+	public static final String CE_CERIFICATE_POLICIES			= "2.5.29.32"; 
+	public static final String CE_CERTIFICATE_POLICIES_ANY		= "2.5.29.32.0"; 
+	public static final String CE_POLICY_MAPPING				= "2.5.29.33"; 
+	public static final String CE_AUTHORITY_KEY_IDENTIFIER		= "2.5.29.35"; 
+	public static final String CE_POLICY_CONSTRAINTS			= "2.5.29.36"; 
+	public static final String CE_EXT_KEY_USAGE                 = "2.5.29.37"; 
+	public static final String CE_EXT_KEY_USAGE_ANY             = "2.5.29.37.0"; 
+	public static final String CE_FRESHEST_CRL					= "2.5.29.46"; 
+	public static final String CE_INHIBIT_ANY_POLICY			= "2.5.29.54"; 
+	public static final String CE_TARGET_INFORMATION			= "2.5.29.55";
+	public static final String CE_NO_REV_AVAIL					= "2.5.29.56";
+    
+}

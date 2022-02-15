@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ErrorSubjectName" xml:space="preserve">
+    <value>Invalid Subject Name</value>
+  </data>
+  <data name="ErrorPathLength" xml:space="preserve">
+    <value>Invalid Path Length</value>
+  </data>
+  <data name="FilterCertificateFile" xml:space="preserve">
+    <value>X.509 Files (*.cer)|*.cer</value>
+  </data>
+  <data name="FilterRequestFile" xml:space="preserve">
+    <value>PKCS10 Files (*.p10)|*.p10</value>
+  </data>
+  <data name="MenuManageDirectories" xml:space="preserve">
+    <value>Manage container directories...</value>
+  </data>
+  <data name="MenuSetCertificate" xml:space="preserve">
+    <value>Set certificate...</value>
+  </data>
+  <data name="MenuCreateCertificate" xml:space="preserve">
+    <value>Create selfsigned certificate...</value>
+  </data>
+  <data name="MenuCreateRequest" xml:space="preserve">
+    <value>Create certificate request...</value>
+  </data>
+  <data name="MenuDeleteKeyPair" xml:space="preserve">
+    <value>Delete key pair</value>
+  </data>
+  <data name="MenuDeleteContainer" xml:space="preserve">
+    <value>Delete container</value>
+  </data>
+  <data name="MenuViewCertificates" xml:space="preserve">
+    <value>View container certificates</value>
+  </data>
+  <data name="MenuGenerateKeyPair" xml:space="preserve">
+    <value>Generate container key pair...</value>
+  </data>
+  <data name="MenuProperties" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="MenuShowContainer" xml:space="preserve">
+    <value>Show container</value>
+  </data>
+  <data name="QuestionDeleteObjects" xml:space="preserve">
+    <value>Do you really want to delete selected object(s)?</value>
+  </data>
+  <data name="StatusSetCertificate" xml:space="preserve">
+    <value>The certificate is successfully set</value>
+  </data>
+  <data name="StatusDeleteKeyPairs" xml:space="preserve">
+    <value>The key pair(s) is successfully deleted</value>
+  </data>
+  <data name="StatusDeleteContainers" xml:space="preserve">
+    <value>The container(s) is successfully deleted</value>
+  </data>
+  <data name="StatusGeneratePair" xml:space="preserve">
+    <value>The key pair is successfully generated</value>
+  </data>
+  <data name="StatusSaveRequestFile" xml:space="preserve">
+    <value>The certificate request is successfully save to file</value>
+  </data>
+  <data name="TitleDialogDirectory" xml:space="preserve">
+    <value>Select container directory:</value>
+  </data>
+  <data name="TitleOpenCertificateFile" xml:space="preserve">
+    <value>Select certificate file</value>
+  </data>
+  <data name="TitleSaveRequestFile" xml:space="preserve">
+    <value>Select file for certificate request</value>
+  </data>
+  <data name="CommonName" xml:space="preserve">
+    <value>Crypto API Administration Console</value>
+  </data>
+  <data name="StatusChangeDirectories" xml:space="preserve">
+    <value>The container directories are successfully changed</value>
+  </data>
+  <data name="StatusImportPair" xml:space="preserve">
+    <value>The key pair is successfully imported</value>
+  </data>
+  <data name="MenuImportKeyPair" xml:space="preserve">
+    <value>Import container key pair...</value>
+  </data>
+  <data name="MenuChangeLanguage" xml:space="preserve">
+    <value>Change language for display...</value>
+  </data>
+  <data name="MessageFingerEnrollNoVerified" xml:space="preserve">
+    <value>The finger template is not verified</value>
+  </data>
+  <data name="MessageFingerCaptured" xml:space="preserve">
+    <value>Finger template is done. Leave finger out of scaner</value>
+  </data>
+  <data name="MessageFingerRepeat" xml:space="preserve">
+    <value>Finger template is done. Leave finger out of scaner and then touch finger again to scanner for verification</value>
+  </data>
+  <data name="MessageFingerTouch" xml:space="preserve">
+    <value>Touch finger to scanner</value>
+  </data>
+  <data name="MessageFingerEnrollVerified" xml:space="preserve">
+    <value>The finger template is verified</value>
+  </data>
+  <data name="MessageFingerQuality" xml:space="preserve">
+    <value>The finger capture image has low quality</value>
+  </data>
+  <data name="MessageFingerVerifyCompleted" xml:space="preserve">
+    <value>The finger templates are successfully verified</value>
+  </data>
+  <data name="ErrorPublicKeyMismatch" xml:space="preserve">
+    <value>The certificate public key is not the container public key</value>
+  </data>
+  <data name="ErrorPasswordMismatch" xml:space="preserve">
+    <value>The entered passwords mismatch</value>
+  </data>
+  <data name="MenuChangeLogin" xml:space="preserve">
+    <value>Change authentication data...</value>
+  </data>
+  <data name="MessageChangeLogin" xml:space="preserve">
+    <value>Authentication data is successfully changed</value>
+  </data>
+  <data name="NodeCardTypes" xml:space="preserve">
+    <value>Card Types</value>
+  </data>
+  <data name="NodeProviders" xml:space="preserve">
+    <value>Providers</value>
+  </data>
+  <data name="NodeReaders" xml:space="preserve">
+    <value>Readers</value>
+  </data>
+</root>

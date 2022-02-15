@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="Product.Name">Aladdin Crypto API</String>
+  <String Id="Company.Name">ARDS ZAO</String>
+  <String Id="Error.CheckWindows"  >[ProductName] requires Windows 2000 or later.</String>
+  <String Id="Error.CheckFramework">[ProductName] requires Microsoft.NET 4.0 or later.</String>
+  <String Id="Error.CheckUCRT64"   >[ProductName] requires Universal CRT x64.</String>
+  <String Id="Error.CheckUCRT32"   >[ProductName] requires Universal CRT x86.</String>
+  <String Id="Error.CheckUCRT64D"  >[ProductName] requires Universal Debug CRT x64.</String>
+  <String Id="Error.CheckUCRT32D"  >[ProductName] requires Universal Debug CRT x86.</String>
+  <String Id="Error.CheckProduct"  >The newer version of [ProductName] was found.</String>
+  <String Id="Error.CheckAdmin"    >[ProductName] setup requires administrator privileges.</String>
+</WixLocalization>

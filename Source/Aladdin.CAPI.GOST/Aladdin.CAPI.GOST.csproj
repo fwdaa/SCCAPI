@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3D97FF8B-B036-425C-8AE2-FEC685D1326C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin</RootNamespace>
+    <AssemblyName>Aladdin.CAPI.GOST</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ASN1\GOST\GOST28147CipherParameters.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3411DigestParameters.cs" />
+    <Compile Include="ASN1\GOST\EncryptedKey.cs" />
+    <Compile Include="ASN1\GOST\GOST28147ParamSet.cs" />
+    <Compile Include="ASN1\GOST\GOST3412EncryptionParameters.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410KEGParameters.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410KeyTransport2015.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410ParamSet1994.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410ValidationParameters.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410ParamSet.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3411ParamSet1994.cs" />
+    <Compile Include="ASN1\GOST\CryptoProKeyTransfer.cs" />
+    <Compile Include="ASN1\GOST\CryptoProKeyTransferContent.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410KeyTransport.cs" />
+    <Compile Include="ASN1\GOST\KeyWrapParameters.cs" />
+    <Compile Include="ASN1\GOST\GOST28147CipherMode.cs" />
+    <Compile Include="ASN1\GOST\OID.cs" />
+    <Compile Include="ASN1\GOST\CryptoProPrivateKeyAttributes.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410PrivateKey.cs" />
+    <Compile Include="ASN1\GOST\CryptoProPrivateKeyParameters.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410PrivateKeyValueInfo.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410PublicKeyParameters2001.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410PublicKeyParameters2012.cs" />
+    <Compile Include="ASN1\GOST\GOST28147SBoxReference.cs" />
+    <Compile Include="ASN1\GOST\GOSTR3410TransportParameters.cs" />
+    <Compile Include="CAPI\GOST\Cipher\GOST28147.cs" />
+    <Compile Include="CAPI\GOST\Cipher\GOSTR3412.cs" />
+    <Compile Include="CAPI\GOST\Cipher\GOSTR3412ACPKM_MAC.cs" />
+    <Compile Include="CAPI\GOST\Derive\ACPKM.cs" />
+    <Compile Include="CAPI\GOST\Engine\GOST28147.cs" />
+    <Compile Include="CAPI\GOST\Engine\GOSTR3412.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOST28147.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOSTR1994.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOSTR2001.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOSTR2012_512.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOSTR2012_256.cs" />
+    <Compile Include="CAPI\GOST\Factory.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\DHKeyPairGenerator.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\DHNamedParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\DHParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\DHPrivateKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\DHPublicKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECNamedParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECNamedParameters2012.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\IDHParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\IDHPrivateKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\IDHPublicKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\IECParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\INamedParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\IECPrivateKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\IECPublicKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECKeyFactory.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\DHKeyFactory.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECKeyPairGenerator.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECParameters.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECNamedParameters2001.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECPrivateKey.cs" />
+    <Compile Include="CAPI\GOST\GOSTR3410\ECPublicKey.cs" />
+    <Compile Include="CAPI\GOST\Hash\GOSTR3411_1994.cs" />
+    <Compile Include="CAPI\GOST\Hash\GOSTR3411_2012.cs" />
+    <Compile Include="CAPI\GOST\Derive\TC026.cs" />
+    <Compile Include="CAPI\GOST\Derive\RFC4357.cs" />
+    <Compile Include="CAPI\GOST\Derive\KeyMeshing.cs" />
+    <Compile Include="CAPI\GOST\Keys\GOST28147.cs" />
+    <Compile Include="CAPI\GOST\Keys\GOSTR3412.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\DHKeyAgreement.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\ECKeyAgreement.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\ECKeyAgreement2001.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\ECKeyAgreement2012.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\TransportAgreement.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\TransportKeyUnwrap.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3410\TransportKeyWrap.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3412\KEG2012_256.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3412\KEG2012_512.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3412\KExp15Agreement.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3412\KExp15KeyUnwrap.cs" />
+    <Compile Include="CAPI\GOST\Keyx\GOSTR3412\KExp15KeyWrap.cs" />
+    <Compile Include="CAPI\GOST\MAC\GOST28147.cs" />
+    <Compile Include="CAPI\GOST\MAC\GOSTR3412ACPKM.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CBC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CFB.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CTR.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CBC_DEC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CBC_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CFB_DEC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CFB_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\CTR_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\ECB.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CBC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CFB.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CTR.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\ECB.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\OFB.cs" />
+    <Compile Include="CAPI\GOST\Rnd\TC026.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\DHSignHash.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\DHVerifyHash.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\ECSignHash.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\ECVerifyHash.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\SignData1994.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\SignData2001.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\VerifyData1994.cs" />
+    <Compile Include="CAPI\GOST\Sign\GOSTR3410\VerifyData2001.cs" />
+    <Compile Include="CAPI\GOST\Test.cs" />
+    <Compile Include="CAPI\GOST\Wrap\KExp15.cs" />
+    <Compile Include="CAPI\GOST\Wrap\RFC4357.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\ECB_DEC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOST28147\ECB_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CBC_DEC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CBC_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CFB_DEC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CFB_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\CTR_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\ECB_DEC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\ECB_ENC.cs" />
+    <Compile Include="CAPI\GOST\Mode\GOSTR3412\OFB_ENC.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8B81FE5B-82F1-41D5-A2AF-F9237CC5C953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48DBFC14-A9A2-4B1C-836A-9673E9BDA85B}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS12\Aladdin.CAPI.PKCS12.csproj">
+      <Project>{c0155fce-cb12-43ef-9632-3b8adc246dc5}</Project>
+      <Name>Aladdin.CAPI.PKCS12</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422F4EE1-D424-4396-92B1-A62B332A0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5AE748D8-A9E3-4BFA-A047-A644E92C43F5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,11 @@
+package aladdin.capi.ansi.x942;
+import java.math.*; 
+import java.io.*;
+
+///////////////////////////////////////////////////////////////////////////
+// Личный ключ алгоритма DH
+///////////////////////////////////////////////////////////////////////////
+public interface IPrivateKey extends aladdin.capi.IPrivateKey
+{
+	BigInteger getX() throws IOException;
+}

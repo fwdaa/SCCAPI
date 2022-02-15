@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Pro">
+      <UniqueIdentifier>{81c7008b-47d8-4883-bb00-b21e8475ba7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cryptotoken">
+      <UniqueIdentifier>{8ecf7bad-f4c6-49c0-9c4e-6bbf88a7698c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStore">
+      <UniqueIdentifier>{b41c16ce-8663-464b-b370-eeb6645ed666}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Laser">
+      <UniqueIdentifier>{f90721da-df34-4924-9942-4dcc4d7ccb58}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AppletInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Applet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Provider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AppletFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FamilyJC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FamilyET.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProFormat.cpp">
+      <Filter>Pro</Filter>
+    </ClCompile>
+    <ClCompile Include="AppletAuth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProAuth.cpp">
+      <Filter>Pro</Filter>
+    </ClCompile>
+    <ClCompile Include="GostFormat.cpp">
+      <Filter>Cryptotoken</Filter>
+    </ClCompile>
+    <ClCompile Include="DataFormat.cpp">
+      <Filter>DataStore</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserFormat.cpp">
+      <Filter>Laser</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserAuth.cpp">
+      <Filter>Laser</Filter>
+    </ClCompile>
+    <ClCompile Include="GostApplet.cpp">
+      <Filter>Cryptotoken</Filter>
+    </ClCompile>
+    <ClCompile Include="DataApplet.cpp">
+      <Filter>DataStore</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserApplet.cpp">
+      <Filter>Laser</Filter>
+    </ClCompile>
+    <ClCompile Include="ProApplet.cpp">
+      <Filter>Pro</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Applet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProApplet.h">
+      <Filter>Pro</Filter>
+    </ClInclude>
+    <ClInclude Include="ProFormat.h">
+      <Filter>Pro</Filter>
+    </ClInclude>
+    <ClInclude Include="Sender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProAuth.h">
+      <Filter>Pro</Filter>
+    </ClInclude>
+    <ClInclude Include="GostApplet.h">
+      <Filter>Cryptotoken</Filter>
+    </ClInclude>
+    <ClInclude Include="GostFormat.h">
+      <Filter>Cryptotoken</Filter>
+    </ClInclude>
+    <ClInclude Include="DataApplet.h">
+      <Filter>DataStore</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserFormat.h">
+      <Filter>Laser</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserApplet.h">
+      <Filter>Laser</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserAuth.h">
+      <Filter>Laser</Filter>
+    </ClInclude>
+    <ClInclude Include="Family.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AppletAuth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

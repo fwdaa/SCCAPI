@@ -1,0 +1,273 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{26C89ADF-2387-4AE4-AFA6-01CD383359B8}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Aladdin.CAPI.ANSI.PKCS11</AssemblyName>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.CAPI.ANSI.PKCS11</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <SignAssembly>true</SignAssembly>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugType>pdbonly</DebugType>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cipher\AES_CBC.cs" />
+    <Compile Include="Cipher\AES_CBC_CTS.cs" />
+    <Compile Include="Cipher\AES_CBC_PAD.cs" />
+    <Compile Include="Cipher\AES_CFB.cs" />
+    <Compile Include="Cipher\AES_CFB1.cs" />
+    <Compile Include="Cipher\AES_CTR.cs" />
+    <Compile Include="Cipher\AES_ECB.cs" />
+    <Compile Include="Cipher\AES_OFB.cs" />
+    <Compile Include="Cipher\DES_CBC.cs" />
+    <Compile Include="Cipher\DES_CBC_PAD.cs" />
+    <Compile Include="Cipher\DES_CFB.cs" />
+    <Compile Include="Cipher\DES_ECB.cs" />
+    <Compile Include="Cipher\DES_OFB.cs" />
+    <Compile Include="Cipher\RC2_CBC.cs" />
+    <Compile Include="Cipher\RC2_CBC_PAD.cs" />
+    <Compile Include="Cipher\RC2_ECB.cs" />
+    <Compile Include="Cipher\RC4.cs" />
+    <Compile Include="Cipher\RC5_CBC.cs" />
+    <Compile Include="Cipher\RC5_CBC_PAD.cs" />
+    <Compile Include="Cipher\RC5_ECB.cs" />
+    <Compile Include="Cipher\TDES_CBC.cs" />
+    <Compile Include="Cipher\TDES_CBC_PAD.cs" />
+    <Compile Include="Cipher\TDES_ECB.cs" />
+    <Compile Include="Creator.cs" />
+    <Compile Include="Hash\MD2.cs" />
+    <Compile Include="Hash\MD5.cs" />
+    <Compile Include="Hash\RIPEMD128.cs" />
+    <Compile Include="Hash\RIPEMD160.cs" />
+    <Compile Include="Hash\SHA1.cs" />
+    <Compile Include="Hash\SHA2_224.cs" />
+    <Compile Include="Hash\SHA2_256.cs" />
+    <Compile Include="Hash\SHA2_384.cs" />
+    <Compile Include="Hash\SHA2_512.cs" />
+    <Compile Include="Hash\SHA2_512_224.cs" />
+    <Compile Include="Hash\SHA2_512_256.cs" />
+    <Compile Include="Hash\SHA2_512_T.cs" />
+    <Compile Include="Hash\SHA3_224.cs" />
+    <Compile Include="Hash\SHA3_256.cs" />
+    <Compile Include="Hash\SHA3_384.cs" />
+    <Compile Include="Hash\SHA3_512.cs" />
+    <Compile Include="Keyx\DH\KeyAgreement.cs" />
+    <Compile Include="Keyx\ECDH\KeyAgreement.cs" />
+    <Compile Include="Keyx\RSA\Decipherment.cs" />
+    <Compile Include="Keyx\RSA\Encipherment.cs" />
+    <Compile Include="Keyx\RSA\OAEP\Decipherment.cs" />
+    <Compile Include="Keyx\RSA\OAEP\Encipherment.cs" />
+    <Compile Include="Keyx\RSA\PKCS1\Decipherment.cs" />
+    <Compile Include="Keyx\RSA\PKCS1\Encipherment.cs" />
+    <Compile Include="MAC\CBCMAC_AES.cs" />
+    <Compile Include="MAC\CBCMAC_AES_GENERAL.cs" />
+    <Compile Include="MAC\CBCMAC_DES.cs" />
+    <Compile Include="MAC\CBCMAC_DES_GENERAL.cs" />
+    <Compile Include="MAC\CBCMAC_RC2.cs" />
+    <Compile Include="MAC\CBCMAC_RC2_GENERAL.cs" />
+    <Compile Include="MAC\CBCMAC_RC5.cs" />
+    <Compile Include="MAC\CBCMAC_TDES.cs" />
+    <Compile Include="MAC\CBCMAC_RC5_GENERAL.cs" />
+    <Compile Include="MAC\CBCMAC_TDES_GENERAL.cs" />
+    <Compile Include="MAC\CMAC_AES.cs" />
+    <Compile Include="MAC\CMAC_AES_GENERAL.cs" />
+    <Compile Include="MAC\CMAC_TDES.cs" />
+    <Compile Include="MAC\CMAC_TDES_GENERAL.cs" />
+    <Compile Include="MAC\HMAC.cs" />
+    <Compile Include="MAC\HMAC_GENERAL.cs" />
+    <Compile Include="MAC\HMAC_MD2.cs" />
+    <Compile Include="MAC\HMAC_MD5.cs" />
+    <Compile Include="MAC\HMAC_RIPEMD128.cs" />
+    <Compile Include="MAC\HMAC_RIPEMD160.cs" />
+    <Compile Include="MAC\HMAC_SHA1.cs" />
+    <Compile Include="MAC\HMAC_SHA2_224.cs" />
+    <Compile Include="MAC\HMAC_SHA2_256.cs" />
+    <Compile Include="MAC\HMAC_SHA2_384.cs" />
+    <Compile Include="MAC\HMAC_SHA2_512.cs" />
+    <Compile Include="MAC\HMAC_SHA2_512_224.cs" />
+    <Compile Include="MAC\HMAC_SHA2_512_256.cs" />
+    <Compile Include="MAC\HMAC_SHA2_512_T.cs" />
+    <Compile Include="MAC\HMAC_SHA3_224.cs" />
+    <Compile Include="MAC\HMAC_SHA3_256.cs" />
+    <Compile Include="MAC\HMAC_SHA3_384.cs" />
+    <Compile Include="MAC\HMAC_SHA3_512.cs" />
+    <Compile Include="Parameters.cs" />
+    <Compile Include="PBE\PBES1_DES_CBC.cs" />
+    <Compile Include="PBE\PBESP12_RC2_CBC.cs" />
+    <Compile Include="PBE\PBESP12_RC4.cs" />
+    <Compile Include="PBE\PBESP12_TDES128_CBC.cs" />
+    <Compile Include="PBE\PBESP12_TDES192_CBC.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider.cs" />
+    <Compile Include="RSA\KeyPairGenerator.cs" />
+    <Compile Include="RSA\PrivateKey.cs" />
+    <Compile Include="RSA\PublicKey.cs" />
+    <Compile Include="Sign\DSA\SignData.cs" />
+    <Compile Include="Sign\DSA\SignHash.cs" />
+    <Compile Include="Sign\DSA\VerifyData.cs" />
+    <Compile Include="Sign\DSA\VerifyHash.cs" />
+    <Compile Include="Sign\ECDSA\SignData.cs" />
+    <Compile Include="Sign\ECDSA\SignHash.cs" />
+    <Compile Include="Sign\ECDSA\VerifyData.cs" />
+    <Compile Include="Sign\ECDSA\VerifyHash.cs" />
+    <Compile Include="Sign\RSA\PSS\SignData.cs" />
+    <Compile Include="Sign\RSA\PSS\SignHash.cs" />
+    <Compile Include="Sign\RSA\PSS\VerifyData.cs" />
+    <Compile Include="Sign\RSA\PSS\VerifyHash.cs" />
+    <Compile Include="Sign\RSA\PKCS1\SignHash.cs" />
+    <Compile Include="Sign\RSA\PKCS1\VerifyHash.cs" />
+    <Compile Include="Sign\RSA\SignData.cs" />
+    <Compile Include="Sign\RSA\SignHash.cs" />
+    <Compile Include="Sign\RSA\VerifyData.cs" />
+    <Compile Include="Sign\RSA\VerifyHash.cs" />
+    <Compile Include="Test.cs" />
+    <Compile Include="Wrap\AES.cs" />
+    <Compile Include="Wrap\AES_PAD.cs" />
+    <Compile Include="X942\KeyPairGenerator.cs" />
+    <Compile Include="X942\PrivateKey.cs" />
+    <Compile Include="X942\PublicKey.cs" />
+    <Compile Include="X957\Encoding.cs" />
+    <Compile Include="X957\KeyPairGenerator.cs" />
+    <Compile Include="X957\PrivateKey.cs" />
+    <Compile Include="X957\PublicKey.cs" />
+    <Compile Include="X962\Encoding.cs" />
+    <Compile Include="X962\KeyPairGenerator.cs" />
+    <Compile Include="X962\PrivateKey.cs" />
+    <Compile Include="X962\PublicKey.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8b81fe5b-82f1-41d5-a2af-f9237cc5c953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI\Aladdin.CAPI.ANSI.csproj">
+      <Project>{25c83bcc-185c-4eed-a0c0-6f0c9ad20cd4}</Project>
+      <Name>Aladdin.CAPI.ANSI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11\Aladdin.CAPI.PKCS11.csproj">
+      <Project>{3f44a580-c939-4c47-a8da-1e8b27b85749}</Project>
+      <Name>Aladdin.CAPI.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422f4ee1-d424-4396-92b1-a62b332a0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5ae748d8-a9e3-4bfa-a047-a644e92c43f5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PKCS11\Aladdin.PKCS11.csproj">
+      <Project>{f053e5c7-fb57-4083-b17e-f449f0381573}</Project>
+      <Name>Aladdin.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

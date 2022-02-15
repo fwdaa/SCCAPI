@@ -1,0 +1,89 @@
+﻿using System;
+using System.IO;
+
+namespace Aladdin.ASN1
+{
+	///////////////////////////////////////////////////////////////////////////
+	// Строка байтов
+	///////////////////////////////////////////////////////////////////////////
+	public class OctetString : AsnObject
+	{
+        // проверить допустимость типа
+        public static bool IsValidTag(Tag tag) { return tag == Tag.OctetString; }
+    
+		// проверить корректность объекта
+		public static void Validate(OctetString encodable, bool encode, int min, int max) 
+		{
+			// проверить корректность
+			if (encodable != null && encodable.Value.Length < min) 
+            {
+			    // выбросить исключение 
+			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
+            }
+			// проверить корректность
+			if (encodable != null && encodable.Value.Length > max) 
+            {
+			    // выбросить исключение 
+			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
+            }
+		} 
+		// проверить корректность объекта
+		public static void Validate(OctetString encodable, bool encode, int min) 
+		{
+			// проверить корректность
+			if (encodable != null && encodable.Value.Length < min) 
+            {
+			    // выбросить исключение 
+			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
+            }
+		} 
+		// конструктор при раскодировании
+		public OctetString(IEncodable encodable) : base(encodable)
+		{
+			// проверить способ кодирования строки байтов
+			if (encodable.PC == PC.Primitive) { value = encodable.Content; return; }
+
+			// задать начальные условия при перечислении внутренних объектов
+			int length = encodable.Content.Length; value = new byte[0];  
+
+			// для всех внутренних объектов
+			for (int cb = 0; length > 0; )
+			{
+				// раскодировать внутренний объект
+				OctetString inner = new OctetString(Encodable.Decode(encodable.Content, cb, length));
+
+				// изменить размер содержимого
+				Array.Resize(ref value, value.Length + inner.Value.Length); 
+
+				// добавить содержимое внутреннего объекта
+				Array.Copy(inner.Value, 0, value, value.Length - inner.Value.Length, inner.Value.Length); 
+
+				// перейти на следующий объект
+				cb += inner.Encoded.Length; length -= inner.Encoded.Length; 
+			}
+ 		}
+		// конструктор при закодировании
+		protected OctetString(Tag tag, byte[] value, int ofs, int cb) : base(tag) 
+		{
+			// сохранить строку байтов
+			this.value = new byte[cb]; Array.Copy(value, ofs, this.value, 0, cb); 
+		}
+		// конструктор при закодировании
+		protected OctetString(Tag tag, byte[] value) : this(tag, value, 0, value.Length) { } 
+
+		// конструктор при закодировании
+		public OctetString(byte[] value, int ofs, int cb) : this(Tag.OctetString, value, ofs, cb) {} 
+
+		// конструктор при закодировании
+		public OctetString(byte[] value) : this(value, 0, value.Length) {} 
+
+		// способ кодирования для DER-кодировки
+		protected override PC DerPC { get { return PC.Primitive; } }
+
+		// содержимое объекта
+		protected override byte[] DerContent { get { return value; } }
+
+ 		// строка байтов
+		public byte[] Value { get { return value; } } protected byte[] value;
+	}
+}

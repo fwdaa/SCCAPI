@@ -1,0 +1,92 @@
+#pragma once
+#include "..\Provider.h"
+
+namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace Microsoft { namespace RSA 
+{
+	///////////////////////////////////////////////////////////////////////////
+	// Криптопровайдер RSA
+	///////////////////////////////////////////////////////////////////////////
+	public ref class Provider abstract : Microsoft::Provider
+	{
+		// способ кодирования чисел
+		protected: static const Math::Endian Endian = Math::Endian::LittleEndian; 
+
+		// конструктор
+		public: Provider(DWORD type, String^ name, bool sspi, bool oaep) 
+
+			// сохранить переданные параметры
+			: Microsoft::Provider(type, name, sspi) { this->oaep = oaep; } private: bool oaep; 
+
+		// поддерживаемые фабрики кодирования ключей
+		public: virtual array<SecretKeyFactory^>^ SecretKeyFactories() override
+		{
+			// поддерживаемые фабрики кодирования ключей
+			return gcnew array<SecretKeyFactory^> { 
+				ANSI::Keys::RC2 ::Instance, ANSI::Keys::RC4 ::Instance, 
+				ANSI::Keys::DES ::Instance, ANSI::Keys::DESX::Instance, 
+				ANSI::Keys::TDES::Instance
+			}; 
+		}
+		// вернуть тип ключа
+		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(
+			SecretKeyFactory^ keyFactory, DWORD keySize) override;
+
+		// поддерживаемые фабрики кодирования ключей
+		public: virtual array<KeyFactory^>^ KeyFactories() override
+		{
+			// поддерживаемые фабрики кодирования ключей
+			return gcnew array<KeyFactory^> { gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa) }; 
+		}
+		// создать алгоритм генерации ключей
+		public protected: virtual CAPI::KeyPairGenerator^ CreateGenerator(
+			Factory^ outer, SecurityObject^ scope, 
+			String^ keyOID, IParameters^ parameters, IRand^ rand) override; 
+
+		// создать алгоритм для параметров
+		public protected: virtual IAlgorithm^ CreateAlgorithm(
+			Factory^ outer, SecurityStore^ scope, 
+			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+
+		// импортировать пару ключей
+		public protected: virtual CAPI::CSP::KeyHandle^ ImportKeyPair(
+			CAPI::CSP::Container^ container, DWORD keyType, DWORD keyFlags, 
+			IPublicKey^ publicKey, IPrivateKey^ privateKey) override;
+
+		// импортировать открытый ключ
+		public protected: virtual CAPI::CSP::KeyHandle^ ImportPublicKey(
+			CAPI::CSP::ContextHandle^ hContext, IPublicKey^ publicKey, DWORD keyType) override; 
+
+		// экспортировать открытый ключ
+		public protected: virtual ASN1::ISO::PKIX::SubjectPublicKeyInfo^ ExportPublicKey(
+			CAPI::CSP::KeyHandle^ hPublicKey) override; 
+
+		// получить личный ключ
+		public protected: virtual CAPI::CSP::PrivateKey^ GetPrivateKey(SecurityObject^ scope, 
+			IPublicKey^ publicKey, CAPI::CSP::KeyHandle^ hKeyPair, DWORD keyType
+		) override;
+
+		// получить идентификатор ключа
+		public: virtual String^ ConvertKeyOID(ALG_ID algID) override
+		{
+			switch (algID)
+			{
+			// вернуть идентификатор ключа
+			case CALG_RSA_KEYX: return ASN1::ISO::PKCS::PKCS1::OID::rsa; 
+			case CALG_RSA_SIGN: return ASN1::ISO::PKCS::PKCS1::OID::rsa; 
+			}
+			// неподдерживаемый ключ
+			throw gcnew NotSupportedException(); 
+		}
+		// преобразовать идентификатор ключа
+		public: virtual ALG_ID ConvertKeyOID(String^ keyOID, DWORD keyType) override
+		{
+			if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)
+			{
+				// вернуть идентификатор ключа
+				return (keyType == AT_KEYEXCHANGE) ? CALG_RSA_KEYX : CALG_RSA_SIGN; 
+			}
+			// неподдерживаемый ключ
+			throw gcnew NotSupportedException(); 
+		}
+	}; 
+}}}}}}

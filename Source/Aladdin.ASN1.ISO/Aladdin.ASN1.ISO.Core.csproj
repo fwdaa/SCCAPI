@@ -1,0 +1,32 @@
+﻿<Project>
+  <PropertyGroup>
+    <AssemblyName>$(MSBuildProjectDirectory.Substring($([MSBuild]::Add($(MSBuildProjectDirectory.LastIndexOf('\')), 1))))</AssemblyName>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <BaseIntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFramework)\$(Platform)\$(Configuration)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.Core.csproj" />
+    <ProjectReference Include="..\Aladdin\Aladdin.Core.csproj" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

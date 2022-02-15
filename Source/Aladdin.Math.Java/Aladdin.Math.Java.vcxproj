@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8B6B3EB8-18C4-44D1-9C45-41C431442039}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\version.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="env.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.51106.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <OutDir>..\..\Binary\Java\lib</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
+    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" jar -f .\build.xml"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean,jar -f .\build.xml"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutDir>..\..\Binary\Java\lib</OutDir>
+    <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
+    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" jar -f .\build.xml"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean,jar -f .\build.xml"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="nbproject\project.properties" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="build.xml">
+      <SubType>Designer</SubType>
+    </Xml>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\vcxproj.targets" />
+  <Target Name="BeforeClean" BeforeTargets="Clean">
+     <SetEnvVariable Name="java_home" Value="$(JDK18_HOME)" />
+     <RemoveDir Directories="dist"/>
+  </Target>
+  <Target Name="BeforeBuild" BeforeTargets="Rebuild;Build">
+     <SetEnvVariable Name="java_home" Value="$(JDK18_HOME)" />
+     <RemoveDir Directories="dist"/>
+  </Target>
+  <Target Name="AfterBuild" AfterTargets="Rebuild;Build">
+    <ItemGroup>
+      <JarFiles Include="dist\**\*.jar" />
+    </ItemGroup>
+    <Copy SourceFiles="@(JarFiles)" DestinationFolder="$(OutDir)\%(RecursiveDir)" />
+  </Target>
+</Project>

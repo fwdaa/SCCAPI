@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{422F4EE1-D424-4396-92B1-A62B332A0281}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin</RootNamespace>
+    <AssemblyName>Aladdin.CAPI</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE;DEBUG;REFOBJECT_CHECK</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CAPI\Auth\PasswordSelector.cs" />
+    <Compile Include="CAPI\BlockMode.cs" />
+    <Compile Include="CAPI\BlockTransform.cs" />
+    <Compile Include="CAPI\AggregatedFactory.cs" />
+    <Compile Include="CAPI\AuthenticationSelector.cs" />
+    <Compile Include="CAPI\BlockCipher.cs" />
+    <Compile Include="CAPI\CipherMac.cs" />
+    <Compile Include="CAPI\CMSData.cs" />
+    <Compile Include="CAPI\ContainerStore.cs" />
+    <Compile Include="CAPI\Credentials.cs" />
+    <Compile Include="CAPI\Derive\NOKDF.cs" />
+    <Compile Include="CAPI\EC\CurveF2m.cs" />
+    <Compile Include="CAPI\EC\CurveFp.cs" />
+    <Compile Include="CAPI\EC\Encoding.cs" />
+    <Compile Include="CAPI\EC\FieldF2m.cs" />
+    <Compile Include="CAPI\EC\FieldFp.cs" />
+    <Compile Include="CAPI\EC\Field.cs" />
+    <Compile Include="CAPI\EC\Point.cs" />
+    <Compile Include="CAPI\EC\Curve.cs" />
+    <Compile Include="CAPI\EC\PointImpl.cs" />
+    <Compile Include="CAPI\Exception.cs" />
+    <Compile Include="CAPI\ExecutionContext.cs" />
+    <Compile Include="CAPI\FactoryFilter.cs" />
+    <Compile Include="CAPI\IBlockCipher.cs" />
+    <Compile Include="CAPI\IParametersFactory.cs" />
+    <Compile Include="CAPI\KeyAgreement.cs" />
+    <Compile Include="CAPI\PBE\PBECultureFactory.cs" />
+    <Compile Include="CAPI\PBE\IPBECultureFactory.cs" />
+    <Compile Include="CAPI\Provider.cs" />
+    <Compile Include="CAPI\IRandFactory.cs" />
+    <Compile Include="CAPI\SecretKeyFactory.cs" />
+    <Compile Include="CAPI\Mode\CBC_DEC.cs" />
+    <Compile Include="CAPI\Mode\CBC_ENC.cs" />
+    <Compile Include="CAPI\Mode\CFB1_DEC.cs" />
+    <Compile Include="CAPI\Mode\CFB1_ENC.cs" />
+    <Compile Include="CAPI\Mode\CFB_DEC.cs" />
+    <Compile Include="CAPI\Mode\CFB_ENC.cs" />
+    <Compile Include="CAPI\Mode\CTR_ENC.cs" />
+    <Compile Include="CAPI\Mode\ECB_DEC.cs" />
+    <Compile Include="CAPI\Mode\ECB_ENC.cs" />
+    <Compile Include="CAPI\Mode\OFB1_ENC.cs" />
+    <Compile Include="CAPI\Mode\OFB_ENC.cs" />
+    <Compile Include="CAPI\PaddingMode.cs" />
+    <Compile Include="CAPI\PBE\PBECulture.cs" />
+    <Compile Include="CAPI\PBE\PBES1CBC.cs" />
+    <Compile Include="CAPI\PBE\PBEParameters.cs" />
+    <Compile Include="CAPI\PEM.cs" />
+    <Compile Include="CAPI\SecurityObjectAttribute.cs" />
+    <Compile Include="CAPI\Software\ConfigDirectories.cs" />
+    <Compile Include="CAPI\Software\ConfigStore.cs" />
+    <Compile Include="CAPI\Software\IDirectoriesSource.cs" />
+    <Compile Include="CAPI\Software\RegistryDirectories.cs" />
+    <Compile Include="CAPI\Test.cs" />
+    <Compile Include="CAPI\TransformCheck.cs" />
+    <Compile Include="CAPI\TransportAgreement.cs" />
+    <Compile Include="CAPI\KeyPairGenerator.cs" />
+    <Compile Include="CAPI\Pad\None.cs" />
+    <Compile Include="CAPI\PBE\PBESP12.cs" />
+    <Compile Include="CAPI\PBE\PBKDFP12.cs" />
+    <Compile Include="CAPI\PBE\PBMACP12.cs" />
+    <Compile Include="CAPI\PBE\PBMACTC26.cs" />
+    <Compile Include="CAPI\TransportAgreementData.cs" />
+    <Compile Include="CAPI\ANSI\Hash\SHA1.cs" />
+    <Compile Include="CAPI\CredentialsManager.cs" />
+    <Compile Include="CAPI\Auth\BiometricCredentials.cs" />
+    <Compile Include="CAPI\AuthenticationService.cs" />
+    <Compile Include="CAPI\Auth\BiometricService.cs" />
+    <Compile Include="CAPI\AuthenticationInfo.cs" />
+    <Compile Include="CAPI\Auth\PasswordService.cs" />
+    <Compile Include="CAPI\Authentication.cs" />
+    <Compile Include="CAPI\Auth\PasswordCredentials.cs" />
+    <Compile Include="CAPI\Bio\Finger.cs" />
+    <Compile Include="CAPI\Bio\Image.cs" />
+    <Compile Include="CAPI\Bio\ImageTarget.cs" />
+    <Compile Include="CAPI\Bio\MatchTemplate.cs" />
+    <Compile Include="CAPI\Bio\Provider.cs" />
+    <Compile Include="CAPI\Bio\Reader.cs" />
+    <Compile Include="CAPI\Bio\EnrollTemplate.cs" />
+    <Compile Include="CAPI\Certificate.cs" />
+    <Compile Include="CAPI\CertificateRequest.cs" />
+    <Compile Include="CAPI\CipherMode.cs" />
+    <Compile Include="CAPI\Mode\CFB1.cs" />
+    <Compile Include="CAPI\Mode\OFB1.cs" />
+    <Compile Include="CAPI\ClientContainer.cs" />
+    <Compile Include="CAPI\Derive\TLSPRF.cs" />
+    <Compile Include="CAPI\Keyx\ESDH.cs" />
+    <Compile Include="CAPI\KeySizes.cs" />
+    <Compile Include="CAPI\MAC\OMAC1.cs" />
+    <Compile Include="CAPI\Mode\CBC.cs" />
+    <Compile Include="CAPI\Mode\CFB.cs" />
+    <Compile Include="CAPI\Mode\ECB.cs" />
+    <Compile Include="CAPI\BlockPadding.cs" />
+    <Compile Include="CAPI\Pad\CTS.cs" />
+    <Compile Include="CAPI\Pad\ISO.cs" />
+    <Compile Include="CAPI\Pad\PKCS5.cs" />
+    <Compile Include="CAPI\Pad\Zero.cs" />
+    <Compile Include="CAPI\PBE\PBMAC.cs" />
+    <Compile Include="CAPI\PBE\PBES1.cs" />
+    <Compile Include="CAPI\PBE\PBES2.cs" />
+    <Compile Include="CAPI\StreamCipher.cs" />
+    <Compile Include="CAPI\CMS.cs" />
+    <Compile Include="CAPI\Container.cs" />
+    <Compile Include="CAPI\ContainerKeyPair.cs" />
+    <Compile Include="CAPI\Culture.cs" />
+    <Compile Include="CAPI\Factories.cs" />
+    <Compile Include="CAPI\Factory.cs" />
+    <Compile Include="CAPI\BlockHash.cs" />
+    <Compile Include="CAPI\IAlgorithm.cs" />
+    <Compile Include="CAPI\INamedParameters.cs" />
+    <Compile Include="CAPI\ITransportAgreement.cs" />
+    <Compile Include="CAPI\TransportKeyUnwrap.cs" />
+    <Compile Include="CAPI\TransportKeyWrap.cs" />
+    <Compile Include="CAPI\Cipher.cs" />
+    <Compile Include="CAPI\Hash.cs" />
+    <Compile Include="CAPI\KeyDerive.cs" />
+    <Compile Include="CAPI\IKeyAgreement.cs" />
+    <Compile Include="CAPI\ISecretKey.cs" />
+    <Compile Include="CAPI\KeyFactory.cs" />
+    <Compile Include="CAPI\KeyWrap.cs" />
+    <Compile Include="CAPI\Mac.cs" />
+    <Compile Include="CAPI\IParameters.cs" />
+    <Compile Include="CAPI\Decipherment.cs" />
+    <Compile Include="CAPI\IPrivateKey.cs" />
+    <Compile Include="CAPI\Encipherment.cs" />
+    <Compile Include="CAPI\IPublicKey.cs" />
+    <Compile Include="CAPI\IRand.cs" />
+    <Compile Include="CAPI\IProvider.cs" />
+    <Compile Include="CAPI\SignData.cs" />
+    <Compile Include="CAPI\SignHash.cs" />
+    <Compile Include="CAPI\Transform.cs" />
+    <Compile Include="CAPI\VerifyData.cs" />
+    <Compile Include="CAPI\VerifyHash.cs" />
+    <Compile Include="CAPI\DeriveData.cs" />
+    <Compile Include="CAPI\PBE\PBKDF1.cs" />
+    <Compile Include="CAPI\PBE\PBKDF2.cs" />
+    <Compile Include="CAPI\Derive\TREEKDF.cs" />
+    <Compile Include="CAPI\SecretKey.cs" />
+    <Compile Include="CAPI\KeyFlags.cs" />
+    <Compile Include="CAPI\KeyPair.cs" />
+    <Compile Include="CAPI\KeyUsage.cs" />
+    <Compile Include="CAPI\BlockMac.cs" />
+    <Compile Include="CAPI\MAC\CBCMAC1.cs" />
+    <Compile Include="CAPI\MAC\HMAC.cs" />
+    <Compile Include="CAPI\PBE\PBMAC1.cs" />
+    <Compile Include="CAPI\Mode\CTR.cs" />
+    <Compile Include="CAPI\Mode\OFB.cs" />
+    <Compile Include="CAPI\PKI.cs" />
+    <Compile Include="CAPI\Derive\MACPRF.cs" />
+    <Compile Include="CAPI\PRF.cs" />
+    <Compile Include="CAPI\PrivateKey.cs" />
+    <Compile Include="CAPI\CryptoProvider.cs" />
+    <Compile Include="CAPI\PublicKey.cs" />
+    <Compile Include="CAPI\Rand.cs" />
+    <Compile Include="CAPI\Random.cs" />
+    <Compile Include="CAPI\Resource.Designer.cs" />
+    <Compile Include="CAPI\Scope.cs" />
+    <Compile Include="CAPI\SecurityObject.cs" />
+    <Compile Include="CAPI\SecurityStore.cs" />
+    <Compile Include="CAPI\SignHashData.cs" />
+    <Compile Include="CAPI\VerifyHashData.cs" />
+    <Compile Include="CAPI\Software\Container.cs" />
+    <Compile Include="CAPI\Software\ContainerStore.cs" />
+    <Compile Include="CAPI\Software\DirectoryStore.cs" />
+    <Compile Include="CAPI\Software\DirectoriesStore.cs" />
+    <Compile Include="CAPI\Software\ContainerStream.cs" />
+    <Compile Include="CAPI\Software\KeyPairGenerator.cs" />
+    <Compile Include="CAPI\Software\MemoryStore.cs" />
+    <Compile Include="CAPI\Software\CryptoProvider.cs" />
+    <Compile Include="CAPI\Software\RegistryStore.cs" />
+    <Compile Include="CAPI\TransportKeyData.cs" />
+    <Compile Include="CAPI\IClient.cs" />
+    <Compile Include="CAPI\Client.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CAPI\SecurityInfo.cs" />
+    <Compile Include="CAPI\RandFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8B81FE5B-82F1-41D5-A2AF-F9237CC5C953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48DBFC14-A9A2-4B1C-836A-9673E9BDA85B}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.IO\Aladdin.IO.csproj">
+      <Project>{bcd9d16a-eefe-400f-b627-c78e565d6238}</Project>
+      <Name>Aladdin.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5AE748D8-A9E3-4BFA-A047-A644E92C43F5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CAPI\Resource.resx" />
+    <EmbeddedResource Include="CAPI\Resource.ru.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <Delete Files="$(TargetDir)ru\$(TargetName).resources.dll" ContinueOnError="true" />
+    <ItemGroup>
+      <Resources Include="$(IntermediateOutputPath)*.ru.resources" />
+    </ItemGroup>
+    <Message Text="TargetFrameworkToolsDir = $(TargetFrameworkToolsDir)" Importance="high" />
+    <AL SdkToolsPath="$(TargetFrameworkToolsDir)" TemplateFile="$(TargetPath)" Culture="ru" EmbedResources="@(Resources)" KeyContainer="$(KeyContainerName)" KeyFile="$(KeyOriginatorFile)" DelaySign="$(DelaySign)" OutputAssembly="$(TargetDir)ru\$(TargetName).resources.dll" />
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath);$(TargetDir)ru\$(TargetName).resources.dll" />
+    </ItemGroup>
+  </Target>
+</Project>

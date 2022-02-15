@@ -1,0 +1,532 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{141F433D-9338-4314-8DB3-725D7BA6ECCA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aladdin.CAPI.GUI</RootNamespace>
+    <AssemblyName>Aladdin.CAPI.GUI</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Binary\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFrameworkVersion)\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AuthenticationSelector.cs" />
+    <Compile Include="CertificatesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CertificatesDialog.Designer.cs">
+      <DependentUpon>CertificatesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CertRequestDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CertRequestDialog.designer.cs">
+      <DependentUpon>CertRequestDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DialogAuthentication.cs" />
+    <Compile Include="DirectoriesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DirectoriesDialog.designer.cs">
+      <DependentUpon>DirectoriesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeyPairsView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KeyPairsView.Designer.cs">
+      <DependentUpon>KeyPairsView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContainersForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContainersForm.Designer.cs">
+      <DependentUpon>ContainersForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContainersView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ContainersView.Designer.cs">
+      <DependentUpon>ContainersView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContainerView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ContainerView.Designer.cs">
+      <DependentUpon>ContainerView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContainerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContainerDialog.Designer.cs">
+      <DependentUpon>ContainerDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContainersDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContainersDialog.Designer.cs">
+      <DependentUpon>ContainersDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CultureControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CultureDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CultureDialog.designer.cs">
+      <DependentUpon>CultureDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BioEnrollDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BioPinEnrollDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BioEnrollDialog.Designer.cs">
+      <DependentUpon>BioEnrollDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BioPinEnrollDialog.Designer.cs">
+      <DependentUpon>BioPinEnrollDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BioMatchDialog.Designer.cs">
+      <DependentUpon>BioMatchDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BioPinMatchDialog.Designer.cs">
+      <DependentUpon>BioPinMatchDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BioMatchDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BioPinMatchDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeyGenDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeyGenDialog.Designer.cs">
+      <DependentUpon>KeyGenDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeyImpDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeyImpDialog.designer.cs">
+      <DependentUpon>KeyImpDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Nodes\ProviderScopeNode.cs" />
+    <Compile Include="Nodes\ProvidersNode.cs" />
+    <Compile Include="Nodes\StoreNode.cs" />
+    <Compile Include="ParametersControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParametersDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ParametersDialog.designer.cs">
+      <DependentUpon>ParametersDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Nodes\KeyPairNode.cs" />
+    <Compile Include="Nodes\ContainerNode.cs" />
+    <Compile Include="Nodes\ProviderNode.cs" />
+    <Compile Include="Nodes\RootNode.cs" />
+    <Compile Include="PasswordDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PasswordChangeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AuthenticationDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PublicKeyDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PublicKeyDialog.designer.cs">
+      <DependentUpon>PublicKeyDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AppletDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AppletDialog.designer.cs">
+      <DependentUpon>AppletDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Reflection.cs" />
+    <Compile Include="Resource.ru.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.ru.resx</DependentUpon>
+    </Compile>
+    <Compile Include="PasswordDialog.designer.cs">
+      <DependentUpon>PasswordDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PasswordChangeDialog.designer.cs">
+      <DependentUpon>PasswordChangeDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AuthenticationDialog.designer.cs">
+      <DependentUpon>AuthenticationDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="KeyPairsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeyPairsDialog.Designer.cs">
+      <DependentUpon>KeyPairsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReaderDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReaderDialog.Designer.cs">
+      <DependentUpon>ReaderDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\CardDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\CardDialog.Designer.cs">
+      <DependentUpon>CardDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\CardTypeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\CardTypeDialog.Designer.cs">
+      <DependentUpon>CardTypeDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Nodes\CardNode.cs" />
+    <Compile Include="Windows\Nodes\CardTypeNode.cs" />
+    <Compile Include="Windows\Nodes\CardTypesNode.cs" />
+    <Compile Include="Windows\Nodes\CardTypesScopeNode.cs" />
+    <Compile Include="Windows\Nodes\ReaderNode.cs" />
+    <Compile Include="Windows\Nodes\ReadersNode.cs" />
+    <Compile Include="Windows\Nodes\ReadersScopeNode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
+      <Project>{8B81FE5B-82F1-41D5-A2AF-F9237CC5C953}</Project>
+      <Name>Aladdin.ASN1.ISO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">
+      <Project>{48DBFC14-A9A2-4B1C-836A-9673E9BDA85B}</Project>
+      <Name>Aladdin.ASN1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Environment\Aladdin.CAPI.Environment.csproj">
+      <Project>{cb835c0c-e96b-424e-8c82-e52eb59bc020}</Project>
+      <Name>Aladdin.CAPI.Environment</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS11\Aladdin.CAPI.PKCS11.csproj">
+      <Project>{3f44a580-c939-4c47-a8da-1e8b27b85749}</Project>
+      <Name>Aladdin.CAPI.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS12\Aladdin.CAPI.PKCS12.csproj">
+      <Project>{C0155FCE-CB12-43EF-9632-3B8ADC246DC5}</Project>
+      <Name>Aladdin.CAPI.PKCS12</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Proxy.Windows\Aladdin.CAPI.Proxy.Windows.csproj">
+      <Project>{5c77711f-f009-4051-aa23-20e186bbca6b}</Project>
+      <Name>Aladdin.CAPI.Proxy.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.Proxy\Aladdin.CAPI.Proxy.csproj">
+      <Project>{ea35f4a1-c8c8-4832-b6b0-8c86908b42d3}</Project>
+      <Name>Aladdin.CAPI.Proxy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.SCard.Windows\Aladdin.CAPI.SCard.Windows.csproj">
+      <Project>{a30de012-a631-4c43-8d87-55deb4585910}</Project>
+      <Name>Aladdin.CAPI.SCard.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI.SCard\Aladdin.CAPI.SCard.csproj">
+      <Project>{3e0ba621-3020-4424-bf4f-ddc27f06f0c9}</Project>
+      <Name>Aladdin.CAPI.SCard</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
+      <Project>{422F4EE1-D424-4396-92B1-A62B332A0281}</Project>
+      <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.GUI\Aladdin.GUI.csproj">
+      <Project>{EACC2C52-C417-481F-BD35-D4EE7BB72EE0}</Project>
+      <Name>Aladdin.GUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
+      <Project>{5AE748D8-A9E3-4BFA-A047-A644E92C43F5}</Project>
+      <Name>Aladdin.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PCSC.Windows\Aladdin.PCSC.Windows.csproj">
+      <Project>{795032ef-cb9b-4e43-998d-9d278f3c8aa6}</Project>
+      <Name>Aladdin.PCSC.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PCSC\Aladdin.PCSC.csproj">
+      <Project>{2e4bfc61-99f9-4335-9ce3-3fe14e57708b}</Project>
+      <Name>Aladdin.PCSC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.PKCS11\Aladdin.PKCS11.csproj">
+      <Project>{f053e5c7-fb57-4083-b17e-f449f0381573}</Project>
+      <Name>Aladdin.PKCS11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin\Aladdin.csproj">
+      <Project>{cbceb33e-d6d2-4455-a2e3-3fd8d3cf132e}</Project>
+      <Name>Aladdin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CertificatesDialog.resx">
+      <DependentUpon>CertificatesDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CertificatesDialog.ru.resx">
+      <DependentUpon>CertificatesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CertRequestDialog.resx">
+      <DependentUpon>CertRequestDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CertRequestDialog.ru.resx">
+      <DependentUpon>CertRequestDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DirectoriesDialog.resx">
+      <DependentUpon>DirectoriesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DirectoriesDialog.ru.resx">
+      <DependentUpon>DirectoriesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyPairsView.resx">
+      <DependentUpon>KeyPairsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyPairsView.ru.resx">
+      <DependentUpon>KeyPairsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainersView.resx">
+      <DependentUpon>ContainersView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainersView.ru.resx">
+      <DependentUpon>ContainersView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainerView.resx">
+      <DependentUpon>ContainerView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainerView.ru.resx">
+      <DependentUpon>ContainerView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainerDialog.resx">
+      <DependentUpon>ContainerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainerDialog.ru.resx">
+      <DependentUpon>ContainerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainersDialog.resx">
+      <DependentUpon>ContainersDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContainersDialog.ru.resx">
+      <DependentUpon>ContainersDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CultureDialog.resx">
+      <DependentUpon>CultureDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CultureDialog.ru.resx">
+      <DependentUpon>CultureDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioEnrollDialog.resx">
+      <DependentUpon>BioEnrollDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioPinEnrollDialog.resx">
+      <DependentUpon>BioPinEnrollDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioMatchDialog.resx">
+      <DependentUpon>BioMatchDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioPinMatchDialog.resx">
+      <DependentUpon>BioPinMatchDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioEnrollDialog.ru.resx">
+      <DependentUpon>BioEnrollDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioPinEnrollDialog.ru.resx">
+      <DependentUpon>BioPinEnrollDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioMatchDialog.ru.resx">
+      <DependentUpon>BioMatchDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BioPinMatchDialog.ru.resx">
+      <DependentUpon>BioPinMatchDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyGenDialog.resx">
+      <DependentUpon>KeyGenDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyGenDialog.ru.resx">
+      <DependentUpon>KeyGenDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParametersDialog.resx">
+      <DependentUpon>ParametersDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParametersDialog.ru.resx">
+      <DependentUpon>ParametersDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PasswordDialog.resx">
+      <DependentUpon>PasswordDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PasswordChangeDialog.resx">
+      <DependentUpon>PasswordChangeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AuthenticationDialog.resx">
+      <DependentUpon>AuthenticationDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PublicKeyDialog.resx">
+      <DependentUpon>PublicKeyDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PublicKeyDialog.ru.resx">
+      <DependentUpon>PublicKeyDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PasswordDialog.ru.resx">
+      <DependentUpon>PasswordDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PasswordChangeDialog.ru.resx">
+      <DependentUpon>PasswordChangeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AuthenticationDialog.ru.resx">
+      <DependentUpon>AuthenticationDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyPairsDialog.resx">
+      <DependentUpon>KeyPairsDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyPairsDialog.ru.resx">
+      <DependentUpon>KeyPairsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AppletDialog.resx">
+      <DependentUpon>AppletDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AppletDialog.ru.resx">
+      <DependentUpon>AppletDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resource.ru.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.ru.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReaderDialog.resx">
+      <DependentUpon>ReaderDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReaderDialog.ru.resx">
+      <DependentUpon>ReaderDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\CardDialog.resx">
+      <DependentUpon>CardDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\CardDialog.ru.resx">
+      <DependentUpon>CardDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\CardTypeDialog.resx">
+      <DependentUpon>CardTypeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\CardTypeDialog.ru.resx">
+      <DependentUpon>CardTypeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keypair.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Keys.ico" />
+    <EmbeddedResource Include="Icons\Container.ico" />
+    <EmbeddedResource Include="Icons\User.ico" />
+    <EmbeddedResource Include="Icons\Users.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Provider.ico" />
+    <EmbeddedResource Include="Icons\Root.ico" />
+    <EmbeddedResource Include="KeyImpDialog.resx">
+      <DependentUpon>KeyImpDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyImpDialog.ru.resx">
+      <DependentUpon>KeyImpDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Scope.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Store.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Providers.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Readers.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Reader.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Card.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\CardType.ico" />
+    <EmbeddedResource Include="Icons\CardTypes.ico" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(ProjectDir)..\..\Build\Targets\csproj.targets" />
+  <Target Name="AfterBuild">
+    <Delete Files="$(TargetDir)ru\$(TargetName).resources.dll" ContinueOnError="true" />
+    <ItemGroup>
+      <Resources Include="$(IntermediateOutputPath)*.ru.resources" />
+    </ItemGroup>
+    <Message Text="TargetFrameworkToolsDir = $(TargetFrameworkToolsDir)" Importance="high" />
+    <AL SdkToolsPath="$(TargetFrameworkToolsDir)" TemplateFile="$(TargetPath)" Culture="ru" EmbedResources="@(Resources)" KeyContainer="$(KeyContainerName)" KeyFile="$(KeyOriginatorFile)" DelaySign="$(DelaySign)" OutputAssembly="$(TargetDir)ru\$(TargetName).resources.dll" />
+    <ItemGroup>
+      <SignFiles Include="$(TargetPath);$(TargetDir)ru\$(TargetName).resources.dll" />
+    </ItemGroup>
+  </Target>
+</Project>

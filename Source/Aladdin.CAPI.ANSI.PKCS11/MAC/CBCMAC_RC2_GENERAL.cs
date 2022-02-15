@@ -1,0 +1,63 @@
+﻿using System;
+using Aladdin.PKCS11; 
+
+namespace Aladdin.CAPI.ANSI.PKCS11.MAC
+{
+    ///////////////////////////////////////////////////////////////////////////////
+    // Алгоритм вычисления имитовставки CBC-MAC RC2
+    ///////////////////////////////////////////////////////////////////////////////
+    public class CBCMAC_RC2_GENERAL : CAPI.PKCS11.Mac
+    {
+	    // эффективное число битов ключа и размер имитовставки
+	    private int effectiveKeyBits; private int[] keySizes; private int macSize; 
+
+	    // конструктор
+	    public CBCMAC_RC2_GENERAL(CAPI.PKCS11.Applet applet, int effectiveKeyBits, int[] keySizes, int macSize) 
+	     
+		    // сохранить переданные параметры
+		    : base(applet) { this.effectiveKeyBits = effectiveKeyBits; this.macSize = macSize; 
+
+            // указать допустимые размеры ключей
+            if (keySizes != null) this.keySizes = keySizes; 
+            else {
+                // получить информацию алгоритма
+                MechanismInfo info = applet.GetAlgorithmInfo(API.CKM_RC2_MAC_GENERAL); 
+            
+                // указать допустимые размеры ключей
+                this.keySizes = CAPI.KeySizes.Range((info.MinKeySize + 7) / 8, info.MaxKeySize / 8); 
+            }
+        }
+	    // параметры алгоритма
+	    protected override Mechanism GetParameters(CAPI.PKCS11.Session session)
+	    { 
+            // указать параметры алгоритма
+            Parameters.CK_RC2_MAC_GENERAL_PARAMS rc2Parameters = 
+                new Parameters.CK_RC2_MAC_GENERAL_PARAMS(effectiveKeyBits, macSize); 
+
+            // вернуть параметры алгоритма
+            return new Mechanism(API.CKM_RC2_MAC_GENERAL, rc2Parameters); 
+	    }
+        // тип ключа
+        public override SecretKeyFactory KeyFactory { get { return Keys.RC2.Instance; }}
+	    // размер ключа в байтах
+	    public override int[] KeySizes { get { return keySizes; }}
+    
+	    // размер хэш-значения в байтах
+	    public override int MacSize { get { return macSize; }}
+		// размер блока в байтах
+		public override int BlockSize { get { return 8; }} 
+
+	    // завершить выработку имитовставки
+	    public override int Finish(byte[] buf, int bufOff)
+        {
+            // указать требуемый размер
+            if (buf == null) return macSize; byte[] mac = new byte[macSize];
+
+	        // завершить хэширование данных
+	        if (Total != 0) base.Finish(mac, 0);
+
+            // скопировать хэш-значение
+            Array.Copy(mac, 0, buf, bufOff, macSize); return macSize; 
+        }
+    }
+}

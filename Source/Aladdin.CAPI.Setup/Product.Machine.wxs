@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?define MERGE_DIR90  = "$(env.CommonProgramFiles)\Merge Modules"      ?>
+  <?define MERGE_DIR    = "$(var.VCToolsRedistDir)MergeModules"          ?>
+  <?define CAPI32_COM   = "..\..\Setup\Windows\x86\$(var.Configuration)" ?>
+  <?define CAPI64_COM   = "..\..\Setup\Windows\x64\$(var.Configuration)" ?>
+  <?define CAPI32_20    = "..\..\Setup\v2.0\x86\$(var.Configuration)"    ?>
+  <?define CAPI64_20    = "..\..\Setup\v2.0\x64\$(var.Configuration)"    ?>
+  <?define CAPI32_40    = "..\..\Setup\v4.0\x86\$(var.Configuration)"    ?>
+  <?define CAPI64_40    = "..\..\Setup\v4.0\x64\$(var.Configuration)"    ?>
+  <?if $(var.InstallerPlatform)  = "x86"                                 ?>
+  <?define CAPIXX_20    = "$(var.CAPI32_20)"                             ?>
+  <?define CAPIXX_40    = "$(var.CAPI32_40)"                             ?>
+  <?endif                                                                ?>
+  <?if $(var.InstallerPlatform)  = "x64"                                 ?>
+  <?define CAPIXX_20    = "$(var.CAPI64_20)"                             ?>
+  <?define CAPIXX_40    = "$(var.CAPI64_40)"                             ?>
+  <?endif                                                                ?>
+
+  <?if $(var.InstallerPlatform)  = "x86"                                 ?>
+  <?define UPGRADEID    = "BB3196F9-D02E-4D14-A1F8-7F2D554C9DCB"         ?>
+  <?endif                                                                ?>
+  <?if $(var.InstallerPlatform)  = "x64"                                 ?>
+  <?define UPGRADEID    = "73EBC49F-B85B-4301-AC6C-F6B9774E7852"         ?>
+  <?endif                                                                ?>
+    
+  <Product Id="*" Name="!(loc.Product.Name)" Language="1033" Version="$(var.VERSION)" Manufacturer="!(loc.Company.Name)" UpgradeCode="$(var.UPGRADEID)">
+    <Package InstallerVersion="405" Compressed="yes" />
+
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+
+    <Property Id="ARPHELPTELEPHONE">+7 (495) 223-0001</Property>
+    <Property Id="ARPHELPLINK"     >http://www.aladdin-rd.ru</Property>
+
+    <Property Id="INSTALLED_PRODUCT_OLD"  Secure="yes" />
+    <Property Id="INSTALLED_PRODUCT_NEW"  Secure="yes" />
+
+    <PropertyRef Id="NETFRAMEWORK20"        />
+    <PropertyRef Id="NETFRAMEWORK30"        />
+    <PropertyRef Id="NETFRAMEWORK35"        />
+    <PropertyRef Id="NETFRAMEWORK40CLIENT"  />
+    <PropertyRef Id="NETFRAMEWORK40FULL"    />
+    <PropertyRef Id="NETFRAMEWORK45"        />
+
+    <?if $(var.InstallerPlatform)  = "x64"?>
+    <Property Id="UCRT64" Secure="yes">
+      <DirectorySearch Id="UCRT64" Path="[System64Folder]" Depth="0">
+        <FileSearch Id="UCRT64" Name="ucrtbase.dll"></FileSearch>
+      </DirectorySearch>
+    </Property>
+    <Property Id="UCRT64_DEBUG" Secure="yes">
+      <DirectorySearch Id="UCRT64_DEBUG" Path="[System64Folder]" Depth="0">
+        <FileSearch Id="UCRT64_DEBUG" Name="ucrtbased.dll"></FileSearch>
+      </DirectorySearch>
+    </Property>
+    <?endif?>
+    <Property Id="UCRT32" Secure="yes">
+      <DirectorySearch Id="UCRT32" Path="[SystemFolder]" Depth="0">
+        <FileSearch Id="UCRT32" Name="ucrtbase.dll"></FileSearch>
+      </DirectorySearch>
+    </Property>
+    <Property Id="UCRT32_DEBUG" Secure="yes">
+      <DirectorySearch Id="UCRT32_DEBUG" Path="[SystemFolder]" Depth="0">
+        <FileSearch Id="UCRT32_DEBUG" Name="ucrtbased.dll"></FileSearch>
+      </DirectorySearch>
+    </Property>
+
+    <Condition Message="!(loc.Error.CheckWindows)"  >VersionNT AND (VersionNT >= 500)</Condition>
+    <Condition Message="!(loc.Error.CheckFramework)">NETFRAMEWORK40CLIENT</Condition>
+    <Condition Message="!(loc.Error.CheckAdmin)"    >Privileged</Condition>
+    <?if $(var.Configuration)     = "Debug"?>
+    <?if $(var.InstallerPlatform) = "x64"?>
+    <Condition Message="!(loc.Error.CheckUCRT64D)">UCRT64_DEBUG</Condition>
+    <?endif?>
+    <Condition Message="!(loc.Error.CheckUCRT32D)">UCRT32_DEBUG</Condition>
+    <?else?>
+    <?if $(var.InstallerPlatform) = "x64"?>
+    <Condition Message="!(loc.Error.CheckUCRT64)">UCRT64</Condition>
+    <?endif?>
+    <Condition Message="!(loc.Error.CheckUCRT32)">UCRT32</Condition>
+    <?endif?>
+
+    <Upgrade Id="$(var.UPGRADEID)">
+      <UpgradeVersion OnlyDetect="no"  Maximum="$(var.VERSION)" IncludeMaximum="no" Property="INSTALLED_PRODUCT_OLD" MigrateFeatures="yes" />
+      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.VERSION)" IncludeMinimum="no"  Property="INSTALLED_PRODUCT_NEW"  />
+    </Upgrade>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <?if $(var.Configuration) = "Debug"?>
+      <?if $(var.InstallerPlatform)  = "x64"?>
+      <Merge Id="Microsoft.CRT_90_Debug_64" Language="1033" SourceFile="$(var.MERGE_DIR90)\Microsoft_VC90_DebugCRT_x86_x64.msm"            DiskId="1" />
+      <Merge Id="Microsoft.CRT_90_Debug_32" Language="1033" SourceFile="$(var.MERGE_DIR90)\Microsoft_VC90_DebugCRT_x86.msm"                DiskId="1" />
+      <Merge Id="Microsoft.CRT_Debug_64"    Language="1033" SourceFile="$(var.MERGE_DIR)\Microsoft_VC$(var.MergeToolset)_DebugCRT_x64.msm" DiskId="1" />
+      <Merge Id="Microsoft.CRT_Debug_32"    Language="1033" SourceFile="$(var.MERGE_DIR)\Microsoft_VC$(var.MergeToolset)_DebugCRT_x86.msm" DiskId="1" />
+      <?else?>
+      <Merge Id="Microsoft.CRT_90_Debug_32" Language="1033" SourceFile="$(var.MERGE_DIR90)\Microsoft_VC90_DebugCRT_x86.msm"                DiskId="1" />
+      <Merge Id="Microsoft.CRT_Debug_32"    Language="1033" SourceFile="$(var.MERGE_DIR)\Microsoft_VC$(var.MergeToolset)_DebugCRT_x86.msm" DiskId="1" />
+      <?endif?>
+      <?else?>
+      <?if $(var.InstallerPlatform)  = "x64"?>
+      <Merge Id="Microsoft.CRT_90_64"  Language="1033" SourceFile="$(var.MERGE_DIR90)\Microsoft_VC90_CRT_x86_x64.msm"            DiskId="1" />
+      <Merge Id="Microsoft.CRT_90_32"  Language="1033" SourceFile="$(var.MERGE_DIR90)\Microsoft_VC90_CRT_x86.msm"                DiskId="1" />
+      <Merge Id="Microsoft.CRT_64"     Language="1033" SourceFile="$(var.MERGE_DIR)\Microsoft_VC$(var.MergeToolset)_CRT_x64.msm" DiskId="1" />
+      <Merge Id="Microsoft.CRT_32"     Language="1033" SourceFile="$(var.MERGE_DIR)\Microsoft_VC$(var.MergeToolset)_CRT_x86.msm" DiskId="1" />
+      <?else?>
+      <Merge Id="Microsoft.CRT_90_32"  Language="1033" SourceFile="$(var.MERGE_DIR90)\Microsoft_VC90_CRT_x86.msm"                DiskId="1" />
+      <Merge Id="Microsoft.CRT_32"     Language="1033" SourceFile="$(var.MERGE_DIR)\Microsoft_VC$(var.MergeToolset)_CRT_x86.msm" DiskId="1" />
+      <?endif?>
+      <?endif?>
+      <?if $(var.InstallerPlatform) = "x64"?>
+      <Merge Id="Aladdin.CAPI.COM_64"   Language="1033" SourceFile="$(var.CAPI64_COM)\Aladdin.CAPI.Merge.COM.Machine.msm"   DiskId="1" />
+      <Merge Id="Aladdin.CAPI.COM_32"   Language="1033" SourceFile="$(var.CAPI32_COM)\Aladdin.CAPI.Merge.COM.Machine.msm"   DiskId="1" />
+      <?else?>
+      <Merge Id="Aladdin.CAPI.COM_32"   Language="1033" SourceFile="$(var.CAPI32_COM)\Aladdin.CAPI.Merge.COM.Machine.msm"   DiskId="1" />
+      <?endif?>
+      <Merge Id="Aladdin.CAPI.20"       Language="1033" SourceFile="$(var.CAPIXX_20)\Aladdin.CAPI.Merge.NET.MSIL.msm"       DiskId="1" />
+      <?if $(var.InstallerPlatform) = "x64"?>
+      <Merge Id="Aladdin.CAPI.20_64"    Language="1033" SourceFile="$(var.CAPI64_20)\Aladdin.CAPI.Merge.NET.Machine.msm"    DiskId="1" />
+      <Merge Id="Aladdin.CAPI.20_32"    Language="1033" SourceFile="$(var.CAPI32_20)\Aladdin.CAPI.Merge.NET.Machine.msm"    DiskId="1" />
+      <?else?>
+      <Merge Id="Aladdin.CAPI.20_32"    Language="1033" SourceFile="$(var.CAPI32_20)\Aladdin.CAPI.Merge.NET.Machine.msm"    DiskId="1" />
+      <?endif?>
+      <Merge Id="Aladdin.CAPI.40"       Language="1033" SourceFile="$(var.CAPIXX_40)\Aladdin.CAPI.Merge.NET.MSIL.msm"       DiskId="1" />
+      <?if $(var.InstallerPlatform) = "x64"?>
+      <Merge Id="Aladdin.CAPI.40_64"    Language="1033" SourceFile="$(var.CAPI64_40)\Aladdin.CAPI.Merge.NET.Machine.msm"    DiskId="1" />
+      <Merge Id="Aladdin.CAPI.40_32"    Language="1033" SourceFile="$(var.CAPI32_40)\Aladdin.CAPI.Merge.NET.Machine.msm"    DiskId="1" />
+      <?else?>
+      <Merge Id="Aladdin.CAPI.40_32"    Language="1033" SourceFile="$(var.CAPI32_40)\Aladdin.CAPI.Merge.NET.Machine.msm"    DiskId="1" />
+      <?endif?>
+    </Directory>
+
+      <Feature Id="CAPI" Title="CAPI" Level="1"        >
+      <?if $(var.Configuration) = "Debug"             ?>
+      <?if $(var.InstallerPlatform)  = "x64"          ?>
+      <MergeRef Id="Microsoft.CRT_90_Debug_64"        />
+      <MergeRef Id="Microsoft.CRT_90_Debug_32"        />
+      <MergeRef Id="Microsoft.CRT_Debug_64"           />
+      <MergeRef Id="Microsoft.CRT_Debug_32"           />
+      <?else                                          ?>
+      <MergeRef Id="Microsoft.CRT_90_Debug_32"        />
+      <MergeRef Id="Microsoft.CRT_Debug_32"           />
+      <?endif                                         ?>
+      <?else                                          ?>
+      <?if $(var.InstallerPlatform)  = "x64"          ?>
+      <MergeRef Id="Microsoft.CRT_90_64"              />
+      <MergeRef Id="Microsoft.CRT_90_32"              />
+      <MergeRef Id="Microsoft.CRT_64"                 />
+      <MergeRef Id="Microsoft.CRT_32"                 />
+      <?else                                          ?>
+      <MergeRef Id="Microsoft.CRT_90_32"              />
+      <MergeRef Id="Microsoft.CRT_32"                 />
+      <?endif                                         ?>
+      <?endif                                         ?>
+      <?if $(var.InstallerPlatform)  = "x64"          ?>
+      <MergeRef Id="Aladdin.CAPI.COM_64"              />
+      <MergeRef Id="Aladdin.CAPI.COM_32"              />
+      <?else                                          ?>
+      <MergeRef Id="Aladdin.CAPI.COM_32"              />
+      <?endif                                         ?>
+      </Feature                                        >
+
+    <Feature Id="NET20" Level="0"                  >
+      <Condition Level="1">NETFRAMEWORK20 OR NETFRAMEWORK30 OR NETFRAMEWORK35 OR NETFRAMEWORK40CLIENT OR NETFRAMEWORK40FULL OR NETFRAMEWORK45</Condition>
+      <MergeRef Id="Aladdin.CAPI.20"              />
+      <?if $(var.InstallerPlatform) = "x64"       ?>
+      <MergeRef Id="Aladdin.CAPI.20_64"           />
+      <MergeRef Id="Aladdin.CAPI.20_32"           />
+      <?else                                      ?>
+      <MergeRef Id="Aladdin.CAPI.20_32"           />
+      <?endif                                     ?>
+    </Feature                                      >
+    <Feature Id="NET40" Level="0"                  >
+      <Condition Level="1">NETFRAMEWORK40CLIENT OR NETFRAMEWORK40FULL OR NETFRAMEWORK45</Condition>
+      <MergeRef Id="Aladdin.CAPI.40"              />
+      <?if $(var.InstallerPlatform) = "x64"       ?>
+      <MergeRef Id="Aladdin.CAPI.40_64"           />
+      <MergeRef Id="Aladdin.CAPI.40_32"           />
+      <?else                                      ?>
+      <MergeRef Id="Aladdin.CAPI.40_32"           />
+      <?endif                                     ?>
+    </Feature                                      >
+
+    <WixVariable Id='WixUIExclamationIco' Value='resources\exclam.ico'                />
+    <WixVariable Id='WixUIInfoIco'        Value='resources\info.ico'                  />
+    <WixVariable Id='WixUINewIco'         Value='resources\new.ico'                   />
+    <WixVariable Id='WixUIUpIco'          Value='resources\up.ico'                    />
+    <WixVariable Id='WixUIDialogBmp'      Value='resources\$(var.Locale)\dialog.bmp'  />
+    <WixVariable Id='WixUIBannerBmp'      Value='resources\$(var.Locale)\banner.bmp'  />
+    <WixVariable Id='WixUILicenseRtf'     Value='resources\$(var.Locale)\license.rtf' />
+
+    <CustomAction Id="CheckProduct"    Error="25001" />
+
+    <InstallExecuteSequence>
+      <Custom Action="CheckProduct"    After="FindRelatedProducts">INSTALLED_PRODUCT_NEW</Custom>
+      <RemoveExistingProducts          After="InstallValidate"/>
+    </InstallExecuteSequence>
+
+    <UIRef Id="WixUI_Minimal"           />
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <UI>
+      <Error Id="25001">!(loc.Error.CheckProduct)</Error>
+    </UI>
+  </Product>
+</Wix>

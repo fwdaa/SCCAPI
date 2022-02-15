@@ -1,0 +1,10 @@
+package aladdin.capi.stb.stb34101;
+import java.math.*; 
+
+///////////////////////////////////////////////////////////////////////////
+// Личный ключ алгоритма СТБ 34.101
+///////////////////////////////////////////////////////////////////////////
+public interface IPrivateKey extends aladdin.capi.IPrivateKey 
+{
+	BigInteger getS(); // значение личного ключа
+}

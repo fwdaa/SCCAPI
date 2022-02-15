@@ -1,0 +1,797 @@
+package aladdin.pkcs11;
+
+public class API 
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Булевы значения
+    ///////////////////////////////////////////////////////////////////////////
+	public static final byte CK_FALSE                               = 0x00;
+	public static final byte CK_TRUE                                = 0x01;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Коды ошибок
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKR_OK                                 = 0x0000000000000000L;
+	public static final long CKR_CANCEL                             = 0x0000000000000001L;
+	public static final long CKR_HOST_MEMORY                        = 0x0000000000000002L;
+	public static final long CKR_SLOT_ID_INVALID                    = 0x0000000000000003L;
+	public static final long CKR_GENERAL_ERROR                      = 0x0000000000000005L;
+	public static final long CKR_FUNCTION_FAILED                    = 0x0000000000000006L;
+	public static final long CKR_ARGUMENTS_BAD                      = 0x0000000000000007L;
+	public static final long CKR_NO_EVENT                           = 0x0000000000000008L;
+	public static final long CKR_NEED_TO_CREATE_THREADS             = 0x0000000000000009L;
+	public static final long CKR_CANT_LOCK                          = 0x000000000000000AL;
+	public static final long CKR_ATTRIBUTE_READ_ONLY                = 0x0000000000000010L;
+	public static final long CKR_ATTRIBUTE_SENSITIVE                = 0x0000000000000011L;
+	public static final long CKR_ATTRIBUTE_TYPE_INVALID             = 0x0000000000000012L;
+	public static final long CKR_ATTRIBUTE_VALUE_INVALID            = 0x0000000000000013L;
+	public static final long CKR_DATA_INVALID                       = 0x0000000000000020L;
+	public static final long CKR_DATA_LEN_RANGE                     = 0x0000000000000021L;
+	public static final long CKR_DEVICE_ERROR                       = 0x0000000000000030L;
+	public static final long CKR_DEVICE_MEMORY                      = 0x0000000000000031L;
+	public static final long CKR_DEVICE_REMOVED                     = 0x0000000000000032L;
+	public static final long CKR_ENCRYPTED_DATA_INVALID             = 0x0000000000000040L;
+	public static final long CKR_ENCRYPTED_DATA_LEN_RANGE           = 0x0000000000000041L;
+	public static final long CKR_FUNCTION_CANCELED                  = 0x0000000000000050L;
+	public static final long CKR_FUNCTION_NOT_PARALLEL              = 0x0000000000000051L;
+	public static final long CKR_FUNCTION_NOT_SUPPORTED             = 0x0000000000000054L;
+	public static final long CKR_KEY_HANDLE_INVALID                 = 0x0000000000000060L;
+	public static final long CKR_KEY_SIZE_RANGE                     = 0x0000000000000062L;
+	public static final long CKR_KEY_TYPE_INCONSISTENT              = 0x0000000000000063L;
+	public static final long CKR_KEY_NOT_NEEDED                     = 0x0000000000000064L;
+	public static final long CKR_KEY_CHANGED                        = 0x0000000000000065L;
+	public static final long CKR_KEY_NEEDED                         = 0x0000000000000066L;
+	public static final long CKR_KEY_INDIGESTIBLE                   = 0x0000000000000067L;
+	public static final long CKR_KEY_FUNCTION_NOT_PERMITTED         = 0x0000000000000068L;
+	public static final long CKR_KEY_NOT_WRAPPABLE                  = 0x0000000000000069L;
+	public static final long CKR_KEY_UNEXTRACTABLE                  = 0x000000000000006AL;
+	public static final long CKR_MECHANISM_INVALID                  = 0x0000000000000070L;
+	public static final long CKR_MECHANISM_PARAM_INVALID            = 0x0000000000000071L;
+	public static final long CKR_OBJECT_HANDLE_INVALID              = 0x0000000000000082L;
+	public static final long CKR_OPERATION_ACTIVE                   = 0x0000000000000090L;
+	public static final long CKR_OPERATION_NOT_INITIALIZED          = 0x0000000000000091L;
+	public static final long CKR_PIN_INCORRECT                      = 0x00000000000000A0L;
+	public static final long CKR_PIN_INVALID                        = 0x00000000000000A1L;
+	public static final long CKR_PIN_LEN_RANGE                      = 0x00000000000000A2L;
+	public static final long CKR_PIN_EXPIRED                        = 0x00000000000000A3L;
+	public static final long CKR_PIN_LOCKED                         = 0x00000000000000A4L;
+	public static final long CKR_SESSION_CLOSED                     = 0x00000000000000B0L;
+	public static final long CKR_SESSION_COUNT                      = 0x00000000000000B1L;
+	public static final long CKR_SESSION_HANDLE_INVALID             = 0x00000000000000B3L;
+	public static final long CKR_SESSION_PARALLEL_NOT_SUPPORTED     = 0x00000000000000B4L;
+	public static final long CKR_SESSION_READ_ONLY                  = 0x00000000000000B5L;
+	public static final long CKR_SESSION_EXISTS                     = 0x00000000000000B6L;
+	public static final long CKR_SESSION_READ_ONLY_EXISTS           = 0x00000000000000B7L;
+	public static final long CKR_SESSION_READ_WRITE_SO_EXISTS       = 0x00000000000000B8L;
+	public static final long CKR_SIGNATURE_INVALID                  = 0x00000000000000C0L;
+	public static final long CKR_SIGNATURE_LEN_RANGE                = 0x00000000000000C1L;
+	public static final long CKR_TEMPLATE_INCOMPLETE                = 0x00000000000000D0L;
+	public static final long CKR_TEMPLATE_INCONSISTENT              = 0x00000000000000D1L;
+	public static final long CKR_TOKEN_NOT_PRESENT                  = 0x00000000000000E0L;
+	public static final long CKR_TOKEN_NOT_RECOGNIZED               = 0x00000000000000E1L;
+	public static final long CKR_TOKEN_WRITE_PROTECTED              = 0x00000000000000E2L;
+	public static final long CKR_UNWRAPPING_KEY_HANDLE_INVALID      = 0x00000000000000F0L;
+	public static final long CKR_UNWRAPPING_KEY_SIZE_RANGE          = 0x00000000000000F1L;
+	public static final long CKR_UNWRAPPING_KEY_TYPE_INCONSISTENT   = 0x00000000000000F2L;
+	public static final long CKR_USER_ALREADY_LOGGED_IN             = 0x0000000000000100L;
+	public static final long CKR_USER_NOT_LOGGED_IN                 = 0x0000000000000101L;
+	public static final long CKR_USER_PIN_NOT_INITIALIZED           = 0x0000000000000102L;
+	public static final long CKR_USER_TYPE_INVALID                  = 0x0000000000000103L;
+	public static final long CKR_USER_ANOTHER_ALREADY_LOGGED_IN     = 0x0000000000000104L;
+	public static final long CKR_USER_TOO_MANY_TYPES                = 0x0000000000000105L;
+	public static final long CKR_WRAPPED_KEY_INVALID                = 0x0000000000000110L;
+	public static final long CKR_WRAPPED_KEY_LEN_RANGE              = 0x0000000000000112L;
+	public static final long CKR_WRAPPING_KEY_HANDLE_INVALID        = 0x0000000000000113L;
+	public static final long CKR_WRAPPING_KEY_SIZE_RANGE            = 0x0000000000000114L;
+	public static final long CKR_WRAPPING_KEY_TYPE_INCONSISTENT     = 0x0000000000000115L;
+	public static final long CKR_RANDOM_SEED_NOT_SUPPORTED          = 0x0000000000000120L;
+	public static final long CKR_RANDOM_NO_RNG                      = 0x0000000000000121L;
+	public static final long CKR_DOMAIN_PARAMS_INVALID              = 0x0000000000000130L;
+	public static final long CKR_BUFFER_TOO_SMALL                   = 0x0000000000000150L;
+	public static final long CKR_SAVED_STATE_INVALID                = 0x0000000000000160L;
+	public static final long CKR_INFORMATION_SENSITIVE              = 0x0000000000000170L;
+	public static final long CKR_STATE_UNSAVEABLE                   = 0x0000000000000180L;
+	public static final long CKR_CRYPTOKI_NOT_INITIALIZED           = 0x0000000000000190L;
+	public static final long CKR_CRYPTOKI_ALREADY_INITIALIZED       = 0x0000000000000191L;
+	public static final long CKR_MUTEX_BAD                          = 0x00000000000001A0L;
+	public static final long CKR_MUTEX_NOT_LOCKED                   = 0x00000000000001A1L;
+	public static final long CKR_VENDOR_DEFINED                     = 0x0000000080000000L;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Флаги настройки библиотеки
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKF_LIBRARY_CANT_CREATE_OS_THREADS = 0x00000001L;
+	public static final long CKF_OS_LOCKING_OK					= 0x00000002L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Флаги считывателя
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKF_TOKEN_PRESENT                  = 0x00000001L;
+	public static final long CKF_REMOVABLE_DEVICE               = 0x00000002L;
+	public static final long CKF_HW_SLOT                        = 0x00000004L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Флаги смарт-карты
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKF_RNG							= 0x00000001L;
+	public static final long CKF_WRITE_PROTECTED				= 0x00000002L;
+	public static final long CKF_LOGIN_REQUIRED					= 0x00000004L;
+	public static final long CKF_USER_PIN_INITIALIZED			= 0x00000008L;
+	public static final long CKF_RESTORE_KEY_NOT_NEEDED			= 0x00000020L;
+	public static final long CKF_CLOCK_ON_TOKEN					= 0x00000040L;
+	public static final long CKF_PROTECTED_AUTHENTICATION_PATH	= 0x00000100L;
+	public static final long CKF_DUAL_CRYPTO_OPERATIONS			= 0x00000200L;
+	public static final long CKF_TOKEN_INITIALIZED				= 0x00000400L;
+	public static final long CKF_SECONDARY_AUTHENTICATION		= 0x00000800L;
+	public static final long CKF_USER_PIN_COUNT_LOW				= 0x00010000L;
+	public static final long CKF_USER_PIN_FINAL_TRY				= 0x00020000L;
+	public static final long CKF_USER_PIN_LOCKED				= 0x00040000L;
+	public static final long CKF_USER_PIN_TO_BE_CHANGED			= 0x00080000L;
+	public static final long CKF_SO_PIN_COUNT_LOW				= 0x00100000L;
+	public static final long CKF_SO_PIN_FINAL_TRY				= 0x00200000L;
+	public static final long CKF_SO_PIN_LOCKED					= 0x00400000L;
+	public static final long CKF_SO_PIN_TO_BE_CHANGED			= 0x00800000L;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы пользователей
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKU_SO                 = 0L;
+	public static final long CKU_USER               = 1L;
+    public static final long CKU_CONTEXT_SPECIFIC   = 2L; 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Состояния сеанса
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKS_RO_PUBLIC_SESSION	= 0L;
+	public static final long CKS_RO_USER_FUNCTIONS	= 1L;
+	public static final long CKS_RW_PUBLIC_SESSION	= 2L;
+	public static final long CKS_RW_USER_FUNCTIONS	= 3L;
+	public static final long CKS_RW_SO_FUNCTIONS	= 4L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Флаги сеанса
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKF_RW_SESSION         = 0x00000002L;
+	public static final long CKF_SERIAL_SESSION     = 0x00000004L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы объектов
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKO_DATA				= 0x0000000000000000L;
+	public static final long CKO_CERTIFICATE		= 0x0000000000000001L;
+	public static final long CKO_PUBLIC_KEY			= 0x0000000000000002L;
+	public static final long CKO_PRIVATE_KEY		= 0x0000000000000003L;
+	public static final long CKO_SECRET_KEY			= 0x0000000000000004L;
+	public static final long CKO_HW_FEATURE			= 0x0000000000000005L;
+	public static final long CKO_DOMAIN_PARAMETERS	= 0x0000000000000006L;
+	public static final long CKO_VENDOR_DEFINED		= 0x0000000080000000L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы ключей
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKK_RSA				= 0x0000000000000000L;
+	public static final long CKK_DSA				= 0x0000000000000001L;
+	public static final long CKK_DH					= 0x0000000000000002L;
+	public static final long CKK_ECDSA				= 0x0000000000000003L;
+	public static final long CKK_EC					= 0x0000000000000003L;
+	public static final long CKK_X9_42_DH			= 0x0000000000000004L;
+	public static final long CKK_KEA				= 0x0000000000000005L;
+	public static final long CKK_GENERIC_SECRET		= 0x0000000000000010L;
+	public static final long CKK_RC2				= 0x0000000000000011L;
+	public static final long CKK_RC4				= 0x0000000000000012L;
+	public static final long CKK_DES				= 0x0000000000000013L;
+	public static final long CKK_DES2				= 0x0000000000000014L;
+	public static final long CKK_DES3				= 0x0000000000000015L;
+	public static final long CKK_CAST				= 0x0000000000000016L;
+	public static final long CKK_CAST3				= 0x0000000000000017L;
+	public static final long CKK_CAST128			= 0x0000000000000018L;
+	public static final long CKK_RC5				= 0x0000000000000019L;
+	public static final long CKK_IDEA				= 0x000000000000001AL;
+	public static final long CKK_SKIPJACK			= 0x000000000000001BL;
+	public static final long CKK_BATON				= 0x000000000000001CL;
+	public static final long CKK_JUNIPER			= 0x000000000000001DL;
+	public static final long CKK_CDMF				= 0x000000000000001EL;
+	public static final long CKK_AES				= 0x000000000000001FL;
+	public static final long CKK_BLOWFISH			= 0x0000000000000020L;
+    public static final long CKK_TWOFISH            = 0x0000000000000021L;
+    public static final long CKK_SECURID            = 0x0000000000000022L;
+    public static final long CKK_HOTP               = 0x0000000000000023L;
+    public static final long CKK_ACTI               = 0x0000000000000024L;
+    public static final long CKK_CAMELLIA           = 0x0000000000000025L;
+    public static final long CKK_ARIA               = 0x0000000000000026L;
+    public static final long CKK_MD5_HMAC           = 0x0000000000000027L;
+    public static final long CKK_SHA_1_HMAC         = 0x0000000000000028L;
+    public static final long CKK_RIPEMD128_HMAC     = 0x0000000000000029L;
+    public static final long CKK_RIPEMD160_HMAC     = 0x000000000000002AL;
+    public static final long CKK_SHA256_HMAC        = 0x000000000000002BL;
+    public static final long CKK_SHA384_HMAC        = 0x000000000000002CL;
+    public static final long CKK_SHA512_HMAC        = 0x000000000000002DL;
+    public static final long CKK_SHA224_HMAC        = 0x000000000000002EL;
+    public static final long CKK_SEED               = 0x000000000000002FL;
+	public static final long CKK_GOSTR3410			= 0x0000000000000030L;
+    public static final long CKK_GOSTR3410_256	    = 0x0000000000000030L;
+	public static final long CKK_GOSTR3411			= 0x0000000000000031L;
+	public static final long CKK_GOST28147			= 0x0000000000000032L;
+    public static final long CKK_CHACHA20           = 0x0000000000000033L;
+    public static final long CKK_POLY1350           = 0x0000000000000034L;
+    public static final long CKK_AES_XTS            = 0x0000000000000035L;   
+    public static final long CKK_SHA3_224_HMAC      = 0x0000000000000036L;
+    public static final long CKK_SHA3_256_HMAC      = 0x0000000000000037L;
+    public static final long CKK_SHA3_384_HMAC      = 0x0000000000000038L;
+    public static final long CKK_SHA3_512_HMAC      = 0x0000000000000039L;   
+	public static final long CKK_VENDOR_DEFINED		= 0x0000000080000000L;
+    public static final long CKK_GOSTR3410_512      = 0x00000000D4321003L; 
+    public static final long CKK_KUZNECHIK          = 0x00000000D4321004L; 
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы сертификатов
+    ///////////////////////////////////////////////////////////////////////////
+    public static final long CKC_X_509              = 0x0000000000000000;
+    public static final long CKC_X_509_ATTR_CERT    = 0x0000000000000001;
+    public static final long CKC_WTLS               = 0x0000000000000002;
+    public static final long CKC_VENDOR_DEFINED     = 0x0000000080000000;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы атрибутов
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKA_CLASS                  = 0x0000000000000000L;
+	public static final long CKA_TOKEN                  = 0x0000000000000001L;
+	public static final long CKA_PRIVATE                = 0x0000000000000002L;
+	public static final long CKA_LABEL                  = 0x0000000000000003L;
+	public static final long CKA_APPLICATION            = 0x0000000000000010L;
+	public static final long CKA_VALUE                  = 0x0000000000000011L;
+	public static final long CKA_OBJECT_ID              = 0x0000000000000012L;
+	public static final long CKA_CERTIFICATE_TYPE       = 0x0000000000000080L;
+	public static final long CKA_ISSUER                 = 0x0000000000000081L;
+	public static final long CKA_SERIAL_NUMBER          = 0x0000000000000082L;
+	public static final long CKA_AC_ISSUER              = 0x0000000000000083L;
+	public static final long CKA_OWNER                  = 0x0000000000000084L;
+	public static final long CKA_ATTR_TYPES             = 0x0000000000000085L;
+	public static final long CKA_TRUSTED                = 0x0000000000000086L;
+	public static final long CKA_KEY_TYPE               = 0x0000000000000100L;
+	public static final long CKA_SUBJECT                = 0x0000000000000101L;
+	public static final long CKA_ID                     = 0x0000000000000102L;
+	public static final long CKA_SENSITIVE              = 0x0000000000000103L;
+	public static final long CKA_ENCRYPT                = 0x0000000000000104L;
+	public static final long CKA_DECRYPT                = 0x0000000000000105L;
+	public static final long CKA_WRAP                   = 0x0000000000000106L;
+	public static final long CKA_UNWRAP                 = 0x0000000000000107L;
+	public static final long CKA_SIGN                   = 0x0000000000000108L;
+	public static final long CKA_SIGN_RECOVER           = 0x0000000000000109L;
+	public static final long CKA_VERIFY                 = 0x000000000000010AL;
+	public static final long CKA_VERIFY_RECOVER         = 0x000000000000010BL;
+	public static final long CKA_DERIVE                 = 0x000000000000010CL;
+	public static final long CKA_START_DATE             = 0x0000000000000110L;
+	public static final long CKA_END_DATE               = 0x0000000000000111L;
+	public static final long CKA_MODULUS                = 0x0000000000000120L;
+	public static final long CKA_MODULUS_BITS           = 0x0000000000000121L;
+	public static final long CKA_PUBLIC_EXPONENT        = 0x0000000000000122L;
+	public static final long CKA_PRIVATE_EXPONENT       = 0x0000000000000123L;
+	public static final long CKA_PRIME_1                = 0x0000000000000124L;
+	public static final long CKA_PRIME_2                = 0x0000000000000125L;
+	public static final long CKA_EXPONENT_1             = 0x0000000000000126L;
+	public static final long CKA_EXPONENT_2             = 0x0000000000000127L;
+	public static final long CKA_COEFFICIENT            = 0x0000000000000128L;
+	public static final long CKA_PRIME                  = 0x0000000000000130L;
+	public static final long CKA_SUBPRIME               = 0x0000000000000131L;
+	public static final long CKA_BASE                   = 0x0000000000000132L;
+	public static final long CKA_PRIME_BITS             = 0x0000000000000133L;
+	public static final long CKA_SUB_PRIME_BITS         = 0x0000000000000134L;
+	public static final long CKA_VALUE_BITS             = 0x0000000000000160L;
+	public static final long CKA_VALUE_LEN              = 0x0000000000000161L;
+	public static final long CKA_EXTRACTABLE            = 0x0000000000000162L;
+	public static final long CKA_LOCAL                  = 0x0000000000000163L;
+	public static final long CKA_NEVER_EXTRACTABLE      = 0x0000000000000164L;
+	public static final long CKA_ALWAYS_SENSITIVE       = 0x0000000000000165L;
+	public static final long CKA_KEY_GEN_MECHANISM      = 0x0000000000000166L;
+	public static final long CKA_MODIFIABLE             = 0x0000000000000170L;
+	public static final long CKA_ECDSA_PARAMS           = 0x0000000000000180L;
+	public static final long CKA_EC_PARAMS              = 0x0000000000000180L;
+	public static final long CKA_EC_POINT               = 0x0000000000000181L;
+	public static final long CKA_SECONDARY_AUTH         = 0x0000000000000200L;
+	public static final long CKA_AUTH_PIN_FLAGS         = 0x0000000000000201L;
+	public static final long CKA_HW_FEATURE_TYPE        = 0x0000000000000300L;
+	public static final long CKA_RESET_ON_INIT          = 0x0000000000000301L;
+	public static final long CKA_HAS_RESET              = 0x0000000000000302L;
+	public static final long CKA_GOSTR3410_PARAMS       = 0x0000000000000250L;
+    public static final long CKA_GOSTR3410_256PARAMS	= 0x0000000000000250L; 
+	public static final long CKA_GOSTR3411_PARAMS       = 0x0000000000000251L;
+	public static final long CKA_GOST28147_PARAMS       = 0x0000000000000252L;
+	public static final long CKA_VENDOR_DEFINED         = 0x0000000080000000L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы операций алгоритмов
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKF_HW							= 0x0000000000000001L;
+	public static final long CKF_ENCRYPT					= 0x0000000000000100L;
+	public static final long CKF_DECRYPT					= 0x0000000000000200L;
+	public static final long CKF_DIGEST						= 0x0000000000000400L;
+	public static final long CKF_SIGN						= 0x0000000000000800L;
+	public static final long CKF_SIGN_RECOVER				= 0x0000000000001000L;
+	public static final long CKF_VERIFY						= 0x0000000000002000L;
+	public static final long CKF_VERIFY_RECOVER				= 0x0000000000004000L;
+	public static final long CKF_GENERATE					= 0x0000000000008000L;
+	public static final long CKF_GENERATE_KEY_PAIR			= 0x0000000000010000L;
+	public static final long CKF_WRAP						= 0x0000000000020000L;
+	public static final long CKF_UNWRAP						= 0x0000000000040000L;
+	public static final long CKF_DERIVE						= 0x0000000000080000L;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы алгоритмов
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKM_RSA_PKCS_KEY_PAIR_GEN				= 0x0000000000000000L;
+	public static final long CKM_RSA_PKCS							= 0x0000000000000001L;
+	public static final long CKM_RSA_9796							= 0x0000000000000002L;
+	public static final long CKM_RSA_X_509							= 0x0000000000000003L;
+	public static final long CKM_MD2_RSA_PKCS						= 0x0000000000000004L;
+	public static final long CKM_MD5_RSA_PKCS						= 0x0000000000000005L;
+	public static final long CKM_SHA1_RSA_PKCS						= 0x0000000000000006L;
+	public static final long CKM_RIPEMD128_RSA_PKCS					= 0x0000000000000007L;
+	public static final long CKM_RIPEMD160_RSA_PKCS					= 0x0000000000000008L;
+	public static final long CKM_RSA_PKCS_OAEP						= 0x0000000000000009L;
+	public static final long CKM_RSA_X9_31_KEY_PAIR_GEN				= 0x000000000000000AL;
+	public static final long CKM_RSA_X9_31							= 0x000000000000000BL;
+	public static final long CKM_SHA1_RSA_X9_31						= 0x000000000000000CL;
+	public static final long CKM_RSA_PKCS_PSS						= 0x000000000000000DL;
+	public static final long CKM_SHA1_RSA_PKCS_PSS					= 0x000000000000000EL;
+	public static final long CKM_DSA_KEY_PAIR_GEN					= 0x0000000000000010L;
+	public static final long CKM_DSA								= 0x0000000000000011L;
+	public static final long CKM_DSA_SHA1							= 0x0000000000000012L;
+    public static final long CKM_DSA_SHA224                         = 0x0000000000000013L;
+    public static final long CKM_DSA_SHA256                         = 0x0000000000000014L;
+    public static final long CKM_DSA_SHA384                         = 0x0000000000000015L;
+    public static final long CKM_DSA_SHA512                         = 0x0000000000000016L; 
+    public static final long CKM_DSA_SHA3_224                       = 0x0000000000000018L;
+    public static final long CKM_DSA_SHA3_256                       = 0x0000000000000019L;
+    public static final long CKM_DSA_SHA3_384                       = 0x000000000000001AL;
+    public static final long CKM_DSA_SHA3_512                       = 0x000000000000001BL;   
+	public static final long CKM_DH_PKCS_KEY_PAIR_GEN				= 0x0000000000000020L;
+	public static final long CKM_DH_PKCS_DERIVE						= 0x0000000000000021L;
+	public static final long CKM_X9_42_DH_KEY_PAIR_GEN				= 0x0000000000000030L;
+	public static final long CKM_X9_42_DH_DERIVE					= 0x0000000000000031L;
+	public static final long CKM_X9_42_DH_HYBRID_DERIVE				= 0x0000000000000032L;
+	public static final long CKM_X9_42_MQV_DERIVE					= 0x0000000000000033L;
+	public static final long CKM_SHA256_RSA_PKCS					= 0x0000000000000040L;
+	public static final long CKM_SHA384_RSA_PKCS					= 0x0000000000000041L;
+	public static final long CKM_SHA512_RSA_PKCS					= 0x0000000000000042L;
+    public static final long CKM_SHA256_RSA_PKCS_PSS                = 0x0000000000000043L;
+    public static final long CKM_SHA384_RSA_PKCS_PSS                = 0x0000000000000044L;
+    public static final long CKM_SHA512_RSA_PKCS_PSS                = 0x0000000000000045L;
+    public static final long CKM_SHA224_RSA_PKCS                    = 0x0000000000000046L;
+    public static final long CKM_SHA224_RSA_PKCS_PSS                = 0x0000000000000047L;
+    public static final long CKM_SHA512_224                         = 0x0000000000000048L;
+    public static final long CKM_SHA512_224_HMAC                    = 0x0000000000000049L;
+    public static final long CKM_SHA512_224_HMAC_GENERAL            = 0x000000000000004AL;
+    public static final long CKM_SHA512_224_KEY_DERIVATION          = 0x000000000000004BL;
+    public static final long CKM_SHA512_256                         = 0x000000000000004CL;
+    public static final long CKM_SHA512_256_HMAC                    = 0x000000000000004DL;
+    public static final long CKM_SHA512_256_HMAC_GENERAL            = 0x000000000000004EL;
+    public static final long CKM_SHA512_256_KEY_DERIVATION          = 0x000000000000004FL;
+    public static final long CKM_SHA512_T                           = 0x0000000000000050L;
+    public static final long CKM_SHA512_T_HMAC                      = 0x0000000000000051L;
+    public static final long CKM_SHA512_T_HMAC_GENERAL              = 0x0000000000000052L;
+    public static final long CKM_SHA512_T_KEY_DERIVATION            = 0x0000000000000053L;
+    public static final long CKM_SHA3_256_RSA_PKCS                  = 0x0000000000000060L;
+    public static final long CKM_SHA3_384_RSA_PKCS                  = 0x0000000000000061L;
+    public static final long CKM_SHA3_512_RSA_PKCS                  = 0x0000000000000062L;
+    public static final long CKM_SHA3_256_RSA_PKCS_PSS              = 0x0000000000000063L;
+    public static final long CKM_SHA3_384_RSA_PKCS_PSS              = 0x0000000000000064L;
+    public static final long CKM_SHA3_512_RSA_PKCS_PSS              = 0x0000000000000065L;
+    public static final long CKM_SHA3_224_RSA_PKCS                  = 0x0000000000000066L;
+    public static final long CKM_SHA3_224_RSA_PKCS_PSS              = 0x0000000000000067L;   
+	public static final long CKM_RC2_KEY_GEN						= 0x0000000000000100L;
+	public static final long CKM_RC2_ECB							= 0x0000000000000101L;
+	public static final long CKM_RC2_CBC							= 0x0000000000000102L;
+	public static final long CKM_RC2_MAC							= 0x0000000000000103L;
+	public static final long CKM_RC2_MAC_GENERAL					= 0x0000000000000104L;
+	public static final long CKM_RC2_CBC_PAD						= 0x0000000000000105L;
+	public static final long CKM_RC4_KEY_GEN						= 0x0000000000000110L;
+	public static final long CKM_RC4								= 0x0000000000000111L;
+	public static final long CKM_DES_KEY_GEN						= 0x0000000000000120L;
+	public static final long CKM_DES_ECB							= 0x0000000000000121L;
+	public static final long CKM_DES_CBC							= 0x0000000000000122L;
+	public static final long CKM_DES_MAC							= 0x0000000000000123L;
+	public static final long CKM_DES_MAC_GENERAL					= 0x0000000000000124L;
+	public static final long CKM_DES_CBC_PAD						= 0x0000000000000125L;
+	public static final long CKM_DES2_KEY_GEN						= 0x0000000000000130L;
+	public static final long CKM_DES3_KEY_GEN						= 0x0000000000000131L;
+	public static final long CKM_DES3_ECB							= 0x0000000000000132L;
+	public static final long CKM_DES3_CBC							= 0x0000000000000133L;
+	public static final long CKM_DES3_MAC							= 0x0000000000000134L;
+	public static final long CKM_DES3_MAC_GENERAL					= 0x0000000000000135L;
+	public static final long CKM_DES3_CBC_PAD						= 0x0000000000000136L;
+	public static final long CKM_DES3_CMAC_GENERAL					= 0x0000000000000137L;
+	public static final long CKM_DES3_CMAC          				= 0x0000000000000138L;
+    public static final long CKM_CDMF_KEY_GEN                       = 0x0000000000000140L;
+    public static final long CKM_CDMF_ECB                           = 0x0000000000000141L;
+    public static final long CKM_CDMF_CBC                           = 0x0000000000000142L;
+    public static final long CKM_CDMF_MAC                           = 0x0000000000000143L;
+    public static final long CKM_CDMF_MAC_GENERAL                   = 0x0000000000000144L;
+    public static final long CKM_CDMF_CBC_PAD                       = 0x0000000000000145L;   
+    public static final long CKM_DES_OFB64                          = 0x0000000000000150L;
+    public static final long CKM_DES_OFB8                           = 0x0000000000000151L;
+    public static final long CKM_DES_CFB64                          = 0x0000000000000152L;
+    public static final long CKM_DES_CFB8                           = 0x0000000000000153L;
+	public static final long CKM_MD2								= 0x0000000000000200L;
+	public static final long CKM_MD2_HMAC							= 0x0000000000000201L;
+	public static final long CKM_MD2_HMAC_GENERAL					= 0x0000000000000202L;
+	public static final long CKM_MD5								= 0x0000000000000210L;
+	public static final long CKM_MD5_HMAC							= 0x0000000000000211L;
+	public static final long CKM_MD5_HMAC_GENERAL					= 0x0000000000000212L;
+	public static final long CKM_SHA_1								= 0x0000000000000220L;
+	public static final long CKM_SHA_1_HMAC							= 0x0000000000000221L;
+	public static final long CKM_SHA_1_HMAC_GENERAL					= 0x0000000000000222L;
+	public static final long CKM_RIPEMD128							= 0x0000000000000230L;
+	public static final long CKM_RIPEMD128_HMAC						= 0x0000000000000231L;
+	public static final long CKM_RIPEMD128_HMAC_GENERAL				= 0x0000000000000232L;
+	public static final long CKM_RIPEMD160							= 0x0000000000000240L;
+	public static final long CKM_RIPEMD160_HMAC						= 0x0000000000000241L;
+	public static final long CKM_RIPEMD160_HMAC_GENERAL				= 0x0000000000000242L;
+	public static final long CKM_SHA256								= 0x0000000000000250L;
+	public static final long CKM_SHA256_HMAC						= 0x0000000000000251L;
+	public static final long CKM_SHA256_HMAC_GENERAL				= 0x0000000000000252L;
+    public static final long CKM_SHA224                             = 0x0000000000000255L;
+    public static final long CKM_SHA224_HMAC                        = 0x0000000000000256L;
+    public static final long CKM_SHA224_HMAC_GENERAL                = 0x0000000000000257L;
+	public static final long CKM_SHA384								= 0x0000000000000260L;
+	public static final long CKM_SHA384_HMAC						= 0x0000000000000261L;
+	public static final long CKM_SHA384_HMAC_GENERAL				= 0x0000000000000262L;
+	public static final long CKM_SHA512								= 0x0000000000000270L;
+	public static final long CKM_SHA512_HMAC						= 0x0000000000000271L;
+	public static final long CKM_SHA512_HMAC_GENERAL				= 0x0000000000000272L;
+    public static final long CKM_SECURID_KEY_GEN                    = 0x0000000000000280L;
+    public static final long CKM_SECURID                            = 0x0000000000000282L;
+    public static final long CKM_HOTP_KEY_GEN                       = 0x0000000000000290L;
+    public static final long CKM_HOTP                               = 0x0000000000000291L;
+    public static final long CKM_ACTI                               = 0x00000000000002A0L;
+    public static final long CKM_ACTI_KEY_GEN                       = 0x00000000000002A1L;   
+    public static final long CKM_SHA3_256                           = 0x00000000000002B0L;
+    public static final long CKM_SHA3_256_HMAC                      = 0x00000000000002B1L;
+    public static final long CKM_SHA3_256_HMAC_GENERAL              = 0x00000000000002B2L;
+    public static final long CKM_SHA3_256_KEY_GEN                   = 0x00000000000002B3L;
+    public static final long CKM_SHA3_224                           = 0x00000000000002B5L;
+    public static final long CKM_SHA3_224_HMAC                      = 0x00000000000002B6L;
+    public static final long CKM_SHA3_224_HMAC_GENERAL              = 0x00000000000002B7L;
+    public static final long CKM_SHA3_224_KEY_GEN                   = 0x00000000000002B8L;
+    public static final long CKM_SHA3_384                           = 0x00000000000002C0L;
+    public static final long CKM_SHA3_384_HMAC                      = 0x00000000000002C1L;
+    public static final long CKM_SHA3_384_HMAC_GENERAL              = 0x00000000000002C2L;
+    public static final long CKM_SHA3_384_KEY_GEN                   = 0x00000000000002C3L;
+    public static final long CKM_SHA3_512                           = 0x00000000000002D0L;
+    public static final long CKM_SHA3_512_HMAC                      = 0x00000000000002D1L;
+    public static final long CKM_SHA3_512_HMAC_GENERAL              = 0x00000000000002D2L;
+    public static final long CKM_SHA3_512_KEY_GEN                   = 0x00000000000002D3L;
+    public static final long CKM_CAST_KEY_GEN                       = 0x0000000000000300L;
+    public static final long CKM_CAST_ECB                           = 0x0000000000000301L;
+    public static final long CKM_CAST_CBC                           = 0x0000000000000302L;
+    public static final long CKM_CAST_MAC                           = 0x0000000000000303L;
+    public static final long CKM_CAST_MAC_GENERAL                   = 0x0000000000000304L;
+    public static final long CKM_CAST_CBC_PAD                       = 0x0000000000000305L;
+    public static final long CKM_CAST3_KEY_GEN                      = 0x0000000000000310L;
+    public static final long CKM_CAST3_ECB                          = 0x0000000000000311L;
+    public static final long CKM_CAST3_CBC                          = 0x0000000000000312L;
+    public static final long CKM_CAST3_MAC                          = 0x0000000000000313L;
+    public static final long CKM_CAST3_MAC_GENERAL                  = 0x0000000000000314L;
+    public static final long CKM_CAST3_CBC_PAD                      = 0x0000000000000315L;
+    public static final long CKM_CAST5_KEY_GEN                      = 0x0000000000000320L;
+    public static final long CKM_CAST128_KEY_GEN                    = 0x0000000000000320L;
+    public static final long CKM_CAST5_ECB                          = 0x0000000000000321L;
+    public static final long CKM_CAST128_ECB                        = 0x0000000000000321L;
+    public static final long CKM_CAST5_CBC                          = 0x0000000000000322L;
+    public static final long CKM_CAST128_CBC                        = 0x0000000000000322L;
+    public static final long CKM_CAST5_MAC                          = 0x0000000000000323L;
+    public static final long CKM_CAST128_MAC                        = 0x0000000000000323L;
+    public static final long CKM_CAST5_MAC_GENERAL                  = 0x0000000000000324L;
+    public static final long CKM_CAST128_MAC_GENERAL                = 0x0000000000000324L;
+    public static final long CKM_CAST5_CBC_PAD                      = 0x0000000000000325L;
+    public static final long CKM_CAST128_CBC_PAD                    = 0x0000000000000325L;   
+	public static final long CKM_RC5_KEY_GEN						= 0x0000000000000330L;
+	public static final long CKM_RC5_ECB							= 0x0000000000000331L;
+	public static final long CKM_RC5_CBC							= 0x0000000000000332L;
+	public static final long CKM_RC5_MAC							= 0x0000000000000333L;
+	public static final long CKM_RC5_MAC_GENERAL					= 0x0000000000000334L;
+	public static final long CKM_RC5_CBC_PAD						= 0x0000000000000335L;
+    public static final long CKM_IDEA_KEY_GEN                       = 0x0000000000000340L;
+    public static final long CKM_IDEA_ECB                           = 0x0000000000000341L;
+    public static final long CKM_IDEA_CBC                           = 0x0000000000000342L;
+    public static final long CKM_IDEA_MAC                           = 0x0000000000000343L;
+    public static final long CKM_IDEA_MAC_GENERAL                   = 0x0000000000000344L;
+    public static final long CKM_IDEA_CBC_PAD                       = 0x0000000000000345L;   
+	public static final long CKM_GENERIC_SECRET_KEY_GEN				= 0x0000000000000350L;
+	public static final long CKM_CONCATENATE_BASE_AND_KEY			= 0x0000000000000360L;
+	public static final long CKM_CONCATENATE_BASE_AND_DATA			= 0x0000000000000362L;
+	public static final long CKM_CONCATENATE_DATA_AND_BASE			= 0x0000000000000363L;
+	public static final long CKM_XOR_BASE_AND_DATA					= 0x0000000000000364L;
+	public static final long CKM_EXTRACT_KEY_FROM_KEY				= 0x0000000000000365L;
+    public static final long CKM_SSL3_PRE_MASTER_KEY_GEN            = 0x0000000000000370L;
+    public static final long CKM_SSL3_MASTER_KEY_DERIVE             = 0x0000000000000371L;
+    public static final long CKM_SSL3_KEY_AND_MAC_DERIVE            = 0x0000000000000372L;
+    public static final long CKM_SSL3_MASTER_KEY_DERIVE_DH          = 0x0000000000000373L;
+    public static final long CKM_TLS_PRE_MASTER_KEY_GEN             = 0x0000000000000374L;
+    public static final long CKM_TLS_MASTER_KEY_DERIVE              = 0x0000000000000375L;
+    public static final long CKM_TLS_KEY_AND_MAC_DERIVE             = 0x0000000000000376L;
+    public static final long CKM_TLS_MASTER_KEY_DERIVE_DH           = 0x0000000000000377L;
+    public static final long CKM_TLS_PRF                            = 0x0000000000000378L;
+    public static final long CKM_SSL3_MD5_MAC                       = 0x0000000000000380L;
+    public static final long CKM_SSL3_SHA1_MAC                      = 0x0000000000000381L;    
+	public static final long CKM_MD5_KEY_DERIVATION					= 0x0000000000000390L;
+	public static final long CKM_MD2_KEY_DERIVATION					= 0x0000000000000391L;
+	public static final long CKM_SHA1_KEY_DERIVATION				= 0x0000000000000392L;
+	public static final long CKM_SHA256_KEY_DERIVATION				= 0x0000000000000393L;
+	public static final long CKM_SHA384_KEY_DERIVATION				= 0x0000000000000394L;
+	public static final long CKM_SHA512_KEY_DERIVATION				= 0x0000000000000395L;
+    public static final long CKM_SHA224_KEY_DERIVATION              = 0x0000000000000396L;
+    public static final long CKM_SHA3_256_KEY_DERIVE                = 0x0000000000000397L;
+    public static final long CKM_SHA3_224_KEY_DERIVE                = 0x0000000000000398L;
+    public static final long CKM_SHA3_384_KEY_DERIVE                = 0x0000000000000399L;
+    public static final long CKM_SHA3_512_KEY_DERIVE                = 0x000000000000039AL;
+    public static final long CKM_SHAKE_128_KEY_DERIVE               = 0x000000000000039BL;
+    public static final long CKM_SHAKE_256_KEY_DERIVE               = 0x000000000000039CL;    
+	public static final long CKM_PBE_MD2_DES_CBC					= 0x00000000000003A0L;
+	public static final long CKM_PBE_MD5_DES_CBC					= 0x00000000000003A1L;
+	public static final long CKM_PBE_MD5_CAST_CBC					= 0x00000000000003A2L;
+	public static final long CKM_PBE_MD5_CAST3_CBC					= 0x00000000000003A3L;
+	public static final long CKM_PBE_MD5_CAST5_CBC					= 0x00000000000003A4L;
+	public static final long CKM_PBE_MD5_CAST128_CBC				= 0x00000000000003A4L;
+	public static final long CKM_PBE_SHA1_CAST5_CBC					= 0x00000000000003A5L;
+	public static final long CKM_PBE_SHA1_CAST128_CBC				= 0x00000000000003A5L;
+	public static final long CKM_PBE_SHA1_RC4_128					= 0x00000000000003A6L;
+	public static final long CKM_PBE_SHA1_RC4_40					= 0x00000000000003A7L;
+	public static final long CKM_PBE_SHA1_DES3_EDE_CBC				= 0x00000000000003A8L;
+	public static final long CKM_PBE_SHA1_DES2_EDE_CBC				= 0x00000000000003A9L;
+	public static final long CKM_PBE_SHA1_RC2_128_CBC				= 0x00000000000003AAL;
+	public static final long CKM_PBE_SHA1_RC2_40_CBC				= 0x00000000000003ABL;
+	public static final long CKM_PKCS5_PBKD2						= 0x00000000000003B0L;
+	public static final long CKM_PBA_SHA1_WITH_SHA1_HMAC			= 0x00000000000003C0L;
+    public static final long CKM_WTLS_PRE_MASTER_KEY_GEN            = 0x00000000000003D0L;
+    public static final long CKM_WTLS_MASTER_KEY_DERIVE             = 0x00000000000003D1L;
+    public static final long CKM_WTLS_MASTER_KEY_DERIVE_DH_ECC      = 0x00000000000003D2L;
+    public static final long CKM_WTLS_PRF                           = 0x00000000000003D3L;
+    public static final long CKM_WTLS_SERVER_KEY_AND_MAC_DERIVE     = 0x00000000000003D4L;
+    public static final long CKM_WTLS_CLIENT_KEY_AND_MAC_DERIVE     = 0x00000000000003D5L;
+    public static final long CKM_TLS10_MAC_SERVER                   = 0x00000000000003D6L;
+    public static final long CKM_TLS10_MAC_CLIENT                   = 0x00000000000003D7L;
+    public static final long CKM_TLS12_MAC                          = 0x00000000000003D8L;
+    public static final long CKM_TLS12_KDF                          = 0x00000000000003D9L;
+    public static final long CKM_TLS12_MASTER_KEY_DERIVE            = 0x00000000000003E0L;
+    public static final long CKM_TLS12_KEY_AND_MAC_DERIVE           = 0x00000000000003E1L;
+    public static final long CKM_TLS12_MASTER_KEY_DERIVE_DH         = 0x00000000000003E2L;
+    public static final long CKM_TLS12_KEY_SAFE_DERIVE              = 0x00000000000003E3L;
+    public static final long CKM_TLS_MAC                            = 0x00000000000003E4L;
+    public static final long CKM_TLS_KDF                            = 0x00000000000003E5L;   
+	public static final long CKM_KEY_WRAP_LYNKS						= 0x0000000000000400L;
+	public static final long CKM_KEY_WRAP_SET_OAEP					= 0x0000000000000401L;
+    public static final long CKM_CMS_SIG                            = 0x0000000000000500L;
+    public static final long CKM_KIP_DERIVE                         = 0x0000000000000510L;
+    public static final long CKM_KIP_WRAP                           = 0x0000000000000511L;
+    public static final long CKM_KIP_MAC                            = 0x0000000000000512L;
+    public static final long CKM_CAMELLIA_KEY_GEN                   = 0x0000000000000550L;
+    public static final long CKM_CAMELLIA_ECB                       = 0x0000000000000551L;
+    public static final long CKM_CAMELLIA_CBC                       = 0x0000000000000552L;
+    public static final long CKM_CAMELLIA_MAC                       = 0x0000000000000553L;
+    public static final long CKM_CAMELLIA_MAC_GENERAL               = 0x0000000000000554L;
+    public static final long CKM_CAMELLIA_CBC_PAD                   = 0x0000000000000555L;
+    public static final long CKM_CAMELLIA_ECB_ENCRYPT_DATA          = 0x0000000000000556L;
+    public static final long CKM_CAMELLIA_CBC_ENCRYPT_DATA          = 0x0000000000000557L;
+    public static final long CKM_CAMELLIA_CTR                       = 0x0000000000000558L;
+    public static final long CKM_ARIA_KEY_GEN                       = 0x0000000000000560L;
+    public static final long CKM_ARIA_ECB                           = 0x0000000000000561L;
+    public static final long CKM_ARIA_CBC                           = 0x0000000000000562L;
+    public static final long CKM_ARIA_MAC                           = 0x0000000000000563L;
+    public static final long CKM_ARIA_MAC_GENERAL                   = 0x0000000000000564L;
+    public static final long CKM_ARIA_CBC_PAD                       = 0x0000000000000565L;
+    public static final long CKM_ARIA_ECB_ENCRYPT_DATA              = 0x0000000000000566L;
+    public static final long CKM_ARIA_CBC_ENCRYPT_DATA              = 0x0000000000000567L;   
+    public static final long CKM_SEED_KEY_GEN                       = 0x0000000000000650L; 
+    public static final long CKM_SEED_ECB                           = 0x0000000000000651L;
+    public static final long CKM_SEED_CBC                           = 0x0000000000000652L;
+    public static final long CKM_SEED_MAC                           = 0x0000000000000653L;
+    public static final long CKM_SEED_MAC_GENERAL                   = 0x0000000000000654L;
+    public static final long CKM_SEED_CBC_PAD                       = 0x0000000000000655L; 
+    public static final long CKM_SEED_ECB_ENCRYPT_DATA              = 0x0000000000000656L; 
+    public static final long CKM_SEED_CBC_ENCRYPT_DATA              = 0x0000000000000657L; 
+    public static final long CKM_SKIPJACK_KEY_GEN                   = 0x0000000000001000L;
+    public static final long CKM_SKIPJACK_ECB64                     = 0x0000000000001001L;
+    public static final long CKM_SKIPJACK_CBC64                     = 0x0000000000001002L;
+    public static final long CKM_SKIPJACK_OFB64                     = 0x0000000000001003L;
+    public static final long CKM_SKIPJACK_CFB64                     = 0x0000000000001004L;
+    public static final long CKM_SKIPJACK_CFB32                     = 0x0000000000001005L;
+    public static final long CKM_SKIPJACK_CFB16                     = 0x0000000000001006L;
+    public static final long CKM_SKIPJACK_CFB8                      = 0x0000000000001007L;
+    public static final long CKM_SKIPJACK_WRAP                      = 0x0000000000001008L;
+    public static final long CKM_SKIPJACK_PRIVATE_WRAP              = 0x0000000000001009L;
+    public static final long CKM_SKIPJACK_RELAYX                    = 0x000000000000100AL;   
+	public static final long CKM_KEA_KEY_PAIR_GEN					= 0x0000000000001010L;
+	public static final long CKM_KEA_KEY_DERIVE						= 0x0000000000001011L;
+	public static final long CKM_KEA_DERIVE                         = 0x0000000000001012L;
+    public static final long CKM_BATON_KEY_GEN                      = 0x0000000000001030L;
+    public static final long CKM_BATON_ECB128                       = 0x0000000000001031L;
+    public static final long CKM_BATON_ECB96                        = 0x0000000000001032L;
+    public static final long CKM_BATON_CBC128                       = 0x0000000000001033L;
+    public static final long CKM_BATON_COUNTER                      = 0x0000000000001034L;
+    public static final long CKM_BATON_SHUFFLE                      = 0x0000000000001035L;
+    public static final long CKM_BATON_WRAP                         = 0x0000000000001036L;    
+	public static final long CKM_ECDSA_KEY_PAIR_GEN					= 0x0000000000001040L;
+	public static final long CKM_EC_KEY_PAIR_GEN					= 0x0000000000001040L;
+	public static final long CKM_ECDSA								= 0x0000000000001041L;
+	public static final long CKM_ECDSA_SHA1							= 0x0000000000001042L;
+    public static final long CKM_ECDSA_SHA224                       = 0x0000000000001043L;
+    public static final long CKM_ECDSA_SHA256                       = 0x0000000000001044L;
+    public static final long CKM_ECDSA_SHA384                       = 0x0000000000001045L;
+    public static final long CKM_ECDSA_SHA512                       = 0x0000000000001046L;    
+	public static final long CKM_ECDH1_DERIVE						= 0x0000000000001050L;
+	public static final long CKM_ECDH1_COFACTOR_DERIVE				= 0x0000000000001051L;
+	public static final long CKM_ECMQV_DERIVE						= 0x0000000000001052L;
+    public static final long CKM_ECDH_AES_KEY_WRAP                  = 0x0000000000001053L;
+    public static final long CKM_RSA_AES_KEY_WRAP                   = 0x0000000000001054L;
+    public static final long CKM_JUNIPER_KEY_GEN                    = 0x0000000000001060L;
+    public static final long CKM_JUNIPER_ECB128                     = 0x0000000000001061L;
+    public static final long CKM_JUNIPER_CBC128                     = 0x0000000000001062L;
+    public static final long CKM_JUNIPER_COUNTER                    = 0x0000000000001063L;
+    public static final long CKM_JUNIPER_SHUFFLE                    = 0x0000000000001064L;
+    public static final long CKM_JUNIPER_WRAP                       = 0x0000000000001065L;
+    public static final long CKM_FASTHASH                           = 0x0000000000001070L;
+    public static final long CKM_AES_XTS                            = 0x0000000000001071L;
+    public static final long CKM_AES_XTS_KEY_GEN                    = 0x0000000000001072L;   
+	public static final long CKM_AES_KEY_GEN						= 0x0000000000001080L;
+	public static final long CKM_AES_ECB							= 0x0000000000001081L;
+	public static final long CKM_AES_CBC							= 0x0000000000001082L;
+	public static final long CKM_AES_MAC							= 0x0000000000001083L;
+	public static final long CKM_AES_MAC_GENERAL					= 0x0000000000001084L;
+	public static final long CKM_AES_CBC_PAD						= 0x0000000000001085L;
+    public static final long CKM_AES_CTR                            = 0x0000000000001086L; 
+    public static final long CKM_AES_GCM                            = 0x0000000000001087L;
+    public static final long CKM_AES_CCM                            = 0x0000000000001088L;    
+    public static final long CKM_AES_CTS                            = 0x0000000000001089L;
+    public static final long CKM_AES_CMAC                           = 0x000000000000108AL;
+    public static final long CKM_AES_CMAC_GENERAL                   = 0x000000000000108BL;
+    public static final long CKM_AES_XCBC_MAC                       = 0x000000000000108CL;
+    public static final long CKM_AES_XCBC_MAC_96                    = 0x000000000000108DL;
+    public static final long CKM_AES_GMAC                           = 0x000000000000108EL;
+    public static final long CKM_BLOWFISH_KEY_GEN                   = 0x0000000000001090L;
+    public static final long CKM_BLOWFISH_CBC                       = 0x0000000000001091L;
+    public static final long CKM_TWOFISH_KEY_GEN                    = 0x0000000000001092L;
+    public static final long CKM_TWOFISH_CBC                        = 0x0000000000001093L;
+    public static final long CKM_BLOWFISH_CBC_PAD                   = 0x0000000000001094L;
+    public static final long CKM_TWOFISH_CBC_PAD                    = 0x0000000000001095L;    
+    public static final long CKM_DES_ECB_ENCRYPT_DATA               = 0x0000000000001100L;
+    public static final long CKM_DES_CBC_ENCRYPT_DATA               = 0x0000000000001101L;
+    public static final long CKM_DES3_ECB_ENCRYPT_DATA              = 0x0000000000001102L;
+    public static final long CKM_DES3_CBC_ENCRYPT_DATA              = 0x0000000000001103L;
+    public static final long CKM_AES_ECB_ENCRYPT_DATA               = 0x0000000000001104L;
+    public static final long CKM_AES_CBC_ENCRYPT_DATA               = 0x0000000000001105L;
+	public static final long CKM_GOSTR3410_KEY_PAIR_GEN				= 0x0000000000001200L;
+    public static final long CKM_GOSTR3410_256_KEY_PAIR_GEN			= 0x0000000000001200L;
+	public static final long CKM_GOSTR3410							= 0x0000000000001201L;
+    public static final long CKM_GOSTR3410_256						= 0x0000000000001201L;
+	public static final long CKM_GOSTR3410_WITH_GOSTR3411			= 0x0000000000001202L;
+    public static final long CKM_GOSTR3410_WITH_GOSTR3411_94		= 0x0000000000001202L;
+	public static final long CKM_GOSTR3410_KEY_WRAP					= 0x0000000000001203L;
+	public static final long CKM_GOSTR3410_DERIVE					= 0x0000000000001204L;
+	public static final long CKM_GOSTR3411							= 0x0000000000001210L;
+    public static final long CKM_GOSTR3411_94						= 0x0000000000001210L;
+	public static final long CKM_GOSTR3411_HMAC						= 0x0000000000001211L;
+    public static final long CKM_GOSTR3411_94_HMAC					= 0x0000000000001211L;
+	public static final long CKM_GOST28147_KEY_GEN					= 0x0000000000001220L;
+	public static final long CKM_GOST28147_ECB						= 0x0000000000001221L;
+	public static final long CKM_GOST28147							= 0x0000000000001222L;
+	public static final long CKM_GOST28147_MAC						= 0x0000000000001223L;
+	public static final long CKM_GOST28147_KEY_WRAP					= 0x0000000000001224L;
+    public static final long CKM_CHACHA20_KEY_GEN                   = 0x0000000000001225L;
+    public static final long CKM_CHACHA20                           = 0x0000000000001226L;
+    public static final long CKM_POLY1305_KEY_GEN                   = 0x0000000000001227L;
+    public static final long CKM_POLY1305                           = 0x0000000000001228L;    
+	public static final long CKM_DSA_PARAMETER_GEN					= 0x0000000000002000L;
+	public static final long CKM_DH_PKCS_PARAMETER_GEN				= 0x0000000000002001L;
+	public static final long CKM_X9_42_DH_PARAMETER_GEN				= 0x0000000000002002L;
+    public static final long CKM_DSA_PROBABLISTIC_PARAMETER_GEN     = 0x0000000000002003L;
+    public static final long CKM_DSA_SHAWE_TAYLOR_PARAMETER_GEN     = 0x0000000000002004L;    
+    public static final long CKM_AES_OFB                            = 0x0000000000002104L;
+    public static final long CKM_AES_CFB64                          = 0x0000000000002105L;
+    public static final long CKM_AES_CFB8                           = 0x0000000000002106L;
+    public static final long CKM_AES_CFB128                         = 0x0000000000002107L; 
+    public static final long CKM_AES_CFB1                           = 0x0000000000002108L;
+    public static final long CKM_AES_KEY_WRAP                       = 0x0000000000002109L;     
+    public static final long CKM_AES_KEY_WRAP_PAD                   = 0x000000000000210AL;
+    public static final long CKM_AES_KEY_WRAP_KPW                   = 0x000000000000210BL; 
+    public static final long CKM_RSA_PKCS_TPM_1_1                   = 0x0000000000004001L;
+    public static final long CKM_RSA_PKCS_OAEP_TPM_1_1              = 0x0000000000004002L;    
+	public static final long CKM_VENDOR_DEFINED						= 0x0000000080000000L;
+    public static final long CKM_GOSTR3410_512_KEY_PAIR_GEN         = 0x00000000D4321005L;
+    public static final long CKM_GOSTR3410_512                      = 0x00000000D4321006L;
+    public static final long CKM_GOSTR3410_2012_DERIVE              = 0x00000000D4321007L;
+    public static final long CKM_GOSTR3410_12_DERIVE                = 0x00000000D4321007L;
+    public static final long CKM_GOSTR3410_WITH_GOSTR3411_2012_256  = 0x00000000D4321008L;
+    public static final long CKM_GOSTR3410_WITH_GOSTR3411_12_256    = 0x00000000D4321008L;
+    public static final long CKM_GOSTR3410_WITH_GOSTR3411_2012_512  = 0x00000000D4321009L;
+    public static final long CKM_GOSTR3410_WITH_GOSTR3411_12_512    = 0x00000000D4321009L;
+    public static final long CKM_GOSTR3410_PUBLIC_KEY_DERIVE        = 0x00000000D432100AL;
+    public static final long CKM_GOSTR3411_2012_256                 = 0x00000000D4321012L;
+    public static final long CKM_GOSTR3411_12_256                   = 0x00000000D4321012L;
+    public static final long CKM_GOSTR3411_2012_512                 = 0x00000000D4321013L;
+    public static final long CKM_GOSTR3411_12_512                   = 0x00000000D4321013L;
+    public static final long CKM_GOSTR3411_2012_256_HMAC            = 0x00000000D4321014L;
+    public static final long CKM_GOSTR3411_12_256_HMAC              = 0x00000000D4321014L;
+    public static final long CKM_GOSTR3411_2012_512_HMAC            = 0x00000000D4321015L;
+    public static final long CKM_GOSTR3411_12_512_HMAC              = 0x00000000D4321015L;
+    public static final long CKM_KUZNECHIK_KEY_GEN                  = 0x00000000D4321019L;
+    public static final long CKM_KUZNECHIK_ECB                      = 0x00000000D432101AL;
+    public static final long CKM_KUZNECHIK_CTR                      = 0x00000000D432101BL;
+    public static final long CKM_KUZNECHIK_CFB                      = 0x00000000D432101CL;
+    public static final long CKM_KUZNECHIK_OFB                      = 0x00000000D432101DL;
+    public static final long CKM_KUZNECHIK_CBC                      = 0x00000000D432101EL;
+    public static final long CKM_KUZNECHIK_MAC                      = 0x00000000D432101FL;
+    public static final long CKM_MAGMA_CTR                          = 0x00000000D4321020L;
+    public static final long CKM_MAGMA_CFB                          = 0x00000000D4321021L;
+    public static final long CKM_MAGMA_OFB                          = 0x00000000D4321022L;
+    public static final long CKM_MAGMA_CBC                          = 0x00000000D4321023L;
+    public static final long CKM_MAGMA_MAC                          = 0x00000000D4321024L;
+    public static final long CKM_KDF_4357                           = 0x00000000D4321025L;
+    public static final long CKM_KDF_GOSTR3411_2012_256             = 0x00000000D4321026L;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Тип вычисления имитовставки в алгоритме PBKDF2
+    ///////////////////////////////////////////////////////////////////////////
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA1               = 0x0000000000000001; 
+    public static final long CKP_PKCS5_PBKD2_HMAC_GOSTR3411          = 0x0000000000000002; 
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA224             = 0x0000000000000003; 
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA256             = 0x0000000000000004;
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA384             = 0x0000000000000005;
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA512             = 0x0000000000000006;
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA512_224         = 0x0000000000000007;
+    public static final long CKP_PKCS5_PBKD2_HMAC_SHA512_256         = 0x0000000000000008; 
+    public static final long CKP_PKCS5_PBKD2_HMAC_GOSTR3411_2012_256 = 0x00000000D4321002;
+    public static final long CKP_PKCS5_PBKD2_HMAC_GOSTR3411_2012_512 = 0x00000000D4321003;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Типы диверсификации ключа
+    ///////////////////////////////////////////////////////////////////////////
+	public static final long CKD_NULL                               = 0x0000000000000001L;
+    public static final long CKD_SHA1_KDF                           = 0x0000000000000002L;
+    public static final long CKD_SHA1_KDF_ASN1                      = 0x0000000000000003L; 
+    public static final long CKD_SHA1_KDF_CONCATENATE               = 0x0000000000000004L; 
+    public static final long CKD_SHA224_KDF                         = 0x0000000000000005L;
+    public static final long CKD_SHA256_KDF                         = 0x0000000000000006L;
+    public static final long CKD_SHA384_KDF                         = 0x0000000000000007L;
+    public static final long CKD_SHA512_KDF                         = 0x0000000000000008L;
+    public static final long CKD_CPDIVERSIFY_KDF                    = 0x0000000000000009L;   
+    public static final long CKD_SHA3_224_KDF                       = 0x000000000000000AL;
+    public static final long CKD_SHA3_256_KDF                       = 0x000000000000000BL;
+    public static final long CKD_SHA3_384_KDF                       = 0x000000000000000CL;
+    public static final long CKD_SHA3_512_KDF                       = 0x000000000000000DL;
+    public static final long CKD_SHA1_KDF_SP800                     = 0x000000000000000EL;
+    public static final long CKD_SHA224_KDF_SP800                   = 0x000000000000000FL;
+    public static final long CKD_SHA256_KDF_SP800                   = 0x0000000000000010L;
+    public static final long CKD_SHA384_KDF_SP800                   = 0x0000000000000011L;
+    public static final long CKD_SHA512_KDF_SP800                   = 0x0000000000000012L;
+    public static final long CKD_SHA3_224_KDF_SP800                 = 0x0000000000000013L;
+    public static final long CKD_SHA3_256_KDF_SP800                 = 0x0000000000000014L;
+    public static final long CKD_SHA3_384_KDF_SP800                 = 0x0000000000000015L;
+    public static final long CKD_SHA3_512_KDF_SP800                 = 0x0000000000000016L;    
+	public static final long CKD_GOST_KDF                           = 0x00000000D4321001L;
+    
+    ///////////////////////////////////////////////////////////////////////
+    // Типы функции генерации для RSA OAEP/PSS
+    ///////////////////////////////////////////////////////////////////////
+    public static final long CKG_MGF1_SHA1                          = 0x0000000000000001;
+    public static final long CKG_MGF1_SHA256                        = 0x0000000000000002;
+    public static final long CKG_MGF1_SHA384                        = 0x0000000000000003;
+    public static final long CKG_MGF1_SHA512                        = 0x0000000000000004;
+    public static final long CKG_MGF1_SHA224                        = 0x0000000000000005;
+    
+    ///////////////////////////////////////////////////////////////////////
+    // Тип источника данных
+    ///////////////////////////////////////////////////////////////////////
+    public static final long CKZ_DATA_SPECIFIED                     = 0x0000000000000001L;
+    public static final long CKZ_SALT_SPECIFIED                     = 0x0000000000000001L;
+    
+    ///////////////////////////////////////////////////////////////////////
+    // Способ форматирования параметров эллиптических кривых
+    ///////////////////////////////////////////////////////////////////////
+    public static final long CKF_EC_F_P                             = 0x0000000000100000L;  
+    public static final long CKF_EC_F_2M                            = 0x0000000000200000L;
+    public static final long CKF_EC_ECPARAMETERS                    = 0x0000000000400000L;
+    public static final long CKF_EC_NAMEDCURVE                      = 0x0000000000800000L;
+    public static final long CKF_EC_UNCOMPRESS                      = 0x0000000001000000L;
+    public static final long CKF_EC_COMPRESS                        = 0x0000000002000000L;   
+}

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group name="CryptoDB-Dev">
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Session.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Applet.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/SessionObject.java</file>
+        </group>
+        <group name="CAPI.7">
+            <file>file:/D:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/KeyAgreement.java</file>
+            <file>file:/D:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/KeyPairGenerator.java</file>
+        </group>
+        <group name="Source">
+            <file>file:/F:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Applet.java</file>
+            <file>file:/F:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/PasswordService.java</file>
+            <file>file:/F:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Container.java</file>
+            <file>file:/F:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Session.java</file>
+        </group>
+        <group name="CAPI-Dev">
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Hash.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Token.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/SignHash.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Container.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/mac/HMAC.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/pbe/PBES1.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/VerifyHash.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Mac.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/VerifyData.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Encryption.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Decryption.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/PrivateKey.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Cipher.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/pbe/PBESP12.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Decipherment.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/TransportKeyWrap.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Applet.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/TransportKeyUnwrap.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Rand.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/SecretKey.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/KeyWrap.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Encipherment.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Attribute.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/KeyDerive.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Slot.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/pbe/PBKDF2.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/KeyPairGenerator.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/PasswordService.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/Mechanism.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/KeyAgreement.java</file>
+            <file>file:/E:/Development/SCCAPI.7/Source/Aladdin.CAPI.PKCS11.Java/src/aladdin/capi/pkcs11/SignData.java</file>
+        </group>
+    </open-files>
+</project-private>

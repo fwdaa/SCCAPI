@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="jre13">
+      <UniqueIdentifier>{2116d91b-c106-4777-a873-b137d3e5ef1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jre14">
+      <UniqueIdentifier>{d7d2b035-d30d-4e79-890d-48beda7badcf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="jre13\build.xml">
+      <Filter>jre13</Filter>
+    </Xml>
+    <Xml Include="jre14\build.xml">
+      <Filter>jre14</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jre13\nbproject\project.properties">
+      <Filter>jre13</Filter>
+    </None>
+    <None Include="jre14\nbproject\project.properties">
+      <Filter>jre14</Filter>
+    </None>
+  </ItemGroup>
+</Project>

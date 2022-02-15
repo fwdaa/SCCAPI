@@ -1,0 +1,45 @@
+<Project>
+  <PropertyGroup>
+    <AssemblyName>$(MSBuildProjectDirectory.Substring($([MSBuild]::Add($(MSBuildProjectDirectory.LastIndexOf('\')), 1))))</AssemblyName>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>      
+    <BaseIntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFramework)\$(Platform)\$(Configuration)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;REFOBJECT_CHECK</DefineConstants>
+    <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.CAPI.ANSI.GUI\Aladdin.CAPI.ANSI.GUI.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.CAPI.Environment\Aladdin.CAPI.Environment.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.CAPI.GOST\Aladdin.CAPI.GOST.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.CAPI.GUI\Aladdin.CAPI.GUI.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.CAPI.PKCS12\Aladdin.CAPI.PKCS12.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.GUI\Aladdin.GUI.Core.csproj" />
+    <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.Core.csproj" />
+    <ProjectReference Include="..\Aladdin\Aladdin.Core.csproj" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

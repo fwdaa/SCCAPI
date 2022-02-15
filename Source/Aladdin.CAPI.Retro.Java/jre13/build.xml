@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="Aladdin.CAPI.Retro.1.3" default="default" basedir=".">
+    <description>Builds, tests, and runs the project Aladdin.CAPI.Retro.1.3.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar:                  JAR building
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="Aladdin.CAPI.Retro.13-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+    <target name="-pre-compile">
+      <copy file="../../Retrotranslator-1.2.9/retrotranslator-transformer-1.2.9.jar" todir="lib"/>
+      <copy file="../../Aladdin.Retro.Java/jre13/dist/Aladdin.Retro.jar"             todir="lib"/>
+   </target>
+   <target name="-post-jar">
+      <copy file="../../Aladdin.Retro.Java/jre13/dist/Aladdin.Retro.jar" todir="dist"/>
+  	  <taskdef name="retrotranslator13" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask">
+        <classpath>
+          <fileset dir="lib">
+            <include name="retrotranslator-transformer-1.2.9.jar" />
+            <include name="Aladdin.Retro.jar"                     />
+          </fileset>
+        </classpath>
+	  </taskdef>
+
+      <delete file="dist/Aladdin.CAPI.Retro.jar"/>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.Retro.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.retro.embed">
+        <fileset dir="build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+        </classpath>
+      </retrotranslator13>
+
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.embed">
+        <fileset dir="../../Aladdin.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset> 
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.IO.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.io.embed">
+        <fileset dir="../../Aladdin.IO.Java/build/classes" includes="**/*.class" excludes="**/DOM.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.Net.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.net.embed">
+        <fileset dir="../../Aladdin.Net.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.Net.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.Net.TCP.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.net.tcp.embed">
+        <fileset dir="../../Aladdin.Net.TCP.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.Net.TCP.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.Net.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.Math.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.math.embed">
+        <fileset dir="../../Aladdin.Math.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.Math.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.ASN1.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.asn1.embed">
+        <fileset dir="../../Aladdin.ASN1.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.ASN1.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.ASN1.ISO.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.asn1.iso.embed">
+        <fileset dir="../../Aladdin.ASN1.ISO.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.ASN1.ISO.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.ASN1.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.PKCS11.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.pkcs11.embed">
+        <fileset dir="../../Aladdin.PKCS11.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.PKCS11.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.ISO7816.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.iso7816.embed">
+        <fileset dir="../../Aladdin.ISO7816.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.ISO7816.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.ASN1.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.PCSC.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.pcsc.embed">
+        <fileset dir="../../Aladdin.PCSC.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.PCSC.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.ISO7816.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.embed" backport=
+            "javax.crypto.SecretKey:aladdin.capi.retro.javax.crypto.SecretKey;
+             javax.crypto.spec.SecretKeySpec:aladdin.capi.retro.javax.crypto.spec.SecretKeySpec;
+			 java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve">
+        <fileset dir="../../Aladdin.CAPI.Java/build/classes" includes="**/*.class" 
+             excludes="**/ConfigStore*.class **/ConfigDirectories*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.IO.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.Proxy.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.proxy.embed">
+        <fileset dir="../../Aladdin.CAPI.Proxy.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.Proxy.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.CAPI.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.SCard.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.scard.embed">
+        <fileset dir="../../Aladdin.CAPI.SCard.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.SCard.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.PCSC.jar Aladdin.ISO7816.jar Aladdin.CAPI.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.PKCS11.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.pkcs11.embed">
+        <fileset dir="../../Aladdin.CAPI.PKCS11.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PCSC.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.PKCS12.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.pkcs12.embed">
+        <fileset dir="../../Aladdin.CAPI.PKCS12.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.PKCS12.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.ANSI.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.ansi.embed" backport=
+            "javax.crypto.spec.DESKeySpec:aladdin.capi.retro.javax.crypto.spec.DESKeySpec;
+             javax.crypto.spec.DESedeKeySpec:aladdin.capi.retro.javax.crypto.spec.DESedeKeySpec;
+             javax.crypto.spec.DHParameterSpec:aladdin.capi.retro.javax.crypto.spec.DHParameterSpec;
+             javax.crypto.spec.DHPublicKeySpec:aladdin.capi.retro.javax.crypto.spec.DHPublicKeySpec;
+             javax.crypto.spec.DHPrivateKeySpec:aladdin.capi.retro.javax.crypto.spec.DHPrivateKeySpec;
+             java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve;
+             java.security.spec.ECParameterSpec:aladdin.capi.retro.java.security.spec.ECParameterSpec;
+             java.security.spec.ECPublicKeySpec:aladdin.capi.retro.java.security.spec.ECPublicKeySpec;
+             java.security.spec.ECPrivateKeySpec:aladdin.capi.retro.java.security.spec.ECPrivateKeySpec; 
+             java.security.interfaces.ECKey:aladdin.capi.retro.java.security.interfaces.ECKey;
+             java.security.interfaces.ECPublicKey:aladdin.capi.retro.java.security.interfaces.ECPublicKey;
+             java.security.interfaces.ECPrivateKey:aladdin.capi.retro.java.security.interfaces.ECPrivateKey">
+        <fileset dir="../../Aladdin.CAPI.ANSI.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.ANSI.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.ansi.Test"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.ANSI.PKCS11.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.ansi.pkcs11.embed" backport=
+            "java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve;
+             java.security.spec.ECParameterSpec:aladdin.capi.retro.java.security.spec.ECParameterSpec">
+        <fileset dir="../../Aladdin.CAPI.ANSI.PKCS11.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.ANSI.PKCS11.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.GOST.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.gost.embed" backport=
+            "javax.crypto.spec.DHParameterSpec:aladdin.capi.retro.javax.crypto.spec.DHParameterSpec;
+             javax.crypto.spec.DHPublicKeySpec:aladdin.capi.retro.javax.crypto.spec.DHPublicKeySpec;
+             javax.crypto.spec.DHPrivateKeySpec:aladdin.capi.retro.javax.crypto.spec.DHPrivateKeySpec;
+             java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve;
+             java.security.spec.ECParameterSpec:aladdin.capi.retro.java.security.spec.ECParameterSpec;
+             java.security.spec.ECPublicKeySpec:aladdin.capi.retro.java.security.spec.ECPublicKeySpec;
+             java.security.spec.ECPrivateKeySpec:aladdin.capi.retro.java.security.spec.ECPrivateKeySpec; 
+             java.security.interfaces.ECKey:aladdin.capi.retro.java.security.interfaces.ECKey;
+             java.security.interfaces.ECPublicKey:aladdin.capi.retro.java.security.interfaces.ECPublicKey;
+             java.security.interfaces.ECPrivateKey:aladdin.capi.retro.java.security.interfaces.ECPrivateKey">
+        <fileset dir="../../Aladdin.CAPI.GOST.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.GOST.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.gost.Test"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.GOST.PKCS11.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.gost.pkcs11.embed" backport=
+            "java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve;
+             java.security.spec.ECParameterSpec:aladdin.capi.retro.java.security.spec.ECParameterSpec">
+        <fileset dir="../../Aladdin.CAPI.GOST.PKCS11.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.GOST.PKCS11.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.GOST.jar"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.STB.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.stb.embed" backport=
+            "javax.crypto.spec.DHParameterSpec:aladdin.capi.retro.javax.crypto.spec.DHParameterSpec;
+             javax.crypto.spec.DHPublicKeySpec:aladdin.capi.retro.javax.crypto.spec.DHPublicKeySpec;
+             javax.crypto.spec.DHPrivateKeySpec:aladdin.capi.retro.javax.crypto.spec.DHPrivateKeySpec;
+             java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve;
+             java.security.spec.ECParameterSpec:aladdin.capi.retro.java.security.spec.ECParameterSpec;
+             java.security.spec.ECPublicKeySpec:aladdin.capi.retro.java.security.spec.ECPublicKeySpec;
+             java.security.spec.ECPrivateKeySpec:aladdin.capi.retro.java.security.spec.ECPrivateKeySpec; 
+             java.security.interfaces.ECKey:aladdin.capi.retro.java.security.interfaces.ECKey;
+             java.security.interfaces.ECPublicKey:aladdin.capi.retro.java.security.interfaces.ECPublicKey;
+             java.security.interfaces.ECPrivateKey:aladdin.capi.retro.java.security.interfaces.ECPrivateKey">
+        <fileset dir="../../Aladdin.CAPI.STB.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.STB.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.GOST.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.stb.Test"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.KZ.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.kz.embed" backport=
+            "java.security.spec.ECField:aladdin.capi.retro.java.security.spec.ECField;
+             java.security.spec.ECFieldFp:aladdin.capi.retro.java.security.spec.ECFieldFp;
+             java.security.spec.ECFieldF2m:aladdin.capi.retro.java.security.spec.ECFieldF2m;
+             java.security.spec.ECPoint:aladdin.capi.retro.java.security.spec.ECPoint;
+             java.security.spec.EllipticCurve:aladdin.capi.retro.java.security.spec.EllipticCurve">
+        <fileset dir="../../Aladdin.CAPI.KZ.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.KZ.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.GOST.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.kz.Test"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.PKCS11.AKS.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.pkcs11.aks.embed">
+        <fileset dir="../../Aladdin.CAPI.PKCS11.AKS.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.AKS.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.ANSI.PKCS11.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.pkcs11.aks.Test"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.PKCS11.Athena.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.pkcs11.athena.embed">
+        <fileset dir="../../Aladdin.CAPI.PKCS11.Athena.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.Athena.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.ANSI.PKCS11.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.pkcs11.athena.Test"/>
+        </manifest>
+      </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.PKCS11.JaCarta.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.pkcs11.jacarta.embed">
+        <fileset dir="../../Aladdin.CAPI.PKCS11.JaCarta.Java/build/classes" includes="**/*.class" />
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.JaCarta.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.GOST.jar Aladdin.CAPI.ANSI.PKCS11.jar Aladdin.CAPI.GOST.PKCS11.jar"/>
+          <attribute name="Main-Class" value="aladdin.capi.pkcs11.jacarta.Test"/>
+        </manifest>
+      </jar>
+   </target>
+</project>
