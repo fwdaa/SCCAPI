@@ -30,11 +30,11 @@
     </ItemGroup>
     <MSBuild Targets="Build" Projects="build.net.xml" Properties="%(TargetFramework.NetProperties);Configuration=$(Configuration)" />
   </Target> 
-  <Target Name="CleanCore" BeforeTargets="Clean" Configuration="$(Configuration)">
+  <Target Name="CleanCore" BeforeTargets="Clean">
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Clean" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="BuildCore" BeforeTargets="Build">
-    <MSBuild Targets="Restore" Projects="SCCAPI.NET.Core.sln" />
+    <MSBuild Targets="Restore" Projects="SCCAPI.NET.Core.sln" Configuration="$(Configuration)"/>
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Build" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="CleanJava" BeforeTargets="Clean">
