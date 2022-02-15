@@ -104,20 +104,15 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
             authenticatedSafe, hashAlgorithm, 
             salt, pbeParameters.pbmIterations(), password
         );
-        // указать параметры парольной защиты
-        try (PBECultureFactory factory = 
-            new PBECultureFactory.Fixed(culture))
+        // создать объект контейнера
+        try (Container container = new Container(
+            cultureFactory, rand, store, stream, pfx))
         {
-            // создать объект контейнера
-            try (Container container = new Container(
-                factory, rand, store, stream, pfx))
-            {
-                // установить пароль контейнера
-                container.setPassword(password); 
+            // установить пароль контейнера
+            container.setPassword(password); 
                     
-                // вернуть объект контейнера
-                container.addRef(); return container; 
-            }
+            // вернуть объект контейнера
+            container.addRef(); return container; 
         }
 	}
 	@Override public aladdin.capi.software.Container openContainer(

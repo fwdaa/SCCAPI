@@ -58,7 +58,7 @@ jobjectArray Aladdin::PCSC::MultiStringToStringArray(JNIEnv* env, LPCSTR mszStri
 	JNI::LocalRef<jclass> jStringClass(env, JNI::JavaGetClass(env, "java/lang/String"));
 
 	// подсчитать число строк
-	size_t count = 0; for (LPCSTR sz = mszString; *sz; sz += std::strlen(sz) + 1) count++; 
+	jsize count = 0; for (LPCSTR sz = mszString; *sz; sz += std::strlen(sz) + 1) count++; 
 
 	// проверить наличие строк
 	if (count == 0) return JNI::JavaNewObjectArray(env, jStringClass, NULL, 0); 
@@ -92,7 +92,7 @@ jobjectArray Aladdin::PCSC::MultiStringToStringArray(JNIEnv* env, LPCWSTR mszStr
 	JNI::LocalRef<jclass> jStringClass(env, JNI::JavaGetClass(env, "java/lang/String"));
 
 	// подсчитать число строк
-	size_t count = 0; for (LPCWSTR sz = mszString; *sz; sz += std::wcslen(sz) + 1) count++; 
+	jsize count = 0; for (LPCWSTR sz = mszString; *sz; sz += std::wcslen(sz) + 1) count++; 
 
 	// проверить наличие строк
 	if (count == 0) return JNI::JavaNewObjectArray(env, jStringClass, NULL, 0); 

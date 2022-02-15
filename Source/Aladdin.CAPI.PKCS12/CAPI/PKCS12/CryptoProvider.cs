@@ -94,18 +94,15 @@ namespace Aladdin.CAPI.PKCS12
                 this, authenticatedSafe, culture.HashAlgorithm(rand), 
                 salt, pbeParameters.PBMIterations, password
             );
-            // указать параметры парольной защиты
-            using (PBE.IPBECultureFactory factory = new PBE.PBECultureFactory.Fixed(culture))
-            {
-                // создать объект контейнера
-                using (Container container = new Container(factory, rand, store, stream, pfx))
-                { 
-                    // установить пароль контейнера
-                    container.Password = password; 
+            // создать объект контейнера
+            using (Container container = new Container(
+                cultureFactory, rand, store, stream, pfx))
+            { 
+                // установить пароль контейнера
+                container.Password = password; 
                         
-                    // вернуть объект контейнера
-                    return RefObject.AddRef(container); 
-                }
+                // вернуть объект контейнера
+                return RefObject.AddRef(container); 
             }
 		}
 	    public override Software.Container OpenContainer(
