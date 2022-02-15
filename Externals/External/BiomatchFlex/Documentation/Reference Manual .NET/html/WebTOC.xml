@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpTOC>
+
+  <HelpTOCNode Id="cfb49f82-2de3-4685-bb01-d36e30941627" Title="PreciseBiometrics.BMFH Namespace" Url="html/9110f102-0682-ec55-61fe-63189736cae2.htm">
+    <HelpTOCNode Id="1d7a55ce-f2d6-4851-819c-7b7e328ad54c" Title="BioMatch Class" Url="html/dae357f7-2535-d5d2-379e-c3bf83b00cca.htm">
+      <HelpTOCNode Title="BioMatch Members" Url="html/b4c16c77-9025-318d-ef6f-cbdb9bb93883.htm" />
+      <HelpTOCNode Title="BioMatch Constructor " Url="html/eb73567f-2396-3f7c-e22c-82a2968d1981.htm" />
+      <HelpTOCNode Id="2ee60665-d69b-4154-86b4-f725bb96ce05" Title="BioMatch Fields" Url="html/57de3c42-d6df-5e8a-6fa0-bf489c8237df.htm">
+        <HelpTOCNode Title="TIMEOUT_FOREVER Field" Url="html/ddec1478-8e5c-c08b-fc4a-70cf4827992b.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="c2f13642-a439-4e4f-b810-05c46a5ac53b" Title="BioMatch Methods " Url="html/026b0ee3-7189-4f86-ab15-cf107ff970ee.htm">
+        <HelpTOCNode Title="Cancel Method " Url="html/122a239f-8aaf-dfb3-5623-285d09021e94.htm" />
+        <HelpTOCNode Title="CaptureImage Method " Url="html/dfd61968-6fff-c43a-ec2b-9c708b311165.htm" />
+        <HelpTOCNode Title="CaptureRawImage Method " Url="html/661ac038-0fa9-ed5f-7121-e4ff921fb09e.htm" />
+        <HelpTOCNode Title="CB_Cancel Method " Url="html/7d760edf-8868-cc45-ea09-595710217a69.htm" />
+        <HelpTOCNode Title="CB_FingerStatus Method " Url="html/5f1a441f-7001-710c-67d7-475cb6c51e9c.htm" />
+        <HelpTOCNode Title="CB_GetImageForViewing Method " Url="html/b46017d1-a8b4-eb72-fb25-3feb9a35f97f.htm" />
+        <HelpTOCNode Title="ConditionToString Method " Url="html/e76116c4-a46a-522d-374a-d09f2fa7f39b.htm" />
+        <HelpTOCNode Title="CreateEnrolTemplateFromImage Method " Url="html/4a33e5a9-e753-6e69-5adf-d43fb9baf0e8.htm" />
+        <HelpTOCNode Title="CreateVerificationTemplateFromImage Method " Url="html/b94c2367-e161-ed8f-bfdd-8a0156958150.htm" />
+        <HelpTOCNode Title="ExportImageToBitmap Method " Url="html/7f459efd-5b22-cef3-106e-69437ffb0d96.htm" />
+        <HelpTOCNode Title="ExportImageToWSQ Method " Url="html/a8226d92-1940-26ea-abfd-dbe5d0f0f394.htm" />
+        <HelpTOCNode Title="Finalize Method " Url="html/6493589b-aa5e-a7c9-2024-4e04bb743392.htm" />
+        <HelpTOCNode Title="FingerStatus Method " Url="html/01fed40f-699e-7e38-b866-2775f827a37c.htm" />
+        <HelpTOCNode Title="FingerToString Method " Url="html/5963c5f0-221a-bb67-54a9-9dfdfe70b9d1.htm" />
+        <HelpTOCNode Title="GetImageForViewing Method " Url="html/9778ce5f-9652-3638-51bd-3e463c20ec17.htm" />
+        <HelpTOCNode Title="ImportImageFromBitmap Method " Url="html/e5ce74a2-aa94-313c-03a2-1d6d001f5785.htm" />
+        <HelpTOCNode Title="ImportImageFromWSQ Method " Url="html/827f888e-acf0-76e4-17a7-92cd7b5302b1.htm" />
+        <HelpTOCNode Title="ListBiometricReaders Method " Url="html/f3a83e80-a05a-7437-ef1a-91146ab58abb.htm" />
+        <HelpTOCNode Title="PresentToString Method " Url="html/d7f5aaf1-2029-09fb-89f1-8015bd8e1ac0.htm" />
+        <HelpTOCNode Title="SensorToString Method " Url="html/77b12bf6-fd1d-aae1-0061-9cbd9b7b8809.htm" />
+        <HelpTOCNode Title="WaitForNoFinger Method " Url="html/d2baa6e6-96f3-d9b0-eb95-5e11266dc19e.htm" />
+        <HelpTOCNode Title="ValidateEnrolmentTemplateWithImage Method " Url="html/71ad6712-6cd5-523e-f963-5e4b6d125c70.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="7707026a-ed0e-4374-884a-580b7f6f7cbf" Title="BioMatch Events" Url="html/b002cb68-0096-837d-5398-7dab5d8f686a.htm">
+        <HelpTOCNode Title="BiometricCallback Event" Url="html/67409d54-6621-59ad-263d-2bc975d40719.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="BioMatch.BiometricEventHandler Delegate" Url="html/d6b7dc7c-d5ec-7a02-ec43-c5cb6e0977db.htm" />
+    <HelpTOCNode Id="bf90f262-1565-4c60-853a-bbc085eca130" Title="BM_BioReaders Class" Url="html/ce1203f1-9766-7b5c-e8aa-dfa56e2d3515.htm">
+      <HelpTOCNode Title="BM_BioReaders Members" Url="html/4ca27a19-5ea4-24ca-594e-4aa59eb7c581.htm" />
+      <HelpTOCNode Id="f4e3e8af-eeff-4d5d-bc07-386f3846e8af" Title="BM_BioReaders Properties " Url="html/c8c5e1ee-f6a2-7a52-45e8-2d1ded293d54.htm">
+        <HelpTOCNode Title="BIOREADER_100XS Property " Url="html/06571ab5-4767-db81-a75c-782b427358b9.htm" />
+        <HelpTOCNode Title="BIOREADER_200MC Property " Url="html/c230f678-f2db-ebfd-9fd9-f8d461929b10.htm" />
+        <HelpTOCNode Title="BIOREADER_250MC Property " Url="html/c4871e72-b761-fc43-9276-980e331fda8c.htm" />
+        <HelpTOCNode Title="BIOREADER_AUTHENTEC_SWIPE Property " Url="html/bedc7e7a-b994-4c62-2355-4d1873b6af3e.htm" />
+        <HelpTOCNode Title="BIOREADER_BROADCOM Property " Url="html/7af9d362-fae3-adfa-c035-43a10b53e494.htm" />
+        <HelpTOCNode Title="BIOREADER_UPEK_FLATBED Property " Url="html/dfed37a1-ff8e-bf38-a223-c12c3281c8a5.htm" />
+        <HelpTOCNode Title="BIOREADER_UPEK_SWIPE Property " Url="html/627a74db-4423-696f-070f-2bcd589dfa11.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="a776072c-71ca-4498-a4ec-69bed5e0c94b" Title="BM_BioTemplate Class" Url="html/3c8b41cb-f3f1-1ca4-50a9-16bd2510a4ad.htm">
+      <HelpTOCNode Title="BM_BioTemplate Members" Url="html/b169b78b-55d4-301f-9e19-2952aa6dd356.htm" />
+      <HelpTOCNode Title="BM_BioTemplate Constructor " Url="html/03364dc8-8ab8-3cf7-adcf-57bc0ca93ba6.htm" />
+      <HelpTOCNode Id="fd61d828-8452-42ba-b52f-1a922ad7af8d" Title="BM_BioTemplate Properties " Url="html/4d89b2f7-568d-adf7-4f3c-65d8162adc6c.htm">
+        <HelpTOCNode Title="TemplateType Property " Url="html/841fcd98-b31c-adeb-d098-8f705821ce3b.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="a8da6645-075e-4ed7-a1c1-3990c9f44482" Title="BM_Error Class" Url="html/4164a61c-38a7-13b5-dd60-9dd37760013d.htm">
+      <HelpTOCNode Title="BM_Error Members" Url="html/100213c5-5810-fcbd-d32e-26ce019b33ee.htm" />
+      <HelpTOCNode Id="bad700d9-9bf8-4d17-9760-51d33554fcac" Title="BM_Error Methods " Url="html/32d78769-ba78-12d1-95c2-30994cac0994.htm">
+        <HelpTOCNode Title="ReturnCodeToText Method " Url="html/aa82edeb-3777-ebcc-860a-d0f7672576df.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="BM_FarLevel Enumeration" Url="html/3b61fbe2-2ee3-ba4a-17ce-004fb9713146.htm" />
+    <HelpTOCNode Title="BM_Finger Enumeration" Url="html/f4169708-b16b-1c33-b533-08fea9e74632.htm" />
+    <HelpTOCNode Id="4641246b-4077-4052-83e6-252ca22116d7" Title="BM_Image Class" Url="html/86b8fb1c-39be-8057-efaf-e43dd40e53a4.htm">
+      <HelpTOCNode Title="BM_Image Members" Url="html/44dc3e83-0a7b-4ae9-6647-f9897e2ebbc1.htm" />
+      <HelpTOCNode Id="b549855d-70d4-48a2-b994-8abf2cccd370" Title="BM_Image Methods " Url="html/b1419cf3-1a9c-9fd7-577b-4a153641005e.htm">
+        <HelpTOCNode Title="ToEncodingString Method " Url="html/58b7f90c-6a15-2eed-f52e-bdf0a5549f97.htm" />
+        <HelpTOCNode Title="ToImage Method " Url="html/9bea0fdb-354a-0fcf-bca8-c38112edec52.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="ff6df596-c9d6-4c62-b754-0e8f4552eff6" Title="BM_Image Properties " Url="html/52c5b154-d6c3-f07b-3878-4c6df6ac9a2a.htm">
+        <HelpTOCNode Title="BioEnabled Property " Url="html/6fde353e-1cfb-22ae-6a82-d77d3c51a55f.htm" />
+        <HelpTOCNode Title="Encoding Property " Url="html/a730028f-1b43-f756-cf55-e6e7b7f72d01.htm" />
+        <HelpTOCNode Title="Finger Property " Url="html/e4e541bf-3068-552c-f079-aed0f6c8f2fe.htm" />
+        <HelpTOCNode Title="Height Property " Url="html/0c56e548-9c1b-2933-663a-cd4d177e0b42.htm" />
+        <HelpTOCNode Title="HeightDPI Property " Url="html/82ae5dbc-50cb-0dfe-537c-71dcf3d59972.htm" />
+        <HelpTOCNode Title="RawData Property " Url="html/125fdd8b-a192-f420-55fa-0118aa1b9831.htm" />
+        <HelpTOCNode Title="Sensor Property " Url="html/35dbf7c9-30b4-42aa-d909-e3cd7ea53957.htm" />
+        <HelpTOCNode Title="Stride Property " Url="html/d4c17fa4-86fd-7aae-603c-7793d723d449.htm" />
+        <HelpTOCNode Title="Width Property " Url="html/579571e0-3cf6-ba58-3836-351415b54e9f.htm" />
+        <HelpTOCNode Title="WidthDPI Property " Url="html/5706b721-49d4-7baa-b705-42226fa5cfcf.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="BM_ImageCondition Enumeration" Url="html/5760e5ae-8654-9d10-fdf6-9edece25f238.htm" />
+    <HelpTOCNode Title="BM_ImagePresent Enumeration" Url="html/2915c7e1-b66a-5f89-c6e4-be16f4d2f62d.htm" />
+    <HelpTOCNode Title="BM_PixelFormat Enumeration" Url="html/97d35734-3be1-4d40-3cb4-d65043c234a0.htm" />
+    <HelpTOCNode Id="800b228e-53a7-426e-bd15-b6c50ef42910" Title="BM_Reader Class" Url="html/e5319888-1806-a465-723f-f4d7939314d5.htm">
+      <HelpTOCNode Title="BM_Reader Members" Url="html/2286cd4a-1e75-2af6-3a81-a521a3c5f460.htm" />
+      <HelpTOCNode Id="7cd571fc-a02e-4c9a-ae48-0876cbbe9080" Title="BM_Reader Constructor " Url="html/0bc8dc3f-3719-c082-d323-1b28cfcb53ec.htm">
+        <HelpTOCNode Title="BM_Reader Constructor (IntPtr)" Url="html/9a5a164a-3677-ac8f-9cee-c3febeef18e0.htm" />
+        <HelpTOCNode Title="BM_Reader Constructor (String)" Url="html/a4b174f2-48b5-d867-f316-4eb2d79afa1b.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="d08c2aa5-c3c9-44e5-abf1-aa82c27ee112" Title="BM_Reader Methods " Url="html/770f89a8-a4e6-d4b9-cbd4-226e01999ca3.htm">
+        <HelpTOCNode Title="ToString Method " Url="html/c1ceb58a-1b17-13d6-1225-4feb4c6424c6.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="a6359629-0b7c-441a-b338-63e1eb917c0f" Title="BM_Reader Properties " Url="html/837b80f5-d240-e183-3b8c-c92967d97060.htm">
+        <HelpTOCNode Title="Height Property " Url="html/3296a5f4-da57-b8cc-0903-72913aae48d8.htm" />
+        <HelpTOCNode Title="HeightDPI Property " Url="html/19d126c5-a11f-c989-09c3-6ab4c4737ccb.htm" />
+        <HelpTOCNode Title="ReaderIdentificationString Property " Url="html/61151b19-2cd9-283b-730d-48bd61754666.htm" />
+        <HelpTOCNode Title="ReaderType Property " Url="html/cf589c85-be6b-3cbf-4d5e-2f2289974007.htm" />
+        <HelpTOCNode Title="SmartCardHandle Property " Url="html/e44a48ba-2b98-d8c2-c552-10b4bfa26de6.htm" />
+        <HelpTOCNode Title="VendorDescriptor Property " Url="html/fca50e0e-e620-42c9-9db9-ba183d52504a.htm" />
+        <HelpTOCNode Title="Width Property " Url="html/5a73feaa-e54d-b1b3-1338-71a3be3c3829.htm" />
+        <HelpTOCNode Title="WidthDPI Property " Url="html/214bca2d-667f-fcbc-31c2-46886cdac725.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="BM_ReaderTypes Enumeration" Url="html/cefe413a-0421-c8f0-f752-45b8d524b3b1.htm" />
+    <HelpTOCNode Title="BM_ReturnCode Enumeration" Url="html/01e57302-d972-89dd-0d2e-74e7eb903ace.htm" />
+    <HelpTOCNode Title="BM_Sensor Enumeration" Url="html/3ba2ed47-276e-d55c-8713-9a6cd1730a6c.htm" />
+    <HelpTOCNode Title="BM_StatusOption Enumeration" Url="html/731c2ac8-3e76-1cfb-dc60-f6b5c261e33f.htm" />
+    <HelpTOCNode Id="b0fb1ee9-c4ad-4dbc-8638-81ff2a0bdc58" Title="BMFH_Template Class" Url="html/1046af65-4672-e0b0-650b-52fc2e577205.htm">
+      <HelpTOCNode Title="BMFH_Template Members" Url="html/39483600-1f0e-4b0d-7509-7a2259071154.htm" />
+      <HelpTOCNode Id="0245b76a-6c6f-4ee4-80d8-bdb8b1e7b278" Title="BMFH_Template Fields" Url="html/de0a64f8-9811-18c6-b2d8-6b9065718cfc.htm">
+        <HelpTOCNode Title="LONG_HEADER_LENGTH Field" Url="html/f3fb50e7-7504-0c9b-3dc7-251fffadc6ce.htm" />
+        <HelpTOCNode Title="SHORT_HEADER_LENGTH Field" Url="html/b2ef5668-dfc8-53d8-bf4f-1b2e48d651cd.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="bf9fb871-3975-443b-8042-af4e42c46b6b" Title="BMFH_Template Methods " Url="html/3260e108-99d0-c6d9-1f58-16e043e189be.htm">
+        <HelpTOCNode Title="BMFH_CreateBiometricHeaderTemplate Method " Url="html/e169dd7e-c29f-6c77-bab2-6050428fb044.htm" />
+        <HelpTOCNode Title="BMFH_CreateExtendedBiometricHeaderTemplate Method " Url="html/9e0bb77a-730d-cb8e-b21a-e52d47eb32d5.htm" />
+        <HelpTOCNode Title="BMFH_GetBiometricHeaderWithFinger Method " Url="html/210c381e-a912-f614-b372-8d02a59ecbd9.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="7a43d465-af42-4730-8a81-e147e7ee3b55" Title="BMFH_Template Properties " Url="html/84d05dd0-a30d-2266-665e-ae8764591bcd.htm">
+        <HelpTOCNode Title="BiometricHeader Property " Url="html/82ef7d3c-2bf5-bcd5-6c05-f94b1bb26b1a.htm" />
+        <HelpTOCNode Title="Finger Property " Url="html/acde9778-aa4d-37ad-5793-d1c8380f0869.htm" />
+        <HelpTOCNode Title="ReferenceData Property " Url="html/63d62830-596a-5c54-b9a1-fdc2387071bf.htm" />
+        <HelpTOCNode Title="ValidationData Property " Url="html/b8628860-16eb-974c-3725-a4316431d5f1.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="TemplateType Enumeration" Url="html/47fb5d6a-855d-9177-5ce2-39b0df13a3a8.htm" />
+  </HelpTOCNode>
+</HelpTOC>
