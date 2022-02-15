@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\build.targets"/>
+  <Target Name="AssemblyVersion" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <AssemblyInfoFiles Include="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+    <MSBuild.ExtensionPack.Framework.AssemblyInfo AssemblyInfoFiles="@(AssemblyInfoFiles)" 
+		AssemblyFileVersion="$(VERSION)" AssemblyVersion="$(VERSION)" />
+    <Message Text="Version = $(VERSION)" Importance="high" />
+  </Target>
+  <Target Name="TargetFrameworkToolsDir" BeforeTargets="BeforeBuild">
+    <TargetFrameworkDirs Version="$(TargetFrameworkVersion)">
+      <Output TaskParameter="ToolsDir" PropertyName="TargetFrameworkToolsDir" />
+    </TargetFrameworkDirs>
+  </Target>
+</Project>

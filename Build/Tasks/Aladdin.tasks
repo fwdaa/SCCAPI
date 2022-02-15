@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask AssemblyFile="MSBuild.ExtensionPack.dll" TaskName="MSBuild.ExtensionPack.Framework.AssemblyInfo" />
+  <UsingTask AssemblyFile="MSBuild.ExtensionPack.dll" TaskName="MSBuild.ExtensionPack.Xml.XmlFile"            />
+  <PropertyGroup Condition="$(MSBuildToolsVersion) &lt; 14">
+    <MSBuildTasksCore>Microsoft.Build.Tasks.v$(MSBuildToolsVersion)</MSBuildTasksCore>
+    <MSBuildUtilitiesCore>Microsoft.Build.Utilities.v$(MSBuildToolsVersion)</MSBuildUtilitiesCore>
+  </PropertyGroup>  
+  <PropertyGroup Condition="$(MSBuildToolsVersion) &gt;= 14">
+    <MSBuildTasksCore>Microsoft.Build.Tasks.Core</MSBuildTasksCore>
+    <MSBuildUtilitiesCore>Microsoft.Build.Utilities.Core</MSBuildUtilitiesCore>
+  </PropertyGroup>  
+  <PropertyGroup>
+    <MSBuildDll>$(MSBuildToolsPath)\Microsoft.Build.dll</MSBuildDll>
+    <MSBuildFrameworkDll>$(MSBuildToolsPath)\Microsoft.Build.Framework.dll</MSBuildFrameworkDll>
+    <MSBuildTasksDll>$(MSBuildToolsPath)\$(MSBuildTasksCore).dll</MSBuildTasksDll>
+    <MSBuildUtilitiesDll>$(MSBuildToolsPath)\$(MSBuildUtilitiesCore).dll</MSBuildUtilitiesDll>
+  </PropertyGroup>  
+  <UsingTask TaskName="DevEnv" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <ToolPath                 ParameterType="System.String"   Required="false" /> <!-- путь к утилите                    -->
+      <EnvironmentVariables     ParameterType="System.String[]" Required="false" /> <!-- переменные окружения              -->
+      <UseCommandProcessor      ParameterType="System.Boolean"  Required="false" /> <!-- выполнение в командном процессоре -->
+      <YieldDuringToolExecution ParameterType="System.Boolean"  Required="false" /> <!-- отсутствие ожидания выполнения    -->
+      <EchoOff                  ParameterType="System.Boolean"  Required="false" /> <!-- запрет вывода командной строки    -->
+      <Timeout                  ParameterType="System.Int32"    Required="false" /> <!-- тайм-аут ожидания                 -->
+      <ExitCode                 ParameterType="System.Int32"    Output  ="true"  /> <!-- код завершения                    -->
+
+      <Version                  ParameterType="System.String"   Required="false" /> <!-- номер версии Visual Studio        -->
+      <Solution                 ParameterType="System.String"   Required="true"  /> <!-- собираемое решение                -->
+      <Project                  ParameterType="System.String"   Required="false" /> <!-- собираемый проект                 -->
+      <Configuration            ParameterType="System.String"   Required="true"  /> <!-- конфигурация решения/проекта      -->
+      <Platform                 ParameterType="System.String"   Required="true"  /> <!-- платформа решения/проекта         -->
+      <Target                   ParameterType="System.String"   Required="true"  /> <!-- выполняемое действие              -->
+      <Options                  ParameterType="System.String"   Required="false" /> <!-- параметры командной строки        -->
+      <OutputFile               ParameterType="System.String"   Required="false" /> <!-- имя выходного файла               -->
+      <OutputImportance         ParameterType="System.String"   Required="false" /> <!-- уровень вывода                    -->
+    </ParameterGroup>
+    <Task>
+      <Reference Include="$(MSBuildDll)"      />
+      <Reference Include="$(MSBuildTasksDll)" />
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)Aladdin.DevEnv.cs" />
+   </Task>
+  </UsingTask>
+  <UsingTask TaskName="DevEnvVariable" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <DevEnvDir ParameterType="System.String" Required="false" /> <!-- каталог Visual Studio           -->
+      <Version   ParameterType="System.String" Required="false" /> <!-- номер версии Visual Studio      -->
+      <Platform  ParameterType="System.String" Required="false" /> <!-- аппаратная платформа            -->
+      <Name      ParameterType="System.String" Required="true"  /> <!-- имя переменной окружения        -->
+      <Value     ParameterType="System.String" Output  ="true"  /> <!-- значение переменной окружения   -->
+    </ParameterGroup>
+    <Task>
+      <Reference Include="$(MSBuildDll)"      />
+      <Reference Include="$(MSBuildTasksDll)" />
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)Aladdin.DevEnvVar.cs" />
+   </Task>
+  </UsingTask>
+  <UsingTask TaskName="DevEnvSdk" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <DevEnvDir ParameterType="System.String" Required="false" /> <!-- каталог Visual Studio      -->
+      <Version   ParameterType="System.String" Required="false" /> <!-- номер версии Visual Studio -->
+      <Platform  ParameterType="System.String" Required="false" /> <!-- аппаратная платформа       -->
+      <ToolsDir  ParameterType="System.String" Output  ="true"  /> <!-- каталог утилит Windows SDK -->
+    </ParameterGroup>
+    <Task>
+      <Reference Include="$(MSBuildDll)"      />
+      <Reference Include="$(MSBuildTasksDll)" />
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)Aladdin.DevEnvSdk.cs" />
+   </Task>
+  </UsingTask>
+  <UsingTask TaskName="DevEnvExec" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <DevEnvDir            ParameterType="System.String"   Required="false" /> <!-- каталог Visual Studio      -->
+      <Version              ParameterType="System.String"   Required="false" /> <!-- номер версии Visual Studio -->
+      <Platform             ParameterType="System.String"   Required="false" /> <!-- аппаратная платформа       -->
+      <WorkingDirectory     ParameterType="System.String"   Required="false" /> <!-- рабочий каталог            -->
+      <EnvironmentVariables ParameterType="System.String[]" Required="false" /> <!-- переменные окружения       --> 
+      <Command              ParameterType="System.String"   Required="true"  /> <!-- выполняемая команда        -->
+    </ParameterGroup>
+    <Task>
+      <Reference Include="$(MSBuildDll)"      />
+      <Reference Include="$(MSBuildTasksDll)" />
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)Aladdin.DevEnvExec.cs" />
+   </Task>
+  </UsingTask>
+  <UsingTask TaskName="SetEnvVariable" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <Name  ParameterType="System.String" Required="true" />
+      <Value ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          Environment.SetEnvironmentVariable(Name, Value); 
+        ]]>
+      </Code>
+   </Task>
+  </UsingTask>
+  <UsingTask TaskName="TargetFrameworkDirs" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <Version  ParameterType="System.String" Required="true" /> <!-- версия платформы .NET -->
+      <ToolsDir ParameterType="System.String" Output  ="true" /> <!-- каталог утилит .NET   -->
+    </ParameterGroup>
+    <Task>
+      <Reference Include="$(MSBuildTasksDll)" />
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)Aladdin.Framework.cs" />
+   </Task>
+  </UsingTask>
+  <UsingTask TaskName="SignTool" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildTasksDll)">
+    <ParameterGroup>
+      <ToolPath                 ParameterType="System.String"   Required="false" /> <!-- путь к утилите                       -->
+      <EnvironmentVariables     ParameterType="System.String[]" Required="false" /> <!-- переменные окружения                 -->
+      <UseCommandProcessor      ParameterType="System.Boolean"  Required="false" /> <!-- выполнение в командном процессоре    -->
+      <YieldDuringToolExecution ParameterType="System.Boolean"  Required="false" /> <!-- отсутствие ожидания выполнения       -->
+      <EchoOff                  ParameterType="System.Boolean"  Required="false" /> <!-- запрет вывода командной строки       -->
+      <ContinueOnError          ParameterType="System.Boolean"  Required="false" /> <!-- игнорирование ошибок                 -->
+      <Timeout                  ParameterType="System.Int32"    Required="false" /> <!-- тайм-аут ожидания отдельной операции -->
+
+      <TargetPath    	        ParameterType="System.String"   Required="true"  />  <!-- путь к подписываемому файлу         -->
+      <HashType      	        ParameterType="System.String"   Required="true"  />	 <!-- тип алгоритма хэширования           -->
+      <PfxPath       	        ParameterType="System.String"   Required="false" />  <!-- путь к контейнеру личного ключа     -->
+      <Password      	        ParameterType="System.String"   Required="false" />  <!-- пароль файла контейнера             -->
+      <Thumbprint    	        ParameterType="System.String"   Required="false" />  <!-- отпечаток сертификата ключа         -->
+      <CrossCertificate         ParameterType="System.String"   Required="false" />  <!-- кросс-сертификат для подписи        -->
+      <TimestampServer          ParameterType="System.String"   Required="false" />  <!-- сервер отметок времени              -->
+      <Retries                  ParameterType="System.Int32"    Required="false" />  <!-- число попыток                       -->
+      <RetryDelay               ParameterType="System.Int32"    Required="false" />  <!-- пауза между попытками               -->
+      <SignOptions              ParameterType="System.String"   Required="false" />  <!-- дополнительные опции для подписи    -->
+      <VerifyOptions            ParameterType="System.String"   Required="false" />  <!-- дополнительные опции для проверки   -->
+      <OutputImportance         ParameterType="System.String"   Required="false" />  <!-- уровень вывода                      -->
+      <Verbose                  ParameterType="System.Boolean"  Required="false" />  <!-- детальный вывод информации          -->
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)Aladdin.SignTool.cs" />
+   </Task>
+  </UsingTask>
+</Project>

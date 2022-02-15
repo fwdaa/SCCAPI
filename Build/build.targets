@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="Build">
+  <Import Project=".\Tasks\Aladdin.tasks"/>
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+  </PropertyGroup>
+<!--
+  <PropertyGroup Label="SHA1-Signature">
+    <PfxPathSHA1>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA1.pfx</PfxPathSHA1>
+    <PfxPasswordSHA1>1234567890</PfxPasswordSHA1>
+    <ThumbprintSHA1>422F89951CD892AA2F1AE6DE492637E2D7F88859</ThumbprintSHA1>
+    <CrossCertificateSHA1>$(MSBuildThisFileDirectory)Sign\GlobalSignRootR1-SHA1-MS.cer</CrossCertificateSHA1>
+    <TimestampServerSHA1>http://timestamp.verisign.com/scripts/timstamp.dll</TimestampServerSHA1>
+  </PropertyGroup>
+  <PropertyGroup Label="SHA256-Signature">
+    <PfxPathSHA256>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA256.pfx</PfxPathSHA256>
+    <PfxPasswordSHA256>1234567890</PfxPasswordSHA256>
+    <ThumbprintSHA256>6ac12312167ac8a982c499f1d16ce26d9e5be264</ThumbprintSHA256>
+    <CrossCertificateSHA256>$(MSBuildThisFileDirectory)Sign\GlobalSignRootR3-SHA256-MS.cer</CrossCertificateSHA256>
+    <TimestampServerSHA256>http://rfc3161timestamp.globalsign.com/advanced</TimestampServerSHA256>
+  </PropertyGroup>
+  <PropertyGroup Label="SHA256EV-Signature">
+    <PfxPathSHA256EV>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA256EV.pfx</PfxPathSHA256EV>
+    <PfxPasswordSHA256EV>1234567890</PfxPasswordSHA256EV>
+    <ThumbprintSHA256EV>0e5c2168c2476e3bc39035edf098c89d383918b7</ThumbprintSHA256EV>
+  </PropertyGroup>
+-->
+  <PropertyGroup Label="SHA256-Signature">
+    <PfxPathSHA256>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA256.pfx</PfxPathSHA256>
+    <PfxPasswordSHA256>1234567890</PfxPasswordSHA256>
+    <ThumbprintSHA256>7ca64c2d1a416cea1f78b4140212f31ef5eb42ec</ThumbprintSHA256>
+    <CrossCertificateSHA256>$(MSBuildThisFileDirectory)Sign\GlobalSignRootR3-SHA256-MS.cer</CrossCertificateSHA256>
+    <TimestampServerSHA256>http://rfc3161timestamp.globalsign.com/advanced</TimestampServerSHA256>
+  </PropertyGroup>
+  <PropertyGroup Label="SHA256EV-Signature">
+    <PfxPathSHA256EV>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA256EV.pfx</PfxPathSHA256EV>
+    <PfxPasswordSHA256EV>1234567890</PfxPasswordSHA256EV>
+    <ThumbprintSHA256EV>7ca64c2d1a416cea1f78b4140212f31ef5eb42ec</ThumbprintSHA256EV>
+  </PropertyGroup>
+  <!-- 
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // Подпись файлов 
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // 1) Для .csproj- и .wixproj-проектов последовательность "AfterBuild" присутствует по умолчанию 
+  //    и выполняется до любой последовательности действий, указанной как AfterTargets="Build"
+  // 2) Для .vcxproj-проектов последовательность "AfterBuild" по умолчанию отсутствует и 
+  //    должна определяться в самих проектах как AfterTargets="Build" BeforeTargets="SignFiles"     
+  /////////////////////////////////////////////////////////////////////////////////////////////// -->
+  <Target Name="SignFiles" AfterTargets="Build" Inputs="@(SignFiles)" Outputs="?" Condition="'$(Configuration)' != 'Debug'">
+    <DevEnvSdk Version="$(VisualStudioVersion)">
+      <Output TaskParameter="ToolsDir" PropertyName="SignToolSdkDir"/>
+    </DevEnvSdk>
+<!--<SignTool ToolPath="$(SignToolSdkDir)" TargetPath="%(SignFiles.Identity)" HashType="sha1" 
+      PfxPath="$(PfxPathSHA1)" Password="$(PfxPasswordSHA1)" Thumbprint="$(ThumbprintSHA1)" 
+      CrossCertificate="$(CrossCertificateSHA1)" TimestampServer="$(TimestampServerSHA1)" 
+      Retries="3" RetryDelay="10000" Verbose="true" OutputImportance="high" ContinueOnError="true" /> 
+    <SignTool Condition="'%(SignFiles.Extension)' != '.msi' and '%(SignFiles.Extension)' != '.cat'"
+      ToolPath="$(SignToolSdkDir)" TargetPath="%(SignFiles.Identity)" HashType="sha256" 
+      PfxPath="$(PfxPathSHA256)" Password="$(PfxPasswordSHA256)" Thumbprint="$(ThumbprintSHA256)" 
+      CrossCertificate="$(CrossCertificateSHA256)" TimestampServer="$(TimestampServerSHA256)" 
+	  Retries="3" RetryDelay="10000" SignOptions="/as" Verbose="true" OutputImportance="high" ContinueOnError="true"/>-->
+    <SignTool ToolPath="$(SignToolSdkDir)" TargetPath="%(SignFiles.Identity)" HashType="sha256" 
+      PfxPath="$(PfxPathSHA256)" Password="$(PfxPasswordSHA256)" Thumbprint="$(ThumbprintSHA256)" 
+      CrossCertificate="$(CrossCertificateSHA256)" TimestampServer="$(TimestampServerSHA256)" 
+	  Retries="3" RetryDelay="10000" Verbose="true" OutputImportance="high" ContinueOnError="true"/> 
+  </Target>
+  <!-- 
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // Подпись файлов при сборке драйвера
+  /////////////////////////////////////////////////////////////////////////////////////////////// -->
+  <Target Name="DriverSignFiles" BeforeTargets="DriverPackageTarget" Condition="'$(Configuration)' != 'Debug'">
+<!--<SignTool ToolPath="$(DriverSignToolPath)" TargetPath="$(TargetPath)" HashType="sha1" 
+      PfxPath="$(PfxPathSHA1)" Password="$(PfxPasswordSHA1)" Thumbprint="$(ThumbprintSHA1)" 
+      CrossCertificate="$(CrossCertificateSHA1)" TimestampServer="$(TimestampServerSHA1)" 
+      Retries="3" RetryDelay="30000" Verbose="true" OutputImportance="high" /> 
+    <SignTool ToolPath="$(DriverSignToolPath)" TargetPath="$(TargetPath)" HashType="sha256" 
+      PfxPath="$(PfxPathSHA256)" Password="$(PfxPasswordSHA256)" Thumbprint="$(ThumbprintSHA256)" 
+      CrossCertificate="$(CrossCertificateSHA256)" TimestampServer="$(TimestampServerSHA256)" 
+      Retries="3" RetryDelay="30000" SignOptions="/as" Verbose="true" OutputImportance="high" IgnoreErrors="true"/>-->
+    <SignTool ToolPath="$(DriverSignToolPath)" TargetPath="$(TargetPath)" HashType="sha256" 
+      PfxPath="$(PfxPathSHA256)" Password="$(PfxPasswordSHA256)" Thumbprint="$(ThumbprintSHA256)" 
+      CrossCertificate="$(CrossCertificateSHA256)" TimestampServer="$(TimestampServerSHA256)" 
+      Retries="3" RetryDelay="30000" Verbose="true" OutputImportance="high"/> 
+  </Target>
+  <Target Name="DriverSignPackage" AfterTargets="DriverPackageTarget" Condition="'$(Configuration)' != 'Debug'">
+    <Copy Condition="Exists('$(ProjectDir)$(OutDir)$(ProjectName)\$(TargetName).cat')" 
+       SourceFiles="$(ProjectDir)$(OutDir)$(ProjectName)\$(TargetName).cat" DestinationFolder="$(ProjectDir)$(OutDir)" />
+    <RemoveDir Condition="Exists('$(ProjectDir)$(OutDir)$(ProjectName)')" Directories="$(ProjectDir)$(OutDir)$(ProjectName)" />
+<!--<SignTool ToolPath="$(DriverSignToolPath)" TargetPath="$(ProjectDir)$(OutDir)$(TargetName).cat" HashType="sha1" 
+      PfxPath="$(PfxPathSHA1)" Password="$(PfxPasswordSHA1)" Thumbprint="$(ThumbprintSHA1)" 
+      CrossCertificate="$(CrossCertificateSHA1)" TimestampServer="$(TimestampServerSHA1)" 
+      Retries="3" RetryDelay="30000" Verbose="true" OutputImportance="high" />-->
+    <SignTool ToolPath="$(DriverSignToolPath)" TargetPath="$(ProjectDir)$(OutDir)$(TargetName).cat" HashType="sha256" 
+      PfxPath="$(PfxPathSHA256)" Password="$(PfxPasswordSHA256)" Thumbprint="$(ThumbprintSHA256)" 
+      CrossCertificate="$(CrossCertificateSHA256)" TimestampServer="$(TimestampServerSHA256)" 
+      Retries="3" RetryDelay="30000" Verbose="true" OutputImportance="high" /> 
+    <Exec WorkingDirectory="$(TargetDir)" Command="makecab.exe /f &quot;$(ProjectDir)$(TargetName).ddf&quot; /v"></Exec>
+    <SignTool ToolPath="$(DriverSignToolPath)" TargetPath="$(ProjectDir)$(OutDir)$(TargetName).cab" HashType="sha256" 
+      PfxPath="$(PfxPathSHA256EV)" Password="$(PfxPasswordSHA256EV)" Thumbprint="$(ThumbprintSHA256EV)" 
+      CrossCertificate="$(CrossCertificateSHA256)" TimestampServer="$(TimestampServerSHA256)" 
+      Retries="3" RetryDelay="30000" Verbose="true" OutputImportance="high" /> 
+  </Target>
+</Project>

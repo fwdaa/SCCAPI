@@ -1,0 +1,23 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VERSION                Condition="'$(VERSION)'                == ''">7.0.1.142</VERSION>
+    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == ''">v4.0</TargetFrameworkVersion> 
+    <PlatformToolset        Condition="'$(PlatformToolset)'        == ''">v142</PlatformToolset>				
+    <TargetVersion          Condition="'$(TargetVersion)'          == ''">Windows10</TargetVersion> 
+    <PrecompiledHeaderUse   Condition="'$(PrecompiledHeaderUse)'   == ''">Use</PrecompiledHeaderUse>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VERSION_MAJ>$(VERSION.Split('.')[0])</VERSION_MAJ>
+    <VERSION_MIN>$(VERSION.Split('.')[1])</VERSION_MIN>
+    <VERSION_SP >$(VERSION.Split('.')[2])</VERSION_SP>
+	<VERSION_BLD>$(VERSION.Split('.')[3])</VERSION_BLD>
+  </PropertyGroup>
+  <PropertyGroup>
+	<BUILD_NUMBER>$(VERSION_BLD)</BUILD_NUMBER>
+    <VERSION>$(VERSION_MAJ).$(VERSION_MIN).$(VERSION_SP).$(VERSION_BLD)</VERSION>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <SuppressLegacyCodeAnalysisDeprecatedWarning>true</SuppressLegacyCodeAnalysisDeprecatedWarning>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="Build">
+  <Import Project="build.targets"/>
+  <ItemGroup>
+    <TargetFramework Include="v2.0">
+      <NetProperties>PlatformToolset=v90;PrecompiledHeaderUse=NotUsing</NetProperties>
+    </TargetFramework>
+    <TargetFramework Include="v4.0">
+      <NetProperties>PlatformToolset=v142;PrecompiledHeaderUse=Use</NetProperties>
+    </TargetFramework>
+  </ItemGroup>  
+  <Target Name="CLSID_CAPI_COM" BeforeTargets="BuildNET">
+    <PropertyGroup>
+      <CLSID_CAPI_COM>$([System.Guid]::NewGuid())</CLSID_CAPI_COM>
+    </PropertyGroup>
+  </Target> 
+  <Target Name="CleanNET" Inputs="@(TargetFramework)" Outputs="?" BeforeTargets="CleanJava">
+    <ItemGroup>
+      <TargetFramework>
+        <NetProperties>TargetFrameworkVersion=%(Identity);%(NetProperties)</NetProperties>
+      </TargetFramework>
+    </ItemGroup>
+    <MSBuild Targets="Clean" Projects="build.net.xml" Properties="%(TargetFramework.NetProperties);Configuration=$(Configuration)" />
+  </Target> 
+  <Target Name="BuildNET" Inputs="@(TargetFramework)" Outputs="?" BeforeTargets="BuildJava">
+    <ItemGroup>
+      <TargetFramework>
+        <NetProperties>TargetFrameworkVersion=%(Identity);CLSID_CAPI_COM=$(CLSID_CAPI_COM);%(NetProperties)</NetProperties>
+      </TargetFramework>
+    </ItemGroup>
+    <MSBuild Targets="Build" Projects="build.net.xml" Properties="%(TargetFramework.NetProperties);Configuration=$(Configuration)" />
+  </Target> 
+  <Target Name="CleanCore" BeforeTargets="Clean">
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Clean" Configuration="$(Configuration)" Platform="AnyCPU" />
+  </Target> 
+  <Target Name="BuildCore" BeforeTargets="Build">
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="AnyCPU" />
+  </Target> 
+  <Target Name="CleanJava" BeforeTargets="Clean">
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Clean" Configuration="$(Configuration)" Platform="Win32" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Clean" Configuration="$(Configuration)" Platform="x64"   />
+  </Target> 
+  <Target Name="BuildJava" BeforeTargets="Build">
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="Win32" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="x64"   />
+  </Target> 
+  <Target Name="Clean">
+    <RemoveDir Directories="..\Trace\TMF" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Clean" Configuration="$(Configuration)" Platform="Win32" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Clean" Configuration="$(Configuration)" Platform="x64"   />
+  </Target> 
+  <Target Name="Build">
+    <RemoveDir Directories="..\Trace\TMF" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Rebuild" 
+      Configuration="$(Configuration)" Platform="Win32" EnvironmentVariables="CLSID_CAPI_COM=$(CLSID_CAPI_COM)" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Rebuild" 
+      Configuration="$(Configuration)" Platform="x64"   EnvironmentVariables="CLSID_CAPI_COM=$(CLSID_CAPI_COM)" />
+  </Target> 
+</Project>

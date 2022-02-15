@@ -1,0 +1,54 @@
+﻿<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- ****************************************************************************************************** -->
+  <!--                            Режим использования утилиты                                                 -->
+  <!-- ****************************************************************************************************** -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WppKernelMode Condition="'$(IsKernelModeToolset)' == 'true'">true</WppKernelMode>
+      <WppDllMacro   Condition="'$(IsUserModeToolset)'   == 'true'">true</WppDllMacro>
+    </ClCompile>
+    <OtherWpp>
+      <WppKernelMode Condition="'$(IsKernelModeToolset)' == 'true'">true</WppKernelMode>
+      <WppDllMacro   Condition="'$(IsUserModeToolset)'   == 'true'">true</WppDllMacro>
+    </OtherWpp>
+  </ItemDefinitionGroup>
+  <!-- ****************************************************************************************************** -->
+  <!--                            Способ сборки утилиты                                                       -->
+  <!-- ****************************************************************************************************** -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WppEnabled                    Condition="'%(ClCompile.WppEnabled)'                    == ''">false</WppEnabled>
+      <WppMinimalRebuildFromTracking Condition="'%(ClCompile.WppMinimalRebuildFromTracking)' == ''">true</WppMinimalRebuildFromTracking>
+      <WppEnableOutputDirectory      Condition="'%(ClCompile.WppEnableOutputDirectory)'      == ''">true</WppEnableOutputDirectory>
+    </ClCompile>
+    <OtherWpp>
+      <WppEnabled                    Condition="'%(OtherWpp.WppEnabled)'                    == ''">false</WppEnabled>
+      <WppEnableOutputDirectory      Condition="'%(OtherWpp.WppEnableOutputDirectory)'      == ''">true</WppEnableOutputDirectory>
+      <WppMinimalRebuildFromTracking Condition="'%(OtherWpp.WppMinimalRebuildFromTracking)' == ''">true</WppMinimalRebuildFromTracking>
+    </OtherWpp>
+  </ItemDefinitionGroup>
+  <!-- ****************************************************************************************************** -->
+  <!--                            Использование каталогов утилитой                                            -->
+  <!-- ****************************************************************************************************** -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WppTrackerLogDirectory      Condition="'%(ClCompile.WppTrackerLogDirectory)' == ''">$(TLogLocation)</WppTrackerLogDirectory>
+      <WppOutputDirectory          Condition="'%(ClCompile.WppOutputDirectory)'     == ''">$(IntDir)</WppOutputDirectory>
+    </ClCompile>
+    <OtherWpp>
+      <WppTrackerLogDirectory      Condition="'%(OtherWpp.WppTrackerLogDirectory)'  == ''">$(TLogLocation)</WppTrackerLogDirectory>
+      <WppOutputDirectory          Condition="'%(OtherWpp.WppOutputDirectory)'      == ''">$(IntDir)</WppOutputDirectory>
+    </OtherWpp>
+  </ItemDefinitionGroup>
+  <!-- ****************************************************************************************************** -->
+  <!--                            Имя модуля, связанного с сообщениями трассировки                            -->
+  <!-- ****************************************************************************************************** -->
+  <ItemDefinitionGroup>
+    <ClCompile       Condition="'%(ClCompile.WppAddAlternateNameToMessageGUID)' != ''">
+      <WppModuleName Condition="'%(ClCompile.WppModuleName)' == ''">%(ClCompile.WppAddAlternateNameToMessageGUID)</WppModuleName>
+    </ClCompile>
+    <OtherWpp        Condition="'%(OtherWpp.WppAddAlternateNameToMessageGUID)' != ''">
+      <WppModuleName Condition="'%(OtherWpp.WppModuleName)' == ''">%(OtherWpp.WppAddAlternateNameToMessageGUID)</WppModuleName>
+    </OtherWpp>
+  </ItemDefinitionGroup>
+</Project>

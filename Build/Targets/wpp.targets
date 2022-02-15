@@ -1,0 +1,183 @@
+﻿<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="Wpp" AssemblyFile="C:\Program Files (x86)\Windows Kits\10\build\bin\Microsoft.DriverKit.Build.Tasks.$(VisualStudioVersion).dll" />
+
+  <!-- ****************************************************************************************************** -->
+  <!--                            Каталоги по умолчанию                                                       -->
+  <!-- ****************************************************************************************************** -->
+  <PropertyGroup Condition="'$(PlatformTarget)' == 'x86'">
+    <TraceWppToolArchitecture Condition="'$(TraceWppToolArchitecture)' == ''">Native32Bit</TraceWppToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PlatformTarget)' == 'x64'">
+    <TraceWppToolArchitecture Condition="'$(TraceWppToolArchitecture)' == ''">Native64Bit</TraceWppToolArchitecture>
+  </PropertyGroup>
+  
+  <!-- ****************************************************************************************************** -->
+  <!-- Добавить переменную препроцессора RUN_WPP в утилиту MIDL для файлов со свойством WppEnabled = true     -->
+  <!-- ****************************************************************************************************** -->
+  <Target Name="CheckIfWppEnabled" Condition="'@(Midl)'!=''" BeforeTargets="BeforeMidl" >
+    <ItemGroup>
+      <WppEnabledCLItems Include="@(ClCompile)" Condition="'%(ClCompile.ExcludedFromBuild)' != 'true' and '%(ClCompile.WppEnabled)' == 'true'"/>
+    </ItemGroup>
+    <ItemGroup >
+      <Midl Condition="@(WppEnabledCLItems) != ''" >
+        <PreprocessorDefinitions>RUN_WPP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      </Midl>
+    </ItemGroup>
+    <ItemGroup><WppEnabledCLItems Remove="@(WppEnabledCLItems)"/></ItemGroup>
+  </Target>
+  
+  <!-- ****************************************************************************************************** -->
+  <!--                                 Выполнение утилиты TraceWpp при сборке                                 -->
+  <!-- ****************************************************************************************************** -->
+  <Target Name="RunWpp" BeforeTargets="BeforeClCompile">
+    <DevEnvSdk DevEnvDir="$(DevEnvDir)">
+      <Output TaskParameter="ToolsDir" PropertyName="TraceWppToolPath" />
+    </DevEnvSdk>
+    <PropertyGroup>
+      <TraceWppToolExe>tracewpp.exe</TraceWppToolExe>
+      <TraceWppConfigurationDirectories>$(TraceWppToolPath)\..\wppconfig\rev1</TraceWppConfigurationDirectories>
+    </PropertyGroup>
+    <ItemGroup>
+      <ClCompile>
+        <WppConfigurationDirectories Condition="'%(ClCompile.WppConfigurationDirectories)' == ''">$(TraceWppConfigurationDirectories)</WppConfigurationDirectories>
+      </ClCompile>
+      <OtherWpp>
+        <WppConfigurationDirectories Condition="'%(OtherWpp.WppConfigurationDirectories)' == ''">$(TraceWppConfigurationDirectories)</WppConfigurationDirectories>
+      </OtherWpp>
+    </ItemGroup>
+    <ItemGroup>
+      <TraceWpp Include="@(ClCompile)" Condition="'%(ClCompile.WppEnabled)'  == 'true' and '%(ClCompile.ExcludedFromBuild)' != 'true'"/>
+      
+      <OtherWppExcludedFromBuild Include="@(ResourceCompile)" Condition="'%(ResourceCompile.ExcludedFromBuild)' == 'true'"/>
+      <OtherWppExcludedFromBuild Include="@(MessageCompile)"  Condition="'%(MessageCompile.ExcludedFromBuild)'  == 'true'"/>
+      <OtherWppExcludedFromBuild Include="@(Mofcomp)"         Condition="'%(Mofcomp.ExcludedFromBuild)'         == 'true'"/>
+      <OtherWppExcludedFromBuild Include="@(Wmimofck)"        Condition="'%(Wmimofck.ExcludedFromBuild)'        == 'true'"/>
+      <OtherWppExcludedFromBuild Include="@(Ctrpp)"           Condition="'%(Ctrpp.ExcludedFromBuild)'           == 'true'"/>
+      
+      <OtherWpp Remove ="@(OtherWpp)" Condition="'%(Identity)'=='@(OtherWppExcludedFromBuild)'"/>
+      <TraceWpp Include="@(OtherWpp)" Condition="'%(OtherWpp.WppEnabled)'  == 'true'"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <TraceWpp>
+        <WppMinimalRebuildFromTracking Condition="'$(BuildType)' != 'Build' or '$(ForceRebuild)' == 'true'">false</WppMinimalRebuildFromTracking>
+      </TraceWpp>
+    </ItemGroup>
+
+    <!-- ****************************************************************************************************** -->
+    <!--                                  Стандартные                                                           -->
+    <!-- ****************************************************************************************************** -->
+    <!-- ToolPath                      = каталог утилиты tracewpp.exe     (по умолчанию = "$(WDKBinRoot_x86)\") -->
+    <!-- ToolExe                       = имя утилиты tracewpp.exe         (по умолчанию = <не задано>)          -->
+    <!-- ToolArchitecture              = разрядность утилиты tracewpp.exe (по умолчанию = "Native32Bit")        -->
+    <!--                                                                                                        -->
+    <!-- ****************************************************************************************************** -->
+    <!--                                  Общие                                                                 -->
+    <!-- ****************************************************************************************************** -->
+    <!-- Sources                       = набор обрабатываемых файлов      (см. выше)                            -->
+    <!-- AdditionalOptions             = дополнительные опции утилиты tracewpp.exe, не указанные далее          -->
+    <!-- MinimalRebuildFromTracking    = инкрементная или полная сборка (по умолчанию сборка инрементная,       -->
+    <!--                                 если $(BuildType) = Build и не установлен $(ForceRebuild))             -->
+    <!--                                                                                                        -->
+    <!-- ****************************************************************************************************** -->
+    <!--                     Параметры инкрементальной сборки Visual Studio                                     -->
+    <!-- ****************************************************************************************************** -->
+    <!-- TrackerFrameworkPath          =                                                                        -->
+    <!-- TrackerSdkPath                =                                                                        -->
+    <!-- TrackerLogDirectory           = каталог .tlog-файлов зависимостей (по умолчанию $(TLogLocation))       -->
+    <!-- TLogReadFiles                 = файлы зависимостей исходных файлов друг от друга                       -->
+    <!-- TLogWriteFiles                = файлы зависимостей исходных и генерируемых файлов                      -->
+    <!-- TrackFileAccess               =                                                                        -->
+    <!--                                                                                                        -->
+    <!-- ****************************************************************************************************** -->
+    <!--                                  Опции функций и макросов                                              -->
+    <!-- ****************************************************************************************************** -->
+    <!-- PreprocessorDefinitions       = дополнительные макросы препроцессора                                   -->
+    <!-- KernelMode                    = определение макроса WPP_KERNEL_MODE для трассировки в режиме ядра      -->
+    <!-- DllMacro                      = определение макроса WPP_DLL для инициализации при каждом вызове        -->
+    <!--                                 WPP_INIT_TRACING или заменяющего его макроса                           -->
+    <!-- AddControlGUID                = определение WPP_CONTROL_GUIDS следеющим образом:                       -->
+    <!--                                 #define WPP_CONTROL_GUIDS                            \                 -->
+    <!--                                   WPP_DEFINE_CONTROL_GUID(<?>, ($(AddControlGUID)),  \                 -->
+    <!--                                   WPP_DEFINE_BIT(Error  )                            \                 -->
+    <!--                                   WPP_DEFINE_BIT(Unusual)                            \                 -->
+    <!--                                   WPP_DEFINE_BIT(Noise  )                                              -->
+    <!--                                                                                                        -->
+    <!-- ****************************************************************************************************** -->
+    <!--                                  Поиск и форматирование                                                -->
+    <!-- ****************************************************************************************************** -->
+    <!-- IgnoreExclamationmarks        = игнорирование ! в конструкциях %!<NAME>!                               -->
+    <!-- NumericBaseForFormatStrings   = базовый номер для параметров (по умолчанию 1 и первый параметр %1)     -->
+    <!-- TraceFunction                 = определение шаблонов функций трассировки (вместо DoTraceMessage),      -->
+    <!--                                 например, DoMyTraceMessage(LEVEL,FLAGS,MSG,...)                        -->
+    <!-- SearchString                  = определение имени, используемого для инициализации трассировки         -->
+    <!--                                 (по умолчанию = WPP_INIT_TRACING)                                      -->
+    <!-- AddAlternateNameToMessageGUID = имя модуля, связанного с сообщениями трассировки                       --> 
+    <!--                                 (по умолчанию = имя каталога сборки)                                   -->
+    <!--                                                                                                        -->
+    <!-- ****************************************************************************************************** -->
+    <!--                                  Файловые опции                                                        -->
+    <!-- ****************************************************************************************************** -->
+    <!-- AdditionalIncludeDirectories  = дополнительные каталоги поиска включаемых файлов                       -->
+    <!-- ConfigurationDirectories      = дополнительные каталоги файлов конфигурации и шаблонов утилиты         -->
+    <!--                                 (по умолчанию = локальный каталог, но в MSBuild устанавливается как    --> 
+    <!--                                  $(WDKBinRoot)\wppconfig\rev1)                                         -->
+    <!-- AlternateConfigurationFile    = файл конфигурации по умолчанию, используемый вместо defaultwpp.ini     -->
+    <!-- AdditionalConfigurationFile   = дополнительный файл конфигурации, используемый вместе файлом           -->
+    <!--                                 конфигурации по умолчанию                                              -->
+    <!-- ScanConfigurationData         = имена файлов, не являющихся файлами конфигурации, но содержащие        -->
+    <!--                                 конфигурационные данные. Указанные данные должны содержаться           -->
+    <!--                                 внутри блоков "begin_wpp config" и "end wpp"                           -->
+    <!-- GenerateUsingTemplateFile     = использование файла как шаблона и создание на его основе файла         -->
+    <!--                                 с указанным именем                                                     -->
+    <!-- FileExtensions                = расширения обрабатываемых файлов (по умолчанию .c, .c++, .cpp, .cxx    -->
+    <!--                                 без учета регистра)                                                    -->
+    <!-- PreserveExtensions            = добавление расширения генерируемых файлов к текущему расширению файла  -->
+    <!--                                 (например, <filename>.cpp.tmh при обработке <filename>.cpp).           -->
+    <!--                                 При отсутствии опции исходное расширение заменяется (например,         -->
+    <!--                                 <filename>.tmh при обработке <filename>.cpp)                           -->
+    <!-- OutputDirectory               = выходной каталог генерируемых файлов (по умолчанию - локальный         -->
+    <!--                                 каталог, но в MSBuild устанавливается в $(IntDir))                     -->
+    <!--                                                                                                        -->
+    <!-- ****************************************************************************************************** -->
+    
+    <Wpp Condition ="'@(TraceWpp)' != ''"
+        ToolPath                       ="$(TraceWppToolPath)"                         
+        ToolExe                        ="$(TraceWppToolExe)"
+        ToolArchitecture               ="$(TraceWppToolArchitecture)"
+         
+        Sources                        ="@(TraceWpp)"
+        AdditionalOptions              ="%(TraceWpp.WppAdditionalOptions)"
+        MinimalRebuildFromTracking     ="%(TraceWpp.WppMinimalRebuildFromTracking)"
+         
+        TrackerFrameworkPath           ="$(TraceWppTrackerFrameworkPath)"
+        TrackerSdkPath                 ="$(TraceWppTrackerSdkPath)"
+        TrackerLogDirectory            ="%(TraceWpp.WppTrackerLogDirectory)"
+        TLogReadFiles                  ="@(TraceWppTLogReadFiles)"
+        TLogWriteFiles                 ="@(TraceWppTLogWriteFiles)"
+        TrackFileAccess                ="$(TrackFileAccess)"
+         
+        PreprocessorDefinitions        ="%(TraceWpp.WppPreprocessorDefinitions)"
+        KernelMode                     ="%(TraceWpp.WppKernelMode)"
+        DllMacro                       ="%(TraceWpp.WppDllMacro)"
+        AddControlGUID                 ="%(TraceWpp.WppAddControlGUID)"
+         
+        IgnoreExclamationmarks         ="%(TraceWpp.WppIgnoreExclamationmarks)"
+        NumericBaseForFormatStrings    ="%(TraceWpp.WppNumericBaseForFormatStrings)"
+        TraceFunction                  ="%(TraceWpp.WppTraceFunction)"
+        SearchString                   ="%(TraceWpp.WppSearchString)"
+        AddAlternateNameToMessageGUID  ="%(TraceWpp.WppModuleName)"
+         
+        AdditionalIncludeDirectories   ="%(TraceWpp.WppAdditionalIncludeDirectories)"
+        ConfigurationDirectories       ="%(TraceWpp.WppConfigurationDirectories)"
+        AlternateConfigurationFile     ="%(TraceWpp.WppAlternateConfigurationFile)"
+        AdditionalConfigurationFile    ="%(TraceWpp.WppAdditionalConfigurationFile)"
+        ScanConfigurationData          ="%(TraceWpp.WppScanConfigurationData)"
+        GenerateUsingTemplateFile      ="%(TraceWpp.WppGenerateUsingTemplateFile)"
+        FileExtensions                 ="%(TraceWpp.WppFileExtensions)"
+        PreserveExtensions             ="%(TraceWpp.WppPreserveExtensions)"
+        EnableOutputDirectory          ="%(TraceWpp.WppEnableOutputDirectory)"
+        OutputDirectory                ="%(TraceWpp.WppOutputDirectory)"
+    />
+  </Target>
+</Project>

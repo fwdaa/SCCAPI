@@ -1,0 +1,13 @@
+<Project InitialTargets="CheckTargetFrameworkVersion" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="version.props"/>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == '' ">
+    <TargetFrameworkVersionAbsent>true</TargetFrameworkVersionAbsent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' != '' ">
+    <VERSION_BLD>$(VERSION_BLD)$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1))</VERSION_BLD>
+    <VERSION>$(VERSION_MAJ).$(VERSION_MIN).$(VERSION_SP).$(VERSION_BLD)</VERSION>
+  </PropertyGroup>
+  <Target Name="CheckTargetFrameworkVersion">
+    <Error Condition="'$(TargetFrameworkVersionAbsent)' != ''" Text="TargetFrameworkVersion must be defined"/>
+  </Target>
+</Project>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\build.targets"/>
+  <PropertyGroup Condition="'$(WPP_CONFIG_PATH)' == ''">
+    <TraceWppPresent>false</TraceWppPresent>
+  </PropertyGroup>
+  <Import Project="wpp.props"   Condition="'$(TraceWppPresent)' == 'false'"/>
+  <Import Project="wpp.targets" Condition="'$(TraceWppPresent)' == 'false'"/>
+  <ItemGroup>
+    <CoreCppClean Include="@(CoreCppClean);$(ProjectDir)">
+      <FilePatternsToDelete>*.tmh</FilePatternsToDelete>
+    </CoreCppClean>
+  </ItemGroup>   
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WppScanConfigurationData>$(MSBuildThisFileDirectory)..\..\Trace\Trace.h</WppScanConfigurationData>
+      <WppAdditionalOptions Condition="'%(ClCompile.WppAdditionalOptions)'==''">-p:$(TargetName)</WppAdditionalOptions>
+      <WppOutputDirectory   Condition="'%(ClCompile.WppOutputDirectory)'  ==''">$(IntDir)</WppOutputDirectory>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\Trace;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(IsKernelModeToolset)' == 'true'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <LinkIncremental>false</LinkIncremental>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(IsKernelModeToolset)' != 'true'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link Condition="$(PlatformToolset.Remove(0,1)) &gt;= 140">
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <LinkIncremental>false</LinkIncremental>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Link Condition="$(PlatformToolset.Remove(0,1)) &lt; 140">
+      <GenerateDebugInformation>yes</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <LinkIncremental>false</LinkIncremental>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Target Name="WppTMF" AfterTargets="RunWpp;Build">
+    <DevEnvSdk DevEnvDir="$(DevEnvDir)">
+      <Output TaskParameter="ToolsDir" PropertyName="TracePdbToolPath" />
+    </DevEnvSdk>
+    <Exec WorkingDirectory="$(OutDir)" Command="&quot;$(TracePdbToolPath)\tracepdb.exe&quot; -f $(TargetName).pdb -c -v"/>
+    <ItemGroup>
+      <TMF Include="$(OutDir)*.tmc;$(OutDir)*.tmf"></TMF>
+    </ItemGroup>
+    <Move ContinueOnError="true" SourceFiles="@(TMF)" 
+		DestinationFolder="$(MSBuildThisFileDirectory)..\..\Trace\TMF" />
+  </Target>
+</Project>

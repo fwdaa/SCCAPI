@@ -1,0 +1,31 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="Build">
+  <Import Project="build.targets"/>
+  <Target Name="Clean">
+    <PropertyGroup>
+      <CleanVariables>TargetFrameworkVersion=$(TargetFrameworkVersion);$(CleanVariables)</CleanVariables>
+      <CleanVariables>PlatformToolset=$(PlatformToolset);$(CleanVariables)</CleanVariables>
+      <CleanVariables>TargetVersion=$(TargetVersion);$(CleanVariables)</CleanVariables>
+      <CleanVariables>WindowsTargetPlatformVersion=$(WindowsTargetPlatformVersion);$(CleanVariables)</CleanVariables> 
+    </PropertyGroup>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Clean" Configuration="$(Configuration)" Platform="AnyCPU" EnvironmentVariables="$(CleanVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Clean" Configuration="$(Configuration)" Platform="Win32"  EnvironmentVariables="$(CleanVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Clean" Configuration="$(Configuration)" Platform="x64"    EnvironmentVariables="$(CleanVariables)"/>
+  </Target> 
+  <Target Name="Build">
+    <PropertyGroup>
+      <CLSID_COM_NET>$([System.Guid]::NewGuid())</CLSID_COM_NET>
+    </PropertyGroup>
+    <PropertyGroup>
+      <BuildVariables>TargetFrameworkVersion=$(TargetFrameworkVersion);$(BuildVariables)</BuildVariables>
+      <BuildVariables>PlatformToolset=$(PlatformToolset);$(BuildVariables)</BuildVariables>
+      <BuildVariables>TargetVersion=$(TargetVersion);$(BuildVariables)</BuildVariables>
+      <BuildVariables>WindowsTargetPlatformVersion=$(WindowsTargetPlatformVersion);$(BuildVariables)</BuildVariables> 
+      <BuildVariables>PrecompiledHeaderUse=$(PrecompiledHeaderUse);$(BuildVariables)</BuildVariables>
+      <BuildVariables>TraceState=$(TraceState);$(BuildVariables)</BuildVariables>
+      <BuildVariables>CLSID_COM_NET=$(CLSID_COM_NET);$(BuildVariables)</BuildVariables>
+    </PropertyGroup>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="AnyCPU" EnvironmentVariables="$(BuildVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="Win32"  EnvironmentVariables="$(BuildVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="x64"    EnvironmentVariables="$(BuildVariables)"/>
+  </Target> 
+</Project>
