@@ -94,8 +94,8 @@ public abstract class PKI
 	// Создать запрос PKCS10 на сертификат X.509
 	///////////////////////////////////////////////////////////////////////
     public static CertificateRequest createCertificationRequest(IRand rand, 
-        IEncodable subject, IPublicKey publicKey, IPrivateKey privateKey, 
-        AlgorithmIdentifier signParameters, Extensions extensions) throws IOException
+        IEncodable subject, AlgorithmIdentifier signParameters, 
+        IPublicKey publicKey, IPrivateKey privateKey, Extensions extensions) throws IOException
     {
         // закодировать открытый ключ
         SubjectPublicKeyInfo publicKeyInfo = publicKey.encoded(); 
@@ -187,8 +187,9 @@ public abstract class PKI
         }
     }
     public static CertificateRequest createCertificationRequest(IRand rand, 
-        IEncodable subject, IPublicKey publicKey, IPrivateKey privateKey, 
-        AlgorithmIdentifier signParameters, KeyUsage keyUsage, String[] extKeyUsage, 
+        IEncodable subject, AlgorithmIdentifier signParameters, 
+        IPublicKey publicKey, IPrivateKey privateKey, 
+        KeyUsage keyUsage, String[] extKeyUsage, 
         BasicConstraints basicConstraints, CertificatePolicies policies, 
         Extensions extensions) throws IOException
 	{
@@ -198,14 +199,14 @@ public abstract class PKI
         ); 
         // создать запрос на сертификат
         return createCertificationRequest(rand, 
-            subject, publicKey, privateKey, signParameters, extensions
+            subject, signParameters, publicKey, privateKey, extensions
         ); 
 	}
 	///////////////////////////////////////////////////////////////////////
 	// Создать сертификат X.509
 	///////////////////////////////////////////////////////////////////////
 	public static Certificate createCertificate(IRand rand, IEncodable issuer, 
-        BigInteger serial, IEncodable subject, SubjectPublicKeyInfo publicKeyInfo, 
+        Integer serial, IEncodable subject, SubjectPublicKeyInfo publicKeyInfo, 
         Date notBefore, Date notAfter, AlgorithmIdentifier signParameters, 
         IPrivateKey privateKey, Extension[] extensions) throws IOException
 	{
@@ -227,7 +228,7 @@ public abstract class PKI
         
 		// создать информацию сертификата
 		TBSCertificate tbsCertificate = new TBSCertificate(
-            version, new Integer(serial), signParameters, issuer, 
+            version, serial, signParameters, issuer, 
             validity, subject, publicKeyInfo, null, null, exts
 		); 
 		// извлечь подписываемые данные
@@ -255,7 +256,7 @@ public abstract class PKI
 	///////////////////////////////////////////////////////////////////////
 	public static Certificate createCertificate(Factory factory, 
         SecurityStore scope, IRand rand, CertificateRequest certificateRequest, 
-        IEncodable issuer, BigInteger serial, Date notBefore, 
+        IEncodable issuer, Integer serial, Date notBefore, 
         Date notAfter, AlgorithmIdentifier signParameters, 
         IPrivateKey privateKey, AuthorityKeyIdentifier authorityKeyIdentifier) 
         throws SignatureException, IOException
@@ -311,7 +312,7 @@ public abstract class PKI
                 hashAlgorithm.hashData(publicKeyBits, 1, publicKeyBits.length - 1)
             ); 
             // указать серийный номер сертификата
-            if (serial == null) serial = new BigInteger(keyIdentifier.value()); 
+            if (serial == null) serial = new Integer(new BigInteger(1, keyIdentifier.value())); 
             
             // добавить расширение
             listExtensions.add(new Extension(
@@ -414,13 +415,13 @@ public abstract class PKI
 	// Создать самоподписанный сертификат X.509
 	///////////////////////////////////////////////////////////////////////
 	public static Certificate createSelfSignedCertificate(IRand rand, 
-        BigInteger serial, IEncodable subject, Date notBefore, Date notAfter, 
+        IEncodable subject, AlgorithmIdentifier signParameters, 
         IPublicKey publicKey, IPrivateKey privateKey, 
-        AlgorithmIdentifier signParameters, Extensions extensions) throws IOException
+        Date notBefore, Date notAfter, Extensions extensions) throws IOException
     {
 		// создать запрос на сертификат
 		CertificateRequest certificateRequest = createCertificationRequest(
-            rand, subject, publicKey, privateKey, signParameters, extensions
+            rand, subject, signParameters, publicKey, privateKey, extensions
 		);
         // закодировать открытый ключ
         SubjectPublicKeyInfo publicKeyInfo = publicKey.encoded(); 
@@ -436,7 +437,7 @@ public abstract class PKI
                 hashAlgorithm.hashData(publicKeyBits, 1, publicKeyBits.length - 1)
             ); 
             // указать серийный номер сертификата
-            if (serial == null) serial = new BigInteger(keyIdentifier.value()); 
+            Integer serial = new Integer(new BigInteger(1, keyIdentifier.value())); 
             
             // указать имя издателя
             GeneralNames issuer = new GeneralNames(new IEncodable[] {
@@ -444,7 +445,7 @@ public abstract class PKI
             });
             // создать идентификатор ключа
             AuthorityKeyIdentifier authorityKeyIdentifier = 
-                new AuthorityKeyIdentifier(keyIdentifier, issuer, new Integer(serial)); 
+                new AuthorityKeyIdentifier(keyIdentifier, issuer, serial); 
             try {
                 // создать самоподписанный сертификат
                 return createCertificate(privateKey.factory(), privateKey.scope(), rand,  
@@ -457,19 +458,18 @@ public abstract class PKI
         }
     }
 	public static Certificate createSelfSignedCertificate(IRand rand, 
-        BigInteger serial, IEncodable subject, Date notBefore, Date notAfter, 
+        IEncodable subject, AlgorithmIdentifier signParameters, 
         IPublicKey publicKey, IPrivateKey privateKey, 
-        AlgorithmIdentifier signParameters, KeyUsage keyUsage, 
+        Date notBefore, Date notAfter, KeyUsage keyUsage, 
         String[] extKeyUsage, BasicConstraints basicConstraints, 
         CertificatePolicies policies, Extensions extensions) throws IOException
 	{
         // объединить расширения
-        extensions = addExtensions(
-            extensions, keyUsage, extKeyUsage, basicConstraints, policies
-        ); 
+        extensions = addExtensions(extensions, keyUsage, extKeyUsage, basicConstraints, policies); 
+        
         // создать самоподписанный сертификат
-        return createSelfSignedCertificate(rand, serial, subject, 
-            notBefore, notAfter, publicKey, privateKey, signParameters, extensions
+        return createSelfSignedCertificate(rand, subject, 
+            signParameters, publicKey, privateKey, notBefore, notAfter, extensions
         ); 
 	}
 }

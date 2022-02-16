@@ -20,6 +20,6 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 		// создать алгоритм генерации ключей
 		public protected: virtual KeyPairGenerator^ CreateGenerator(
 			CAPI::Factory^ outer, SecurityObject^ scope, 
-			String^ keyOID, IParameters^ parameters, IRand^ rand) override; 
+			IRand^ rand, String^ keyOID, IParameters^ parameters) override; 
 	}; 
 }}}}}

@@ -47,7 +47,7 @@
 Aladdin::CAPI::KeyPairGenerator^ 
 Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateGenerator(
 	CAPI::Factory^ factory, SecurityObject^ scope, 
-	String^ keyOID, IParameters^ parameters, IRand^ rand)
+	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)
 	{

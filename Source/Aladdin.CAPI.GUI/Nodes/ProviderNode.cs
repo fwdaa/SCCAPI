@@ -9,8 +9,8 @@ namespace Aladdin.CAPI.GUI.Nodes
 	///////////////////////////////////////////////////////////////////////////
 	internal class ProviderNode : ConsoleForm.Node
 	{
-		private CryptoEnvironment  environment;    // криптографическая среда
-		private CryptoProvider     provider;	   // информация о провайдере
+		private CryptoEnvironment environment;	// криптографическая среда
+		private CryptoProvider	  provider;		// информация о провайдере
 		
 		// конструктор
 		public ProviderNode(CryptoEnvironment environment, CryptoProvider provider) 

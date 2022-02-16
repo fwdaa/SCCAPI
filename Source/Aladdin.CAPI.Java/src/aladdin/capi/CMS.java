@@ -1077,7 +1077,7 @@ public final class CMS
 
                     // создать алгорим генерации ключей
                     try (KeyPairGenerator generator = factory.createGenerator(
-                        scope, publicKey.keyOID(), publicKey.parameters(), rand))
+                        scope, rand, publicKey.keyOID(), publicKey.parameters()))
                     {  
                         // сгенерировать эфемерную пару ключей
                         try (KeyPair keyPair = generator.generate(null, publicKey.keyOID(), 

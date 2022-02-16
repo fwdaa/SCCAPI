@@ -51,21 +51,21 @@ public class KeyUsage
 	//public static final KeyUsage SIGN_MASK = new KeyUsage(DIGITAL_SIGNATURE | CERTIFICATE_SIGNATURE | CRL_SIGNATURE | NON_REPUDIATION);        
     
     // выполнить логическое И
-    public static final KeyUsage and(KeyUsage keyUsage1, KeyUsage keyUsage2)
+    public final KeyUsage and(KeyUsage keyUsage)
     {
         // выполнить логическое И
-        return new KeyUsage(keyUsage1.value() & keyUsage2.value()); 
+        return new KeyUsage(longValue & keyUsage.value()); 
     }
     // выполнить логическое ИЛИ
-    public static final KeyUsage or(KeyUsage keyUsage1, KeyUsage keyUsage2)
+    public final KeyUsage or(KeyUsage keyUsage)
     {
         // выполнить логическое ИЛИ
-        return new KeyUsage(keyUsage1.value() | keyUsage2.value()); 
+        return new KeyUsage(longValue | keyUsage.value()); 
     }
     // выполнить логическое И с логическим отрицанием
-    public static final KeyUsage and_not(KeyUsage keyUsage1, KeyUsage keyUsage2)
+    public final KeyUsage and_not(KeyUsage keyUsage)
     {
         // выполнить логическое И
-        return new KeyUsage(keyUsage1.value() & ~keyUsage2.value()); 
+        return new KeyUsage(longValue & ~keyUsage.value()); 
     }
 }

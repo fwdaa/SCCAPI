@@ -32,7 +32,7 @@ public class ESDH extends RefObject implements ITransportAgreement
     {
         // создать алгорим генерации ключей
         try (aladdin.capi.KeyPairGenerator generator = factory.createGenerator(
-            null, recipientPublicKeys[0].keyOID(), recipientPublicKeys[0].parameters(), rand)) 
+            null, rand, recipientPublicKeys[0].keyOID(), recipientPublicKeys[0].parameters())) 
         { 
             // сгенерировать эфемерную пару ключей
             try (KeyPair keyPair = generator.generate(null, recipientPublicKeys[0].keyOID(), 

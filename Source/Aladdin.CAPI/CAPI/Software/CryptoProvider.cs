@@ -10,33 +10,53 @@ namespace Aladdin.CAPI.Software
 	///////////////////////////////////////////////////////////////////////////
 	public abstract class CryptoProvider : CAPI.CryptoProvider
 	{
-		// фабрика алгоритмов, тип контейнеров и расширения файлов
-        private Factories factories; private string type; private string[] extensions; 
+		// фабрика алгоритмов и фабрика генераторов 
+        private Factories factories; private IRandFactory randFactory; 
+        
+        // тип контейнеров и расширения файлов
+        private string type; private string[] extensions; 
         
 		// конструктор
-		public CryptoProvider(Factories factories, string type, string[] extensions)
+		public CryptoProvider(IEnumerable<Factory> factories, 
+            IRandFactory randFactory, string type, string[] extensions)
         {
             // сохранить фабрики алгоритмов
-            this.factories = RefObject.AddRef(factories); this.type = type; this.extensions = extensions; 
-        }
-		// конструктор
-		public CryptoProvider(IEnumerable<Factory> factories, string type, string[] extensions)
-        {
-            // сохранить фабрики алгоритмов
-            this.factories = new Factories(factories); this.type = type; this.extensions = extensions; 
+            this.factories = new Factories(true, factories); 
+
+            // сохранить фабрику генераторов
+            this.randFactory = RefObject.AddRef(randFactory); 
+
+            // сохранить переданные параметры
+            this.type = type; this.extensions = extensions; 
         }
         // освободить выделенные ресурсы
-        protected override void OnDispose() { RefObject.Release(factories); base.OnDispose(); }
-
+        protected override void OnDispose() 
+        { 
+            // освободить выделенные ресурсы
+            RefObject.Release(randFactory); factories.Dispose(); base.OnDispose(); 
+        }
         // имя провайдера
         public override string Name 
         { 
             // имя провайдера
             get { return String.Format("{0} Cryptographic Provider", type); }
         }
+        // обобщенная фабрика алгоритмов
+        public Factory Factory { get { return factories; }}
+
         // используемые расширения
         public string[] Extensions { get { return extensions; }}
 
+        ///////////////////////////////////////////////////////////////////////
+        // Генерация случайных данных
+        ///////////////////////////////////////////////////////////////////////
+    
+        // создать генератор случайных данных
+        public override IRand CreateRand(object window)
+        { 
+            // создать генератор случайных данных
+            return randFactory.CreateRand(window); 
+        } 
 		///////////////////////////////////////////////////////////////////////
 		// Управление хранилищами провайдера
 		///////////////////////////////////////////////////////////////////////
@@ -250,10 +270,70 @@ namespace Aladdin.CAPI.Software
             return new ConfigDirectories(scope, configFile); 
         }
 	    ///////////////////////////////////////////////////////////////////////
+	    // Управление контейнерами
+	    ///////////////////////////////////////////////////////////////////////
+		public virtual Container CreateContainer(IRand rand, 
+            ContainerStore store, ContainerStream stream, 
+            string password, string keyOID)
+		{
+			// операция не поддерживается
+			throw new NotSupportedException();
+        }
+		public virtual Container OpenContainer(
+            ContainerStore store, ContainerStream stream)
+		{
+			// операция не поддерживается
+			throw new NotSupportedException();
+        }
+		///////////////////////////////////////////////////////////////////////
+		// Управление алгоритмами
+		///////////////////////////////////////////////////////////////////////
+
+        // поддерживаемые ключи
+	    public override KeyFactory[] KeyFactories() { return factories.KeyFactories(); }
+
+        // получить алгоритмы по умолчанию
+        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID) 
+        {
+            // получить алгоритмы по умолчанию
+            return factories.GetCulture(parameters, keyOID); 
+        }
+        // получить алгоритмы по умолчанию
+        public override Culture GetCulture(SecurityStore scope, string keyOID) 
+        {
+            // проверить тип хранилища
+            if (scope != null && !(scope is ContainerStore)) return null; 
+
+            // получить алгоритмы по умолчанию
+            return factories.GetCulture((SecurityStore)null, keyOID); 
+        }
+		// создать алгоритм генерации ключей
+		protected internal override CAPI.KeyPairGenerator CreateAggregatedGenerator(
+            Factory outer, SecurityObject scope, IRand rand, 
+            string keyOID, IParameters parameters)
+		{
+            // проверить тип хранилища
+            if (scope != null && !(scope is ContainerStore)) return null; 
+
+            // создать алгоритм генерации ключей
+            return factories.CreateAggregatedGenerator(outer, null, rand, keyOID, parameters); 
+		}
+		// cоздать алгоритм для параметров
+		protected internal override IAlgorithm CreateAggregatedAlgorithm(
+            Factory outer, SecurityStore scope, 
+            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+		{
+            // проверить тип хранилища
+            if (scope != null && !(scope is ContainerStore)) return null; 
+
+            // создать алгоритм
+            return factories.CreateAggregatedAlgorithm(outer, null, parameters, type); 
+        }
+	    ///////////////////////////////////////////////////////////////////////
 	    // Управление контейнерами в памяти
 	    ///////////////////////////////////////////////////////////////////////
 		public Container CreateMemoryContainer(IRand rand, 
-            MemoryStream stream, string password, string keyOID)
+            MemoryStream stream, string keyOID, string password)
 		{
             // открыть хранилище
             using (SecurityStore store = OpenStore(Scope.System, "MEMORY"))
@@ -292,7 +372,7 @@ namespace Aladdin.CAPI.Software
                 return (SecurityStore)store.OpenObject(directory, access); 
             }
         }
-		public byte[][] EnumerateDirectoryContainers(string directory, KeyUsage keyUsage)
+		public byte[][] EnumerateDirectoryContainers(string directory, Predicate<CAPI.Container> filter)
 		{
 			// создать список сертификатов
 			List<Byte[]> containers =  new List<Byte[]>();
@@ -309,106 +389,13 @@ namespace Aladdin.CAPI.Software
 		            // открыть контейнер
 		            using (CAPI.Container container = (CAPI.Container)store.OpenObject(file, FileAccess.Read))
 		            {
-			            // проверить указание способа использования
-			            if (keyUsage == KeyUsage.None) containers.Add(content); 
-                            
-			            // для всех ключевых наборов
-                        else foreach (byte[] keyID in container.GetKeyIDs())
-			            {
-				            // получить сертификат контейнера
-				            Certificate certificate = container.GetCertificate(keyID);
-	 
-				            // проверить наличие сертификата
-				            if (certificate == null) continue; 
-                            
-			                // проверить область действия сертификата
-			                if ((certificate.KeyUsage & keyUsage) == KeyUsage.None) continue; 
-
-                            // добавить содержимое контейнера в список
-                            containers.Add(content); break; 
-                        }
+                        // добавить содержимое контейнера в список
+                        if (filter(container)) containers.Add(content); 
                     }
 	            }
                 // вернуть список контейнеров
 		        catch {} return containers.ToArray(); 
             }
-		}
-	    ///////////////////////////////////////////////////////////////////////
-	    // Управление контейнерами
-	    ///////////////////////////////////////////////////////////////////////
-		public virtual Container CreateContainer(IRand rand, 
-            ContainerStore store, ContainerStream stream, 
-            string password, string keyOID)
-		{
-			// операция не поддерживается
-			throw new NotSupportedException();
-        }
-		public virtual Container OpenContainer(
-            ContainerStore store, ContainerStream stream)
-		{
-			// операция не поддерживается
-			throw new NotSupportedException();
-        }
-		///////////////////////////////////////////////////////////////////////
-		// Управление алгоритмами
-		///////////////////////////////////////////////////////////////////////
-
-        // поддерживаемые ключи
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-        {
-            // указать фильтр программных фабрик
-            FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-            // вернуть поддерживаемые ключи
-            return factories.SecretKeyFactories(filter); 
-        }
-        // поддерживаемые ключи
-	    public override KeyFactory[] KeyFactories() 
-        {
-            // указать фильтр программных фабрик
-            FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-            // вернуть поддерживаемые ключи
-            return factories.KeyFactories(filter); 
-        }
-        // получить алгоритмы по умолчанию
-        public override Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            // указать фильтр программных фабрик
-            FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-            // получить алгоритмы по умолчанию
-            return factories.GetCulture(scope, filter, keyOID); 
-        }
-        // получить алгоритмы по умолчанию
-        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID) 
-        {
-            // получить алгоритмы по умолчанию
-            return factories.GetCulture(parameters, keyOID); 
-        }
-		// создать алгоритм генерации ключей
-		protected internal override CAPI.KeyPairGenerator CreateAggregatedGenerator(
-            Factory outer, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand)
-		{
-            // указать фильтр программных фабрик
-            FactoryFilter filter = new FactoryFilter.Software(null); 
-
-			// создать программный алгоритм генерации ключей
-			return factories.CreateAggregatedGenerator(
-                outer, scope, filter, keyOID, parameters, rand
-            ); 
-		}
-		// cоздать алгоритм для параметров
-		protected internal override IAlgorithm CreateAggregatedAlgorithm(
-            Factory outer, SecurityStore scope, 
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
-		{
-            // указать фильтр программных фабрик
-            FactoryFilter filter = new FactoryFilter.Software(null); 
-
-			// cоздать программный алгоритм для параметров
-			return factories.CreateAggregatedAlgorithm(outer, scope, filter, parameters, type); 
 		}
 	}
 }

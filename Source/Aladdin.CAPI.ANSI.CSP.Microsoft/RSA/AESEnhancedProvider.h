@@ -26,16 +26,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 			// вернуть имя провайдера
 			return "Microsoft Enhanced RSA and AES Cryptographic Provider"; 
 		}}
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<SecretKeyFactory^>^ SecretKeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<SecretKeyFactory^> { 
-				ANSI::Keys::RC2 ::Instance, ANSI::Keys::RC4 ::Instance, 
-				ANSI::Keys::DES ::Instance, ANSI::Keys::DESX::Instance, 
-				ANSI::Keys::TDES::Instance, ANSI::Keys::AES ::Instance 
-			}; 
-		}
 		// вернуть тип ключа
 		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(
 			SecretKeyFactory^ keyFactory, DWORD keySize) override;

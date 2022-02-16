@@ -8,6 +8,11 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public abstract class CryptoProvider extends Factory implements IProvider, IRandFactory 
 {
+    // имя группы провайдера
+    public String group() { return name(); }
+    // имя провайдера
+    @Override public abstract String name(); 
+        
 	// перечислить хранилища объектов
 	@Override public abstract String[] enumerateStores(Scope scope); 
     // получить хранилище объекта

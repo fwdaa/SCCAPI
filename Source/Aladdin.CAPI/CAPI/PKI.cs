@@ -205,8 +205,9 @@ namespace Aladdin.CAPI
 		// Создать сертификат X.509
 		///////////////////////////////////////////////////////////////////////
 		public static Certificate CreateCertificate(IRand rand, 
-			ASN1.IEncodable issuer, Math.BigInteger serial, ASN1.IEncodable subject, 
-			ASN1.ISO.PKIX.SubjectPublicKeyInfo publicKeyInfo, DateTime notBefore, DateTime notAfter, 
+			ASN1.IEncodable issuer, ASN1.Integer serial, ASN1.IEncodable subject, 
+			ASN1.ISO.PKIX.SubjectPublicKeyInfo publicKeyInfo, 
+            DateTime notBefore, DateTime notAfter, 
 			ASN1.ISO.AlgorithmIdentifier signParameters, IPrivateKey privateKey, 
             ASN1.ISO.PKIX.Extension[] extensions)
 		{
@@ -229,8 +230,8 @@ namespace Aladdin.CAPI
 			); 
 			// создать информацию сертификата
 			ASN1.ISO.PKIX.TBSCertificate tbsCertificate = new ASN1.ISO.PKIX.TBSCertificate(
-                version, new ASN1.Integer(serial), signParameters, issuer, 
-				validity, subject, publicKeyInfo, null, null, exts
+                version, serial, signParameters, issuer, 
+                validity, subject, publicKeyInfo, null, null, exts
 			);
             // извлечь подписываемые данные
             byte[] data = tbsCertificate.Encoded;
@@ -258,7 +259,7 @@ namespace Aladdin.CAPI
         public static Certificate CreateCertificate(
             Factory factory, SecurityStore scope, IRand rand, 
             CertificateRequest certificateRequest, ASN1.IEncodable issuer, 
-			Math.BigInteger serial, DateTime notBefore, DateTime notAfter, 
+			ASN1.Integer serial, DateTime notBefore, DateTime notAfter, 
 			ASN1.ISO.AlgorithmIdentifier signParameters, IPrivateKey privateKey, 
             ASN1.ISO.PKIX.CE.AuthorityKeyIdentifier authorityKeyIdentifier)
 		{
@@ -314,8 +315,9 @@ namespace Aladdin.CAPI
                     hashAlgorithm.HashData(publicKeyBits, 1, publicKeyBits.Length - 1)
                 );
                 // указать серийный номер сертификата
-                if (serial == null) serial = new Math.BigInteger(keyIdentifier.Value); 
-                 
+                if (serial == null) serial = new ASN1.Integer(
+                    new Math.BigInteger(1, keyIdentifier.Value)
+                ); 
                 // добавить расширение
                 listExtensions.Add(new ASN1.ISO.PKIX.Extension(
                     new ASN1.ObjectIdentifier(ASN1.ISO.PKIX.OID.ce_subjectKeyIdentifier), 
@@ -417,8 +419,7 @@ namespace Aladdin.CAPI
 		// Создать самоподписанный сертификат X.509
 		///////////////////////////////////////////////////////////////////////
 		public static Certificate CreateSelfSignedCertificate(
-			IRand rand, Math.BigInteger serial, ASN1.IEncodable subject, 
-			ASN1.ISO.AlgorithmIdentifier signParameters, 
+			IRand rand, ASN1.IEncodable subject, ASN1.ISO.AlgorithmIdentifier signParameters, 
             IPublicKey publicKey, IPrivateKey privateKey, 
             DateTime notBefore, DateTime notAfter, ASN1.ISO.PKIX.Extensions extensions)
         {
@@ -440,7 +441,7 @@ namespace Aladdin.CAPI
                     hashAlgorithm.HashData(publicKeyBits, 1, publicKeyBits.Length - 1)
                 ); 
                 // указать серийный номер сертификата
-                if (serial == null) serial = new Math.BigInteger(keyIdentifier.Value); 
+                ASN1.Integer serial = new ASN1.Integer(new Math.BigInteger(1, keyIdentifier.Value)); 
 
                 // указать имя издателя
                 ASN1.ISO.PKIX.GeneralNames issuer = new ASN1.ISO.PKIX.GeneralNames(
@@ -459,17 +460,17 @@ namespace Aladdin.CAPI
             }
         }
 		public static Certificate CreateSelfSignedCertificate(
-			IRand rand, Math.BigInteger serial, ASN1.IEncodable subject, 
-            ASN1.ISO.AlgorithmIdentifier signParameters, IPublicKey publicKey, 
-            IPrivateKey privateKey, DateTime notBefore, DateTime notAfter, KeyUsage keyUsage, 
-            String[] extKeyUsage, ASN1.ISO.PKIX.CE.BasicConstraints basicConstraints, 
+			IRand rand, ASN1.IEncodable subject, ASN1.ISO.AlgorithmIdentifier signParameters, 
+            IPublicKey publicKey, IPrivateKey privateKey, 
+            DateTime notBefore, DateTime notAfter, KeyUsage keyUsage, String[] extKeyUsage, 
+            ASN1.ISO.PKIX.CE.BasicConstraints basicConstraints, 
             ASN1.ISO.PKIX.CE.CertificatePolicies policies, ASN1.ISO.PKIX.Extensions extensions)
 		{
             // объединить расширения
             extensions = AddExtensions(extensions, keyUsage, extKeyUsage, basicConstraints, policies); 
 
             // создать самоподписанный сертификат
-            return CreateSelfSignedCertificate(rand, serial, subject, signParameters, 
+            return CreateSelfSignedCertificate(rand, subject, signParameters, 
                 publicKey, privateKey, notBefore, notAfter, extensions
             ); 
 		}

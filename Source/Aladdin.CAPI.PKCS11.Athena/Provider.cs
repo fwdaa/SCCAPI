@@ -33,7 +33,7 @@ namespace Aladdin.CAPI.PKCS11.Athena
 	    // создать алгоритм генерации ключей
 	    protected override CAPI.KeyPairGenerator CreateGenerator(
             CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand) 
+            IRand rand, string keyOID, IParameters parameters) 
         {
             // проверить тип параметров
             if (keyOID == ASN1.ANSI.OID.x962_ec_public_key)
@@ -48,11 +48,11 @@ namespace Aladdin.CAPI.PKCS11.Athena
                     if (applet == null) return null; 
 
                     // создать алгоритм генерации ключей
-                    return new X962.KeyPairGenerator(applet, scope, ecParameters, rand); 
+                    return new X962.KeyPairGenerator(applet, scope, rand, ecParameters); 
                 }
             }
             // вызвать базовую функцию
-            return base.CreateGenerator(factory, scope, keyOID, parameters, rand); 
+            return base.CreateGenerator(factory, scope, rand, keyOID, parameters); 
         }
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(CAPI.Factory factory, 

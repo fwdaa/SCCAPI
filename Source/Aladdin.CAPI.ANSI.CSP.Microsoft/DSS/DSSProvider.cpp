@@ -415,7 +415,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::GetPrivateKey(
 Aladdin::CAPI::KeyPairGenerator^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::CreateGenerator(
 	Factory^ factory, SecurityObject^ scope, 
-	String^ keyOID, IParameters^ parameters, IRand^ rand)
+	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
 	// проверить тип параметров
 	if (keyOID == ASN1::ANSI::OID::x957_dsa) 

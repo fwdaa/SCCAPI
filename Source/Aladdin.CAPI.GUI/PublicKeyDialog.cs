@@ -8,8 +8,8 @@ namespace Aladdin.CAPI.GUI
 	///////////////////////////////////////////////////////////////////////////
 	public partial class PublicKeyDialog : Form
 	{
-        private CryptoEnvironment   environment;    // криптографическая среда 
-        private IPublicKey          publicKey;      // открытый ключ
+        private CryptoEnvironment environment; // криптографическая среда
+        private IPublicKey        publicKey;   // открытый ключ
 
 		public PublicKeyDialog(CryptoEnvironment environment, IPublicKey publicKey) 
         { 
@@ -21,8 +21,8 @@ namespace Aladdin.CAPI.GUI
         private void OnLoad(object sender, EventArgs e)
         {
             // определить имя ключа
-            string keyName = environment.GetKeyName(publicKey.KeyOID);  
-
+            string keyName = environment.GetKeyName(publicKey.KeyOID); 
+                
             // указать имя ключа
             textBoxOID.Text = String.Format("{0} ({1})", keyName, publicKey.KeyOID);
             try { 

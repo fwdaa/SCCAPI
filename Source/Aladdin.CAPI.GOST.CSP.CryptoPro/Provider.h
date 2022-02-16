@@ -63,12 +63,6 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 		// создать алгоритм шифрования ГОСТ 28147-89
 		public: CAPI::CSP::BlockCipher^ CreateGOST28147(String^ paramOID); 
 
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<SecretKeyFactory^>^ SecretKeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<SecretKeyFactory^> { GOST::Keys::GOST28147::Instance	}; 
-		}
 	    // поддерживаемые фабрики кодирования ключей
 		public: virtual array<KeyFactory^>^ KeyFactories() override; 
 

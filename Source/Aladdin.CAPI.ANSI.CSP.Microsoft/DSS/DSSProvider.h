@@ -15,16 +15,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		// конструктор
 		public: Provider(DWORD type, String^ name, bool sspi) : Microsoft::Provider(type, name, sspi) {}
 
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<SecretKeyFactory^>^ SecretKeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<SecretKeyFactory^> { 
-				ANSI::Keys::RC2 ::Instance, ANSI::Keys::RC4 ::Instance, 
-				ANSI::Keys::DES ::Instance, ANSI::Keys::DESX::Instance, 
-				ANSI::Keys::TDES::Instance
-			}; 
-		}
 		// вернуть тип ключа
 		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(
 			SecretKeyFactory^ keyFactory, DWORD keySize) override;
@@ -68,7 +58,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		// создать алгоритм генерации ключей
 		public protected: virtual KeyPairGenerator^ CreateGenerator(
 			Factory^ outer, SecurityObject^ scope, 
-			String^ keyOID, IParameters^ parameters, IRand^ rand) override; 
+			IRand^ rand, String^ keyOID, IParameters^ parameters) override; 
 
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(

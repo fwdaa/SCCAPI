@@ -12,6 +12,9 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public abstract class Container extends SecurityObject implements IClient
 {
+    // функция фильтра
+    public static interface Predicate { boolean test(Container container); }; 
+    
 	// конструктор
 	public Container(ContainerStore store, Object name) { super(store); this.name = name; } 
 
@@ -130,7 +133,7 @@ public abstract class Container extends SecurityObject implements IClient
 
         // получить алгоритм генерации ключей
         try (KeyPairGenerator generator = provider().createGenerator(
-            this, keyOID, parameters, rand))
+            this, rand, keyOID, parameters))
         {  
 	        // проверить наличие алгоритма
 	        if (generator == null) throw new UnsupportedOperationException();

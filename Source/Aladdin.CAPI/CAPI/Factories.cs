@@ -11,17 +11,17 @@ namespace Aladdin.CAPI
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
 	public class Factories : Factory, IEnumerable<Factory>
 	{
-		// фабрики алгоритмов
+		// фабрики алгоритмов и провайдеры алгоритмов
         private List<Factory> factories; private List<CryptoProvider> providers;
 
 		// конструктор
-		public Factories(params Factory[] factories) 
+		public Factories(bool software, params Factory[] factories) 
             
             // сохранить переданные параметры
-            : this((IEnumerable<Factory>)factories) {}
+            : this(software, (IEnumerable<Factory>)factories) {}
 
 		// конструктор
-		public Factories(IEnumerable<Factory> factories)
+		public Factories(bool software, IEnumerable<Factory> factories)
 		{
 			// создать список фабрик
             this.factories = new List<Factory>(); 
@@ -30,9 +30,9 @@ namespace Aladdin.CAPI
             this.providers = new List<CryptoProvider>(); 
 
             // заполнить списки фабрик и провайдеров
-            FillFactories(factories); 
+            FillFactories(software, factories); 
 		}
-        private void FillFactories(IEnumerable<Factory> factories)
+        private void FillFactories(bool software, IEnumerable<Factory> factories)
         {
             // для всех фабрик алгоритмов
             foreach (Factory factory in factories)
@@ -41,14 +41,14 @@ namespace Aladdin.CAPI
                 if (factory is IEnumerable<Factory>)
                 {
                     // перечислить фабрики набора
-                    FillFactories((IEnumerable<Factory>)factory);
+                    FillFactories(software, (IEnumerable<Factory>)factory);
                 }
                 else { 
                     // добавить фабрику в список
                     this.factories.Add(RefObject.AddRef(factory)); 
 
                     // для криптографического провайдера
-                    if (factory is CryptoProvider)
+                    if (!software && (factory is CryptoProvider))
                     {
                         // добавить провайдер в список
                         this.providers.Add((CryptoProvider)factory); 
@@ -113,100 +113,27 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Поддерживаемые ключи
         ///////////////////////////////////////////////////////////////////////
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-        { 
-            // поддерживаемые ключи
-            return SecretKeyFactories(null); 
-        }
-	    public SecretKeyFactory[] SecretKeyFactories(FactoryFilter filter) 
-        { 
-            // создать список поддерживаемых ключей
-            List<SecretKeyFactory> keyFactories = new List<SecretKeyFactory>(); 
-        
-            // для всех фабрик алгоритмов
-            foreach (Factory factory in factories)
-            {
-                // для допустимой фабрики
-                if (filter == null || filter.IsMatch(factory))
-                {
-                    // добавить поддерживаемые ключи
-                    keyFactories.AddRange(factory.SecretKeyFactories()); 
-                }
-            }
-            // вернуть список поддерживаемых ключей
-            return keyFactories.ToArray(); 
-        }
 	    public override KeyFactory[] KeyFactories() 
         { 
-            // поддерживаемые ключи
-            return KeyFactories(null); 
-        }
-	    public KeyFactory[] KeyFactories(FactoryFilter filter) 
-        { 
             // создать список поддерживаемых ключей
-            List<KeyFactory> keyFactories = new List<KeyFactory>(); 
+            Dictionary<String, KeyFactory> keyFactories = new Dictionary<String, KeyFactory>(); 
         
             // для всех фабрик алгоритмов
             foreach (Factory factory in factories)
             {
-                // для допустимой фабрики
-                if (filter == null || filter.IsMatch(factory))
+                // для всех фабрик ключей
+                foreach (KeyFactory keyFactory in factory.KeyFactories())
                 {
-                    // добавить поддерживаемые ключи
-                    keyFactories.AddRange(factory.KeyFactories()); 
-                }
-            }
-            // вернуть список поддерживаемых ключей
-            return keyFactories.ToArray(); 
-        }
-	    ///////////////////////////////////////////////////////////////////////
-        // Используемые алгоритмы по умолчанию
-	    ///////////////////////////////////////////////////////////////////////
-        public override Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            // получить алгоритмы по умолчанию
-            return GetCulture(scope, null, keyOID); 
-        }
-        public Culture GetCulture(SecurityStore scope, FactoryFilter filter, string keyOID) 
-        {
-            if (scope == null || scope is Software.ContainerStore)
-            {
-                // указать фильтр программных фабрик
-                FactoryFilter softwareFilter = new FactoryFilter.Software(filter);
-
-                // для всех фабрик алгоритмов
-                foreach (Factory factory in factories)
-                {
-                    // для допустимой фабрики
-                    if (softwareFilter.IsMatch(factory))
+                    // при отсутствии фабрики ключей
+                    if (!keyFactories.ContainsKey(keyFactory.KeyOID))
                     {
-                        // получить алгоритмы по умолчанию
-                        Culture culture = factory.GetCulture(scope, keyOID); 
-                
-                        // проверить наличие алгоритмов
-                        if (culture != null) return culture; 
+                        // добавить фабрику ключей
+                        keyFactories.Add(keyFactory.KeyOID, keyFactory); 
                     }
                 }
             }
-            else {
-                // указать фильтр провайдеров
-                FactoryFilter providerFilter = new FactoryFilter.Provider(filter);
-
-                // для всех фабрик алгоритмов
-                foreach (Factory factory in factories)
-                {
-                    // для допустимой фабрики
-                    if (providerFilter.IsMatch(factory))
-                    {
-                        // получить алгоритмы по умолчанию
-                        Culture culture = factory.GetCulture(scope, keyOID); 
-                
-                        // проверить наличие алгоритмов
-                        if (culture != null) return culture; 
-                    }
-                }
-            }
-            return null; 
+            // создать список фабрик
+            return new List<KeyFactory>(keyFactories.Values).ToArray(); 
         }
 	    ///////////////////////////////////////////////////////////////////////
         // Используемые алгоритмы по умолчанию
@@ -224,57 +151,69 @@ namespace Aladdin.CAPI
             }
             return null; 
         }
+	    ///////////////////////////////////////////////////////////////////////
+        // Используемые алгоритмы по умолчанию
+	    ///////////////////////////////////////////////////////////////////////
+        public override Culture GetCulture(SecurityStore scope, string keyOID) 
+        {
+            // для всех программных фабрик алгоритмов
+            if (scope == null) foreach (Factory factory in factories)
+            {
+                // проверить тип фабрики
+                if (factory is CryptoProvider) continue; 
+
+                // получить алгоритмы по умолчанию
+                Culture culture = factory.GetCulture(scope, keyOID); 
+                
+                // проверить наличие алгоритмов
+                if (culture != null) return culture; 
+            }
+            // для провайдера алгоритмов
+            else if (scope.Provider is CryptoProvider)
+            { 
+                // выполнить преобразование типа
+                CryptoProvider provider = (CryptoProvider)scope.Provider; 
+
+                // получить алгоритмы по умолчанию
+                Culture culture = provider.GetCulture(scope, keyOID); 
+                
+                // проверить наличие алгоритмов
+                if (culture != null) return culture; 
+            }
+            return null; 
+        }
         ///////////////////////////////////////////////////////////////////////
         // Создать алгоритм генерации ключей
         ///////////////////////////////////////////////////////////////////////
         protected internal override KeyPairGenerator CreateAggregatedGenerator(
-            Factory outer, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand)
-		{
-            // создать алгоритм генерации ключей
-            return CreateAggregatedGenerator(outer, scope, null, keyOID, parameters, rand); 
-		}
-        protected internal KeyPairGenerator CreateAggregatedGenerator(
-            Factory outer, SecurityObject scope, FactoryFilter filter, 
-            string keyOID, IParameters parameters, IRand rand)
+            Factory outer, SecurityObject scope, IRand rand, 
+            string keyOID, IParameters parameters)
         {
-            // для программных алгоритмов
-            if (scope == null || scope is Software.Container)
+            // для всех программных фабрик алгоритмов
+            if (scope == null) foreach (Factory factory in factories)
             {
-                // указать фильтр программных фабрик
-                FactoryFilter softwareFilter = new FactoryFilter.Software(filter);
+                // проверить тип фабрики
+                if (factory is CryptoProvider) continue; 
 
-                // для всех фабрик алгоритмов
-                foreach (Factory factory in factories)
-                {
-                    // для допустимой фабрики
-                    if (softwareFilter.IsMatch(factory))
-                    {
-                        // создать алгоритм генерации ключей
-                        KeyPairGenerator generator = factory.CreateAggregatedGenerator(
-                            outer, scope, keyOID, parameters, rand
-                        );
-                        // проверить наличие алгоритма
-                        if (generator != null) return generator;
-                    }
-                }
+                // создать алгоритм генерации ключей
+                KeyPairGenerator generator = factory.CreateAggregatedGenerator(
+                    outer, scope, rand, keyOID, parameters
+                );
+                // проверить наличие алгоритма
+                if (generator != null) return generator;
             }
-            // указать фильтр провайдеров
-            FactoryFilter providerFilter = new FactoryFilter.Provider(filter);
+            // для провайдера алгоритмов
+            else if (scope.Provider is CryptoProvider)
+            { 
+                // выполнить преобразование типа
+                CryptoProvider provider = (CryptoProvider)scope.Provider; 
 
-            // для всех фабрик алгоритмов
-            foreach (Factory factory in factories)
-            {
-                // для допустимой фабрики
-                if (providerFilter.IsMatch(factory))
-                {
-                    // создать алгоритм генерации ключей
-                    KeyPairGenerator generator = factory.CreateAggregatedGenerator(
-                        outer, scope, keyOID, parameters, rand
-                    );
-                    // проверить наличие алгоритма
-                    if (generator != null) return generator;
-                }
+                // создать алгоритм генерации ключей
+                KeyPairGenerator generator = provider.CreateAggregatedGenerator(
+                    outer, scope, rand, keyOID, parameters
+                );
+                // проверить наличие алгоритма
+                if (generator != null) return generator;
             }
             return null; 
         }
@@ -284,53 +223,34 @@ namespace Aladdin.CAPI
         protected internal override IAlgorithm CreateAggregatedAlgorithm(
             Factory outer, SecurityStore scope, 
             ASN1.ISO.AlgorithmIdentifier parameters, Type type)
-		{
-            // создать алгоритм
-            return CreateAggregatedAlgorithm(outer, scope, null, parameters, type); 
-		}
-        protected internal IAlgorithm CreateAggregatedAlgorithm(
-            Factory outer, SecurityStore scope, FactoryFilter filter,
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
         {
-            // для программных алгоритмов
-            if (scope == null || scope is Software.ContainerStore)
+            // для всех программных фабрик алгоритмов
+            if (scope == null) foreach (Factory factory in factories)
             {
-                // указать фильтр программных фабрик
-                FactoryFilter softwareFilter = new FactoryFilter.Software(filter);
-
-                // для всех фабрик алгоритмов
-                foreach (Factory factory in factories)
-                {
-                    // для допустимой фабрики
-                    if (softwareFilter.IsMatch(factory))
-                    {
-                        // создать алгоритм
-                        IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
-                            outer, scope, parameters, type
-                        );
-                        // проверить наличие алгоритма
-                        if (algorithm != null) return algorithm;
-                    }
-                }
+                // проверить тип фабрики
+                if (factory is CryptoProvider) continue; 
+                
+                // создать алгоритм
+                IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
+                    outer, scope, parameters, type
+                );
+                // проверить наличие алгоритма
+                if (algorithm != null) return algorithm;
             }
-            // указать фильтр провайдеров
-            FactoryFilter providerFilter = new FactoryFilter.Provider(filter);
+            // для провайдера алгоритмов
+            else if (scope.Provider is CryptoProvider)
+            { 
+                // выполнить преобразование типа
+                CryptoProvider provider = (CryptoProvider)scope.Provider; 
 
-            // для всех фабрик алгоритмов
-            foreach (Factory factory in factories)
-            {
-                // для допустимой фабрики
-                if (providerFilter.IsMatch(factory))
-                {
-                    // создать алгоритм
-                    IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
-                        outer, scope, parameters, type
-                    );
-                    // проверить наличие алгоритма
-                    if (algorithm != null) return algorithm;
-                }
+                // создать алгоритм
+                IAlgorithm algorithm = provider.CreateAggregatedAlgorithm(
+                    outer, scope, parameters, type
+                );
+                // проверить наличие алгоритма
+                if (algorithm != null) return algorithm;
             }
-            return null;
+            return null; 
         }
     }
 }

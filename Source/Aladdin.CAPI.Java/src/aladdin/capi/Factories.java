@@ -11,19 +11,28 @@ import java.io.*;
 public class Factories extends Factory implements Iterable<Factory>
 {
     // фабрики алгоритмов
-    private final List<Factory> factories;
+    private final List<Factory> factories; private final List<CryptoProvider> providers;
 
 	// конструктор
-	public Factories(Factory... factories) { this(Arrays.asList(factories)); }
-    
+	public Factories(boolean software, Factory... factories) 
+    { 
+        // сохранить переданные параметры
+        this(software, Arrays.asList(factories)); 
+    }
 	// конструктор
-	public Factories(Iterable<Factory> factories)
+	public Factories(boolean software, Iterable<Factory> factories)
 	{
+		// создать список фабрик алгоритмов
+		this.factories = new ArrayList<Factory>(); 
+        
+        // создать список провайдеров
+        this.providers = new ArrayList<CryptoProvider>(); 
+        
 		// заполнить список фабрик алгоритмов
-		this.factories = new ArrayList<Factory>(); fillFactories(factories);
+        fillFactories(software, factories);
 	}
     @SuppressWarnings({"unchecked"}) 
-    private void fillFactories(Iterable<Factory> factories)
+    private void fillFactories(boolean software, Iterable<Factory> factories)
     {
         // для всех фабрик алгоритмов
         for (Factory factory : factories)
@@ -32,10 +41,19 @@ public class Factories extends Factory implements Iterable<Factory>
             if (factory instanceof Iterable)
             {
                 // перечислить фабрики набора
-                fillFactories((Iterable<Factory>)factory);
+                fillFactories(software, (Iterable<Factory>)factory);
             }
-            // добавить фабрику в список
-            else this.factories.add(RefObject.addRef(factory)); 
+            else {
+                // добавить фабрику в список
+                this.factories.add(RefObject.addRef(factory)); 
+                
+                // для криптографического провайдера
+                if (!software && (factory instanceof CryptoProvider))
+                {
+                    // добавить провайдер в список
+                    this.providers.add((CryptoProvider)factory); 
+                }
+            }
         }
     }
     // освободить используемые ресурсы
@@ -54,6 +72,29 @@ public class Factories extends Factory implements Iterable<Factory>
     // Свойства набора фабрик
     ///////////////////////////////////////////////////////////////////////
     
+    // криптографические провайдеры
+    public final List<CryptoProvider> providers() { return providers; } 
+
+    // группы провайдеров
+    public final List<CryptoProvider> providerGroups() 
+    { 
+        // создать список провайдеров
+        List<CryptoProvider> providers = new ArrayList<CryptoProvider>(); 
+
+        // создать список групп
+        List<String> groups = new ArrayList<String>(); 
+
+        // для всех провайдеров
+        for (CryptoProvider provider : this.providers)
+        {
+            // проверить отсутствие группы
+            if (groups.contains(provider.group())) continue; 
+
+            // добавить провайдер
+            providers.add(provider); groups.add(provider.group()); 
+        }
+        return providers; 
+    } 
     // перечислитель внутренних фабрик
 	@Override public java.util.Iterator<Factory> iterator() { return factories.iterator(); }
     
@@ -68,99 +109,42 @@ public class Factories extends Factory implements Iterable<Factory>
     ///////////////////////////////////////////////////////////////////////
 	@Override public SecretKeyFactory[] secretKeyFactories() 
     { 
-        // поддерживаемые ключи
-        return secretKeyFactories(null); 
-    }
-	public SecretKeyFactory[] secretKeyFactories(FactoryFilter filter) 
-    { 
         // создать список поддерживаемых ключей
         List<SecretKeyFactory> keyFactories = new ArrayList<SecretKeyFactory>(); 
         
         // для всех фабрик алгоритмов
         for (Factory factory : factories)
         {
-            // для допустимой фабрики
-            if (filter == null || filter.isMatch(factory))
-            {
-                // добавить поддерживаемые ключи
-                keyFactories.addAll(Arrays.asList(factory.secretKeyFactories())); 
-            }
+            // добавить поддерживаемые ключи
+            keyFactories.addAll(Arrays.asList(factory.secretKeyFactories())); 
         }
         // вернуть список поддерживаемых ключей
         return keyFactories.toArray(new SecretKeyFactory[keyFactories.size()]); 
     }
 	@Override public KeyFactory[] keyFactories() 
     { 
-        // поддерживаемые ключи
-        return keyFactories(null); 
-    }
-	public KeyFactory[] keyFactories(FactoryFilter filter) 
-    { 
         // создать список поддерживаемых ключей
-        List<KeyFactory> keyFactories = new ArrayList<KeyFactory>(); 
+        Map<String, KeyFactory> keyFactories = new HashMap<String, KeyFactory>(); 
         
         // для всех фабрик алгоритмов
         for (Factory factory : factories)
         {
-            // для допустимой фабрики
-            if (filter == null || filter.isMatch(factory))
+            // для всех фабрик ключей
+            for (KeyFactory keyFactory : factory.keyFactories())
             {
-                // добавить поддерживаемые ключи
-                keyFactories.addAll(Arrays.asList(factory.keyFactories())); 
-            }
-        }
-        // вернуть список поддерживаемых ключей
-        return keyFactories.toArray(new KeyFactory[keyFactories.size()]); 
-    }
-	///////////////////////////////////////////////////////////////////////
-    // Используемые алгоритмы по умолчанию
-	///////////////////////////////////////////////////////////////////////
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        return getCulture(scope, null, keyOID); 
-    }
-    public Culture getCulture(SecurityStore scope, FactoryFilter filter, String keyOID) 
-    {
-        // для программных алгоритмов
-        if (scope == null || scope instanceof aladdin.capi.software.ContainerStore)
-        {
-            // указать фильтр программных фабрик
-            FactoryFilter softwareFilter = new FactoryFilter.Software(filter);
-
-            // для всех фабрик алгоритмов
-            for (Factory factory : factories)
-            {
-                // для допустимой фабрики
-                if (softwareFilter.isMatch(factory))
+                // при отсутствии фабрики ключей
+                if (!keyFactories.containsKey(keyFactory.keyOID()))
                 {
-                    // получить алгоритмы по умолчанию
-                    Culture culture = factory.getCulture(scope, keyOID); 
-
-                    // проверить наличие алгоритмов
-                    if (culture != null) return culture; 
+                    // добавить фабрику ключей
+                    keyFactories.put(keyFactory.keyOID(), keyFactory); 
                 }
             }
         }
-        else {
-            // указать фильтр провайдеров
-            FactoryFilter providerFilter = new FactoryFilter.Provider(filter);
-
-            // для всех фабрик алгоритмов
-            for (Factory factory : factories)
-            {
-                // для допустимой фабрики
-                if (providerFilter.isMatch(factory))
-                {
-                    // получить алгоритмы по умолчанию
-                    Culture culture = factory.getCulture(scope, keyOID); 
-
-                    // проверить наличие алгоритмов
-                    if (culture != null) return culture; 
-                }
-            }
-        }
-        return null; 
+        // получить список фабрик
+        Collection<KeyFactory> collection = keyFactories.values(); 
+        
+        // вернуть список фабрик
+        return collection.toArray(new KeyFactory[collection.size()]); 
     }
 	///////////////////////////////////////////////////////////////////////
     // Используемые алгоритмы по умолчанию
@@ -178,111 +162,104 @@ public class Factories extends Factory implements Iterable<Factory>
         }
         return null; 
     }
+	///////////////////////////////////////////////////////////////////////
+    // Используемые алгоритмы по умолчанию
+	///////////////////////////////////////////////////////////////////////
+    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
+    {
+        // для всех программных фабрик алгоритмов
+        if (scope == null) for (Factory factory : factories)
+        {
+            // проверить тип фабрики
+            if (factory instanceof CryptoProvider) continue; 
+
+            // получить алгоритмы по умолчанию
+            Culture culture = factory.getCulture(scope, keyOID); 
+                
+            // проверить наличие алгоритмов
+            if (culture != null) return culture; 
+        }
+        // для провайдера алгоритмов
+        else if (scope.provider() instanceof CryptoProvider)
+        { 
+            // выполнить преобразование типа
+            CryptoProvider provider = (CryptoProvider)scope.provider(); 
+
+            // получить алгоритмы по умолчанию
+            Culture culture = provider.getCulture(scope, keyOID); 
+                
+            // проверить наличие алгоритмов
+            if (culture != null) return culture; 
+        }
+        return null; 
+    }
     ///////////////////////////////////////////////////////////////////////
     // Создать алгоритм генерации ключей
     ///////////////////////////////////////////////////////////////////////
-    @Override protected KeyPairGenerator createAggregatedGenerator(
-        Factory outer, SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException
-	{
-        // создать алгоритм генерации ключей
-        return createAggregatedGenerator(outer, scope, null, keyOID, parameters, rand); 
-	}
-    public final KeyPairGenerator createAggregatedGenerator(
-        Factory outer, SecurityObject scope, FactoryFilter filter,
-        String keyOID, IParameters parameters, IRand rand) throws IOException
+    @Override public KeyPairGenerator createAggregatedGenerator(
+        Factory outer, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
     {
-        // для программных алгоритмов
-        if (scope == null || scope instanceof aladdin.capi.software.Container)
+        // для всех программных фабрик алгоритмов
+        if (scope == null) for (Factory factory : factories)
         {
-            // указать фильтр программных фабрик
-            FactoryFilter softwareFilter = new FactoryFilter.Software(filter);
+            // проверить тип фабрики
+            if (factory instanceof CryptoProvider) continue; 
 
-            // для всех фабрик алгоритмов
-            for (Factory factory : factories)
-            {
-                // для допустимой фабрики
-                if (softwareFilter.isMatch(factory))
-                {
-                    // создать алгоритм генерации ключей
-                    KeyPairGenerator generator = factory.createAggregatedGenerator(
-                        outer, scope, keyOID, parameters, rand
-                    );
-                    // проверить наличие алгоритма
-                    if (generator != null) return generator;
-                }
-            }
+            // создать алгоритм генерации ключей
+            KeyPairGenerator generator = factory.createAggregatedGenerator(
+                outer, scope, rand, keyOID, parameters
+            );
+            // проверить наличие алгоритма
+            if (generator != null) return generator;
         }
-        // указать фильтр провайдеров
-        FactoryFilter providerFilter = new FactoryFilter.Provider(filter);
+        // для провайдера алгоритмов
+        else if (scope.provider() instanceof CryptoProvider)
+        { 
+            // выполнить преобразование типа
+            CryptoProvider provider = (CryptoProvider)scope.provider(); 
 
-        // для всех фабрик алгоритмов
-        for (Factory factory : factories)
-        {
-            // для допустимой фабрики
-            if (providerFilter.isMatch(factory))
-            {
-                // создать алгоритм генерации ключей
-                KeyPairGenerator generator = factory.createAggregatedGenerator(
-                    outer, scope, keyOID, parameters, rand
-                );
-                // проверить наличие алгоритма
-                if (generator != null) return generator;
-            }
+            // создать алгоритм генерации ключей
+            KeyPairGenerator generator = provider.createAggregatedGenerator(
+                outer, scope, rand, keyOID, parameters
+            );
+            // проверить наличие алгоритма
+            if (generator != null) return generator;
         }
         return null; 
     }
     ///////////////////////////////////////////////////////////////////////
     // Создать алгоритм
     ///////////////////////////////////////////////////////////////////////
-    @Override protected IAlgorithm createAggregatedAlgorithm(Factory outer, 
+    @Override public IAlgorithm createAggregatedAlgorithm(Factory outer, 
         SecurityStore scope, AlgorithmIdentifier parameters, 
         Class<? extends IAlgorithm> type) throws IOException
-	{
-        // создать алгоритм
-        return createAggregatedAlgorithm(outer, scope, null, parameters, type); 
-	}
-    public final IAlgorithm createAggregatedAlgorithm(Factory outer, 
-        SecurityStore scope, FactoryFilter filter, AlgorithmIdentifier parameters, 
-        Class<? extends IAlgorithm> type) throws IOException
     {
-        // для программных алгоритмов
-        if (scope == null || scope instanceof aladdin.capi.software.ContainerStore)
+        // для всех программных фабрик алгоритмов
+        if (scope == null) for (Factory factory : factories)
         {
-            // указать фильтр программных фабрик
-            FactoryFilter softwareFilter = new FactoryFilter.Software(filter);
-
-            // для всех фабрик алгоритмов
-            for (Factory factory : factories)
-            {
-                // для допустимой фабрики
-                if (softwareFilter.isMatch(factory))
-                {
-                    // создать алгоритм
-                    IAlgorithm algorithm = factory.createAggregatedAlgorithm(
-                        outer, scope, parameters, type
-                    );
-                    // проверить наличие алгоритма
-                    if (algorithm != null) return algorithm;
-                }
-            }
+            // проверить тип фабрики
+            if (factory instanceof CryptoProvider) continue; 
+                
+            // создать алгоритм
+            IAlgorithm algorithm = factory.createAggregatedAlgorithm(
+                outer, scope, parameters, type
+            );
+            // проверить наличие алгоритма
+            if (algorithm != null) return algorithm;
         }
-        // указать фильтр провайдеров
-        FactoryFilter providerFilter = new FactoryFilter.Provider(filter);
+        // для провайдера алгоритмов
+        else if (scope.provider() instanceof CryptoProvider)
+        { 
+            // выполнить преобразование типа
+            CryptoProvider provider = (CryptoProvider)scope.provider(); 
 
-        // для всех фабрик алгоритмов
-        for (Factory factory : factories)
-        {
-            // для допустимой фабрики
-            if (providerFilter.isMatch(factory))
-            {
-                // создать алгоритм
-                IAlgorithm algorithm = factory.createAggregatedAlgorithm(
-                    outer, scope, parameters, type
-                );
-                // проверить наличие алгоритма
-                if (algorithm != null) return algorithm;
-            }
+            // создать алгоритм
+            IAlgorithm algorithm = provider.createAggregatedAlgorithm(
+                outer, scope, parameters, type
+            );
+            // проверить наличие алгоритма
+            if (algorithm != null) return algorithm;
         }
         return null; 
     }

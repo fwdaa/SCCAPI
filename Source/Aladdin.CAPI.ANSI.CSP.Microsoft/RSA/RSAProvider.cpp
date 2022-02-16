@@ -224,7 +224,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::GetPrivateKey(
 Aladdin::CAPI::KeyPairGenerator^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateGenerator(
 	Factory^ factory, SecurityObject^ scope, 
-	String^ keyOID, IParameters^ parameters, IRand^ rand)
+	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
 	// проверить идентификатор параметров
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)

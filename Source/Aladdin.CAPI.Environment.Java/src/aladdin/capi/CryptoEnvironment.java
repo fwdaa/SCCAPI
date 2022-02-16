@@ -64,7 +64,7 @@ public class CryptoEnvironment extends ExecutionContext
         catch (Throwable e) {}
         
         // объединить фабрики алгоритмов
-        try { this.factories = new Factories(factories); }
+        try { this.factories = new Factories(false, factories); }
         finally { 
             // освободить выделенные ресурсы
             for (Factory factory : factories) RefObject.release(factory);
@@ -173,14 +173,14 @@ public class CryptoEnvironment extends ExecutionContext
         // создать провайдер PKCS12
         try (CryptoProvider provider = createPKCS12Provider())
         { 
-            // указать провайдер PKCS12
-            List<Factory> factories = new ArrayList<Factory>(); factories.add(provider);
+            // создать список фабрик алгоритмов
+            List<Factory> factories = new ArrayList<Factory>(); 
 
-            // скопировать фабрики алгоритмов
-            factories.addAll(Arrays.asList(this.factories)); 
+            // заполнить список фабрик 
+            factories.add(provider); factories.addAll(Arrays.asList(this.factories)); 
             
             // вернуть обобщенную фабрику
-            return new Factories(factories.toArray(new Factory[factories.size()])); 
+            return new Factories(false, factories.toArray(new Factory[factories.size()])); 
         }
     }
     // фабрика алгоритмов
@@ -265,7 +265,7 @@ public class CryptoEnvironment extends ExecutionContext
     ///////////////////////////////////////////////////////////////////////
     // Создать контейнер в памяти
     ///////////////////////////////////////////////////////////////////////
-    public Container createMemoryContainer(IRand rand, 
+/*    public Container createMemoryContainer(IRand rand, 
         MemoryStream stream, String keyOID, String password) throws IOException
 	{
         // получить способ использования ключа
@@ -290,4 +290,5 @@ public class CryptoEnvironment extends ExecutionContext
             }
         }
  	}
+*/
 }

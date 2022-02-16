@@ -1090,7 +1090,7 @@ namespace Aladdin.CAPI
 
                         // создать алгоритм генерации ключей
                         using (KeyPairGenerator generator = factory.CreateGenerator(
-                            null, publicKey.KeyOID, publicKey.Parameters, rand))
+                            null, rand, publicKey.KeyOID, publicKey.Parameters))
                         {  
                             // сгенерировать эфемерную пару ключей
                             using (KeyPair keyPair = generator.Generate(null, 

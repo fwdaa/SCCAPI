@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -65,7 +64,7 @@ namespace Aladdin.CAPI
             catch {}
 
             // объединить фабрики алгоритмов
-            try { this.factories = new Factories(factories.ToArray()); }
+            try { this.factories = new Factories(false, factories.ToArray()); }
             finally { 
                 // освободить выделенные ресурсы
                 foreach (Factory factory in factories) RefObject.Release(factory);
@@ -173,11 +172,14 @@ namespace Aladdin.CAPI
             // создать провайдер PKCS12
             using (CryptoProvider provider = CreatePKCS12Provider())
             { 
-                // указать провайдер PKCS12
-                List<Factory> factories = new List<Factory>(); factories.Add(provider);
+                // создать список фабрик
+                List<Factory> factories = new List<Factory>(); 
 
-                // скопировать фабрики алгоритмов и создать обобщенную фабрику
-                factories.AddRange(this.factories); return new Factories(factories.ToArray()); 
+                // заполнить список фабрик
+                factories.Add(provider); factories.AddRange(this.factories); 
+
+                // создать обобщенную фабрику
+                return new Factories(false, factories.ToArray()); 
             }
         }
         // фабрика алгоритмов
@@ -259,34 +261,5 @@ namespace Aladdin.CAPI
             // создать генератор случайных данных
             return new Rand(window); 
         }
-        ///////////////////////////////////////////////////////////////////////
-        // Создать контейнер в памяти
-        ///////////////////////////////////////////////////////////////////////
-		public Container CreateMemoryContainer(
-            IRand rand, MemoryStream stream, string keyOID, string password)
-		{
-            // получить способ использования ключа
-            KeyUsage keyUsage = factories.GetKeyFactory(keyOID).GetKeyUsage(); 
-
-            // создать провайдер PKCS12
-            using (PKCS12.CryptoProvider provider = CreatePKCS12Provider())
-            { 
-                // получить параметры ключа 
-                IParameters keyParameters = GetParameters(rand, keyOID, keyUsage); 
-
-                // создать контейнер
-                using (Container container = provider.CreateMemoryContainer(
-                    rand, stream, password, keyOID))
-                {
-                    // сгенерировать ключи в контейнере
-                    using (KeyPair keyPair = container.GenerateKeyPair(
-                        rand, null, keyOID, keyParameters, keyUsage, KeyFlags.None)) 
-                    { 
-                        // вернуть контейнер
-                        return RefObject.AddRef(container); 
-                    }
-                }
-            }
- 		}
 	}
 }

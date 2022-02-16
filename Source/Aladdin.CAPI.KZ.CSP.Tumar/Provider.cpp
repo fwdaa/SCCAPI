@@ -249,7 +249,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::GetPrivateKey(
 Aladdin::CAPI::KeyPairGenerator^ 
 Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateGenerator(
 	CAPI::Factory^ outer, SecurityObject^ scope, 
-	String^ keyOID, IParameters^ parameters, IRand^ rand)
+	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
 	// в зависимости от идентификатора
     if (keyOID == ASN1::KZ::OID::gamma_key_rsa_1024     || 

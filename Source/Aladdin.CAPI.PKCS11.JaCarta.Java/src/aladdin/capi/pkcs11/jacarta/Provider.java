@@ -168,18 +168,18 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
 	// создать алгоритм генерации ключей
     @Override
 	protected aladdin.capi.KeyPairGenerator createGenerator(
-        Factory factory, SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException
+        Factory factory, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
     {
         // создать алгоритм генерации ключей
         aladdin.capi.KeyPairGenerator generator = 
-            gostProvider.createGenerator(scope, keyOID, parameters, rand); 
+            gostProvider.createGenerator(scope, rand, keyOID, parameters); 
         
         // проверить наличие генератора
         if (generator != null) return generator; 
 
         // вызвать базовую функцию
-        return super.createGenerator(factory, scope, keyOID, parameters, rand); 
+        return super.createGenerator(factory, scope, rand, keyOID, parameters); 
     }
 	// создать алгоритм для параметров
     @Override

@@ -15,7 +15,6 @@ namespace Aladdin.CAPI.GUI
 		// функция проверки допустимости контейнера
 		public delegate Object Callback(Form form, SecurityInfo info); 
 
-		private CryptoEnvironment            environment;	    // криптографическая среда
 		private OpenFileDialog		         certificateDialog;	// диалог выбора сертификата
 		private SaveFileDialog		         requestDialog;		// диалог выбора запроса
 		private Remoting.RemoteClientControl listener;		    // поток прослушивания
@@ -25,8 +24,8 @@ namespace Aladdin.CAPI.GUI
 		private SecurityInfo info; private object result;
 
 		// отобразить диалог
-		public static object Show(IWin32Window parent, CryptoEnvironment environment, 
-            IEnumerable<CryptoProvider> providers, Callback callback)
+		public static object Show(IWin32Window parent, 
+            CryptoEnvironment environment, Callback callback)
 		{
 			// указать начальный каталог
 			string selectedPath = System.Environment.GetFolderPath(
@@ -54,25 +53,28 @@ namespace Aladdin.CAPI.GUI
 			requestDialog.Title  = Resource.TitleSaveRequestFile;
 			requestDialog.Filter = Resource.FilterRequestFile;
 
-			// создать диалог выбора контейнера
-			ContainersDialog dialog = new ContainersDialog(
-                environment, providers, callback, certificateDialog, requestDialog
-			); 
-            // отобразить диалог
-            DialogResult result = ModalView.Show(parent, dialog); 
+			// указать используемые фабрики алгоритмов
+			using (Factories factories = environment.EnumerateFactories())
+			{ 
+				// создать диалог выбора контейнера
+				ContainersDialog dialog = new ContainersDialog(
+					environment, factories.Providers, 
+					callback, certificateDialog, requestDialog
+				); 
+				// отобразить диалог
+				DialogResult result = ModalView.Show(parent, dialog); 
 
-			// проверить результат диалога
-			if (result == DialogResult.OK) return dialog.Result;
-
+				// проверить результат диалога
+				if (result == DialogResult.OK) return dialog.Result;
+			}
 			// при ошибке выбросить исключение
 			throw new OperationCanceledException();
 		}
-		internal ContainersDialog(CryptoEnvironment environment,
-            IEnumerable<CryptoProvider> providers, Callback callback, 
-            OpenFileDialog certificateDialog, SaveFileDialog requestDialog) 
+		internal ContainersDialog(CryptoEnvironment environment, IEnumerable<CryptoProvider> providers, 
+			Callback callback, OpenFileDialog certificateDialog, SaveFileDialog requestDialog) 
 		{ 
 			// сохранить переданные параметры
-			InitializeComponent(); this.environment = environment; this.callback = callback;
+			InitializeComponent(); this.callback = callback;
 
 			// сохранить переданные параметры
 			this.certificateDialog = certificateDialog; this.requestDialog = requestDialog;
@@ -81,7 +83,7 @@ namespace Aladdin.CAPI.GUI
 			foreach (CryptoProvider provider in providers)
 			{
 				// добавить страницу закладок
-				tabControl.TabPages.Add(CreateTabPage(tabTemplate, provider));
+				tabControl.TabPages.Add(CreateTabPage(tabTemplate, environment, provider));
  			}
 			// удалить фиктивную страницу
 			tabControl.TabPages.Remove(tabTemplate); Refresh(); listener = null; 
@@ -103,14 +105,13 @@ namespace Aladdin.CAPI.GUI
 			// завершить поток прослушивания считывателей
 			base.OnClosed(e); if (listener != null) listener.Dispose();  
 		}
-        // криптографическая среда
-        public CryptoEnvironment Environment { get { return environment; }}	    
-
-		private TabPage CreateTabPage(TabPage template, CryptoProvider provider)
+		private TabPage CreateTabPage(TabPage template, 
+			CryptoEnvironment environment, CryptoProvider provider)
 		{
 			// создать страницу для провайдера
-			ContainersView containersView = new ContainersView(this, provider, certificateDialog, requestDialog); 
-
+			ContainersView containersView = new ContainersView(
+				this, environment, provider, certificateDialog, requestDialog
+			); 
 			// указать провайдер для страницы
 			TabPage tabPage = new TabPage(); tabPage.Location = template.Location; 
 

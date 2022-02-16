@@ -33,8 +33,6 @@ namespace Aladdin.CAPI
             RefObject.Release(outer); RefObject.Release(factory); base.OnDispose();
         }
         // поддерживаемые ключи
-        public override SecretKeyFactory[] SecretKeyFactories() { return outer.SecretKeyFactories(); }
-        // поддерживаемые ключи
         public override KeyFactory[] KeyFactories() { return outer.KeyFactories(); }
 
         public override Culture GetCulture(SecurityStore scope, string keyOID) 
@@ -60,10 +58,10 @@ namespace Aladdin.CAPI
             return outer.GetCulture(parameters, keyOID); 
         }
         public override KeyPairGenerator CreateGenerator(
-            SecurityObject scope, string keyOID, IParameters parameters, IRand rand)
+            SecurityObject scope, IRand rand, string keyOID, IParameters parameters)
         {
             // создать алгоритм генерации ключей
-            return factory.CreateGenerator(this, scope, keyOID, parameters, rand);
+            return factory.CreateGenerator(this, scope, rand, keyOID, parameters);
         }
         public override IAlgorithm CreateAlgorithm(
             SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type)

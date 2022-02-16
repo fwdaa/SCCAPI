@@ -20,22 +20,19 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
     private final IPBECultureFactory cultureFactory; 
     
 	// конструктор
-	public CryptoProvider(IPBECultureFactory cultureFactory, Factories factories) 
+	public CryptoProvider(ExecutionContext executionContext, Iterable<Factory> factories) 
     { 
         // сохранить переданные параметры
-        super(factories, "PKCS12", EXTENSIONS); 
+        super(factories, executionContext, "PKCS12", EXTENSIONS); 
         
         // сохранить парольную защиту
-        this.cultureFactory = RefObject.addRef(cultureFactory); 
+        this.cultureFactory = RefObject.addRef(executionContext); 
     }
 	// конструктор
-	public CryptoProvider(IPBECultureFactory cultureFactory, Iterable<Factory> factories) 
+	public CryptoProvider(Iterable<Factory> factories, IRandFactory randFactory) 
     { 
         // сохранить переданные параметры
-        super(factories, "PKCS12", EXTENSIONS); 
-        
-        // сохранить парольную защиту
-        this.cultureFactory = RefObject.addRef(cultureFactory); 
+        super(factories, randFactory, "PKCS12", EXTENSIONS); this.cultureFactory = null; 
     }
     // освободить выделенные ресурсы
     @Override protected void onClose() throws IOException   

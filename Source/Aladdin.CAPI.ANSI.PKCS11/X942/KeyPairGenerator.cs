@@ -16,7 +16,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11.X942
 
 	    // конструктор
 	    public KeyPairGenerator(CAPI.PKCS11.Applet applet, SecurityObject scope, 
-            ANSI.X942.IParameters parameters, IRand rand)
+            IRand rand, ANSI.X942.IParameters parameters)
 	    
 		    // сохранить переданные параметры
 		    : base(applet, scope, rand) { this.parameters = parameters; }

@@ -12,9 +12,9 @@ public class KeyPairGenerator extends aladdin.capi.ansi.pkcs11.x962.KeyPairGener
     public KeyPairGenerator(Applet applet, SecurityObject scope, 
 
         // сохранить переданные параметры
-        aladdin.capi.ansi.x962.Parameters parameters, IRand rand) throws IOException
+        IRand rand, aladdin.capi.ansi.x962.Parameters parameters) throws IOException
     {
         // сохранить переданные параметры
-        super(applet, scope, parameters, rand); 
+        super(applet, scope, rand, parameters); 
     }
 }

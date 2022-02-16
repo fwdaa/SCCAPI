@@ -10,12 +10,13 @@ namespace Aladdin.CAPI.GUI.Nodes
 	///////////////////////////////////////////////////////////////////////////
 	internal class ProviderScopeNode : ConsoleForm.Node
 	{
-		private CryptoEnvironment  environment;    // криптографическая среда
-		private CryptoProvider     provider;	   // информация о провайдере
-		private Scope              scope;	       // область видимости
+		private CryptoEnvironment environment;	// криптографическая среда
+		private CryptoProvider	  provider;		// информация о провайдере
+		private Scope			  scope;		// область видимости
 		
 		// конструктор
-		public ProviderScopeNode(CryptoEnvironment environment, CryptoProvider provider, Scope scope) 
+		public ProviderScopeNode(CryptoEnvironment environment, 
+			CryptoProvider provider, Scope scope) 
 		{ 
 			// сохранить переданные данные
 			this.environment = environment; this.provider = provider; this.scope = scope; 

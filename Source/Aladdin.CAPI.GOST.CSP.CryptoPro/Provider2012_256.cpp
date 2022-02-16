@@ -15,7 +15,7 @@
 Aladdin::CAPI::KeyPairGenerator^ 
 Aladdin::CAPI::GOST::CSP::CryptoPro::Provider2012_256::CreateGenerator(
 	CAPI::Factory^ factory, SecurityObject^ scope, 
-	String^ keyOID, IParameters^ parameters, IRand^ rand)
+	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
 	// проверить тип параметров
 	if (keyOID == ASN1::GOST::OID::gostR3410_2001)

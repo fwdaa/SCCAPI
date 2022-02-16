@@ -15,7 +15,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11.RSA
 
 	    // конструктор
 	    public KeyPairGenerator(CAPI.PKCS11.Applet applet, SecurityObject scope, 
-            ANSI.RSA.IParameters parameters, IRand rand, ulong algID)
+            IRand rand, ANSI.RSA.IParameters parameters, ulong algID)
 	    
 		    // сохранить переданные параметры
 		    : base(applet, scope, rand) { this.parameters = parameters; this.algID = algID; }

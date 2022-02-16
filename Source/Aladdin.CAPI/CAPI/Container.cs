@@ -131,7 +131,7 @@ namespace Aladdin.CAPI
 
             // получить алгоритм генерации ключей
             using (KeyPairGenerator generator = Provider.CreateGenerator(
-                this, keyOID, parameters, rand))
+                this, rand, keyOID, parameters))
             {  
                 // проверить наличие алгоритма
 	            if (generator == null) throw new NotSupportedException();

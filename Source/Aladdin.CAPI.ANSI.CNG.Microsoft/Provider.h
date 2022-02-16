@@ -14,16 +14,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// конструктор/деструктор
 		protected: Provider(String^ name); public: virtual ~Provider(); 
 
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<SecretKeyFactory^>^ SecretKeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<SecretKeyFactory^> { 
-				ANSI::Keys::RC2 ::Instance, ANSI::Keys::RC4 ::Instance, 
-				ANSI::Keys::DES ::Instance, ANSI::Keys::DESX::Instance, 
-				ANSI::Keys::TDES::Instance, ANSI::Keys::AES ::Instance
-			}; 
-		}
 	    // поддерживаемые фабрики кодирования ключей
 		public: virtual array<KeyFactory^>^ KeyFactories() override; 
 
@@ -64,7 +54,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// создать алгоритм генерации ключей
 		public protected: virtual KeyPairGenerator^ CreateGenerator(
 			CAPI::Factory^ outer, SecurityObject^ scope, 
-			String^ keyOID, IParameters^ parameters, IRand^ rand) override; 
+			IRand^ rand, String^ keyOID, IParameters^ parameters) override; 
 
 		// cоздать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(

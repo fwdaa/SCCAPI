@@ -67,11 +67,11 @@ public final class AggregatedFactory extends Factory
         return outer.getCulture(parameters, keyOID); 
     }
     @Override public KeyPairGenerator createGenerator(
-        SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException
+        SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
     {
         // создать алгоритм генерации ключей
-        return factory.createGenerator(this, scope, keyOID, parameters, rand);
+        return factory.createGenerator(this, scope, rand, keyOID, parameters);
     }
     @Override public IAlgorithm createAlgorithm(
         SecurityStore scope, AlgorithmIdentifier parameters, 

@@ -343,7 +343,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::ImportKeyPair(
 Aladdin::CAPI::KeyPairGenerator^ 
 Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateGenerator(
 	CAPI::Factory^ factory, SecurityObject^ scope, 
-	String^ keyOID, IParameters^ parameters, IRand^ rand)
+	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
 	// проверить тип параметров
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)

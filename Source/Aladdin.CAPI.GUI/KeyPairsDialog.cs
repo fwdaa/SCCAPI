@@ -15,42 +15,47 @@ namespace Aladdin.CAPI.GUI
 		// функция проверки допустимости контейнера
 		public delegate Object Callback(Form form, CryptoProvider provider, ContainerKeyPair keyPair); 
 
-        private CryptoEnvironment            environment;   // криптографическая среда 
-		private Callback	                 callback;	    // функция проверки допустимости
-		private Remoting.RemoteClientControl listener;	    // поток прослушивания
+		private Callback	                 callback;	  // функция проверки допустимости
+		private Remoting.RemoteClientControl listener;	  // поток прослушивания
 
         // выбранный элемент и значение функции обратного вызова
 		private ContainerKeyPair keyPair; private object result;
 
 		// отобразить диалог
-		public static object Show(IWin32Window parent, CryptoEnvironment environment,
-            IEnumerable<CryptoProvider> providers, 
-            Predicate<ContainerKeyPair> filter, Callback callback)
+		public static object Show(IWin32Window parent, 
+            CryptoEnvironment environment, 
+			Predicate<ContainerKeyPair> filter, Callback callback)
 		{
-			// создать диалог выбора контейнера
-			KeyPairsDialog dialog = new KeyPairsDialog(environment, providers, filter, callback); 
+			// указать используемые фабрики алгоритмов
+			using (Factories factories = environment.EnumerateFactories())
+			{ 
+				// создать диалог выбора контейнера
+				KeyPairsDialog dialog = new KeyPairsDialog(
+					environment, factories.Providers, filter, callback
+				); 
+				// отобразить диалог
+				DialogResult result = ModalView.Show(parent, dialog); 
 
-            // отобразить диалог
-            DialogResult result = ModalView.Show(parent, dialog); 
-
-			// проверить результат диалога
-			if (result == DialogResult.OK) return dialog.Result;
-
+				// проверить результат диалога
+				if (result == DialogResult.OK) return dialog.Result;
+			}
 			// при ошибке выбросить исключение
 			throw new OperationCanceledException();
 		}
         internal KeyPairsDialog(CryptoEnvironment environment, 
-            IEnumerable<CryptoProvider> providers, 
+			IEnumerable<CryptoProvider> providers, 
             Predicate<ContainerKeyPair> filter, Callback callback)
 		{ 
 			// инициализировать дочерние элементы
-			InitializeComponent(); this.environment = environment; this.callback = callback;
+			InitializeComponent(); this.callback = callback;
 			
 			// для всех поддерживаемых провайдеров
 			foreach (CryptoProvider provider in providers)
 			{
 				// добавить страницу закладок
-				tabControl.TabPages.Add(CreateTabPage(tabTemplate, provider, filter));
+				tabControl.TabPages.Add(CreateTabPage(
+					tabTemplate, environment, provider, filter
+				));
  			}
 			// удалить фиктивную страницу
 			tabControl.TabPages.Remove(tabTemplate); listener = null; 
@@ -81,8 +86,8 @@ namespace Aladdin.CAPI.GUI
 			// завершить поток прослушивания считывателей
 			base.OnClosed(e); if (listener != null) listener.Dispose();  
 		}
-		private TabPage CreateTabPage(TabPage template, 
-            CryptoProvider provider, Predicate<ContainerKeyPair> filter)
+		private TabPage CreateTabPage(TabPage template, CryptoEnvironment environment, 
+			CryptoProvider provider, Predicate<ContainerKeyPair> filter)
 		{
 			// создать страницу для провайдера
 			KeyPairsView containersView = new KeyPairsView(this, environment, provider, filter); 

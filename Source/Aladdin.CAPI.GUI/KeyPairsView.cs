@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization; 
 using System.Windows.Forms;
-using System.Security; 
 using System.Security.Cryptography.X509Certificates;
 
 namespace Aladdin.CAPI.GUI
@@ -11,19 +10,19 @@ namespace Aladdin.CAPI.GUI
 	//////////////////////////////////////////////////////////////////////////////
 	public partial class KeyPairsView : UserControl
 	{
-		private KeyPairsDialog              parent;	        // родительский диалог
-        private CryptoEnvironment           environment;    // криптографическая среда
-		private CryptoProvider              provider;	    // криптографический провайдер
-		private Predicate<ContainerKeyPair> filter;	        // фильтр выбора ключей
+		private KeyPairsDialog              parent;	     // родительский диалог
+		private CryptoEnvironment			environment; // криптографическая среда
+		private CryptoProvider              provider;	 // криптографический провайдер
+		private Predicate<ContainerKeyPair> filter;	     // фильтр выбора ключей
 
 		public KeyPairsView(KeyPairsDialog parent, CryptoEnvironment environment, 
             CryptoProvider provider, Predicate<ContainerKeyPair> filter) 
 		{
 			// выполнить инициализацию
-			InitializeComponent(); this.parent = parent; this.environment = environment; 
+			InitializeComponent(); this.parent = parent; this.filter = filter; 
 			
 			// сохранить переданные параметры
-			this.provider = provider; this.filter = filter; 
+			this.environment = environment; this.provider = provider; 
 			
 			// создать элементы контекстного меню
 			ToolStripItem itemShow = new ToolStripMenuItem(Resource.MenuProperties, null, OnDoubleClick); 

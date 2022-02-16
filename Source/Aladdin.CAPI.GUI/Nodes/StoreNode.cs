@@ -11,20 +11,20 @@ namespace Aladdin.CAPI.GUI.Nodes
 	///////////////////////////////////////////////////////////////////////////
 	internal class StoreNode : ConsoleForm.Node
 	{
-		private CryptoEnvironment  environment; // криптографическая среда
-		private CryptoProvider     provider;	// криптографический провайдер
-        private Type               storeType;   // тип хранилища контейнеров
-		private SecurityInfo       storeInfo;   // информация хранилища
+		private CryptoEnvironment environment;	// криптографическая среда
+		private CryptoProvider	  provider;		// криптографический провайдер
+        private Type			  storeType;	// тип хранилища контейнеров
+		private SecurityInfo	  storeInfo;	// информация хранилища
 		
 		// конструктор
 		public StoreNode(CryptoEnvironment environment, 
-            CryptoProvider provider, Type storeType, SecurityInfo storeInfo) 
+			CryptoProvider provider, Type storeType, SecurityInfo storeInfo) 
 		{ 
 			// сохранить переданные данные
 			this.environment = environment; this.provider = provider; 
-            
+			
 			// сохранить переданные данные
-            this.storeType = storeType; this.storeInfo = storeInfo; 
+			this.storeType = storeType; this.storeInfo = storeInfo; 
 		} 
 		// отображаемые иконки
 		public override string GetIcon(ConsoleNode node) { return "Store.ico"; }
@@ -247,8 +247,8 @@ namespace Aladdin.CAPI.GUI.Nodes
 
 			// создать диалог импорта
 			KeyImpDialog dialogImport = new KeyImpDialog(
-                environment, provider, storeType, storeInfo, null
-            ); 
+				environment, provider, storeType, storeInfo, null
+			); 
 			// показать диалог импорта
 			if (dialogImport.ShowDialog(mainForm) == DialogResult.OK) node.Refresh(); 
 		}

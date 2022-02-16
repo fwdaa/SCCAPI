@@ -38,8 +38,8 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
 	// создать алгоритм генерации ключей
     @Override
 	protected aladdin.capi.KeyPairGenerator createGenerator(
-        Factory factory, SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException
+        Factory factory, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
     {
         // проверить тип параметров
         if (keyOID.equals(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY))
@@ -56,12 +56,12 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.pkcs11.athena.x962.KeyPairGenerator(
-                    applet, scope, ecParameters, rand
+                    applet, scope, rand, ecParameters
                 ); 
             }
         }
         // создать алгоритм генерации ключей
-        return super.createGenerator(factory, scope, keyOID, parameters, rand); 
+        return super.createGenerator(factory, scope, rand, keyOID, parameters); 
     }
     // создать алгоритм для параметров
     @Override protected IAlgorithm createAlgorithm(Factory factory, 

@@ -32,20 +32,6 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 		// интерфейс вызова функций
 		public override Module Module { get { return module; }} 
 
-        public override SecretKeyFactory[] SecretKeyFactories() 
-        {
-            // создать список фабрик кодирования
-            List<SecretKeyFactory> keyFactories = new List<SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования
-            keyFactories.AddRange(gostProvider.SecretKeyFactories()); 
-
-            // вызвать базовую функцию
-            keyFactories.AddRange(base.SecretKeyFactories()); 
-
-            // вернуть список фабрик
-            return keyFactories.ToArray(); 
-        }
         public override KeyFactory[] KeyFactories() 
         {
             // создать список фабрик кодирования
@@ -167,17 +153,17 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 	    // создать алгоритм генерации ключей
 	    protected override CAPI.KeyPairGenerator CreateGenerator(
             CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand) 
+            IRand rand, string keyOID, IParameters parameters) 
         {
             // создать алгоритм генерации ключей
             CAPI.KeyPairGenerator generator = gostProvider.CreateGenerator(
-                scope, keyOID, parameters, rand
+                scope, rand, keyOID, parameters
             ); 
             // проверить наличие генератора
             if (generator != null) return generator; 
 
             // вызвать базовую функцию
-            return base.CreateGenerator(factory, scope, keyOID, parameters, rand); 
+            return base.CreateGenerator(factory, scope, rand, keyOID, parameters); 
         }
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(

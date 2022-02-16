@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Security; 
 using System.Security.Cryptography.X509Certificates;
 using Aladdin.GUI;
 
@@ -13,13 +12,13 @@ namespace Aladdin.CAPI.GUI.Nodes
 	///////////////////////////////////////////////////////////////////////////
 	internal class KeyPairNode : ConsoleForm.Node
 	{
-		private CryptoEnvironment   environment;    // криптографическая среда
-        private CryptoProvider      provider;       // криптографический провайдер
-		private ContainerKeyPair    keyPair;        // информация о ключевой паре
+		private CryptoEnvironment environment; // криптографическая среда
+        private CryptoProvider    provider;    // криптографический провайдер
+		private ContainerKeyPair  keyPair;     // информация о ключевой паре
 
 		// конструктор
 		public KeyPairNode(CryptoEnvironment environment, 
-            CryptoProvider provider, ContainerKeyPair keyPair) 
+			CryptoProvider provider, ContainerKeyPair keyPair) 
 		{ 
 			// сохранить переданные данные
 			this.environment = environment; this.provider = provider; this.keyPair = keyPair;
@@ -163,7 +162,7 @@ namespace Aladdin.CAPI.GUI.Nodes
 					{ 
 						// создать самоподписанный сертификат
 						Certificate certificate = container.CreateSelfSignedCertificate( 
-							rand, keyPair.KeyID, dialog.Subject, dialog.NotBefore, dialog.NotAfter, null,  
+							rand, keyPair.KeyID, dialog.Subject, null, dialog.NotBefore, dialog.NotAfter,   
 							dialog.KeyUsage, dialog.ExtendedKeyUsage, dialog.BasicConstraints, null, null
 						); 
 						// сохранить измененную информацию

@@ -312,17 +312,11 @@ namespace Aladdin.CAPI.COM
                         provider.Name, keyPair.Info, keyPair.Certificate
                     ); 
                 }; 
-                // перечислить фабрики алгоритмов
-                using (Factories factories = environment.EnumerateFactories())
-                {
-					// указать используемое окно
-					IWin32Window window = Win32Window.FromHandle(hwnd); 
+				// указать используемое окно
+				IWin32Window window = Win32Window.FromHandle(hwnd); 
 
-			        // выбрать контейнер из списка
-			        return (PrivateKey)GUI.KeyPairsDialog.Show(
-                        window, environment, factories.Providers, keyFilter, callback
-                    ); 
-                }
+		        // выбрать контейнер из списка
+		        return (PrivateKey)GUI.KeyPairsDialog.Show(window, environment, keyFilter, callback); 
 			}
 			// восстановить культуру
 			finally { Thread.CurrentThread.CurrentUICulture = cultureThread; } 

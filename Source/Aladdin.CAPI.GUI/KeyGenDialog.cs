@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.ComponentModel;
 using Aladdin.GUI; 
 
 namespace Aladdin.CAPI.GUI
@@ -12,10 +10,10 @@ namespace Aladdin.CAPI.GUI
 	///////////////////////////////////////////////////////////////////////////
 	public partial class KeyGenDialog : Form
 	{
-		private CryptoEnvironment environment;	// криптографическая среда
-        private CryptoProvider    provider;     // криптографический провайдер
-        private Type              storeType;    // тип хранилища контейнеров
-		private SecurityInfo      storeInfo;	// информация хранилища
+        private CryptoEnvironment environment; // криптографическая среда
+        private CryptoProvider    provider;    // криптографический провайдер
+        private Type              storeType;   // тип хранилища контейнеров
+		private SecurityInfo      storeInfo;   // информация хранилища
 
 		// конструктор
 		public KeyGenDialog() { InitializeComponent(); }
@@ -62,8 +60,8 @@ namespace Aladdin.CAPI.GUI
                 foreach (string key in provider.GeneratedKeys(store))
                 {
                     // определить отображаемое имя ключа
-                    string keyName = environment.GetKeyName(key); if (key == keyName) continue; 
-
+                    string keyName = environment.GetKeyName(key); if (keyName == key) continue; 
+                    
                     // добавить ключ в список
                     comboBoxKeyOID.Items.Add(new KeyItem(keyName, key)); 
                 }

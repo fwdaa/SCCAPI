@@ -17,7 +17,7 @@ public class KeyPairGenerator extends aladdin.capi.pkcs11.KeyPairGenerator
 
 	// конструктор
 	public KeyPairGenerator(Applet applet, SecurityObject scope, 
-        aladdin.capi.gost.gostr3410.INamedParameters parameters, IRand rand)
+        IRand rand, aladdin.capi.gost.gostr3410.INamedParameters parameters)
 	{
 		// создать список атрибутов
 		super(applet, scope, rand); this.parameters = parameters; 

@@ -10,16 +10,6 @@ namespace Aladdin.CAPI.ANSI
 	    ///////////////////////////////////////////////////////////////////////
 	    // Поддерживаемые фабрики кодирования ключей
 	    ///////////////////////////////////////////////////////////////////////
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new SecretKeyFactory[] {
-                Keys.AES .Instance, Keys.TDES    .Instance, 
-                Keys.DESX.Instance, Keys.DES     .Instance, 
-                Keys.RC2 .Instance, Keys.RC4     .Instance, 
-                Keys.RC5 .Instance, Keys.Skipjack.Instance 
-            }; 
-	    }
 	    public override KeyFactory[] KeyFactories() 
 	    {
             // вернуть список фабрик
@@ -75,7 +65,7 @@ namespace Aladdin.CAPI.ANSI
 		///////////////////////////////////////////////////////////////////////
 		protected override KeyPairGenerator CreateGenerator(
             CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand)
+            IRand rand, string keyOID, IParameters parameters)
 		{
 			if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa) 
 			{

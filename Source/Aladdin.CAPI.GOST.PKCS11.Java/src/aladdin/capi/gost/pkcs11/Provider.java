@@ -225,8 +225,8 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     }
 	// создать алгоритм генерации ключей
 	@Override protected aladdin.capi.KeyPairGenerator createGenerator(
-        Factory factory, SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException
+        Factory factory, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
     {
         // проверить тип параметров
         if (keyOID.equals(OID.GOSTR3410_2001) || keyOID.equals(OID.GOSTR3410_2012_256))
@@ -246,7 +246,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.gost.pkcs11.gostr3410.KeyPairGenerator(
-                    applet, scope, gostParameters, rand
+                    applet, scope, rand, gostParameters
                 );
             }
         }
@@ -268,7 +268,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.gost.pkcs11.gostr3410.KeyPairGenerator(
-                    applet, scope, gostParameters, rand
+                    applet, scope, rand, gostParameters
                 );
             }
         }

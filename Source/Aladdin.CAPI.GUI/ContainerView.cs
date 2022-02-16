@@ -12,19 +12,19 @@ namespace Aladdin.CAPI.GUI
 	//////////////////////////////////////////////////////////////////////////////
 	public partial class ContainerView : UserControl
 	{
-		private ContainerDialog     parent;		    // родительский диалог
-		private CryptoEnvironment   environment;    // криптографическая среда
-        private CryptoProvider      provider;       // криптографический провайдер
-		private SecurityInfo        info;	        // информация о контейнере
+		private ContainerDialog		parent;		 // родительский диалог
+		private CryptoEnvironment	environment; // криптографическая среда
+        private CryptoProvider		provider;    // криптографический провайдер
+		private SecurityInfo		info;	     // информация о контейнере
 		
 		public ContainerView(ContainerDialog parent, 
-            CryptoEnvironment environment, CryptoProvider provider, SecurityInfo info) 
+			CryptoEnvironment environment, CryptoProvider provider, SecurityInfo info) 
 		{ 
 			// сохранить переданные параметры
-			InitializeComponent(); this.parent = parent; 
+			InitializeComponent(); this.parent = parent; this.info = info; 
             
 			// сохранить переданные параметры
-            this.environment = environment; this.provider = provider; this.info = info; 
+            this.environment = environment; this.provider = provider; 
 
 			// создать элементы контекстного меню
 			ToolStripItem itemShow    = new ToolStripMenuItem(Resource.MenuProperties,        null, OnDoubleClick       ); 
@@ -213,7 +213,7 @@ namespace Aladdin.CAPI.GUI
 					{ 
 						// создать самоподписанный сертификат
 						Certificate certificate = container.CreateSelfSignedCertificate(rand,  
-							keyPair.KeyID, dialog.Subject, dialog.NotBefore, dialog.NotAfter, null, 
+							keyPair.KeyID, dialog.Subject, null, dialog.NotBefore, dialog.NotAfter,  
 							dialog.KeyUsage, dialog.ExtendedKeyUsage, dialog.BasicConstraints, null, null
 						); 
 						// сохранить измененную информацию

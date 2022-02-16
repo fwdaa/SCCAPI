@@ -8,12 +8,6 @@ namespace Aladdin.CAPI
 	public abstract class Factory : RefObject
 	{
 	    // поддерживаемые фабрики кодирования ключей
-	    public virtual SecretKeyFactory[] SecretKeyFactories() 
-        { 
-	        // поддерживаемые фабрики кодирования ключей
-            return new SecretKeyFactory[0]; 
-        }
-	    // поддерживаемые фабрики кодирования ключей
 	    public virtual KeyFactory[] KeyFactories() { return new KeyFactory[0]; }
         
 	    // получить фабрику кодирования ключей
@@ -88,33 +82,32 @@ namespace Aladdin.CAPI
 
         // создать алгоритм генерации ключей
 		public virtual KeyPairGenerator CreateGenerator(
-            SecurityObject scope, string keyOID, IParameters parameters, IRand rand) 
+            SecurityObject scope, IRand rand, string keyOID, IParameters parameters) 
         { 
             // создать алгоритм генерации ключей
-            return CreateAggregatedGenerator(this, scope, keyOID, parameters, rand); 
+            return CreateAggregatedGenerator(this, scope, rand, keyOID, parameters); 
         }
 		protected internal virtual KeyPairGenerator CreateAggregatedGenerator(
-            Factory outer, SecurityObject scope, string keyOID, IParameters parameters, IRand rand) 
+            Factory outer, SecurityObject scope, IRand rand, string keyOID, IParameters parameters) 
         { 
             // создать агрегированную фабрику
             using (Factory factory = AggregatedFactory.Create(outer, this))
             {        
                 // создать алгоритм генерации ключей
-                return CreateGenerator(factory, scope, keyOID, parameters, rand); 
+                return CreateGenerator(factory, scope, rand, keyOID, parameters); 
             }
         }
         // создать алгоритм генерации ключей
 		protected internal virtual KeyPairGenerator CreateGenerator(
-            Factory factory, SecurityObject scope, string keyOID, 
-            IParameters parameters, IRand rand) { return null; }
+            Factory factory, SecurityObject scope, IRand rand, 
+            string keyOID, IParameters parameters) { return null; }
 
 	    // сгенерировать ключи в контейнере
         public KeyPair GenerateKeyPair(SecurityObject scope, IRand rand, 
-            byte[] keyID, string keyOID, IParameters parameters, 
-            KeyUsage keyUsage, KeyFlags keyFlags) 
+            byte[] keyID, string keyOID, IParameters parameters, KeyUsage keyUsage, KeyFlags keyFlags) 
 	    {
             // создать генератор ключей
-            using (KeyPairGenerator generator = CreateGenerator(scope, keyOID, parameters, rand))
+            using (KeyPairGenerator generator = CreateGenerator(scope, rand, keyOID, parameters))
             {
                 // проверить наличие генератора
                 if (generator == null) throw new NotSupportedException();

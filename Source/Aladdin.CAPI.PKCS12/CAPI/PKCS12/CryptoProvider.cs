@@ -12,22 +12,22 @@ namespace Aladdin.CAPI.PKCS12
         private PBE.IPBECultureFactory cultureFactory; 
 
 		// конструктор
-		public CryptoProvider(PBE.IPBECultureFactory cultureFactory, Factories factories) 
+		public CryptoProvider(ExecutionContext executionContext, IEnumerable<Factory> factories) 
 
             // сохранить переданные параметры
-            : base(factories, "PKCS12", new string[] { "p12", "pfx" }) 
+            : base(factories, executionContext, "PKCS12", new string[] { "p12", "pfx" }) 
         {
             // сохранить парольную защиту
             this.cultureFactory = RefObject.AddRef(cultureFactory); 
         }
 		// конструктор
-		public CryptoProvider(PBE.IPBECultureFactory cultureFactory, IEnumerable<Factory> factories) 
+		public CryptoProvider(IEnumerable<Factory> factories, IRandFactory randFactory) 
 
             // сохранить переданные параметры
-            : base(factories, "PKCS12", new string[] { "p12", "pfx" }) 
+            : base(factories, randFactory, "PKCS12", new string[] { "p12", "pfx" }) 
         {
             // сохранить парольную защиту
-            this.cultureFactory = RefObject.AddRef(cultureFactory); 
+            this.cultureFactory = null; 
         }
         // освободить выделенные ресурсы
         protected override void OnDispose()

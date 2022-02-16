@@ -354,8 +354,8 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     }
 	// создать алгоритм генерации ключей
 	@Override protected aladdin.capi.KeyPairGenerator createGenerator(
-        Factory factory, SecurityObject scope, 
-        String keyOID, IParameters parameters, IRand rand) throws IOException
+        Factory factory, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
     {
         // проверить тип параметров
         if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA))
@@ -373,7 +373,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
             {
                 // проверить наличие смарт-карты
                 if (applet != null) return new aladdin.capi.ansi.pkcs11.rsa.KeyPairGenerator(
-                    applet, scope, rsaParameters, rand, algID
+                    applet, scope, rand, rsaParameters, algID
                 );
             }
             // указать идентификатор алгоритма
@@ -388,7 +388,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.ansi.pkcs11.rsa.KeyPairGenerator(
-                    applet, scope, rsaParameters, rand, algID
+                    applet, scope, rand, rsaParameters, algID
                 );
             }
         }
@@ -408,7 +408,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.ansi.pkcs11.x942.KeyPairGenerator(
-                    applet, scope, dhParameters, rand
+                    applet, scope, rand, dhParameters
                 );
             }
         }
@@ -428,7 +428,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.ansi.pkcs11.x957.KeyPairGenerator(
-                    applet, scope, dsaParameters, rand
+                    applet, scope, rand, dsaParameters
                 );
             }
         }
@@ -448,7 +448,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 
                 // создать алгоритм генерации ключей
                 return new aladdin.capi.ansi.pkcs11.x962.KeyPairGenerator(
-                    applet, scope, ecParameters, rand
+                    applet, scope, rand, ecParameters
                 );
             }
         }

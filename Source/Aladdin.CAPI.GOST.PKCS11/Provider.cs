@@ -28,11 +28,6 @@ namespace Aladdin.CAPI.GOST.PKCS11
         // возможность генерации и импорта ключевой пары в памяти
         public override bool CanImportSessionPair(CAPI.PKCS11.Applet applet) { return canImport; } 
     
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new SecretKeyFactory[] { Keys.GOST28147.Instance }; 
-	    }
 	    public override KeyFactory[] KeyFactories() 
 	    {
             // вернуть список фабрик
@@ -207,7 +202,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 		// создать алгоритм генерации ключей
 		protected override CAPI.KeyPairGenerator CreateGenerator(
 			CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand)
+            IRand rand, string keyOID, IParameters parameters)
         {
 	        // проверить тип параметров
             if (keyOID == ASN1.GOST.OID.gostR3410_2001     || 
@@ -228,7 +223,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 
 	                // создать алгоритм генерации ключей
 	                return new GOST.PKCS11.GOSTR3410.KeyPairGenerator(
-                        applet, scope, gostParameters, rand
+                        applet, scope, rand, gostParameters
                     );
                 }
             }
@@ -250,7 +245,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 
 	                // создать алгоритм генерации ключей
 	                return new GOST.PKCS11.GOSTR3410.KeyPairGenerator(
-                        applet, scope, gostParameters, rand
+                        applet, scope, rand, gostParameters
                     );
                 }
             }

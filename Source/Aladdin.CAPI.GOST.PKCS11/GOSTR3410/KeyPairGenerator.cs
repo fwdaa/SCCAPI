@@ -14,7 +14,7 @@ namespace Aladdin.CAPI.GOST.PKCS11.GOSTR3410
 
 		// конструктор
 		public KeyPairGenerator(CAPI.PKCS11.Applet applet, SecurityObject scope, 
-			GOST.GOSTR3410.INamedParameters parameters, IRand rand)
+			IRand rand, GOST.GOSTR3410.INamedParameters parameters)
 
 			// сохранить переданные параметры
 			: base(applet, scope, rand) { this.parameters = parameters; }

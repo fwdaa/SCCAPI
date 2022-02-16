@@ -10,12 +10,12 @@ namespace Aladdin.CAPI.GUI
 	public partial class ContainerDialog : Form
 	{
 		// отображаемые диалоги
-		private OpenFileDialog certificateDialog;	// диалог выбора сертификата
-		private SaveFileDialog requestDialog;		// диалог выбора запроса
+		private OpenFileDialog certificateDialog; // диалог выбора сертификата
+		private SaveFileDialog requestDialog;	 // диалог выбора запроса
 
 		// показать дивалог
 		public static void Show(IWin32Window parent, 
-            CryptoEnvironment environment, CryptoProvider provider, SecurityInfo info)
+			CryptoEnvironment environment, CryptoProvider provider, SecurityInfo info)
 		{
 			// указать начальный каталог
 			string selectedPath = System.Environment.GetFolderPath(
@@ -51,11 +51,11 @@ namespace Aladdin.CAPI.GUI
             Aladdin.GUI.ModalView.Show(parent, dialog); 
 		}
 		internal ContainerDialog(CryptoEnvironment environment, CryptoProvider provider, 
-            SecurityInfo info, OpenFileDialog certificateDialog, SaveFileDialog requestDialog) 
+			SecurityInfo info, OpenFileDialog certificateDialog, SaveFileDialog requestDialog) 
 		{ 
 			// сохранить переданные параметры
 			InitializeComponent(); this.certificateDialog = certificateDialog; this.requestDialog = requestDialog; 
-            
+			
 			// создать страницу для провайдера
             ContainerView view = new ContainerView(this, environment, provider, info); 
 

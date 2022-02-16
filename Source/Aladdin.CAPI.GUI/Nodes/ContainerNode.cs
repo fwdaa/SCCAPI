@@ -11,21 +11,24 @@ namespace Aladdin.CAPI.GUI.Nodes
 	///////////////////////////////////////////////////////////////////////////
 	internal class ContainerNode : ConsoleForm.Node
 	{
-		private CryptoEnvironment   environment;    // криптографическая среда
-        private CryptoProvider      provider;       // криптографический провайдер
-        private Type                storeType;      // тип хранилища объекта
-		private SecurityInfo        storeInfo;      // информация хранилища
-		private SecurityInfo        containerInfo;  // информация контейнера
+		private CryptoEnvironment environment;	  // криптографическая среда
+        private CryptoProvider	  provider;       // криптографический провайдер
+        private Type			  storeType;      // тип хранилища объекта
+		private SecurityInfo	  storeInfo;      // информация хранилища
+		private SecurityInfo	  containerInfo;  // информация контейнера
 		
 		// конструктор
 		public ContainerNode(CryptoEnvironment environment, CryptoProvider provider, 
             Type storeType, SecurityInfo storeInfo, SecurityInfo containerInfo) 
 		{ 
 			// сохранить переданные данные
-			this.environment = environment; this.provider = provider; this.storeType = storeType; 
+			this.environment = environment; this.provider = provider; 
             
-            // определить способ аутентификации
-            this.storeInfo = storeInfo; this.containerInfo = containerInfo; 
+			// сохранить переданные данные
+            this.storeType = storeType; this.storeInfo = storeInfo; 
+			
+			// сохранить переданные данные
+			this.containerInfo = containerInfo; 
 		} 
 		// отображаемые иконки
 		public override string GetIcon(ConsoleNode node) { return "Container.ico"; }
@@ -179,8 +182,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
 			// создать диалог генерации 
-			KeyGenDialog dialogCreate = new KeyGenDialog(environment, 
-                provider, storeType, storeInfo, containerInfo.Name.ToString()
+			KeyGenDialog dialogCreate = new KeyGenDialog( 
+                environment, provider, storeType, 
+				storeInfo, containerInfo.Name.ToString()
             ); 
 			// показать диалог генерации
 			if (dialogCreate.ShowDialog(mainForm) == DialogResult.OK) node.Refresh(); 
@@ -191,9 +195,10 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
 			// создать диалог импорта
-			KeyImpDialog dialogImport = new KeyImpDialog(environment, 
-                provider, storeType, storeInfo, containerInfo.Name.ToString()
-            ); 
+			KeyImpDialog dialogImport = new KeyImpDialog( 
+				environment, provider, storeType, 
+				storeInfo, containerInfo.Name.ToString()
+			); 
 			// показать диалог импорта
 			if (dialogImport.ShowDialog(mainForm) == DialogResult.OK) node.Refresh(); 
 		}

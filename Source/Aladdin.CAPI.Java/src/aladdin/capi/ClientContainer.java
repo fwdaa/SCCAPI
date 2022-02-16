@@ -4,7 +4,6 @@ import aladdin.asn1.*;
 import aladdin.asn1.iso.*; 
 import aladdin.asn1.iso.pkix.*; 
 import aladdin.asn1.iso.pkix.ce.*; 
-import java.math.*; 
 import java.io.*; 
 import java.util.*; 
 
@@ -306,9 +305,6 @@ public class ClientContainer extends RefObject implements IClient
             // проверить наличие ключа
             if (publicKey == null) throw new NoSuchElementException(); 
             
-            // указать серийный номер сертификата
-            BigInteger serial = new BigInteger(keyID); 
-
 		    // получить личный ключ
 		    try (IPrivateKey privateKey = container.getPrivateKey(keyID)) 
             {
@@ -317,9 +313,9 @@ public class ClientContainer extends RefObject implements IClient
                 {
                     // создать самоподписанный сертификат
                     Certificate certificate = PKI.createSelfSignedCertificate(
-                        rebindRand, serial, subject, notBefore, notAfter, 
-                        publicKey, privateKey, signParameters, keyUsage, 
-                        extKeyUsages, basicConstraints, policies, extensions
+                        rebindRand, subject, signParameters, publicKey, privateKey, 
+                        notBefore, notAfter, keyUsage, extKeyUsages, 
+                        basicConstraints, policies, extensions
                     ); 
                     // записать сертификат в контейнер
                     container.setCertificate(keyID, certificate); return certificate; 
@@ -352,7 +348,7 @@ public class ClientContainer extends RefObject implements IClient
                 {
                     // сгенерировать запрос на сертификат
                     return PKI.createCertificationRequest(rebindRand, 
-                        subject, publicKey, privateKey, signParameters, extensions
+                        subject, signParameters, publicKey, privateKey, extensions
                     );
                 }
             }

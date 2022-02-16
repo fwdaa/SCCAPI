@@ -109,7 +109,7 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
         {
             // создать алгоритм генерации ключей
             try (aladdin.capi.KeyPairGenerator generator = factory.createGenerator(
-                null, keyOID, parameters, provider.getRand()))
+                null, provider.getRand(), keyOID, parameters))
             {
                 // проверить наличие алгоритма
                 if (generator == null) throw new UnsupportedOperationException(); 
@@ -133,7 +133,7 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
         {
             // создать алгоритм генерации ключей
             try (aladdin.capi.KeyPairGenerator generator = factory.createGenerator(
-                null, keyOID, parameters, rand))
+                null, rand, keyOID, parameters))
             {
                 // проверить наличие алгоритма
                 if (generator == null) throw new UnsupportedOperationException(); 

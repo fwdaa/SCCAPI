@@ -887,7 +887,7 @@ public class Container extends aladdin.capi.software.Container
         ); 
         // создать запрос на сертификат
         return PKI.createCertificationRequest(container.rand(), subject, 
-            publicKey, privateKey, signParameters, keyUsage, null, null, null, null
+            signParameters, publicKey, privateKey, keyUsage, null, null, null, null
         ); 
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Windows.Forms;
 
 namespace Aladdin.CAPI.GUI
@@ -10,15 +9,20 @@ namespace Aladdin.CAPI.GUI
 	public partial class ContainersView : UserControl
 	{
 		private ContainersDialog  parent;            // родительский диалог
+		private CryptoEnvironment environment;		 // криптографическая среда
 		private CryptoProvider    provider;		     // криптографический провайдер
 		private OpenFileDialog	  certificateDialog; // диалог выбора сертификата
 		private SaveFileDialog	  requestDialog;	 // диалог выбора запроса
 		
-		public ContainersView(ContainersDialog parent, CryptoProvider provider, 
+		public ContainersView(ContainersDialog parent, 
+			CryptoEnvironment environment, CryptoProvider provider, 
             OpenFileDialog certificateDialog, SaveFileDialog requestDialog) 
 		{
 			// выполнить инициализацию
-			InitializeComponent(); this.parent = parent; this.provider = provider;
+			InitializeComponent(); this.parent = parent; 
+			
+			// сохранить переданные параметры
+			this.environment = environment; this.provider = provider;
 			
 			// сохранить переданные параметры
 			this.certificateDialog = certificateDialog; this.requestDialog = requestDialog; 
@@ -79,7 +83,7 @@ namespace Aladdin.CAPI.GUI
 
 			// создать диалог контейнера
 			ContainerDialog dialog = new ContainerDialog(
-                parent.Environment, provider, info, certificateDialog, requestDialog
+                environment, provider, info, certificateDialog, requestDialog
 			); 
 			// отобразить диалог выбора контейнера
 			if (dialog.ShowDialog(parent) != DialogResult.OK) return; 

@@ -150,7 +150,7 @@ public final class Factory extends aladdin.capi.Factory
 	///////////////////////////////////////////////////////////////////////
 	@Override protected KeyPairGenerator createGenerator(
         aladdin.capi.Factory factory, SecurityObject scope, 
-        String keyOID, aladdin.capi.IParameters parameters, IRand rand)
+        IRand rand, String keyOID, aladdin.capi.IParameters parameters)
 	{
         // в зависимости от параметров
         if (keyOID.equals(OID.GOSTR3410_2001    ) || 

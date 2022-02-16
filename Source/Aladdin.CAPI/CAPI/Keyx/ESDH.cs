@@ -32,7 +32,7 @@ namespace Aladdin.CAPI.Keyx
         {
             // создать алгорим генерации ключей
             using (KeyPairGenerator generator = factory.CreateGenerator(
-                null, recipientPublicKeys[0].KeyOID, recipientPublicKeys[0].Parameters, rand))
+                null, rand, recipientPublicKeys[0].KeyOID, recipientPublicKeys[0].Parameters))
             {  
                 // сгенерировать эфемерную пару ключей
                 using (KeyPair keyPair = generator.Generate(null, 

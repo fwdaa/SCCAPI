@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Windows.Forms;
-using System.ComponentModel;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using Aladdin.GUI; 
 
 namespace Aladdin.CAPI.GUI
@@ -12,17 +10,18 @@ namespace Aladdin.CAPI.GUI
 	///////////////////////////////////////////////////////////////////////////
 	public partial class KeyImpDialog : Form
 	{
-		private CryptoEnvironment environment;	// криптографическая среда
-        private CryptoProvider    provider;     // криптографический провайдер
-        private Type              storeType;    // тип хранилища контейнеров
-		private SecurityInfo      storeInfo;	// информация хранилища
+		private CryptoEnvironment	environment;  // криптографическая среда
+        private CryptoProvider		provider;     // криптографический провайдер
+        private Type				storeType;    // тип хранилища контейнеров
+		private SecurityInfo		storeInfo;	  // информация хранилища
 
 		// конструктор
 		public KeyImpDialog() { InitializeComponent(); }
 
 		// конструктор
-		public KeyImpDialog(CryptoEnvironment environment, CryptoProvider provider, 
-            Type storeType, SecurityInfo storeInfo, string containerName)
+		public KeyImpDialog(CryptoEnvironment environment, 
+			CryptoProvider provider, Type storeType, 
+			SecurityInfo storeInfo, string containerName)
 		{
 			// сохранить переданные параметры
 			InitializeComponent(); this.environment = environment; 
@@ -132,16 +131,16 @@ namespace Aladdin.CAPI.GUI
 						); 
 					}
 				}; 
-                // перечислить фабрики алгоритмов
-                using (Factories factories = environment.EnumerateFactories())
-                { 
-			        // создать диалог выбора контейнера
-			        KeyPairsDialog dialog = new KeyPairsDialog(
-                        environment, factories.Providers, null, callback
-                    ); 
-			        // отобразить диалог выбора контейнера
-			        if (dialog.ShowDialog(this) != DialogResult.OK) return; 
-                }
+				// перечислить фабрики алгоритмов
+				using (Factories factories = environment.EnumerateFactories())
+				{ 
+					// создать диалог выбора контейнера
+					KeyPairsDialog dialog = new KeyPairsDialog(
+						environment, factories.Providers, null, callback
+					); 
+					// отобразить диалог выбора контейнера
+					if (dialog.ShowDialog(this) != DialogResult.OK) return; 
+				}
 				// получить сообщение
 				string message = Resource.StatusImportPair; 
 

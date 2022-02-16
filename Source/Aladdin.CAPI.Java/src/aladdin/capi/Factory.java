@@ -104,29 +104,28 @@ public abstract class Factory extends RefObject
     public abstract PBECulture getCulture(PBEParameters parameters, String keyOID); 
     
 	// создать алгоритм генерации ключей
-	public KeyPairGenerator createGenerator(
-        SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException 
+	public KeyPairGenerator createGenerator(SecurityObject scope, 
+        IRand rand, String keyOID, IParameters parameters) throws IOException 
     { 
         // создать алгоритм генерации ключей
-        return createAggregatedGenerator(this, scope, keyOID, parameters, rand); 
+        return createAggregatedGenerator(this, scope, rand, keyOID, parameters); 
     }
 	// создать алгоритм генерации ключей
 	protected KeyPairGenerator createAggregatedGenerator(
-        Factory outer, SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException 
+        Factory outer, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException 
     { 
         // создать агрегированную фабрику
         try (Factory factory = AggregatedFactory.create(outer, this))
         {       
             // создать алгоритм генерации ключей
-            return createGenerator(factory, scope, keyOID, parameters, rand); 
+            return createGenerator(factory, scope, rand, keyOID, parameters); 
         }
     }
 	// создать алгоритм генерации ключей
 	protected KeyPairGenerator createGenerator(
-        Factory factory, SecurityObject scope, String keyOID, 
-        IParameters parameters, IRand rand) throws IOException { return null; }
+        Factory factory, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException { return null; }
     
 	// сгенерировать ключи
 	public final KeyPair generateKeyPair(SecurityObject scope, 
@@ -134,7 +133,7 @@ public abstract class Factory extends RefObject
         KeyUsage keyUsage, KeyFlags keyFlags) throws IOException
 	{
         // создать генератор ключей
-        try (KeyPairGenerator generator = createGenerator(scope, keyOID, parameters, rand)) 
+        try (KeyPairGenerator generator = createGenerator(scope, rand, keyOID, parameters)) 
         {
             // проверить наличие генератора
             if (generator == null) throw new UnsupportedOperationException();

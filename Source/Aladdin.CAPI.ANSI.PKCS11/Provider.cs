@@ -43,15 +43,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             // тип структуры передачи параметров механизма PBKDF2
             get { return CAPI.PKCS11.PBE.PBKDF2.ParametersType.Params2; }
         }
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new SecretKeyFactory[] {
-                Keys.AES.Instance, Keys.TDES.Instance, 
-                Keys.DES.Instance, Keys.RC2 .Instance, 
-                Keys.RC4.Instance, Keys.RC5 .Instance 
-            }; 
-	    }
         public override KeyFactory[] KeyFactories() 
         {
             // вернуть список фабрик
@@ -338,7 +329,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 	    // создать алгоритм генерации ключей
 	    protected override KeyPairGenerator CreateGenerator(
             CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand) 
+            IRand rand, string keyOID, IParameters parameters) 
         {
             // проверить тип параметров
             if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
@@ -353,7 +344,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = FindApplet(scope, algID, 0, 0))
                 {
                     // проверить наличие смарт-карты
-                    if (applet != null) return new RSA.KeyPairGenerator(applet, scope, rsaParameters, rand, algID);
+                    if (applet != null) return new RSA.KeyPairGenerator(applet, scope, rand, rsaParameters, algID);
                 }
                 // указать идентификатор алгоритма
                 algID = API.CKM_RSA_X9_31_KEY_PAIR_GEN; 
@@ -365,7 +356,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (applet == null) return null; 
 
                     // создать алгоритм генерации ключей
-                    return new RSA.KeyPairGenerator(applet, scope, rsaParameters, rand, algID);
+                    return new RSA.KeyPairGenerator(applet, scope, rand, rsaParameters, algID);
                 }
             }
             // проверить тип параметров
@@ -381,7 +372,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (applet == null) return null; 
 
                     // создать алгоритм генерации ключей
-                    return new X942.KeyPairGenerator(applet, scope, dhParameters, rand);
+                    return new X942.KeyPairGenerator(applet, scope, rand, dhParameters);
                 }
             }
             // проверить тип параметров
@@ -397,7 +388,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (applet == null) return null; 
 
                     // создать алгоритм генерации ключей
-                    return new X957.KeyPairGenerator(applet, scope, dsaParameters, rand);
+                    return new X957.KeyPairGenerator(applet, scope, rand, dsaParameters);
                 }
             }
             // проверить тип параметров
@@ -413,7 +404,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (applet == null) return null; 
 
                     // создать алгоритм генерации ключей
-                    return new X962.KeyPairGenerator(applet, scope, ecParameters, rand); 
+                    return new X962.KeyPairGenerator(applet, scope, rand, ecParameters); 
                 }
             }
             return null; 

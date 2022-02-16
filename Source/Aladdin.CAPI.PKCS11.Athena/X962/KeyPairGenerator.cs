@@ -11,7 +11,7 @@ namespace Aladdin.CAPI.PKCS11.Athena.X962
 	    public KeyPairGenerator(CAPI.PKCS11.Applet applet, SecurityObject scope, 
 
             // сохранить переданные параметры
-            ANSI.X962.IParameters parameters, IRand rand) : base(applet, scope, parameters, rand) {}
+            IRand rand, ANSI.X962.IParameters parameters) : base(applet, scope, rand, parameters) {}
 
 		// сгенерировать пару ключей
 		public override KeyPair Generate(byte[] keyID, string keyOID, KeyUsage keyUsage, KeyFlags keyFlags)

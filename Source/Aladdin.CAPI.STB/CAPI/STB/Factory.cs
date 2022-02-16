@@ -17,13 +17,6 @@ namespace Aladdin.CAPI.STB
 	    ///////////////////////////////////////////////////////////////////////
 	    // Поддерживаемые фабрики кодирования ключей
 	    ///////////////////////////////////////////////////////////////////////
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new SecretKeyFactory[] {
-                STB .Keys.STB34101 .Instance, GOST.Keys.GOST28147.Instance 
-            }; 
-	    }
 	    public override KeyFactory[] KeyFactories() 
 	    {
             // вернуть список фабрик
@@ -110,7 +103,7 @@ namespace Aladdin.CAPI.STB
 	    ///////////////////////////////////////////////////////////////////////
 	    protected override KeyPairGenerator CreateGenerator(
             CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, IParameters parameters, IRand rand)
+            IRand rand, string keyOID, IParameters parameters)
 	    {
 		    if (keyOID == ASN1.STB.OID.stb11762_pre_bdsbdh_pubKey || 
                 keyOID == ASN1.STB.OID.stb11762_bdsbdh_pubKey) 

@@ -1,6 +1,6 @@
 package aladdin.capi.software;
 import aladdin.OS;
-import aladdin.RefObject;
+import aladdin.*;
 import aladdin.capi.*;
 import aladdin.capi.pbe.*;
 import aladdin.asn1.iso.*; 
@@ -13,26 +13,29 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 {
-    // фабрика алгоритмов, тип контейнеров и расширения файлов
-    private final Factories factories; private final String type; private final String[] extensions; 
+    // фабрика алгоритмов и фабрика генераторов
+    private final Factories factories; private final IRandFactory randFactory; 
+    
+    // тип контейнеров и расширения файлов
+    private final String type; private final String[] extensions; 
     
 	// конструктор
-	public CryptoProvider(Factories factories, String type, String[] extensions) 
+	public CryptoProvider(Iterable<Factory> factories, IRandFactory randFactory, String type, String[] extensions) 
 	{ 
 		// сохранить фабрики алгоритмов
-		this.factories = RefObject.addRef(factories); this.type = type; this.extensions = extensions;
-	} 
-	// конструктор
-	public CryptoProvider(Iterable<Factory> factories, String type, String[] extensions) 
-	{ 
-		// сохранить фабрики алгоритмов
-		this.factories = new Factories(factories); this.type = type; this.extensions = extensions;
+		this.factories = new Factories(true, factories); 
+        
+        // сохранить фабрику генераторов
+        this.randFactory = RefObject.addRef(randFactory); 
+
+        // сохранить тип контейнеров и расширения файлов
+        this.type = type; this.extensions = extensions;
 	} 
     // освободить ресурсы
     @Override protected void onClose() throws IOException
     { 
         // освободить ресурсы
-        factories.close(); super.onClose(); 
+        RefObject.release(randFactory); factories.close(); super.onClose(); 
     }
     // имя провайдера
     @Override public String name() 
@@ -40,9 +43,22 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         // имя провайдера
         return String.format("%1$s Cryptographic Provider", type); 
     }
+    // фабрика алгоритмов
+    public final Factory factory() { return factories; }
+
     // используемые расширения
-    public String[] extensions() { return extensions; } 
+    public final String[] extensions() { return extensions; } 
     
+    ///////////////////////////////////////////////////////////////////////
+    // Генерация случайных данных
+    ///////////////////////////////////////////////////////////////////////
+    
+    // создать генератор случайных данных
+    @Override public IRand createRand(Object window) throws IOException 
+    { 
+        // создать генератор случайных данных
+        return randFactory.createRand(window); 
+    } 
 	///////////////////////////////////////////////////////////////////////
 	// управление контейнерами провайдера
 	///////////////////////////////////////////////////////////////////////
@@ -205,6 +221,59 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 		throw new UnsupportedOperationException();
     }
 	///////////////////////////////////////////////////////////////////////
+	// Управление алгоритмами
+	///////////////////////////////////////////////////////////////////////
+
+    // поддерживаемые ключи
+	@Override public SecretKeyFactory[] secretKeyFactories() 
+    {
+        // вернуть поддерживаемые ключи
+        return factories.secretKeyFactories(); 
+    }
+    // поддерживаемые ключи
+	@Override public KeyFactory[] keyFactories() 
+    {
+        // вернуть поддерживаемые ключи
+        return factories.keyFactories(); 
+    }
+    // получить алгоритмы по умолчанию
+    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
+    {
+        // получить алгоритмы по умолчанию
+        return factories.getCulture(parameters, keyOID); 
+    }
+    // получить алгоритмы по умолчанию
+    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
+    {
+        // проверить тип хранилища
+        if (scope != null && !(scope instanceof ContainerStore)) return null; 
+        
+        // получить алгоритмы по умолчанию
+        return factories.getCulture((SecurityStore)null, keyOID); 
+    }
+	// создать алгоритм генерации ключей
+	@Override protected aladdin.capi.KeyPairGenerator createAggregatedGenerator(
+        Factory outer, SecurityObject scope, IRand rand, 
+        String keyOID, IParameters parameters) throws IOException
+	{
+        // проверить тип хранилища
+        if (scope != null && !(scope instanceof ContainerStore)) return null; 
+        
+		// создать программный алгоритм генерации ключей
+		return factories.createAggregatedGenerator(outer, null, rand, keyOID, parameters); 
+	}
+	// cоздать алгоритм для параметров
+	@Override protected IAlgorithm createAggregatedAlgorithm(Factory outer, 
+        SecurityStore scope, AlgorithmIdentifier parameters, 
+        Class<? extends IAlgorithm> type) throws IOException
+	{
+        // проверить тип хранилища
+        if (scope != null && !(scope instanceof ContainerStore)) return null; 
+        
+		// cоздать программный алгоритм для параметров
+		return factories.createAggregatedAlgorithm(outer, null, parameters, type); 
+	}
+	///////////////////////////////////////////////////////////////////////
 	// Управление контейнерами в памяти
 	///////////////////////////////////////////////////////////////////////
     public Container createMemoryContainer(IRand rand, 
@@ -248,65 +317,39 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
             return (SecurityStore)store.openObject(directory, access); 
         }
     }
-	///////////////////////////////////////////////////////////////////////
-	// Управление алгоритмами
-	///////////////////////////////////////////////////////////////////////
-
-    // поддерживаемые ключи
-	@Override public SecretKeyFactory[] secretKeyFactories() 
-    {
-        // указать фильтр программных фабрик
-        FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-        // вернуть поддерживаемые ключи
-        return factories.secretKeyFactories(filter); 
-    }
-    // поддерживаемые ключи
-	@Override public KeyFactory[] keyFactories() 
-    {
-        // указать фильтр программных фабрик
-        FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-        // вернуть поддерживаемые ключи
-        return factories.keyFactories(filter); 
-    }
-    // получить алгоритмы по умолчанию
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        // указать фильтр программных фабрик
-        FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-        // получить алгоритмы по умолчанию
-        return factories.getCulture(scope, filter, keyOID); 
-    }
-    // получить алгоритмы по умолчанию
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        return factories.getCulture(parameters, keyOID); 
-    }
-	// создать алгоритм генерации ключей
-	@Override protected aladdin.capi.KeyPairGenerator createAggregatedGenerator(
-        Factory outer, SecurityObject scope, 
-        String keyOID, IParameters parameters, IRand rand) throws IOException
+    public byte[][] enumerateDirectoryContainers(
+        String directory, Container.Predicate filter) throws IOException
 	{
-        // указать фильтр программных фабрик
-        FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-		// создать программный алгоритм генерации ключей
-		return factories.createAggregatedGenerator(
-            outer, scope, filter, keyOID, parameters, rand
-        ); 
-	}
-	// cоздать алгоритм для параметров
-	@Override protected IAlgorithm createAggregatedAlgorithm(Factory outer, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
-        Class<? extends IAlgorithm> type) throws IOException
-	{
-        // указать фильтр программных фабрик
-        FactoryFilter filter = new FactoryFilter.Software(null); 
-        
-		// cоздать программный алгоритм для параметров
-		return factories.createAggregatedAlgorithm(outer, scope, filter, parameters, type); 
+		// создать список сертификатов
+		List<byte[]> containers = new ArrayList<byte[]>();
+ 
+        // открыть каталог контейнеров
+        try (SecurityStore store = openDirectoryStore(directory, "r"))
+        { 
+            // для всех контейнеров PKCS12
+	        for (String fileName : store.enumerateObjects())
+	        {
+                // открыть файл
+                try (RandomAccessFile file = new RandomAccessFile(fileName, "r")) 
+                {
+                    // выделить буфер требуемого размера
+                    byte[] content = new byte[(int)file.length()]; 
+                    
+                    // прочитать данные в буфер 
+                    file.read(content, 0, content.length); 
+                
+                    // открыть контейнер
+                    try (aladdin.capi.Container container = 
+                        (aladdin.capi.Container)store.openObject(fileName, "r"))
+                    {
+                        // добавить содержимое контейнера в список
+                        if (filter.test(container)) containers.add(content);
+                    }
+                }
+                catch (Throwable e) {} 
+	        }
+            // вернуть список контейнеров
+	        return containers.toArray(new byte[containers.size()][]); 
+        }
 	}
 }

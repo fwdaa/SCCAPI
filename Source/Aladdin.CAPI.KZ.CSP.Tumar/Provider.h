@@ -35,15 +35,6 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 			// вернуть хранилище контейнеров
 			return gcnew SCardStores(this, scope); 
 		}
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<SecretKeyFactory^>^ SecretKeyFactories() override
-		{
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew KZ::Factory()); 
-
-			// поддерживаемые фабрики кодирования ключей
-			return factory.Get()->SecretKeyFactories(); 
-		}
 	    // поддерживаемые фабрики кодирования ключей
 		public: virtual array<KeyFactory^>^ KeyFactories() override
 		{
@@ -74,7 +65,7 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 		// создать алгоритм генерации ключей
 		public protected: virtual KeyPairGenerator^ CreateGenerator(
 			CAPI::Factory^ outer, SecurityObject^ scope, 
-			String^ keyOID, IParameters^ parameters, IRand^ rand) override; 
+			IRand^ rand, String^ keyOID, IParameters^ parameters) override; 
 
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(

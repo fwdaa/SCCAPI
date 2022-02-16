@@ -58,13 +58,6 @@ namespace Aladdin.CAPI.GOST
 	    ///////////////////////////////////////////////////////////////////////
 	    // Поддерживаемые фабрики кодирования ключей
 	    ///////////////////////////////////////////////////////////////////////
-	    public override SecretKeyFactory[] SecretKeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new SecretKeyFactory[] {
-                Keys.GOST28147.Instance, Keys.GOSTR3412.Instance 
-            }; 
-	    }
 	    public override KeyFactory[] KeyFactories() 
 	    {
             // вернуть список фабрик
@@ -136,7 +129,7 @@ namespace Aladdin.CAPI.GOST
 	    ///////////////////////////////////////////////////////////////////////
 	    protected override KeyPairGenerator CreateGenerator(
             CAPI.Factory factory, SecurityObject scope, 
-            string keyOID, CAPI.IParameters parameters, IRand rand)
+            IRand rand, string keyOID, CAPI.IParameters parameters)
 	    {
 		    // в зависимости от параметров
             if (keyOID == ASN1.GOST.OID.gostR3410_2001     || 

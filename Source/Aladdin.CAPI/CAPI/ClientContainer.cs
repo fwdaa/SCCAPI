@@ -304,9 +304,9 @@ namespace Aladdin.CAPI
 		// Создать самоподписанный сертификат
 		///////////////////////////////////////////////////////////////////////
         public Certificate CreateSelfSignedCertificate(IRand rand, 
-            byte[] keyID, ASN1.IEncodable subject, DateTime notBefore, DateTime notAfter, 
-            ASN1.ISO.AlgorithmIdentifier signParameters, KeyUsage keyUsage, 
-            string[] extKeyUsages, ASN1.ISO.PKIX.CE.BasicConstraints basicConstraints, 
+            byte[] keyID, ASN1.IEncodable subject, ASN1.ISO.AlgorithmIdentifier signParameters,
+            DateTime notBefore, DateTime notAfter, KeyUsage keyUsage, string[] extKeyUsages, 
+            ASN1.ISO.PKIX.CE.BasicConstraints basicConstraints, 
             ASN1.ISO.PKIX.CE.CertificatePolicies policies, ASN1.ISO.PKIX.Extensions extensions)
         {
             // открыть контейнер
@@ -319,9 +319,6 @@ namespace Aladdin.CAPI
                 // проверить наличие ключа
                 if (publicKey == null) throw new NotFoundException(); 
 
-                // указать серийный номер сертификата
-                Math.BigInteger serial = new Math.BigInteger(keyID); 
-
 			    // получить личный ключ
 			    using (IPrivateKey privateKey = container.GetPrivateKey(keyID)) 
                 {
@@ -330,7 +327,7 @@ namespace Aladdin.CAPI
                     {
                         // создать самоподписанный сертификат
                         Certificate certificate = PKI.CreateSelfSignedCertificate(
-                            rebindRand, serial, subject, signParameters, publicKey, privateKey, 
+                            rebindRand, subject, signParameters, publicKey, privateKey, 
                             notBefore, notAfter, keyUsage, extKeyUsages, 
                             basicConstraints, policies, extensions
                         ); 
