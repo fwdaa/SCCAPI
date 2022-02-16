@@ -25,7 +25,7 @@ public class Conversation extends aladdin.net.Conversation
         this.serialization = new BinarySerialization<Integer>(serialization); 
     }
 	// выполнить освобождение ресурсов
-    @Override public void onClose()
+    @Override protected void onClose()
     { 
         // выполнить освобождение ресурсов
         try { if (!closed) socket.close(); closed = true; super.onClose(); } 

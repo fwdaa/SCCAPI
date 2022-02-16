@@ -441,8 +441,9 @@ namespace Aladdin.CAPI
                     hashAlgorithm.HashData(publicKeyBits, 1, publicKeyBits.Length - 1)
                 ); 
                 // указать серийный номер сертификата
-                ASN1.Integer serial = new ASN1.Integer(new Math.BigInteger(1, keyIdentifier.Value)); 
-
+                ASN1.Integer serial = new ASN1.Integer(
+                    new Math.BigInteger(1, keyIdentifier.Value)
+                ); 
                 // указать имя издателя
                 ASN1.ISO.PKIX.GeneralNames issuer = new ASN1.ISO.PKIX.GeneralNames(
                     new ASN1.IEncodable[] { ASN1.Explicit.Encode(ASN1.Tag.Context(4), subject) });

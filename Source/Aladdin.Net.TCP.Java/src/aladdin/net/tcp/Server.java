@@ -27,7 +27,7 @@ public class Server extends aladdin.net.Server
         socket = LocalHost.bind(port, maxConnections); 
     }
     // освободить выделенные ресурсы
-    @Override public void onClose() 
+    @Override protected void onClose() 
     { 
         // освободить выделенные ресурсы
         try { socket.close(); super.onClose(); } 

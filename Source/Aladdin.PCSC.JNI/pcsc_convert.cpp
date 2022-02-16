@@ -76,13 +76,13 @@ jobjectArray Aladdin::PCSC::MultiStringToStringArray(JNIEnv* env, LPCSTR mszStri
 		jobjectArray jStrings = JNI::JavaNewObjectArray(env, jStringClass, &vecStrings[0], count); 
 
 		// освободить выделенные ресурсы
-		for (size_t i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); return jStrings; 
+		for (jsize i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); return jStrings; 
 	}
 	// при возникновении ошибки
 	catch (const JNI::Exception&) 
 	{  
 		// освободить выделенные ресурсы
-		for (size_t i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); throw; 
+		for (jsize i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); throw; 
 	}
 }
 
@@ -110,12 +110,12 @@ jobjectArray Aladdin::PCSC::MultiStringToStringArray(JNIEnv* env, LPCWSTR mszStr
 		jobjectArray jStrings = JNI::JavaNewObjectArray(env, jStringClass, &vecStrings[0], count); 
 
 		// освободить выделенные ресурсы
-		for (size_t i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); return jStrings; 
+		for (jsize i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); return jStrings; 
 	}
 	// при возникновении ошибки
 	catch (const JNI::Exception&) 
 	{  
 		// освободить выделенные ресурсы
-		for (size_t i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); throw; 
+		for (jsize i = 0; i < count; i++) JNI::JavaLocalRelease(env, vecStrings[i]); throw; 
 	}
 }
