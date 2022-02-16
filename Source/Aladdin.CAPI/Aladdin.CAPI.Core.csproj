@@ -19,11 +19,13 @@
     <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="CAPI\RandomNumberGenerator20.cs" />
     <Compile Remove="CAPI\Software\RegistryDirectories.cs" />
     <Compile Remove="CAPI\Software\RegistryStore.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CAPI\RandomNumberGenerator20.cs" />
     <None Include="CAPI\Software\RegistryDirectories.cs" />
     <None Include="CAPI\Software\RegistryStore.cs" />
     <None Include="Properties\AssemblyInfo.cs" />

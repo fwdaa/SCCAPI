@@ -28,7 +28,7 @@ namespace Aladdin.CAPI
             this.window = window; this.rand = RefObject.AddRef(rand); 
         }
         // конструктор
-        public Rand(RandomNumberGenerator random, object window) 
+        public Rand(System.Security.Cryptography.RandomNumberGenerator random, object window) 
         { 
             // сохранить переданные параметры
             this.obj = random as IDisposable; this.generator = random.GetBytes; 
@@ -37,7 +37,7 @@ namespace Aladdin.CAPI
             this.window = window; this.rand = null; 
         }
         // конструктор
-        public Rand(RandomNumberGenerator random, IRand rand) 
+        public Rand(System.Security.Cryptography.RandomNumberGenerator random, IRand rand) 
         { 
             // сохранить переданные параметры
             this.obj = random as IDisposable; this.generator = random.GetBytes; 

@@ -236,6 +236,12 @@
     <Compile Include="CAPI\SecurityInfo.cs" />
     <Compile Include="CAPI\RandFactory.cs" />
   </ItemGroup>
+  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
+    <Compile Include="CAPI\RandomNumberGenerator.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &lt; 40">
+    <Compile Include="CAPI\RandomNumberGenerator20.cs" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
       <Project>{8B81FE5B-82F1-41D5-A2AF-F9237CC5C953}</Project>
