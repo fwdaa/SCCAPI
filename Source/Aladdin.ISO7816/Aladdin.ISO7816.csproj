@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
+    <DefineConstants>NET40_OR_GREATER</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
@@ -109,12 +112,6 @@
     <Compile Include="BER\URL.cs" />
     <Compile Include="BER\Wrapper.cs" />
     <Compile Include="WriteType.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
-    <Compile Include="ResponseException40.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &lt; 40">
-    <Compile Include="ResponseException20.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.ASN1\Aladdin.ASN1.csproj">

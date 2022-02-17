@@ -1,12 +1,74 @@
 ﻿using System;
+using System.Security; 
+using System.Security.Permissions; 
+using System.Runtime.Serialization; 
 
 namespace Aladdin.Net
 {
     ///////////////////////////////////////////////////////////////////////////
     // Сериализуемое исключение
     ///////////////////////////////////////////////////////////////////////////
-    public partial class SerialException : ApplicationException
+    public class SerialException : ApplicationException
     {
+#if (NET40_OR_GREATER || NETSTANDARD || NETCOREAPP)
+        // состояние исключения
+        [NonSerialized] private State state = new State();
+        
+        // конструктор
+        private SerialException(string message, string stackTrace) : base(message)
+        { 
+            // сохранить переданные параметры            
+            state.StackTrace = stackTrace; 
+
+            // указать способ сохранения объекта
+            SerializeObjectState += delegate(
+                object exception, SafeSerializationEventArgs eventArgs)
+            {
+                // указать состояние объекта
+                eventArgs.AddSerializedState(state);
+            };
+        } 
+        // стековый фрейм исключения
+        public override string StackTrace { get { return state.StackTrace; }}
+
+        [Serializable]
+        private struct State : ISafeSerializationData
+        {
+            // стековый фрейм исключения
+            public string StackTrace; 
+
+            // завершить десериализацию
+            public void CompleteDeserialization(object obj)
+            {
+                // восстановить состояние
+                ((SerialException)obj).state = this;
+            }
+        }
+#else
+        // конструктор
+        protected SerialException(SerializationInfo info, StreamingContext context)
+
+            // выполнить десериализацию
+            : base(info, context) { stackTrace = info.GetString("stackTrace"); }
+
+        // конструктор
+        private SerialException(string message, string stackTrace) : base(message)
+
+            // сохранить переданные параметры            
+            { this.stackTrace = stackTrace; } private string stackTrace;
+
+        // стековый фрейм исключения
+        public override string StackTrace { get { return stackTrace; } }
+
+        // сериализовать данные
+        [SecuritySafeCritical]
+        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // сохранить стековый фрейм исключения
+            base.GetObjectData(info, context); info.AddValue("stackTrace", stackTrace);
+        }
+#endif 
         // закодировать исключение
         public static string ToString(Exception exception, bool escape)
         {

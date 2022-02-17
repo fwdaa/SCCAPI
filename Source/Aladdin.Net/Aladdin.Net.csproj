@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
+    <DefineConstants>NET40_OR_GREATER</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.XML" />
@@ -53,12 +56,6 @@
     <Compile Include="Serialization.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="Server.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
-    <Compile Include="SerialException40.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &lt; 40">
-    <Compile Include="SerialException20.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="keypair.snk" />

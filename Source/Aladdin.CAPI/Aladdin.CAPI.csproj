@@ -56,6 +56,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
+    <DefineConstants>NET40_OR_GREATER</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -235,12 +238,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CAPI\SecurityInfo.cs" />
     <Compile Include="CAPI\RandFactory.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &gt;= 40">
     <Compile Include="CAPI\RandomNumberGenerator.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFrameworkVersion.Substring(1, 3).Remove(1, 1)) &lt; 40">
-    <Compile Include="CAPI\RandomNumberGenerator20.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">

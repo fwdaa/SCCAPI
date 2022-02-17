@@ -3,20 +3,27 @@
     ///////////////////////////////////////////////////////////////////////////
     // Генератор случайных данных
     ///////////////////////////////////////////////////////////////////////////
+#if (NET40_OR_GREATER || NETSTANDARD || NETCOREAPP)
     public sealed class RandomNumberGenerator : System.Security.Cryptography.RandomNumberGenerator
     {
-        // конструктор
-        public RandomNumberGenerator(IRand rand) 
-            
-            // сохранить переданные параметры
-            { this.rand = RefObject.AddRef(rand); } private IRand rand;
-
         // освободить выделенные ресурсы
         protected override void Dispose(bool disposing) 
         { 
             // освободить выделенные ресурсы
             RefObject.Release(rand); base.Dispose(disposing); 
         } 
+#else
+    public sealed class RandomNumberGenerator : System.Security.Cryptography.RandomNumberGenerator, IDisposable
+    {
+        // освободить выделенные ресурсы
+        public void Dispose() { RefObject.Release(rand); } 
+#endif 
+        // конструктор
+        public RandomNumberGenerator(IRand rand) 
+            
+            // сохранить переданные параметры
+            { this.rand = RefObject.AddRef(rand); } private IRand rand;
+
         // сгенерировать данные
         public override void GetBytes(byte[] data) { rand.Generate(data, 0, data.Length); }
 

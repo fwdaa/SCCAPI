@@ -20,11 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
-    <Compile Remove="SerialException20.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\AssemblyInfo.cs" />
-    <None Include="SerialException20.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.IO\Aladdin.IO.Core.csproj" />
