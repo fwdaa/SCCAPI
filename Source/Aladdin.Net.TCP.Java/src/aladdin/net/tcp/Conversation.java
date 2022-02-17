@@ -25,13 +25,10 @@ public class Conversation extends aladdin.net.Conversation
         this.serialization = new BinarySerialization<Integer>(serialization); 
     }
 	// выполнить освобождение ресурсов
-    @Override protected void onClose()
+    @Override protected void onClose() throws IOException
     { 
         // выполнить освобождение ресурсов
-        try { if (!closed) socket.close(); closed = true; super.onClose(); } 
-        
-        // обработать возможное исключение
-        catch (IOException e) { throw new RuntimeException(e); } 
+        if (!closed) socket.close(); closed = true; super.onClose();  
     }
     // признак освобождения ресурсов
     @Override public boolean closed() { return closed; }
