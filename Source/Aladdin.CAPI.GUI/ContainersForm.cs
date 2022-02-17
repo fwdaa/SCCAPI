@@ -24,10 +24,10 @@ namespace Aladdin.CAPI.GUI
 		private Remoting.RemoteClientControl listener;
 
 		// конструктор
-        public ContainersForm(CryptoEnvironment environment, IEnumerable<CryptoProvider> providers) 
+        public ContainersForm(CryptoEnvironment environment) 
 		{ 
 			// создать корневой узел
-			root = new Nodes.RootNode(environment, providers); listener = null; 
+			root = new Nodes.RootNode(environment); listener = null; 
 
 			// указать начальный каталог
 			string selectedPath = System.Environment.GetFolderPath(

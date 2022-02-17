@@ -43,17 +43,20 @@ namespace Aladdin.CAPI
                     // перечислить фабрики набора
                     FillFactories(software, (IEnumerable<Factory>)factory);
                 }
-                else { 
-                    // добавить фабрику в список
-                    this.factories.Add(RefObject.AddRef(factory)); 
-
-                    // для криптографического провайдера
-                    if (!software && (factory is CryptoProvider))
+                // для криптопровайдера
+                else if (factory is CryptoProvider)
+                {
+                    if (!software)
                     {
+                        // добавить фабрику в список
+                        this.factories.Add(RefObject.AddRef(factory)); 
+
                         // добавить провайдер в список
                         this.providers.Add((CryptoProvider)factory); 
                     }
                 }
+                // добавить фабрику в список
+                else this.factories.Add(RefObject.AddRef(factory)); 
             }
         }
         // освободить используемые ресурсы
@@ -75,26 +78,6 @@ namespace Aladdin.CAPI
         // криптографические провайдеры
         public List<CryptoProvider> Providers { get { return providers; }} 
 
-        // группы провайдеров
-        public List<CryptoProvider> ProviderGroups { get 
-        { 
-            // создать список провайдеров
-            List<CryptoProvider> providers = new List<CryptoProvider>(); 
-
-            // создать список групп
-            List<String> groups = new List<String>(); 
-
-            // для всех провайдеров
-            foreach (CryptoProvider provider in this.providers)
-            {
-                // проверить отсутствие группы
-                if (groups.Contains(provider.Group)) continue; 
-
-                // добавить провайдер
-                providers.Add(provider); groups.Add(provider.Group); 
-            }
-            return providers; 
-        }} 
         // перечислитель внутренних фабрик
 		public IEnumerator<Factory> GetEnumerator() 
 		{ 
@@ -156,17 +139,32 @@ namespace Aladdin.CAPI
 	    ///////////////////////////////////////////////////////////////////////
         public override Culture GetCulture(SecurityStore scope, string keyOID) 
         {
-            // для всех программных фабрик алгоритмов
-            if (scope == null) foreach (Factory factory in factories)
+            if (scope == null) 
             {
-                // проверить тип фабрики
-                if (factory is CryptoProvider) continue; 
+                // для всех программных фабрик алгоритмов
+                foreach (Factory factory in factories)
+                {
+                    // проверить тип фабрики
+                    if (factory is CryptoProvider) continue; 
 
-                // получить алгоритмы по умолчанию
-                Culture culture = factory.GetCulture(scope, keyOID); 
+                    // получить алгоритмы по умолчанию
+                    Culture culture = factory.GetCulture(scope, keyOID); 
                 
-                // проверить наличие алгоритмов
-                if (culture != null) return culture; 
+                    // проверить наличие алгоритмов
+                    if (culture != null) return culture; 
+                }
+                // для всех программных провайдеров
+                foreach (Factory factory in factories)
+                {
+                    // проверить тип фабрики
+                    if (!(factory is Software.CryptoProvider)) continue; 
+
+                    // получить алгоритмы по умолчанию
+                    Culture culture = factory.GetCulture(scope, keyOID); 
+                
+                    // проверить наличие алгоритмов
+                    if (culture != null) return culture; 
+                }
             }
             // для провайдера алгоритмов
             else if (scope.Provider is CryptoProvider)
@@ -189,18 +187,34 @@ namespace Aladdin.CAPI
             Factory outer, SecurityObject scope, IRand rand, 
             string keyOID, IParameters parameters)
         {
-            // для всех программных фабрик алгоритмов
-            if (scope == null) foreach (Factory factory in factories)
+            if (scope == null) 
             {
-                // проверить тип фабрики
-                if (factory is CryptoProvider) continue; 
+                // для всех программных фабрик алгоритмов
+                foreach (Factory factory in factories)
+                {
+                    // проверить тип фабрики
+                    if (factory is CryptoProvider) continue; 
 
-                // создать алгоритм генерации ключей
-                KeyPairGenerator generator = factory.CreateAggregatedGenerator(
-                    outer, scope, rand, keyOID, parameters
-                );
-                // проверить наличие алгоритма
-                if (generator != null) return generator;
+                    // создать алгоритм генерации ключей
+                    KeyPairGenerator generator = factory.CreateAggregatedGenerator(
+                        outer, scope, rand, keyOID, parameters
+                    );
+                    // проверить наличие алгоритма
+                    if (generator != null) return generator;
+                }
+                // для всех программных провайдеров
+                foreach (Factory factory in factories)
+                {
+                    // проверить тип фабрики
+                    if (!(factory is Software.CryptoProvider)) continue; 
+
+                    // создать алгоритм генерации ключей
+                    KeyPairGenerator generator = factory.CreateAggregatedGenerator(
+                        outer, scope, rand, keyOID, parameters
+                    );
+                    // проверить наличие алгоритма
+                    if (generator != null) return generator;
+                }
             }
             // для провайдера алгоритмов
             else if (scope.Provider is CryptoProvider)
@@ -224,18 +238,34 @@ namespace Aladdin.CAPI
             Factory outer, SecurityStore scope, 
             ASN1.ISO.AlgorithmIdentifier parameters, Type type)
         {
-            // для всех программных фабрик алгоритмов
-            if (scope == null) foreach (Factory factory in factories)
+            if (scope == null) 
             {
-                // проверить тип фабрики
-                if (factory is CryptoProvider) continue; 
+                // для всех программных фабрик алгоритмов
+                foreach (Factory factory in factories)
+                {
+                    // проверить тип фабрики
+                    if (factory is CryptoProvider) continue; 
                 
-                // создать алгоритм
-                IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
-                    outer, scope, parameters, type
-                );
-                // проверить наличие алгоритма
-                if (algorithm != null) return algorithm;
+                    // создать алгоритм
+                    IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
+                        outer, scope, parameters, type
+                    );
+                    // проверить наличие алгоритма
+                    if (algorithm != null) return algorithm;
+                }
+                // для всех программных провайдеров
+                foreach (Factory factory in factories)
+                {
+                    // проверить тип фабрики
+                    if (!(factory is Software.CryptoProvider)) continue; 
+
+                    // создать алгоритм
+                    IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
+                        outer, scope, parameters, type
+                    );
+                    // проверить наличие алгоритма
+                    if (algorithm != null) return algorithm;
+                }
             }
             // для провайдера алгоритмов
             else if (scope.Provider is CryptoProvider)

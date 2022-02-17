@@ -43,17 +43,20 @@ public class Factories extends Factory implements Iterable<Factory>
                 // перечислить фабрики набора
                 fillFactories(software, (Iterable<Factory>)factory);
             }
-            else {
-                // добавить фабрику в список
-                this.factories.add(RefObject.addRef(factory)); 
-                
-                // для криптографического провайдера
-                if (!software && (factory instanceof CryptoProvider))
+            // для криптопровайдера
+            else if (factory instanceof CryptoProvider)
+            {
+                if (!software)
                 {
+                    // добавить фабрику в список
+                    this.factories.add(RefObject.addRef(factory)); 
+
                     // добавить провайдер в список
                     this.providers.add((CryptoProvider)factory); 
                 }
             }
+            // добавить фабрику в список
+            else this.factories.add(RefObject.addRef(factory)); 
         }
     }
     // освободить используемые ресурсы
@@ -75,26 +78,6 @@ public class Factories extends Factory implements Iterable<Factory>
     // криптографические провайдеры
     public final List<CryptoProvider> providers() { return providers; } 
 
-    // группы провайдеров
-    public final List<CryptoProvider> providerGroups() 
-    { 
-        // создать список провайдеров
-        List<CryptoProvider> providers = new ArrayList<CryptoProvider>(); 
-
-        // создать список групп
-        List<String> groups = new ArrayList<String>(); 
-
-        // для всех провайдеров
-        for (CryptoProvider provider : this.providers)
-        {
-            // проверить отсутствие группы
-            if (groups.contains(provider.group())) continue; 
-
-            // добавить провайдер
-            providers.add(provider); groups.add(provider.group()); 
-        }
-        return providers; 
-    } 
     // перечислитель внутренних фабрик
 	@Override public java.util.Iterator<Factory> iterator() { return factories.iterator(); }
     
@@ -167,17 +150,32 @@ public class Factories extends Factory implements Iterable<Factory>
 	///////////////////////////////////////////////////////////////////////
     @Override public Culture getCulture(SecurityStore scope, String keyOID) 
     {
-        // для всех программных фабрик алгоритмов
-        if (scope == null) for (Factory factory : factories)
+        if (scope == null) 
         {
-            // проверить тип фабрики
-            if (factory instanceof CryptoProvider) continue; 
+            // для всех программных фабрик алгоритмов
+            for (Factory factory : factories)
+            {
+                // проверить тип фабрики
+                if (factory instanceof CryptoProvider) continue; 
 
-            // получить алгоритмы по умолчанию
-            Culture culture = factory.getCulture(scope, keyOID); 
+                // получить алгоритмы по умолчанию
+                Culture culture = factory.getCulture(scope, keyOID); 
                 
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
+                // проверить наличие алгоритмов
+                if (culture != null) return culture; 
+            }
+            // для всех программных провайдеров
+            for (Factory factory : factories)
+            {
+                // проверить тип фабрики
+                if (!(factory instanceof aladdin.capi.software.CryptoProvider)) continue; 
+
+                // получить алгоритмы по умолчанию
+                Culture culture = factory.getCulture(scope, keyOID); 
+                
+                // проверить наличие алгоритмов
+                if (culture != null) return culture; 
+            }
         }
         // для провайдера алгоритмов
         else if (scope.provider() instanceof CryptoProvider)
@@ -200,18 +198,34 @@ public class Factories extends Factory implements Iterable<Factory>
         Factory outer, SecurityObject scope, IRand rand, 
         String keyOID, IParameters parameters) throws IOException
     {
-        // для всех программных фабрик алгоритмов
-        if (scope == null) for (Factory factory : factories)
+        if (scope == null) 
         {
-            // проверить тип фабрики
-            if (factory instanceof CryptoProvider) continue; 
+            // для всех программных фабрик алгоритмов
+            for (Factory factory : factories)
+            {
+                // проверить тип фабрики
+                if (factory instanceof CryptoProvider) continue; 
 
-            // создать алгоритм генерации ключей
-            KeyPairGenerator generator = factory.createAggregatedGenerator(
-                outer, scope, rand, keyOID, parameters
-            );
-            // проверить наличие алгоритма
-            if (generator != null) return generator;
+                // создать алгоритм генерации ключей
+                KeyPairGenerator generator = factory.createAggregatedGenerator(
+                    outer, scope, rand, keyOID, parameters
+                );
+                // проверить наличие алгоритма
+                if (generator != null) return generator;
+            }
+            // для всех программных провайдеров
+            for (Factory factory : factories)
+            {
+                // проверить тип фабрики
+                if (!(factory instanceof aladdin.capi.software.CryptoProvider)) continue; 
+
+                // создать алгоритм генерации ключей
+                KeyPairGenerator generator = factory.createAggregatedGenerator(
+                    outer, scope, rand, keyOID, parameters
+                );
+                // проверить наличие алгоритма
+                if (generator != null) return generator;
+            }
         }
         // для провайдера алгоритмов
         else if (scope.provider() instanceof CryptoProvider)
@@ -235,18 +249,34 @@ public class Factories extends Factory implements Iterable<Factory>
         SecurityStore scope, AlgorithmIdentifier parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
-        // для всех программных фабрик алгоритмов
-        if (scope == null) for (Factory factory : factories)
+        if (scope == null) 
         {
-            // проверить тип фабрики
-            if (factory instanceof CryptoProvider) continue; 
+            // для всех программных фабрик алгоритмов
+            for (Factory factory : factories)
+            {
+                // проверить тип фабрики
+                if (factory instanceof CryptoProvider) continue; 
                 
-            // создать алгоритм
-            IAlgorithm algorithm = factory.createAggregatedAlgorithm(
-                outer, scope, parameters, type
-            );
-            // проверить наличие алгоритма
-            if (algorithm != null) return algorithm;
+                // создать алгоритм
+                IAlgorithm algorithm = factory.createAggregatedAlgorithm(
+                    outer, scope, parameters, type
+                );
+                // проверить наличие алгоритма
+                if (algorithm != null) return algorithm;
+            }
+            // для всех программных провайдеров
+            for (Factory factory : factories)
+            {
+                // проверить тип фабрики
+                if (!(factory instanceof aladdin.capi.software.CryptoProvider)) continue; 
+
+                // создать алгоритм
+                IAlgorithm algorithm = factory.createAggregatedAlgorithm(
+                    outer, scope, parameters, type
+                );
+                // проверить наличие алгоритма
+                if (algorithm != null) return algorithm;
+            }
         }
         // для провайдера алгоритмов
         else if (scope.provider() instanceof CryptoProvider)

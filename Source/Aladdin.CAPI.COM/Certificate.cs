@@ -102,7 +102,7 @@ namespace Aladdin.CAPI.COM
 			{ 
 				// зашифровать данные на открытом ключе
 				ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.KeyxEncryptData(
-					null, environment.Factory, null, rand, certificate, cmsData, null
+					null, environment.Factories, null, rand, certificate, cmsData, null
 				); 
 				// вернуть зашифрованные данные
 				return contentInfo.Encoded; 
@@ -147,7 +147,7 @@ namespace Aladdin.CAPI.COM
 				new ASN1.ISO.PKCS.PKCS7.SignedData(contentInfo.Inner);
 
 		    // проверить подпись данных
-		    CMS.VerifySign(environment.Factory, null, certificate, signedData); 
+		    CMS.VerifySign(environment.Factories, null, certificate, signedData); 
 
 			// вернуть исходный текст
 			return signedData.EncapContentInfo.EContent.Value; 

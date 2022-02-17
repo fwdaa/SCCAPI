@@ -53,24 +53,20 @@ namespace Aladdin.CAPI.GUI
 			requestDialog.Title  = Resource.TitleSaveRequestFile;
 			requestDialog.Filter = Resource.FilterRequestFile;
 
-			// указать используемые фабрики алгоритмов
-			using (Factories factories = environment.EnumerateFactories())
-			{ 
-				// создать диалог выбора контейнера
-				ContainersDialog dialog = new ContainersDialog(
-					environment, factories.Providers, 
-					callback, certificateDialog, requestDialog
-				); 
-				// отобразить диалог
-				DialogResult result = ModalView.Show(parent, dialog); 
+			// создать диалог выбора контейнера
+			ContainersDialog dialog = new ContainersDialog(
+				environment, callback, certificateDialog, requestDialog
+			); 
+			// отобразить диалог
+			DialogResult result = ModalView.Show(parent, dialog); 
 
-				// проверить результат диалога
-				if (result == DialogResult.OK) return dialog.Result;
-			}
+			// проверить результат диалога
+			if (result == DialogResult.OK) return dialog.Result;
+
 			// при ошибке выбросить исключение
 			throw new OperationCanceledException();
 		}
-		internal ContainersDialog(CryptoEnvironment environment, IEnumerable<CryptoProvider> providers, 
+		internal ContainersDialog(CryptoEnvironment environment, 
 			Callback callback, OpenFileDialog certificateDialog, SaveFileDialog requestDialog) 
 		{ 
 			// сохранить переданные параметры
@@ -80,7 +76,7 @@ namespace Aladdin.CAPI.GUI
 			this.certificateDialog = certificateDialog; this.requestDialog = requestDialog;
 
 			// для всех поддерживаемых провайдеров
-			foreach (CryptoProvider provider in providers)
+			foreach (CryptoProvider provider in environment.Providers)
 			{
 				// добавить страницу закладок
 				tabControl.TabPages.Add(CreateTabPage(tabTemplate, environment, provider));

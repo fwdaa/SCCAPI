@@ -20,6 +20,28 @@ public abstract class CryptoProvider extends Factory implements IProvider, IRand
         Scope scope, String storeName) throws IOException;     
     
     ///////////////////////////////////////////////////////////////////////
+    // Группы провайдеров
+    ///////////////////////////////////////////////////////////////////////
+    public static Iterable<CryptoProvider> getProviderGroups(Iterable<CryptoProvider> providers) 
+    { 
+        // создать список провайдеров
+        List<CryptoProvider> providerGroups = new ArrayList<CryptoProvider>(); 
+
+        // создать список групп
+        List<String> groups = new ArrayList<String>(); 
+
+        // для всех провайдеров
+        for (CryptoProvider provider : providers)
+        {
+            // проверить отсутствие группы
+            if (groups.contains(provider.group())) continue; 
+
+            // добавить провайдер
+            providerGroups.add(provider); groups.add(provider.group()); 
+        }
+        return providerGroups; 
+    } 
+    ///////////////////////////////////////////////////////////////////////
     // Генерация случайных данных
     ///////////////////////////////////////////////////////////////////////
     

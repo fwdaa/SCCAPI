@@ -13,13 +13,13 @@ namespace Aladdin.CAPI.GUI.Nodes
 		private ConsoleForm.Node[] nodes; 
 
 		// конструктор
-        public ProvidersNode(CryptoEnvironment environment, IEnumerable<CryptoProvider> providers) 
+        public ProvidersNode(CryptoEnvironment environment) 
 		{ 
 			// создать список дочерних элементов
 			List<ConsoleForm.Node> nodes = new List<ConsoleForm.Node>(); 
 
 			// для всех провайдеров
-			foreach (CryptoProvider provider in providers)
+			foreach (CryptoProvider provider in environment.Providers)
 			{
 				// добавить узел провайдера
 				nodes.Add(new ProviderNode(environment, provider)); 

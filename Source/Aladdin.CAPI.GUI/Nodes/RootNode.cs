@@ -16,13 +16,13 @@ namespace Aladdin.CAPI.GUI.Nodes
 		private ConsoleForm.Node[] nodes; 
 
 		// конструктор
-        public RootNode(CryptoEnvironment environment, IEnumerable<CryptoProvider> providers) 
+        public RootNode(CryptoEnvironment environment) 
 		{ 
 			// создать список дочерних элементов
 			nodes = new ConsoleForm.Node[] { 
 
                 // добавить узел провайдеров
-                new ProvidersNode(environment, providers)  
+                new ProvidersNode(environment)  
 
                 // добавить узел считывателей и типов смарт-карт
                 , new ReadersNode(), new CardTypesNode() 

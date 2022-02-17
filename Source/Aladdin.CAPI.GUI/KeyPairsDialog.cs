@@ -26,31 +26,26 @@ namespace Aladdin.CAPI.GUI
             CryptoEnvironment environment, 
 			Predicate<ContainerKeyPair> filter, Callback callback)
 		{
-			// указать используемые фабрики алгоритмов
-			using (Factories factories = environment.EnumerateFactories())
-			{ 
-				// создать диалог выбора контейнера
-				KeyPairsDialog dialog = new KeyPairsDialog(
-					environment, factories.Providers, filter, callback
-				); 
-				// отобразить диалог
-				DialogResult result = ModalView.Show(parent, dialog); 
+			// создать диалог выбора контейнера
+			KeyPairsDialog dialog = new KeyPairsDialog(environment, filter, callback); 
 
-				// проверить результат диалога
-				if (result == DialogResult.OK) return dialog.Result;
-			}
+			// отобразить диалог
+			DialogResult result = ModalView.Show(parent, dialog); 
+
+			// проверить результат диалога
+			if (result == DialogResult.OK) return dialog.Result;
+
 			// при ошибке выбросить исключение
 			throw new OperationCanceledException();
 		}
         internal KeyPairsDialog(CryptoEnvironment environment, 
-			IEnumerable<CryptoProvider> providers, 
             Predicate<ContainerKeyPair> filter, Callback callback)
 		{ 
 			// инициализировать дочерние элементы
 			InitializeComponent(); this.callback = callback;
 			
 			// для всех поддерживаемых провайдеров
-			foreach (CryptoProvider provider in providers)
+			foreach (CryptoProvider provider in environment.Providers)
 			{
 				// добавить страницу закладок
 				tabControl.TabPages.Add(CreateTabPage(

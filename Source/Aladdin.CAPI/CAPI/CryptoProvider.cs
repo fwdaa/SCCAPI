@@ -21,6 +21,29 @@ namespace Aladdin.CAPI
         public abstract SecurityStore OpenStore(Scope scope, string storeName); 
 
         ///////////////////////////////////////////////////////////////////////
+        // Группы провайдеров
+        ///////////////////////////////////////////////////////////////////////
+        public static IEnumerable<CryptoProvider> 
+            GetProviderGroups(IEnumerable<CryptoProvider> providers)
+        { 
+            // создать список провайдеров
+            List<CryptoProvider> providerGroups = new List<CryptoProvider>(); 
+
+            // создать список групп
+            List<String> groups = new List<String>(); 
+
+            // для всех провайдеров
+            foreach (CryptoProvider provider in providers)
+            {
+                // проверить отсутствие группы
+                if (groups.Contains(provider.Group)) continue; 
+
+                // добавить провайдер
+                providerGroups.Add(provider); groups.Add(provider.Group); 
+            }
+            return providerGroups; 
+        } 
+        ///////////////////////////////////////////////////////////////////////
         // Генерация случайных данных
         ///////////////////////////////////////////////////////////////////////
         

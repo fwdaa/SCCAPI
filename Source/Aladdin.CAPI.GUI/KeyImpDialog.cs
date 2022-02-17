@@ -131,16 +131,12 @@ namespace Aladdin.CAPI.GUI
 						); 
 					}
 				}; 
-				// перечислить фабрики алгоритмов
-				using (Factories factories = environment.EnumerateFactories())
-				{ 
-					// создать диалог выбора контейнера
-					KeyPairsDialog dialog = new KeyPairsDialog(
-						environment, factories.Providers, null, callback
-					); 
-					// отобразить диалог выбора контейнера
-					if (dialog.ShowDialog(this) != DialogResult.OK) return; 
-				}
+				// создать диалог выбора контейнера
+				KeyPairsDialog dialog = new KeyPairsDialog(environment, null, callback); 
+
+				// отобразить диалог выбора контейнера
+				if (dialog.ShowDialog(this) != DialogResult.OK) return; 
+
 				// получить сообщение
 				string message = Resource.StatusImportPair; 
 

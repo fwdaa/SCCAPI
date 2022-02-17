@@ -13,8 +13,8 @@ import org.w3c.dom.*;
 ///////////////////////////////////////////////////////////////////////////
 public class CryptoEnvironment extends ExecutionContext
 {
-    // фабрики алгоритмов
-    private final Factories factories; 
+    // фабрики алгоритмов и криптопровайдеры
+    private final Factories factories; private final List<CryptoProvider> providers;  
     // фабрики генераторов случайных данных
     private final List<ConfigRandFactory> randFactories; 
         
@@ -116,7 +116,14 @@ public class CryptoEnvironment extends ExecutionContext
             // добавить отображение имени
             mappings.put(element.oid(), element.plugin()); 
         }
-        catch (Throwable e) {}
+        // создать список криптопровайдеров
+        catch (Throwable e) {} providers = new ArrayList<CryptoProvider>(); 
+        
+        // создать провайдер PKCS12
+        CryptoProvider provider = new aladdin.capi.pkcs12.CryptoProvider(this, factories); 
+             
+        // заполнить список криптопровайдеров
+        providers.add(provider); providers.addAll(this.factories.providers()); 
     }
 	// загрузить объект
     @SuppressWarnings({"rawtypes"}) 
@@ -163,34 +170,23 @@ public class CryptoEnvironment extends ExecutionContext
             randFactory.release(); 
         }
         // освободить выделенные ресурсы
-        factories.release(); super.onClose(); 
+        providers.get(0).release(); factories.release(); super.onClose(); 
     }
     ///////////////////////////////////////////////////////////////////////
     // Фабрики алгоритмов
     ///////////////////////////////////////////////////////////////////////
-    public final Factories enumerateFactories() throws IOException 
-    { 
-        // создать провайдер PKCS12
-        try (CryptoProvider provider = createPKCS12Provider())
-        { 
-            // создать список фабрик алгоритмов
-            List<Factory> factories = new ArrayList<Factory>(); 
+    
+    // фабрики алгоритмов
+    public final Factories factories() { return factories; }
 
-            // заполнить список фабрик 
-            factories.add(provider); factories.addAll(Arrays.asList(this.factories)); 
-            
-            // вернуть обобщенную фабрику
-            return new Factories(false, factories.toArray(new Factory[factories.size()])); 
-        }
-    }
-    // фабрика алгоритмов
-    public final Factories factory() { return factories; }
+    // криптопровайдеры
+    public final Iterable<CryptoProvider> providers() { return providers; }
 
-    // создать провайдер PKCS12
-    public final aladdin.capi.pkcs12.CryptoProvider createPKCS12Provider()
+    // получить провайдер PKCS12
+    public final aladdin.capi.pkcs12.CryptoProvider getPKCS12Provider()
     {
-        // создать провайдер PKCS12
-        return new aladdin.capi.pkcs12.CryptoProvider(this, factories); 
+        // получить провайдер PKCS12
+        return (aladdin.capi.pkcs12.CryptoProvider)providers.get(0); 
     }
     ///////////////////////////////////////////////////////////////////////
     // Параметры и отображаемое имя ключа
@@ -262,33 +258,4 @@ public class CryptoEnvironment extends ExecutionContext
         // создать генератор случайных данных
         return new Rand(window); 
     }
-    ///////////////////////////////////////////////////////////////////////
-    // Создать контейнер в памяти
-    ///////////////////////////////////////////////////////////////////////
-/*    public Container createMemoryContainer(IRand rand, 
-        MemoryStream stream, String keyOID, String password) throws IOException
-	{
-        // получить способ использования ключа
-        KeyUsage keyUsage = factories.getKeyFactory(keyOID).getKeyUsage(); 
-
-        // создать провайдер PKCS12
-        try (aladdin.capi.pkcs12.CryptoProvider provider = createPKCS12Provider())
-        { 
-            // получить параметры ключа 
-            IParameters keyParameters = getParameters(rand, keyOID, keyUsage); 
-
-            // создать контейнер
-            try (Container container = provider.createMemoryContainer(
-                rand, stream, password, keyOID))
-            {
-                // сгенерировать ключи в контейнере
-                KeyPair keyPair = container.generateKeyPair(
-                    rand, null, keyOID, keyParameters, keyUsage, KeyFlags.NONE
-                );  
-                // вернуть контейнер
-                keyPair.close(); return RefObject.addRef(container); 
-            }
-        }
- 	}
-*/
 }

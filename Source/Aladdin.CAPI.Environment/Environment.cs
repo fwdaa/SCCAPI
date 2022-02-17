@@ -9,16 +9,19 @@ namespace Aladdin.CAPI
 	///////////////////////////////////////////////////////////////////////////
 	public class CryptoEnvironment : ExecutionContext
 	{
-        // фабрики алгоритмов и генераторов случайных данных
-		private Factories factories; private List<ConfigRandFactory> randFactories; 
+        // фабрики алгоритмов и криптопровайдеры
+		private Factories factories; private List<CryptoProvider> providers; 
         
-        // отображаемые имена ключей
+        // фабрики генераторов случайных данных
+        private List<ConfigRandFactory> randFactories; 
+        
+        // отображаемые имена ключей по идентификатору
         private Dictionary<String, String> names;
 
-        // отображение идентификаторов ключей на имена расширений
+        // имена расширений по идентификатору ключей
         private Dictionary<String, String> mappings; 
 
-        // расширения криптографических культур
+        // расширения криптографических культур по именам 
         private Dictionary<String, CulturePlugin> plugins;
 
         // конструктор
@@ -115,7 +118,14 @@ namespace Aladdin.CAPI
                 // добавить отображение имени
                 mappings.Add(element.OID, element.Plugin); 
             }
-            catch {}
+            // создать список криптопровайдеров
+            catch {} providers = new List<CryptoProvider>(); 
+
+            // создать провайдер PKCS12
+            CryptoProvider provider = new PKCS12.CryptoProvider(this, factories); 
+             
+            // заполнить список криптопровайдеров
+            providers.Add(provider); providers.AddRange(this.factories.Providers); 
         }
 		// загрузить объект
 		private object LoadObject(string className, params object[] args)
@@ -162,34 +172,23 @@ namespace Aladdin.CAPI
                 randFactory.Release(); 
             }
             // освободить выделенные ресурсы
-            factories.Release(); base.OnDispose(); 
+            providers[0].Release(); factories.Release(); base.OnDispose(); 
         }
         ///////////////////////////////////////////////////////////////////////
         // Фабрики алгоритмов
         ///////////////////////////////////////////////////////////////////////
-        public Factories EnumerateFactories() 
-        { 
-            // создать провайдер PKCS12
-            using (CryptoProvider provider = CreatePKCS12Provider())
-            { 
-                // создать список фабрик
-                List<Factory> factories = new List<Factory>(); 
 
-                // заполнить список фабрик
-                factories.Add(provider); factories.AddRange(this.factories); 
+        // фабрики алгоритмов
+        public Factories Factories { get { return factories; }}
 
-                // создать обобщенную фабрику
-                return new Factories(false, factories.ToArray()); 
-            }
-        }
-        // фабрика алгоритмов
-        public Factories Factory { get { return factories; }}
+        // криптопровайдеры
+        public IEnumerable<CryptoProvider> Providers { get { return providers; }}
 
-        // создать провайдер PKCS12
-        public PKCS12.CryptoProvider CreatePKCS12Provider()
+        // получить провайдер PKCS12
+        public PKCS12.CryptoProvider GetPKCS12Provider()
         {
-            // создать провайдер PKCS12
-            return new PKCS12.CryptoProvider(this, factories); 
+            // получить провайдер PKCS12
+            return (PKCS12.CryptoProvider)providers[0]; 
         }
         ///////////////////////////////////////////////////////////////////////
         // Параметры и отображаемое имя ключа

@@ -114,7 +114,7 @@ namespace Aladdin.CAPI.COM
 						new ASN1.ISO.AlgorithmIdentifier[] { culturePBE.KDFAlgorithm(rand) };
 
 					// указать общие параметры
-					Culture culture = environment.Factory.GetCulture((SecurityStore)null, cultureOID);
+					Culture culture = environment.Factories.GetCulture((SecurityStore)null, cultureOID);
 
 					// получить параметры алгоритма шифрования
 					ASN1.ISO.AlgorithmIdentifier cipherAlgorithm = culture.CipherAlgorithm(rand);
@@ -136,7 +136,7 @@ namespace Aladdin.CAPI.COM
 					{
 						// зашифровать данные
 						ASN1.ISO.PKCS.PKCS7.EnvelopedData envelopedData = CMS.PasswordEncryptData(
-							environment.Factory, null, rand, new ISecretKey[] { key }, 
+							environment.Factories, null, rand, new ISecretKey[] { key }, 
 							cipherAlgorithm, keyDeriveAlgorithms, keyWrapAlgorithms, cmsData, null
 						);
 						// вернуть закодированную структуру
@@ -171,7 +171,7 @@ namespace Aladdin.CAPI.COM
 				{
 					// расшифровать данные на пароле
 					CMSData cmsData = CMS.PasswordDecryptData(
-						environment.Factory, null, key, contentInfo
+						environment.Factories, null, key, contentInfo
 					);
 					// вернуть расшифрованные данные
 					return Convert.ToBase64String(cmsData.Content);
@@ -235,38 +235,32 @@ namespace Aladdin.CAPI.COM
 
 			// установить культуру
 			Thread.CurrentThread.CurrentUICulture = cultureInfo; 
-			
-			// указать начальные условия
-			string providerName = null; CAPI.Certificate certificate = null; 
 			try {
 				// указать имя контейнера
 				SecurityInfo info = new SecurityInfo(Scope.System, "MEMORY", encoded);
 
-				// создать провайдер PKCS12
-				using (PKCS12.CryptoProvider provider = environment.CreatePKCS12Provider())
+				// получить провайдер PKCS12
+				PKCS12.CryptoProvider provider = environment.GetPKCS12Provider(); CAPI.Certificate certificate = null;
+				
+				// раскодировать содержимое контейнера
+				using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(encoded)))
 				{
-					// указать имя провайдера
-					providerName = provider.Name; 
-
-					// раскодировать содержимое контейнера
-					using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(encoded)))
+					// открыть хранилище контейнеров
+					using (Container container = provider.OpenMemoryContainer(stream, FileAccess.Read, password))
 					{
-						// открыть хранилище контейнеров
-						using (Container container = provider.OpenMemoryContainer(stream, FileAccess.Read, password))
+						// для всех ключей
+						foreach (byte[] keyID in container.GetKeyIDs())
 						{
-							// для всех ключей
-							foreach (byte[] keyID in container.GetKeyIDs())
-							{
-								// получить сертификат
-								certificate = container.GetCertificate(keyID); if (certificate != null) break;
-							}
+							// получить сертификат
+							certificate = container.GetCertificate(keyID); if (certificate != null) break;
 						}
 					}
-					// проверить наличие сертификата
-					if (certificate == null) throw new NotFoundException();
 				}
+				// проверить наличие сертификата
+				if (certificate == null) throw new NotFoundException();
+				
 				// создать объект личного ключа
-				using (PrivateKey privateKey = new PrivateKey(environment, cultureInfo, providerName, info, certificate))
+				using (PrivateKey privateKey = new PrivateKey(environment, cultureInfo, provider.Name, info, certificate))
 				{ 
 					// указать пароль контейнера
 					privateKey.Password = password; privateKey.AddRef(); return privateKey; 
@@ -340,49 +334,45 @@ namespace Aladdin.CAPI.COM
 				// создать список описания личных ключей
 				List<String> encodedPrivateKeys = new List<String>(); 
 
-                // перечислить фабрики алгоритмов
-                using (Factories factories = environment.EnumerateFactories())
-                {
-			        // для всех провайдеров
-			        foreach (CryptoProvider provider in factories.ProviderGroups)
-			        {
-				        // для всех контейнеров
-				        foreach (SecurityInfo info in provider.EnumerateAllObjects(scope))
-				        try {
-							// получить интерфейс клиента
-							using (ClientContainer container = new ClientContainer(provider, info, selector))
-							{ 
-								// для всех пар ключей контейнера
-								foreach (ContainerKeyPair keyPair in container.EnumerateKeyPairs())
-								{
-									// проверить наличие сертификата
-									if (keyPair.Certificate == null) continue; 
+			    // для всех провайдеров
+			    foreach (CryptoProvider provider in CryptoProvider.GetProviderGroups(environment.Providers))
+			    {
+				    // для всех контейнеров
+				    foreach (SecurityInfo info in provider.EnumerateAllObjects(scope))
+				    try {
+						// получить интерфейс клиента
+						using (ClientContainer container = new ClientContainer(provider, info, selector))
+						{ 
+							// для всех пар ключей контейнера
+							foreach (ContainerKeyPair keyPair in container.EnumerateKeyPairs())
+							{
+								// проверить наличие сертификата
+								if (keyPair.Certificate == null) continue; 
 
-									// получить способ использования ключа
-									CAPI.KeyUsage usage = keyPair.Certificate.KeyUsage; 
+								// получить способ использования ключа
+								CAPI.KeyUsage usage = keyPair.Certificate.KeyUsage; 
 
-									// проверить способ использования ключа
-									if (((int)usage & (int)keyUsage) != (int)keyUsage) continue; 
+								// проверить способ использования ключа
+								if (((int)usage & (int)keyUsage) != (int)keyUsage) continue; 
 
-									// создать объект сертификата
-									using (Certificate certificate = new Certificate(
-										environment, cultureInfo, keyPair.Certificate))
-									{ 
-										// закодировать сертификат
-										string encodedCertificate = certificate.Encoded; 
+								// создать объект сертификата
+								using (Certificate certificate = new Certificate(
+									environment, cultureInfo, keyPair.Certificate))
+								{ 
+									// закодировать сертификат
+									string encodedCertificate = certificate.Encoded; 
 
-										// закодировать личный ключ
-										string encodedPrivateKey = String.Format("{0},{1},{2},{3}", 
-											provider.Name, info.Scope, info.FullName, encodedCertificate
-										); 
-										// добавить описание ключа в список
-										encodedPrivateKeys.Add(encodedPrivateKey); 
-									}
+									// закодировать личный ключ
+									string encodedPrivateKey = String.Format("{0},{1},{2},{3}", 
+										provider.Name, info.Scope, info.FullName, encodedCertificate
+									); 
+									// добавить описание ключа в список
+									encodedPrivateKeys.Add(encodedPrivateKey); 
 								}
 							}
-					    } catch {}
-                    }
-				}
+						}
+				    } catch {}
+                }
 				return encodedPrivateKeys.ToArray(); 
 			}
 			// восстановить культуру

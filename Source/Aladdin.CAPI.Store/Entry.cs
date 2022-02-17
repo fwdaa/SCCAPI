@@ -19,12 +19,8 @@ namespace Aladdin.CAPI
 			    // создать среду окружения
 			    using (CryptoEnvironment environment = new CryptoEnvironment("Aladdin.CAPI.Store.config")) 
                 {
-                    // перечислить фабрики алгоритмов
-                    using (Factories factories = environment.EnumerateFactories())
-                    {
-				        // запустить приложение
-				        Application.Run(new GUI.ContainersForm(environment, factories.Providers));
-                    }
+			        // запустить приложение
+			        Application.Run(new GUI.ContainersForm(environment));
                 }
 			}
 			// обработать ошибку

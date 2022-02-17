@@ -32,21 +32,17 @@ namespace Aladdin.CAPI.COM
 			// сохранить переданные параметры
 			this.cultureInfo = cultureInfo; this.certificate = certificate; 
 
-            // перечислить фабрики алгоритмов
-            using (Factories factories = environment.EnumerateFactories())
-            {
-			    // для всех провайдеров
-                foreach (CryptoProvider provider in factories.Providers)
-			    {
-				    // проверить совпадение имени провайдера
-				    if (provider.Name != providerName) continue;
+		    // для всех провайдеров
+            foreach (CryptoProvider provider in environment.Providers)
+			{
+			    // проверить совпадение имени провайдера
+			    if (provider.Name != providerName) continue;
  
-                    // сохранить используемый провайдер
-                    this.provider = RefObject.AddRef(provider); 
+                // сохранить используемый провайдер
+                this.provider = RefObject.AddRef(provider); 
 					
-                    // указать используемый контейнер
-					this.containerInfo = info; return; 
-                }
+                // указать используемый контейнер
+				this.containerInfo = info; return; 
             }
 			// при ошибке выбросить исключение
 			throw new NotFoundException();
