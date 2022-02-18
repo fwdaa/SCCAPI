@@ -17,6 +17,7 @@
     <VERSION>$(VERSION_MAJ).$(VERSION_MIN).$(VERSION_SP).$(VERSION_BLD)</VERSION>
   </PropertyGroup>
   <PropertyGroup>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <SuppressLegacyCodeAnalysisDeprecatedWarning>true</SuppressLegacyCodeAnalysisDeprecatedWarning>
   </PropertyGroup>
