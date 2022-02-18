@@ -1,6 +1,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <VERSION                Condition="'$(VERSION)'                == ''">7.0.1.142</VERSION>
+    <VERSION                Condition="'$(VERSION)'                == ''">8.0.0.1</VERSION>
     <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == ''">v4.0</TargetFrameworkVersion> 
     <PlatformToolset        Condition="'$(PlatformToolset)'        == ''">v142</PlatformToolset>				
     <TargetVersion          Condition="'$(TargetVersion)'          == ''">Windows10</TargetVersion> 

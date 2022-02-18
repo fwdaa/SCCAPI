@@ -11,6 +11,26 @@ namespace Aladdin.CAPI.PKCS12
         // парольная защита
         private PBE.IPBECultureFactory cultureFactory; 
 
+        // провайдер только для чтения
+        public static CryptoProvider Readonly(IEnumerable<Factory> factories, IRand rand)
+        {
+            // указать фабрику генераторов
+            using (IRandFactory randFactory = new RandFactory(rand))
+            { 
+                // вернуть провайдер
+                return new CryptoProvider(factories, randFactory); 
+            }
+        }
+        // провайдер только для чтения
+        public static CryptoProvider Readonly(IEnumerable<Factory> factories)
+        {
+            // указать генератор случайных данных
+            using (IRand rand = new Rand(null))
+            { 
+                // вернуть провайдер только для чтения
+                return Readonly(factories, rand); 
+            }
+        }
 		// конструктор
 		public CryptoProvider(ExecutionContext executionContext, IEnumerable<Factory> factories) 
 

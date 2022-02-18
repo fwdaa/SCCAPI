@@ -183,14 +183,19 @@ inline std::string GetPosixEnvironmentVariable(const char* szName)
     // получить переменную окружения
     if (const char* szValue = getenv(szName)) return szValue;
 #else 
-    // выделить буфер требуемого размера
-    char szBuffer[_MAX_ENV]; size_t cch = 0; 
+    size_t cch = 0; 
+
+    // определить требуемый размер буфера 
+    if (getenv_s(&cch, 0, 0, szName) != 0 || cch == 0) return std::string(); 
+
+    // выделить буфер требуемого размера 
+    std::string strValue(cch, 0); 
 
     // получить переменную окружения
-    if (getenv_s(&cch, szBuffer, sizeof(szBuffer), szName) == 0)
+    if (getenv_s(&cch, &strValue[0], cch, szName) == 0)
     {
-	    // сохранить переменную окружения
-	    if (cch > 0) return std::string(szBuffer, cch - 1);
+        // вернуть переменную окружения
+        strValue.resize(cch - 1); return strValue; 
     }
 #endif
     return std::string(); 

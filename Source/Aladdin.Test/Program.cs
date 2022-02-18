@@ -137,8 +137,8 @@ namespace Aladdin.CAPI.Test
                     // указать тестируемые фабрики алгоритмов
                     Factory[] factories = new Factory[] { factoryANSI, factoryGOST }; 
 
-		            // создать провайдер PKCS12
-		            using (PKCS12.CryptoProvider provider = new PKCS12.CryptoProvider(null, factories, "REG"))
+                    // создать провайдер PKCS12
+	                using (PKCS12.CryptoProvider provider = PKCS12.CryptoProvider.Readonly(factories))
                     {
                         Certificate certificate = null; 
 

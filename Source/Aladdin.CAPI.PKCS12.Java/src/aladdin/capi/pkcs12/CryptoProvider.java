@@ -19,6 +19,29 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
     // парольная защита
     private final IPBECultureFactory cultureFactory; 
     
+    // провайдер только для чтения
+    public static CryptoProvider readonly(
+        Iterable<Factory> factories, IRand rand) throws IOException
+    {
+        // указать фабрику генераторов
+        try (IRandFactory randFactory = new RandFactory(rand))
+        { 
+            // вернуть провайдер
+            return new CryptoProvider(factories, randFactory); 
+        }
+    }
+    // провайдер только для чтения
+    public static CryptoProvider readonly(Iterable<Factory> factories)
+    {
+        // указать генератор случайных данных
+        try (IRand rand = new Rand(null))
+        { 
+            // вернуть провайдер только для чтения
+            return readonly(factories, rand); 
+        }
+        // обработать неожидаемое исключение
+        catch (IOException e) { throw new RuntimeException(e); }
+    }
 	// конструктор
 	public CryptoProvider(ExecutionContext executionContext, Iterable<Factory> factories) 
     { 
