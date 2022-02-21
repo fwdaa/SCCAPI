@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -30,6 +31,12 @@ namespace Aladdin.CAPI
 			// прочитать среду из файла
 			: this(Environment.ConfigSection.FromFile(file)) {} 
 		
+        // конструктор
+		public CryptoEnvironment(XmlDocument document) 
+
+			// прочитать среду из документа
+			: this(new Environment.ConfigSection(document)) {} 
+
         // конструктор
         public CryptoEnvironment(Environment.ConfigSection section)
 		{
