@@ -3,6 +3,7 @@
   <Import Project=".\Tasks\Aladdin.tasks"/>
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == 'Any CPU'">AnyCPU</Platform>
   </PropertyGroup>
 <!--
   <PropertyGroup Label="SHA1-Signature">
