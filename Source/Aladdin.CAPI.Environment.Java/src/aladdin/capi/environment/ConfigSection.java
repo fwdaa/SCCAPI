@@ -1,7 +1,10 @@
 package aladdin.capi.environment;
 import aladdin.io.xml.*;
+import java.io.*;
 import java.util.*; 
+import javax.xml.parsers.*;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры приложения
@@ -20,8 +23,24 @@ public class ConfigSection
     // конструктор
     public static ConfigSection fromFile(String fileName) throws Exception
     {
-        // прочитать параметры приложения
-        return new ConfigSection(DOM.readDocument(fileName)); 
+        // создать фабрику для DOM-провайдеров
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();            
+        try {  
+            // создать DOM-провайдер
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder(); 
+
+            // прочитать DOM-документ 
+            Document document = docBuilder.parse(new File(fileName)); 
+
+            // выполнить нормализацию
+            document.getDocumentElement().normalize(); 
+            
+            // прочитать параметры приложения
+            return new ConfigSection(document); 
+        }
+        // обработать возможное исключение
+        catch (SAXException                 e) { throw new IOException(e); }
+        catch (ParserConfigurationException e) { throw new IOException(e); }
     }
     // конструктор
     public ConfigSection(Document document)

@@ -17,8 +17,20 @@ namespace Aladdin.CAPI.Environment
         // конструктор
         public static ConfigSection FromFile(string fileName)
         {
+            // указать параметры по умолчанию
+            XmlReaderSettings settings = new XmlReaderSettings(); 
+
+            // создать объект документа 
+            XmlDocument document = new XmlDocument(); 
+
+            // указать способ чтения XML
+            using (XmlReader reader = XmlReader.Create(fileName, settings))
+            { 
+                // прочитать модель документа
+                document.Load(reader); 
+            }
             // прочитать параметры приложения
-            return new ConfigSection(IO.Xml.DOM.ReadDocument(fileName, null)); 
+            return new ConfigSection(document); 
         }
         // конструктор
         public ConfigSection(XmlDocument document)
