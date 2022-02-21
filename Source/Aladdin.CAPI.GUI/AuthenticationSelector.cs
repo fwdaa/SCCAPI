@@ -30,7 +30,7 @@ namespace Aladdin.CAPI.GUI
             return provider.CreateRand(container, window); 
         }
         // указать другое графическое окружение
-        public override IRand RebindRand(IRand rand) { return new Rand(rand, window); }
+        public override IRand RebindRand(IRand rand) { return Rand.Rebind(rand, window); }
 
         ///////////////////////////////////////////////////////////////////////
         // Отобразить диалог

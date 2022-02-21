@@ -26,7 +26,7 @@ namespace Aladdin.CAPI.GUI
                 AuthenticationSelector selector = new AuthenticationSelector(window, userName); 
 
 				// указать генератор случайных данных
-				using (IRand rebindRand = new Rand(rand, window))
+				using (IRand rebindRand = Rand.Rebind(rand, window))
 				{ 
 					// создать контейнер
 					return selector.CreateObject(provider, info.Scope, rebindRand, info.FullName, password, parameters); 

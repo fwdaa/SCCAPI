@@ -1,4 +1,5 @@
 ﻿<Project>
+  <Import Project="$(ProjectDir)..\..\Build\vercore.props" />
   <PropertyGroup>
     <AssemblyName>$(MSBuildProjectDirectory.Substring($([MSBuild]::Add($(MSBuildProjectDirectory.LastIndexOf('\')), 1))))</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -21,13 +22,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="CAPI\ANSI\KEA\Test.cs" />
-    <Compile Remove="CAPI\ANSI\MAC\Test.cs" />
-    <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CAPI\ANSI\KEA\Test.cs" />
-    <None Include="CAPI\ANSI\MAC\Test.cs" />
-    <None Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.Core.csproj" />

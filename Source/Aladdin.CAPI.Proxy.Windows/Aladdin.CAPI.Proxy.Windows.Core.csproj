@@ -1,4 +1,5 @@
 ﻿<Project>
+  <Import Project="$(ProjectDir)..\..\Build\vercore.props" />
   <PropertyGroup>
     <AssemblyName>$(MSBuildProjectDirectory.Substring($([MSBuild]::Add($(MSBuildProjectDirectory.LastIndexOf('\')), 1))))</AssemblyName>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -20,12 +21,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.CAPI.Proxy\Aladdin.CAPI.Proxy.Core.csproj" />
     <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.Core.csproj" />

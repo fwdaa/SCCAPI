@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="$(ProjectDir)..\..\Build\vercore.props" />
   <PropertyGroup>
     <AssemblyName>$(MSBuildProjectDirectory.Substring($([MSBuild]::Add($(MSBuildProjectDirectory.LastIndexOf('\')), 1))))</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -20,10 +21,4 @@
     <OutputPath>..\..\Binary\$(TargetFramework)\$(Platform)\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-  <ItemGroup>
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
 </Project>
