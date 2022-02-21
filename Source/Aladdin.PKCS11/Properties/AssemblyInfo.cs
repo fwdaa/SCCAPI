@@ -34,8 +34,8 @@ using System.Diagnostics.CodeAnalysis;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("7.0.1.14240")]
-[assembly: AssemblyFileVersion("7.0.1.14240")]
+[assembly: AssemblyVersion("8.0.0.140")]
+[assembly: AssemblyFileVersion("8.0.0.140")]
 [assembly: AllowPartiallyTrustedCallers]
 
 [assembly: SuppressMessage("Microsoft.Security", "CA2111:PointersShouldNotBeVisible",  
