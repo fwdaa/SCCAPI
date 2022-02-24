@@ -21,7 +21,7 @@ namespace Aladdin.IO
         protected override void OnDispose()
         {
             // освободить выделенные ресурсы
-            registryKey.Dispose(); base.OnDispose(); 
+            ((IDisposable)registryKey).Dispose(); base.OnDispose(); 
         }
         // полное имя раздела реестра
         public string FullName { get { return registryKey.Name; } }
