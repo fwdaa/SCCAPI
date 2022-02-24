@@ -99,6 +99,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aladdin.PCSC.Windows.Core",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aladdin.CAPI.SCard.Windows.Core", "..\Source\Aladdin.CAPI.SCard.Windows\Aladdin.CAPI.SCard.Windows.Core.csproj", "{F4721881-A8C3-4D09-8DA3-938273BB3C4A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aladdin.IO.Windows.Core", "..\Source\Aladdin.IO.Windows\Aladdin.IO.Windows.Core.csproj", "{E1888C9A-58F8-4851-B659-3CDB492051A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -245,6 +247,10 @@ Global
 		{F4721881-A8C3-4D09-8DA3-938273BB3C4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4721881-A8C3-4D09-8DA3-938273BB3C4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4721881-A8C3-4D09-8DA3-938273BB3C4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1888C9A-58F8-4851-B659-3CDB492051A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1888C9A-58F8-4851-B659-3CDB492051A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1888C9A-58F8-4851-B659-3CDB492051A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1888C9A-58F8-4851-B659-3CDB492051A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

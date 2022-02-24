@@ -45,13 +45,18 @@ namespace Aladdin.CAPI.Environment
             // проверить наличие элемента
             if (factoriesNodes.Count > 0)
             {
-                // для всех фабрик
-                foreach (XmlElement element in IO.Xml.DOM.ReadElements(factoriesNodes[0])) 
-                try {
-                    // раскодировать элемент фабрики
-                    factories.Add(new ConfigFactory(element));
+                // получить дочерние элементы 
+                XmlNodeList nodes = factoriesNodes[0].ChildNodes; 
+            
+                // для всех элементов
+                for (int i = 0; i < nodes.Count; i++) 
+                {
+                    // проверить тип элемента
+                    if (nodes[i].NodeType != XmlNodeType.Element) continue;                
+                
+                    // добавить элемент в список
+                    factories.Add(new ConfigFactory((XmlElement)nodes[i]));
                 }
-                catch {}
             }
             // получить элемент для генераторов случайных данных
             XmlNodeList randsNodes = document.GetElementsByTagName("rands");
@@ -59,13 +64,18 @@ namespace Aladdin.CAPI.Environment
             // проверить наличие элемента
             if (randsNodes.Count > 0)
             {
-                // для всех генераторов случайных данных
-                foreach (XmlElement element in IO.Xml.DOM.ReadElements(randsNodes[0])) 
-                try {
+                // получить дочерние элементы 
+                XmlNodeList nodes = randsNodes[0].ChildNodes; 
+            
+                // для всех элементов
+                for (int i = 0; i < nodes.Count; i++) 
+                {
+                    // проверить тип элемента
+                    if (nodes[i].NodeType != XmlNodeType.Element) continue;                
+
                     // раскодировать элемент генератора случайных данных
-                    rands.Add(new ConfigRand(element));
+                    rands.Add(new ConfigRand((XmlElement)nodes[i]));
                 }
-                catch {}
             }
             // получить элемент для расширений криптографических культур
             XmlNodeList pluginsNodes = document.GetElementsByTagName("plugins");
@@ -73,13 +83,18 @@ namespace Aladdin.CAPI.Environment
             // проверить наличие элемента
             if (pluginsNodes.Count > 0)
             {
-                // для всех расширений криптографических культур
-                foreach (XmlElement element in IO.Xml.DOM.ReadElements(pluginsNodes[0])) 
-                try {
+                // получить дочерние элементы 
+                XmlNodeList nodes = pluginsNodes[0].ChildNodes; 
+            
+                // для всех элементов
+                for (int i = 0; i < nodes.Count; i++) 
+                {
+                    // проверить тип элемента
+                    if (nodes[i].NodeType != XmlNodeType.Element) continue;                
+
                     // раскодировать элемент расширения криптографической культуры
-                    plugins.Add(new ConfigPlugin(element));
+                    plugins.Add(new ConfigPlugin((XmlElement)nodes[i]));
                 }
-                catch {}
             }
             // получить элемент для идентификаторов ключей
             XmlNodeList keysNodes = document.GetElementsByTagName("keys");
@@ -87,14 +102,18 @@ namespace Aladdin.CAPI.Environment
             // проверить наличие элемента
             if (keysNodes.Count > 0)
             {
-                // для всех идентификаторов ключей
-                foreach (XmlElement element in IO.Xml.DOM.ReadElements(keysNodes[0])) 
-                try {
+                // получить дочерние элементы 
+                XmlNodeList nodes = keysNodes[0].ChildNodes; 
+            
+                // для всех элементов
+                for (int i = 0; i < nodes.Count; i++) 
+                {
+                    // проверить тип элемента
+                    if (nodes[i].NodeType != XmlNodeType.Element) continue;                
+
                     // раскодировать элемент идентификатора ключа
-                    keys.Add(new ConfigKey(element));
+                    keys.Add(new ConfigKey((XmlElement)nodes[i]));
                 }
-                // вернуть список имен
-                catch {}
             }
         }
 	    // фабрики алгоритмов

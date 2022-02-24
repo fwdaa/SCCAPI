@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BCD9D16A-EEFE-400F-B627-C78E565D6238}</ProjectGuid>
+    <ProjectGuid>{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aladdin.IO</RootNamespace>
-    <AssemblyName>Aladdin.IO</AssemblyName>
+    <RootNamespace>Aladdin.IO.Windows</RootNamespace>
+    <AssemblyName>Aladdin.IO.Windows</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SignAssembly>true</SignAssembly>
@@ -35,40 +35,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinarySerializer.cs" />
-    <Compile Include="Glob.cs" />
-    <Compile Include="Java\ISerializable.cs" />
-    <Compile Include="ObjectSerializer.cs" />
-    <Compile Include="Serialization.cs" />
-    <Compile Include="Java\ArrayType.cs" />
-    <Compile Include="Java\BooleanType.cs" />
-    <Compile Include="Java\ByteType.cs" />
-    <Compile Include="Java\CharType.cs" />
-    <Compile Include="Java\DateType.cs" />
-    <Compile Include="Java\JavaArray.cs" />
-    <Compile Include="Java\Field.cs" />
-    <Compile Include="Java\JavaObject.cs" />
-    <Compile Include="Java\ClassDesc.cs" />
-    <Compile Include="Java\ObjectType.cs" />
-    <Compile Include="Java\DoubleType.cs" />
-    <Compile Include="Java\FieldDesc.cs" />
-    <Compile Include="Java\FloatType.cs" />
-    <Compile Include="Java\IntegerType.cs" />
-    <Compile Include="Java\LongType.cs" />
-    <Compile Include="Java\Serialization.cs" />
-    <Compile Include="Java\Serializer.cs" />
-    <Compile Include="Serializer.cs" />
-    <Compile Include="Java\SerialStream.cs" />
-    <Compile Include="Java\ShortType.cs" />
-    <Compile Include="Java\StringType.cs" />
-    <Compile Include="Java\JavaType.cs" />
+    <Compile Include="RegistryKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Xml\Serialization.cs" />
-    <Compile Include="Xml\Serializer.cs" />
-    <Compile Include="Xml\XmlKey.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="keypair.snk" />

@@ -1,10 +1,9 @@
 package aladdin.capi.environment;
-import aladdin.io.xml.*;
 import java.io.*;
 import java.util.*; 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры приложения
@@ -57,11 +56,17 @@ public class ConfigSection
         // проверить наличие элемента
         if (factoriesNodes.getLength() > 0)
         {
-            // для всех фабрик
-            for (Element element : DOM.readElements(factoriesNodes.item(0))) 
+            // получить дочерние элементы 
+            NodeList nodes = factoriesNodes.item(0).getChildNodes(); 
+            
+            // для всех элементов
+            for (int i = 0; i < nodes.getLength(); i++) 
             try {
+                // проверить тип элемента
+                if (nodes.item(i).getNodeType() != Node.ELEMENT_NODE) continue;                
+
                 // раскодировать элемент фабрики
-                factories.add(new ConfigFactory(element));
+                factories.add(new ConfigFactory((Element)nodes.item(i)));
             }
             catch (Throwable e) {}
         }
@@ -71,11 +76,17 @@ public class ConfigSection
         // проверить наличие элемента
         if (randsNodes.getLength() > 0)
         {
-            // для всех генераторов случайных данных
-            for (Element element : DOM.readElements(randsNodes.item(0))) 
+            // получить дочерние элементы 
+            NodeList nodes = randsNodes.item(0).getChildNodes(); 
+            
+            // для всех элементов
+            for (int i = 0; i < nodes.getLength(); i++) 
             try {
+                // проверить тип элемента
+                if (nodes.item(i).getNodeType() != Node.ELEMENT_NODE) continue;                
+
                 // раскодировать элемент генератора случайных данных
-                rands.add(new ConfigRand(element));
+                rands.add(new ConfigRand((Element)nodes.item(i)));
             }
             catch (Throwable e) {}
         }
@@ -85,11 +96,17 @@ public class ConfigSection
         // проверить наличие элемента
         if (pluginsNodes.getLength() > 0)
         {
-            // для всех расширений криптографических культур
-            for (Element element : DOM.readElements(pluginsNodes.item(0))) 
+            // получить дочерние элементы 
+            NodeList nodes = pluginsNodes.item(0).getChildNodes(); 
+            
+            // для всех элементов
+            for (int i = 0; i < nodes.getLength(); i++) 
             try {
+                // проверить тип элемента
+                if (nodes.item(i).getNodeType() != Node.ELEMENT_NODE) continue;                
+
                 // раскодировать элемент расширения криптографической культуры
-                plugins.add(new ConfigPlugin(element));
+                plugins.add(new ConfigPlugin((Element)nodes.item(i)));
             }
             catch (Throwable e) {}
         }
@@ -99,11 +116,17 @@ public class ConfigSection
         // проверить наличие элемента
         if (keysNodes.getLength() > 0)
         {
-            // для всех идентификаторов ключей
-            for (Element element : DOM.readElements(keysNodes.item(0))) 
+            // получить дочерние элементы 
+            NodeList nodes = keysNodes.item(0).getChildNodes(); 
+            
+            // для всех элементов
+            for (int i = 0; i < nodes.getLength(); i++) 
             try {
+                // проверить тип элемента
+                if (nodes.item(i).getNodeType() != Node.ELEMENT_NODE) continue;                
+
                 // раскодировать элемент идентификатора ключа
-                keys.add(new ConfigKey(element));
+                keys.add(new ConfigKey((Element)nodes.item(i)));
             }
             catch (Throwable e) {}
         }

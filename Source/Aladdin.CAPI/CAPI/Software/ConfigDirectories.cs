@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Xml;
 using System.Collections.Generic;
 
 namespace Aladdin.CAPI.Software
@@ -8,10 +7,10 @@ namespace Aladdin.CAPI.Software
     ///////////////////////////////////////////////////////////////////////////
     // Хранилище каталогов в файле конфигурации
     ///////////////////////////////////////////////////////////////////////////
-    public class ConfigDirectories : IDirectoriesSource
+    public class ConfigDirectories : RefObject, IDirectoriesSource
     {
-		// имя файла конфигурации и модель документа
-		private string configFile; private XmlDocument document; 
+		// модель документа
+		private IO.Xml.XmlKey document; 
 
 		// конструктор
 		public ConfigDirectories(Scope scope, string configName)
@@ -25,43 +24,50 @@ namespace Aladdin.CAPI.Software
             string directory = Environment.GetFolderPath(type); 
 
             // указать полный путь к файлу
-            configFile = String.Format("{0}{1}{2}", directory, 
-                Path.DirectorySeparatorChar, configName); 
+            string configFile = String.Format("{0}{1}{2}", directory, 
+                Path.DirectorySeparatorChar, configName
+            ); 
             try {
-                // при наличии файла
-                if (File.Exists(configFile))
+                // при отсутствии файла
+                if (!File.Exists(configFile))
                 {
-                    // прочитать модель документа
-                    document =  IO.Xml.DOM.ReadDocument(configFile, null); 
+                    // создать документ
+                    document = IO.Xml.XmlKey.CreateDocument(
+                        configFile, "configuration"
+                    ); 
                 }
-                // при отсутствии файла создать пустой документ
-                else document = IO.Xml.DOM.CreateDocument("configuration"); 
+                else {
+                    // открыть документ
+                    document = IO.Xml.XmlKey.OpenDocument(
+                        configFile, FileAccess.ReadWrite
+                    ); 
+                }
             }
             catch {} 
-		}  
+		}
         // перечислить каталоги
         public virtual string[] EnumerateDirectories()
         {
             // проверить поддержку операции
             if (document == null) return new string[0]; 
         
-            // получить элемент для каталогов
-            XmlNodeList directoriesNodes = document.GetElementsByTagName("directories");
-        
-            // проверить наличие элемента
-            if (directoriesNodes.Count == 0) return new string[0]; 
-        
             // создать список каталогов
             List<String> directories = new List<String>(); 
         
+            // получить элемент для каталогов
+            IO.Xml.XmlKey key = document.OpenKey("directories", FileAccess.Read); 
+             
+            // проверить наличие элемента
+            if (key == null) return new string[0]; 
+
             // для всех каталогов
-            foreach (XmlElement element in IO.Xml.DOM.ReadElements(directoriesNodes[0])) 
-            try {
+            foreach (IO.Xml.XmlKey child in key.EnumerateKeys(FileAccess.Read))
+            {
                 // добавить каталог в список
-                directories.Add(element.InnerText);
+                directories.Add(child.GetValue());
             }
             // вернуть список каталогов
-            catch {} return directories.ToArray(); 
+            return directories.ToArray(); 
         }
         // добавить каталог
         public virtual void AddDirectory(string directory)
@@ -70,31 +76,13 @@ namespace Aladdin.CAPI.Software
             if (document == null) throw new NotSupportedException(); 
 
             // получить элемент для каталогов
-            XmlNodeList directoriesNodes = document.GetElementsByTagName("directories"); 
-            
-            // при отсутствии элемента
-            XmlElement directoriesNode = null; if (directoriesNodes.Count == 0)
-            {
-                // создать новый элемент
-                directoriesNode = document.CreateElement("directories"); 
-            
-                // добавить элемент в документ
-                document.DocumentElement.AppendChild(directoriesNode); 
-            }
-            // сохранить элемент для каталогов
-            else { directoriesNode = (XmlElement)directoriesNodes[0]; }
-                
-            // создать новый элемент
-            XmlElement directoryNode = document.CreateElement("directory"); 
+            IO.Xml.XmlKey key = document.OpenOrCreateKey("directories"); 
+             
+            // добавить новый элемент 
+            IO.Xml.XmlKey child = key.CreateKey("directory"); 
 
-            // добавить элемент в документ
-            directoriesNode.AppendChild(directoryNode); 
-
-            // указать путь к каталогу
-            directoryNode.InnerText = directory; 
-
-            // записать документ в файл
-            IO.Xml.DOM.WriteDocument(document, configFile, null); 
+            // указать содержимое элемента
+            child.SetValue(directory); 
         }
         // удалить каталог
         public virtual void RemoveDirectory(string directory)
@@ -103,32 +91,19 @@ namespace Aladdin.CAPI.Software
             if (document == null) throw new NotSupportedException(); 
 
             // получить элемент для каталогов
-            XmlNodeList directoriesNodes = document.GetElementsByTagName("directories"); 
-            
-            // при отсутствии элемента
-            XmlElement directoriesNode = null; if (directoriesNodes.Count == 0)
-            {
-                // создать новый элемент
-                directoriesNode = document.CreateElement("directories"); 
-            
-                // добавить элемент в документ
-                document.DocumentElement.AppendChild(directoriesNode); 
-            }
-            // сохранить элемент для каталогов
-            else { directoriesNode = (XmlElement)directoriesNodes[0]; }
-                
-            // для всех каталогов
-            foreach (XmlElement element in IO.Xml.DOM.ReadElements(directoriesNode)) 
-            {
-                // сравнить имена каталогов
-                if (directory == element.InnerText)
-                { 
-                    // удалить элемент 
-                    directoriesNode.RemoveChild(element); 
+            IO.Xml.XmlKey key = document.OpenKey("directories", FileAccess.ReadWrite); 
 
-                    // записать документ в файл
-                    IO.Xml.DOM.WriteDocument(document, configFile, null); break; 
-                }
+            // проверить наличие элемента
+            if (key == null) return; 
+
+            // для всех каталогов
+            foreach (IO.Xml.XmlKey child in key.EnumerateKeys(FileAccess.Read))
+            {
+                // проверить совпадение значения 
+                if (child.GetValue() != directory) continue; 
+                
+                // удалить каталог
+                key.DeleteKey(child); break; 
             }
         }
     }

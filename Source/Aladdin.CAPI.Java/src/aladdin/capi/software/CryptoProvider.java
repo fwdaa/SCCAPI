@@ -20,7 +20,8 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
     private final String type; private final String[] extensions; 
     
 	// конструктор
-	public CryptoProvider(Iterable<Factory> factories, IRandFactory randFactory, String type, String[] extensions) 
+	public CryptoProvider(Iterable<Factory> factories, 
+        IRandFactory randFactory, String type, String[] extensions) 
 	{ 
 		// сохранить фабрики алгоритмов
 		this.factories = new Factories(true, factories); 

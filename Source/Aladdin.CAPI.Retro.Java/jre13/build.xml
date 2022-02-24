@@ -106,7 +106,7 @@
       </retrotranslator13>
       <retrotranslator13 target="1.2" destjar="dist/Aladdin.IO.jar"
             smart="true" verify="true" failonwarning="true" embed="aladdin.io.embed">
-        <fileset dir="../../Aladdin.IO.Java/build/classes" includes="**/*.class" excludes="**/DOM.class" />
+        <fileset dir="../../Aladdin.IO.Java/build/classes" includes="**/*.class" excludes="**/XmlKey*.class" />
 	    <classpath>
             <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
             <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>

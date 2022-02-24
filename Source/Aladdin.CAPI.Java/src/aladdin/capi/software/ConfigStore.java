@@ -4,15 +4,14 @@ import aladdin.capi.*;
 import aladdin.io.xml.*; 
 import java.io.*;
 import java.util.*; 
-import org.w3c.dom.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Раздел файла конфигурации как хранилище программных контейнеров
 ///////////////////////////////////////////////////////////////////////////
 public class ConfigStore extends ContainerStore
 {
-	// имя файла конфигурации и модель документа
-	private final String configFile; private Document document; 
+	// модель документа
+	private XmlKey document; 
 
 	// конструктор
 	public ConfigStore(CryptoProvider provider, Scope scope, String configName) 
@@ -25,18 +24,21 @@ public class ConfigStore extends ContainerStore
             OS.INSTANCE.getSharedFolder() : OS.INSTANCE.getUserFolder(); 
 
         // указать полный путь к файлу
-        configFile = String.format("%1$s%2$s%3$s", directory, File.separator, configName); 
+        String configFile = String.format(
+            "%1$s%2$s%3$s", directory, File.separator, configName
+        ); 
         try {
-            // при наличии файла
-            File file = new File(configFile); if (file.exists())
+            // при отсутствии файла
+            File file = new File(configFile); if (!file.exists()) 
             {
-                // прочитать модель документа
-                document =  DOM.readDocument(configFile); 
+                // создать документ
+                document = XmlKey.createDocument(configFile, "configuration"); 
             }
-            // при отсутствии файла создать пустой документ
-            else document = DOM.createDocument("configuration"); 
+            // открыть документ
+            else document = XmlKey.openDocument(configFile, "rw"); 
         }
-        catch (Throwable e) {} 
+        // обработать возможное исключение
+        catch (Throwable e) {}
     }
     // имя хранилища
     @Override public Object name() 
@@ -52,23 +54,20 @@ public class ConfigStore extends ContainerStore
         // проверить поддержку операции
         if (document == null) return new String[0]; 
         
-        // получить элемент для контейнеров
-        NodeList containersNodes = document.getElementsByTagName("containers");
-            
-        // проверить наличие элемента
-        if (containersNodes.getLength() == 0) return new String[0]; 
-        
         // создать список имен
         List<String> names = new ArrayList<String>(); 
-        
-        // для всех контейнеров
-        for (Element element : DOM.readElements(containersNodes.item(0))) 
+
+        // получить элемент для контейнеров
+        XmlKey key = document.openKey("containers", "r"); 
+             
+        // проверить наличие элемента
+        if (key == null) return new String[0]; 
+
+        // для всех каталогов
+        for (XmlKey child : key.enumerateKeys("r"))
         {
-            // получить имя контейнера
-            String name = element.getAttribute("name"); 
-            
-            // добавить имя контейнера в список
-            if (name.length() != 0) names.add(name);
+            // добавить каталог в список
+            names.add(child.getAttribute("name", null));
         }
 	    // вернуть список имен
         return names.toArray(new String[names.size()]); 
@@ -82,41 +81,29 @@ public class ConfigStore extends ContainerStore
         if (document == null) throw new UnsupportedOperationException(); 
         
         // получить элемент для контейнеров
-        NodeList containersNodes = document.getElementsByTagName("containers"); 
-            
-        // при отсутствии элемента
-        Element containersNode = null; if (containersNodes.getLength() == 0)
-        {
-            // создать новый элемент
-            containersNode = document.createElement("containers"); 
-            
-            // добавить элемент в документ
-            document.getDocumentElement().appendChild(containersNode); 
-        }
-        // сохранить элемент для контейнеров
-        else { containersNode = (Element)containersNodes.item(0); }
-        
+        XmlKey key = document.openOrCreateKey("containers"); 
+             
         // для всех контейнеров
-        for (Element element : DOM.readElements(containersNode)) 
+        for (XmlKey child : key.enumerateKeys("r"))
         {
+            // получить имя контейнера
+            String value = child.getAttribute("name", null); 
+
             // сравнить имена контейнеров
-            if (element.getAttribute("name").equalsIgnoreCase((String)name)) 
+            if (value.compareToIgnoreCase(name.toString()) == 0) 
             { 
                 // проверить отсутствие элемента
                 throw new IOException(); 
             }
         }
-        // создать новый элемент
-        Element containerNode = document.createElement("container"); 
-
-        // добавить элемент в документ
-        containersNode.appendChild(containerNode); 
-
-        // указать имя элемента 
-        containerNode.setAttribute("name", (String)name); 
-
+        // добавить новый элемент 
+        XmlKey created = document.createKey("container"); 
+            
+        // указать имя контейнера
+        created.setAttribute("name", name.toString()); 
+            
         // вернуть поток данных в файле конфигурации
-        return new ReadWriteElementStream(configFile, document, containerNode); 
+        return new ElementStream(created);
     }
     @Override protected ContainerStream openStream(Object name, String access) throws IOException
     {
@@ -124,25 +111,22 @@ public class ConfigStore extends ContainerStore
         if (document == null) throw new UnsupportedOperationException(); 
         
         // получить элемент для контейнеров
-        NodeList containersNodes = document.getElementsByTagName("containers"); 
-            
-        // проверить наличие элемента
-        if (containersNodes.getLength() == 0) throw new NoSuchElementException(); 
+        XmlKey key = document.openKey("containers", access); 
 
-        // получить элемент для контейнеров
-        Element containersNode = (Element)containersNodes.item(0);
-        
+        // проверить наличие элемента
+        if (key == null) throw new NoSuchElementException(); 
+
         // для всех контейнеров
-        for (Element element : DOM.readElements(containersNode)) 
+        for (XmlKey child : key.enumerateKeys(access))
         {
+            // получить имя контейнера
+            String value = child.getAttribute("name", null); 
+
             // сравнить имена контейнеров
-            if (element.getAttribute("name").equalsIgnoreCase((String)name)) 
+            if (value.compareToIgnoreCase(name.toString()) == 0) 
             { 
                 // вернуть поток данных в файле конфигурации
-                if (!access.equals("rw")) return new ReadElementStream(element); 
-
-                // вернуть поток данных в файле конфигурации
-                else return new ReadWriteElementStream(configFile, document, element); 
+                return new ElementStream(child); 
             }
         }
         // выбросить исключение
@@ -154,99 +138,53 @@ public class ConfigStore extends ContainerStore
         if (document == null) throw new UnsupportedOperationException(); 
 
         // получить элемент для контейнеров
-        NodeList containersNodes = document.getElementsByTagName("containers"); 
-            
+        XmlKey key = document.openKey("containers", "rw"); 
+             
         // проверить наличие элемента
-        if (containersNodes.getLength() == 0) return; 
+        if (key == null) return; 
 
-        // получить элемент для контейнеров
-        Element containersNode = (Element)containersNodes.item(0);
-        
         // для всех контейнеров
-        for (Element element : DOM.readElements(containersNode)) 
+        for (XmlKey child : key.enumerateKeys("r"))
         {
+            // получить имя контейнера
+            String value = child.getAttribute("name", null); 
+
             // сравнить имена контейнеров
-            if (element.getAttribute("name").equalsIgnoreCase((String)name)) 
+            if (value.compareToIgnoreCase(name.toString()) == 0) 
             { 
-                // удалить элемент 
-                containersNode.removeChild(element); 
-        
-                // записать документ
-                DOM.writeDocument(document, configFile); break; 
+                // удалить контейнер
+                key.deleteKey(child); return; 
             }
         }
     }
 	///////////////////////////////////////////////////////////////////////////
-    // Поток хранилища данных в файле конфигурации (только для чтения)
+    // Поток хранилища данных в файле конфигурации
 	///////////////////////////////////////////////////////////////////////////
-	private static class ReadElementStream extends ContainerStream
+	private static class ElementStream extends ContainerStream
     {
-        // узел элемента
-        private final Element containerNode; 
-
 	    // конструктор
-	    public ReadElementStream(Element containerNode) throws IOException
-	    {
+	    public ElementStream(XmlKey element) 
+	    
             // сохранить переданные параметры
-            this.containerNode = containerNode; 
-        }
-        // узел элемента
-        protected final Element containerNode() { return containerNode; }
+            { this.element = element; } private final XmlKey element; 
         
         // имя контейнера
         @Override public Object name() { return uniqueID(); }
         
         // уникальный идентификатор
-        @Override public String uniqueID() { return containerNode.getAttribute("name"); }
+        @Override public String uniqueID() { return element.getAttribute("name", null); }
         
         // прочитать данные
         @Override public byte[] read() throws IOException
         {
             // получить содержимое элемента
-            String encoded = containerNode.getNodeValue(); 
-            
-            // раскодировать контейнер
-            return Base64.getDecoder().decode(encoded); 
+            return Base64.getDecoder().decode(element.getValue()); 
         }
         // записать данные
 		@Override public void write(byte[] buffer) throws IOException
 		{
-            // выбрость исключение
-            throw new IOException(); 
-		}
-	}
-	///////////////////////////////////////////////////////////////////////////
-    // Поток хранилища данных в файле конфигурации (для чтения и записи)
-	///////////////////////////////////////////////////////////////////////////
-	private static class ReadWriteElementStream extends ReadElementStream
-    {
-        // имя файла и модель документа
-        private final String configFile; private final Document document; private boolean dirty;
-        
-	    // конструктор
-	    public ReadWriteElementStream(String configFile, 
-            Document document, Element containerNode) throws IOException
-	    {
-            // сохранить переданные параметры
-            super(containerNode); this.dirty = false;
-            
-            // сохранить переданные параметры
-            this.configFile = configFile; this.document = document; 
-        }
-        // освободить выделенные ресурсы
-        @Override protected void onClose() throws IOException 
-        {  
-            // синхронизировать данные
-            if (dirty) DOM.writeDocument(document, configFile);
-        }
-        // записать данные
-		@Override public void write(byte[] buffer) throws IOException
-		{
-            // закодировать контейнер
-            String encoded = Base64.getEncoder().encodeToString(buffer); 
-            
             // записать данные
-            containerNode().setNodeValue(encoded); dirty = true; 
+            element.setValue(Base64.getEncoder().encodeToString(buffer)); 
 		}
 	}
 }

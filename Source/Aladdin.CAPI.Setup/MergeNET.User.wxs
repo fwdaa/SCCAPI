@@ -65,6 +65,7 @@
   <?define PACKAGEID                                    = "75D9E345-D92C-417C-8F79-E7F11EF9133C"  ?>
   <?define GUID_Aladdin.dll                             = "F30FD948-5DB4-4724-8790-8B0077DD3410"  ?>
   <?define GUID_Aladdin.IO.dll                          = "A1FBCCB1-35B4-4392-A5ED-77217FDD4B20"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "5D295DD4-91DA-4DC6-95BC-AC59973CD4DE"  ?>
   <?define GUID_Aladdin.Net.dll                         = "DAF57325-B3CE-4597-8905-2B813FC35796"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "A89253E7-37C8-444E-95AB-F68A6EC0A891"  ?>
   <?define GUID_Aladdin.Math.dll                        = "8A6D8240-B34E-4C59-9E39-2EE64C8B9BD2"  ?>
@@ -128,6 +129,7 @@
   <?define PACKAGEID                                    = "FB28E474-4C22-446D-9C2E-822FC6746A23"  ?>
   <?define GUID_Aladdin.dll                             = "572D4676-EE99-45C0-ACD8-7A92897F875A"  ?>
   <?define GUID_Aladdin.IO.dll                          = "5B790139-3590-43DE-8740-094026F894BF"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "D794BB3F-EACF-4701-BDB1-2A5CA1086A1E"  ?>
   <?define GUID_Aladdin.Net.dll                         = "1DC8FBF8-55B7-40C9-8E6B-518F9CF13B8C"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "71B098EC-61A4-4900-B1A1-23B852A7B7DD"  ?>
   <?define GUID_Aladdin.Math.dll                        = "69FB2F07-1685-4359-A8CA-5B6460EFB016"  ?>
@@ -194,6 +196,7 @@
   <?define PACKAGEID                                    = "362DEEA2-2657-4CF2-953F-F2B096397CB0"  ?>
   <?define GUID_Aladdin.dll                             = "7ADB5CD9-5B35-43BD-B4CC-700E19995993"  ?>
   <?define GUID_Aladdin.IO.dll                          = "09E20179-C17C-43A1-A6E3-4F75A8A9026D"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "982D8E8F-5308-4ABA-9AC5-F4626E8BAAAA"  ?>
   <?define GUID_Aladdin.Net.dll                         = "A71F5C39-C992-4DC7-875E-49A70D029DCB"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "E6F4DFAF-1F4A-4AF5-9179-4836DD82483D"  ?>
   <?define GUID_Aladdin.Math.dll                        = "69FAAD88-E03C-4400-BA5E-5BFA536394BA"  ?>
@@ -257,6 +260,7 @@
   <?define PACKAGEID                                    = "6914B75A-DC64-4A33-964B-BD81F72B93EB"  ?>
   <?define GUID_Aladdin.dll                             = "BC4CBD51-CC86-4478-91A7-22D9127269A7"  ?>
   <?define GUID_Aladdin.IO.dll                          = "8010C0B0-B01B-47A8-9357-FC51CAC502E4"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "7B165595-FCC1-4754-B8D1-9A513F1496C7"  ?>
   <?define GUID_Aladdin.Net.dll                         = "6254C69C-E2FF-4E89-931C-FD9A4BFA9260"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "FBCCD570-68A7-4E9D-9916-DA229262CF71"  ?>
   <?define GUID_Aladdin.Math.dll                        = "AE340501-8A03-48D3-A37F-81A818589055"  ?>
@@ -323,6 +327,7 @@
   <?define PACKAGEID                                    = "1851A89F-2F45-402B-A5FB-6EDEE854A0DF"  ?>
   <?define GUID_Aladdin.dll                             = "58F47D6C-AB34-4ECA-8C81-4F199A9916B6"  ?>
   <?define GUID_Aladdin.IO.dll                          = "852BADF5-F549-421C-9DB3-708C9CE1DD18"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "170A81E9-ED2D-4913-A2EA-3DA1B7A1D132"  ?>
   <?define GUID_Aladdin.Net.dll                         = "C1C120C7-D723-4462-A401-7F5DF5E3E15B"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "63054121-5886-4C4C-AAC5-79621A090DB5"  ?>
   <?define GUID_Aladdin.Math.dll                        = "5A8A7CD2-62C4-41D4-BF8D-B9C155642D8F"  ?>
@@ -386,6 +391,7 @@
   <?define PACKAGEID                                    = "5BB48DAA-F5D5-4F2E-9F5F-E127646A6E04"  ?>
   <?define GUID_Aladdin.dll                             = "7CAF6973-1116-44F3-BF20-6ED72AFFC290"  ?>
   <?define GUID_Aladdin.IO.dll                          = "FD7C0A01-07E1-4425-B1EC-051D5663650D"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "F162CA02-D1A1-4C45-839D-BE378B0D5F79"  ?>
   <?define GUID_Aladdin.Net.dll                         = "CE1CD4FE-4869-4E9B-8A3E-6F5B2A88EC84"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "2E741E32-CBCB-409B-9B88-D273AE3E6BD2"  ?>
   <?define GUID_Aladdin.Math.dll                        = "56CB08DD-2B00-49D5-951D-95BD2DEDAF9D"  ?>
@@ -452,6 +458,7 @@
   <?define PACKAGEID                                    = "24D859F6-D50A-49B8-A236-D6471EBD7F86"  ?>
   <?define GUID_Aladdin.dll                             = "3C0C60FA-90CF-42C9-85EB-4715F48045A1"  ?>
   <?define GUID_Aladdin.IO.dll                          = "9157C9FD-2F76-4060-AF94-13E271660777"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "106F8392-2A92-41CE-B7CC-70D2B7265CFD"  ?>
   <?define GUID_Aladdin.Net.dll                         = "3F1FE4FE-08D7-459A-A204-EDF9DE5D31C1"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "CD4CC7AB-21EE-4F13-8776-E43715679972"  ?>
   <?define GUID_Aladdin.Math.dll                        = "DD72957A-2BD7-401F-B586-A342E6B7B17B"  ?>
@@ -515,6 +522,7 @@
   <?define PACKAGEID                                    = "96309ED4-864E-42CB-A8E5-FAE6BB3C8E49"  ?>
   <?define GUID_Aladdin.dll                             = "3305BA1E-CBDA-45E0-AEA6-1C4C23B6D6A1"  ?>
   <?define GUID_Aladdin.IO.dll                          = "9DED2B17-9813-4D4B-A46A-0B9D01F23F26"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "FC24315A-F7D2-4E58-B2DD-7E66929E8AF3"  ?>
   <?define GUID_Aladdin.Net.dll                         = "B42B83EF-775B-49B6-A202-6F6F6AC06F09"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "D25A06F6-05C5-4567-AD0C-CBD1FD59EB4D"  ?>
   <?define GUID_Aladdin.Math.dll                        = "5A6FABF2-45A4-4A38-9972-697B03704B5A"  ?>
@@ -581,6 +589,7 @@
   <?define PACKAGEID                                    = "E9AE8B49-082E-49B5-9371-B29C931DA52D"  ?>
   <?define GUID_Aladdin.dll                             = "5189AD26-70FB-4C81-9AA3-B91DCA3781B7"  ?>
   <?define GUID_Aladdin.IO.dll                          = "4AD2F6E5-2840-4AF3-9E68-630D7FCC7CE1"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "C28D6C90-0BDB-4E7A-9FE8-68F54B234BDB"  ?>
   <?define GUID_Aladdin.Net.dll                         = "38F4167B-7405-4057-AD92-04D8A0835488"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "4292CF38-C2ED-49A8-97EA-1A27F6F47BB4"  ?>
   <?define GUID_Aladdin.Math.dll                        = "3C94C47C-7D23-4D9A-B8F4-1F3A0081735D"  ?>
@@ -644,6 +653,7 @@
   <?define PACKAGEID                                    = "BF246F2B-B6B5-4446-BF99-795A90B3D5F2"  ?>
   <?define GUID_Aladdin.dll                             = "A164276C-E108-414F-9DC0-4F49D5199537"  ?>
   <?define GUID_Aladdin.IO.dll                          = "12F34694-A161-4406-A8C1-F5543276263A"  ?>
+  <?define GUID_Aladdin.IO.Windows.dll                  = "51C7CACC-A76E-4A35-93E7-5EB5EC26585C"  ?>
   <?define GUID_Aladdin.Net.dll                         = "753A2A4A-2606-463C-B6F4-D9732E0953F9"  ?>
   <?define GUID_Aladdin.Net.TCP.dll                     = "D876BDA6-B953-4E18-AE67-655427ADB4B6"  ?>
   <?define GUID_Aladdin.Math.dll                        = "C8914A34-E5B7-4F11-B53E-9E6A8C0D069F"  ?>
@@ -732,6 +742,9 @@
                   </Component>
                   <Component Id="Aladdin.IO.dll" Guid="$(var.GUID_Aladdin.IO.dll)" SharedDllRefCount="yes">
                     <File Name="Aladdin.IO.dll" Source="$(var.BIN)\Aladdin.IO.dll" KeyPath="yes" DiskId="1" />
+                  </Component>
+                  <Component Id="Aladdin.IO.Windows.dll" Guid="$(var.GUID_Aladdin.IO.Windows.dll)" SharedDllRefCount="yes">
+                    <File Name="Aladdin.IO.Windows.dll" Source="$(var.BIN)\Aladdin.IO.Windows.dll" KeyPath="yes" DiskId="1" />
                   </Component>
                   <Component Id="Aladdin.Net.dll" Guid="$(var.GUID_Aladdin.Net.dll)" SharedDllRefCount="yes">
                     <File Name="Aladdin.Net.dll" Source="$(var.BIN)\Aladdin.Net.dll" KeyPath="yes" DiskId="1" />

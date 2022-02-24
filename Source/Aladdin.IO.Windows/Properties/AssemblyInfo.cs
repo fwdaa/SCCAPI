@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Aladdin.CAPI.KZ")]
+[assembly: AssemblyTitle("Aladdin.IO")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Aladdin R.D.")]
-[assembly: AssemblyProduct("Aladdin.CAPI")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Aladdin.CryptoDB")]
 [assembly: AssemblyCopyright("Copyright © Aladdin R.D. 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c5cfff69-cd9c-4816-8d54-74f00ce17927")]
+[assembly: Guid("B6BB61B7-4B3F-4414-B670-5924B1DC21A7")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("2.0.0.0")]
+// [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("8.0.0.140")]
 [assembly: AssemblyFileVersion("8.0.0.140")]
 [assembly: AllowPartiallyTrustedCallers]

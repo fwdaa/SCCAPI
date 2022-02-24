@@ -287,6 +287,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aladdin.PCSC.Windows", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aladdin.CAPI.SCard.Windows", "..\Source\Aladdin.CAPI.SCard.Windows\Aladdin.CAPI.SCard.Windows.csproj", "{A30DE012-A631-4C43-8D87-55DEB4585910}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aladdin.IO.Windows", "..\Source\Aladdin.IO.Windows\Aladdin.IO.Windows.csproj", "{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -811,6 +813,18 @@ Global
 		{A30DE012-A631-4C43-8D87-55DEB4585910}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A30DE012-A631-4C43-8D87-55DEB4585910}.Release|Win32.ActiveCfg = Release|Any CPU
 		{A30DE012-A631-4C43-8D87-55DEB4585910}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Debug|Win32.Build.0 = Debug|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Release|Win32.ActiveCfg = Release|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Release|Win32.Build.0 = Release|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1887BCA-D08A-4863-8B4A-175EA2D20BFE}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
