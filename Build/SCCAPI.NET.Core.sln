@@ -8,10 +8,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aladdin.IO.Core", "..\Source\Aladdin.IO\Aladdin.IO.Core.csproj", "{4A83C721-C74A-4578-A519-74556E792778}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aladdin.Net.Core", "..\Source\Aladdin.Net\Aladdin.Net.Core.csproj", "{FF4A6F21-F549-4AD9-9F04-0DD845C24F73}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4A83C721-C74A-4578-A519-74556E792778} = {4A83C721-C74A-4578-A519-74556E792778}
-		{B4377DB0-AA6C-4876-A864-5506D79988C7} = {B4377DB0-AA6C-4876-A864-5506D79988C7}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aladdin.Net.TCP.Core", "..\Source\Aladdin.Net.TCP\Aladdin.Net.TCP.Core.csproj", "{C57E3484-E59B-4FE2-BE8D-BFFEEBC13FA3}"
 EndProject
