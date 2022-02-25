@@ -5,6 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <BaseIntermediateOutputPath>..\..\Temporary\$(AssemblyName)\$(TargetFramework)\$(Platform)\$(Configuration)\</BaseIntermediateOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <RestoreAdditionalProjectSources>$(MSBuildProgramFiles32)\Microsoft SDKs\NuGetPackages\</RestoreAdditionalProjectSources>
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <PropertyGroup>
@@ -22,7 +23,13 @@
   </PropertyGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <Compile Remove="RegistryKey.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RegistryKey.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.0.0"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin\Aladdin.Core.csproj" />
