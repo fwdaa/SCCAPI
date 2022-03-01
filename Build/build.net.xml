@@ -24,8 +24,8 @@
       <BuildVariables>TraceState=$(TraceState);$(BuildVariables)</BuildVariables>
       <BuildVariables>CLSID_COM_NET=$(CLSID_COM_NET);$(BuildVariables)</BuildVariables>
     </PropertyGroup>
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Build" Configuration="$(Configuration)" Platform="Any CPU" EnvironmentVariables="$(BuildVariables)"/>
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Build" Configuration="$(Configuration)" Platform="Win32"   EnvironmentVariables="$(BuildVariables)"/>
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Build" Configuration="$(Configuration)" Platform="x64"     EnvironmentVariables="$(BuildVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="Any CPU" EnvironmentVariables="$(BuildVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="Win32"   EnvironmentVariables="$(BuildVariables)"/>
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="x64"     EnvironmentVariables="$(BuildVariables)"/>
   </Target> 
 </Project>

@@ -42,8 +42,8 @@
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Clean" Configuration="$(Configuration)" Platform="x64"   />
   </Target> 
   <Target Name="BuildJava" BeforeTargets="Build">
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Build" Configuration="$(Configuration)" Platform="Win32" />
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Build" Configuration="$(Configuration)" Platform="x64"   />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="Win32" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Rebuild" Configuration="$(Configuration)" Platform="x64"   />
   </Target> 
   <Target Name="Clean">
     <RemoveDir Directories="..\Trace\TMF" />
@@ -52,9 +52,9 @@
   </Target> 
   <Target Name="Build">
     <RemoveDir Directories="..\Trace\TMF" />
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Build" 
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Rebuild" 
       Configuration="$(Configuration)" Platform="Win32" EnvironmentVariables="CLSID_CAPI_COM=$(CLSID_CAPI_COM)" />
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Build" 
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.sln" Target="Rebuild" 
       Configuration="$(Configuration)" Platform="x64"   EnvironmentVariables="CLSID_CAPI_COM=$(CLSID_CAPI_COM)" />
   </Target> 
 </Project>
