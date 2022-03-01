@@ -22,12 +22,6 @@
   </PropertyGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
-    <Compile Remove="RegistryKey.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="RegistryKey.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
