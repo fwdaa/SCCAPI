@@ -22,7 +22,6 @@
     <ProjectGuid>{7F6CFEDC-1733-47F4-9779-80DB5C7DAEC7}</ProjectGuid>
     <RootNamespace>Aladdin.CAPI.Rnd.Bio</RootNamespace>
     <Keyword>ManagedCProj</Keyword>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(ProjectDir)..\..\Build\verclr.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

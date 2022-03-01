@@ -22,7 +22,6 @@
     <ProjectGuid>{0A12F9E9-A7B7-4E96-8916-DB9520C7B2F6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AladdinTestCAPICOM</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(ProjectDir)..\..\Build\version.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
