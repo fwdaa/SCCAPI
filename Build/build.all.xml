@@ -31,11 +31,11 @@
     <MSBuild Targets="Build" Projects="build.net.xml" Properties="%(TargetFramework.NetProperties);Configuration=$(Configuration)" />
   </Target> 
   <Target Name="CleanCore" BeforeTargets="Clean">
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Clean" Configuration="$(Configuration)" Platform="Any CPU" />
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Clean" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="BuildCore" BeforeTargets="Build">
-	<MSBuild Projects="SCCAPI.NET.Core.sln" Targets="Restore" Properties="RestoreConfigFile=$(MSBuildThisFileDirectory)nuget.config;Configuration=$(Configuration);Platform=Any CPU"/> 	
-    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Build" Configuration="$(Configuration)" Platform="Any CPU" />
+	<MSBuild Projects="SCCAPI.NET.Core.sln" Targets="Restore" Properties="RestoreConfigFile=$(MSBuildThisFileDirectory)nuget.config"/> 	
+    <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.NET.Core.sln" Target="Build" Configuration="$(Configuration)" Platform="AnyCPU" />
   </Target> 
   <Target Name="CleanJava" BeforeTargets="Clean">
     <DevEnv Version="$(VisualStudioVersion)" Solution="SCCAPI.Java.sln" Target="Clean" Configuration="$(Configuration)" Platform="Win32" />
