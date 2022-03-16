@@ -1,7 +1,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <VERSION                Condition="'$(VERSION)'                == ''">8.0.0.1</VERSION>
-    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == ''">v4.0</TargetFrameworkVersion> 
+    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == ''">v2.0</TargetFrameworkVersion> 
     <PlatformToolset        Condition="'$(PlatformToolset)'        == ''">v142</PlatformToolset>				
     <TargetVersion          Condition="'$(TargetVersion)'          == ''">Windows10</TargetVersion> 
     <PrecompiledHeaderUse   Condition="'$(PrecompiledHeaderUse)'   == ''">Use</PrecompiledHeaderUse>
@@ -19,7 +19,7 @@
   <PropertyGroup>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <SuppressLegacyCodeAnalysisDeprecatedWarning>true</SuppressLegacyCodeAnalysisDeprecatedWarning>
   </PropertyGroup>
 </Project>
