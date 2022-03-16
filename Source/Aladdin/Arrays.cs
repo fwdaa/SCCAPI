@@ -1,11 +1,31 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
+using System.Globalization;
+using System.Collections.Generic;
 
 namespace Aladdin
 {
     public static class Arrays
     {
+		///////////////////////////////////////////////////////////////////////
+		// Хэш-код бинарного массива
+		///////////////////////////////////////////////////////////////////////
+        public static int GetHashCode<T>(T[] array)
+        {
+            // проверить наличие массива
+            int code = 17; if (array == null) return 0;  
+
+			// указать способ вычисления хэш-кода
+			EqualityComparer<T> comparer = EqualityComparer<T>.Default;            
+		
+			// для всех элементов массива
+			foreach (T element in array)
+            {
+				// вычислить хэш-код
+                code = code * 31 + comparer.GetHashCode(element);
+            }
+            return code; 
+        }
 		/////////////////////////////////////////////////////////////////////////////
 		// Сравнение массивов на равенство
 		/////////////////////////////////////////////////////////////////////////////

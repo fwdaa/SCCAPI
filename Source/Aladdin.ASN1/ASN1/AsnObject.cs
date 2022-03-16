@@ -93,9 +93,15 @@ namespace Aladdin.ASN1
 			); 
 			// проверить наличие конструктора
 			if (constructor == null) throw new InvalidOperationException(); 
+
+            // прочитать бинарное представление
+            byte[] encoded = Convert.FromBase64String(info.GetString("Encoded")); 
+
+            // раскодировать представление
+            IEncodable encodable = Encodable.Decode(encoded); 
 			try {  
 				// создать объект 
-				AsnObject instance = (AsnObject)constructor.Invoke(new object[] { this }); 
+				AsnObject instance = (AsnObject)constructor.Invoke(new object[] { encodable }); 
 
 				// сохранить переменные объекта
 				this.tag = instance.Tag; ber = instance.BerEncodable; der = instance.DerEncodable; 
