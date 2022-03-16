@@ -302,19 +302,13 @@ namespace Aladdin.Math
 			// сравнить два числа
 			return (other != null) ? Equals(other) : false;
 		}
-		public override int GetHashCode()
+		public override int GetHashCode() 
 		{
-			// учесть размер числа
-			uint hc = (uint) magnitude.Length; if (hc == 0) return (int)hc; 
+			// получить хэш-код
+			int code = Arrays.GetHashCode(magnitude); 
 
-			// учесть первое слово
-			hc ^= magnitude[0]; if (magnitude.Length > 1)
-			{
-				// учесть последнее слово
-                hc ^= magnitude[magnitude.Length - 1];
-			}
 			// учесть знак числа
-			return unchecked((int)((sign < 0) ? ~hc : hc));
+			return unchecked((int)((sign < 0) ? ~code : code));
 		}
 		///////////////////////////////////////////////////////////////////////
 		// Сравнение больших чисел

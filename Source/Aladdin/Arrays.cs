@@ -13,18 +13,19 @@ namespace Aladdin
         public static int GetHashCode<T>(T[] array)
         {
             // проверить наличие массива
-            int code = 17; if (array == null) return 0;  
+            if (array == null) return 0; 
+			
+			// проверить наличие элементов
+			int code = array.Length; if (code == 0) return code; 
 
 			// указать способ вычисления хэш-кода
 			EqualityComparer<T> comparer = EqualityComparer<T>.Default;            
-		
-			// для всех элементов массива
-			foreach (T element in array)
-            {
-				// вычислить хэш-код
-                code = code * 31 + comparer.GetHashCode(element);
-            }
-            return code; 
+
+			// учесть последнее слово
+			code ^= comparer.GetHashCode(array[code - 1]);
+
+		    // учесть первое слово
+		    if (array.Length != 1) code ^= comparer.GetHashCode(array[0]); return code; 
         }
 		/////////////////////////////////////////////////////////////////////////////
 		// Сравнение массивов на равенство

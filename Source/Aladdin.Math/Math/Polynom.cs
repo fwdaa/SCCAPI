@@ -113,19 +113,8 @@ namespace Aladdin.Math
 		    // сравнить значения элементов
 		    return Equals((Polynom)other);
         }
-        public override int GetHashCode()
-        {
-		    // учесть размер числа
-            int hc = magnitude.Length; if (hc == 0) return hc;
+        public override int GetHashCode() { return Arrays.GetHashCode(magnitude); }
 
-		    // учесть первое слово
-		    hc ^= (int)magnitude[0]; if (magnitude.Length != 1)
-		    {
-			    // учесть последнее слово
-			    hc ^= (int)magnitude[magnitude.Length - 1];
-		    }
-		    return hc;
-        }
         ///////////////////////////////////////////////////////////////////////
         // Сравнение многочленов
         ///////////////////////////////////////////////////////////////////////
