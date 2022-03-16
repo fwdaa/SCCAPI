@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	//////////////////////////////////////////////////////////////////////////////
 	// Строка символов ISO-646
 	//////////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class VisibleString : OctetString
 	{
         // проверить допустимость типа
@@ -38,12 +40,21 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
-		// конструктор при раскодировании
-		public VisibleString(IEncodable encodable) : base(encodable) 
-		{ 
+		// конструктор при сериализации
+        protected VisibleString(SerializationInfo info, StreamingContext context) 
+
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public new void OnDeserialization(object sender)
+		{
 			// раскодировать строку
 			str = Encoding.ASCII.GetString(Content); 
 		}
+		// конструктор при раскодировании
+		public VisibleString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		protected VisibleString(Tag tag, string value) : base(tag, 
 			
@@ -54,6 +65,6 @@ namespace Aladdin.ASN1
 		public VisibleString(string value) : this(Tag.VisibleString, value) {}
 
 		// строка символов
-		public new string Value { get { return str; } } private string str; 
+		public new string Value { get { return str; } } [NonSerialized] private string str; 
 	}
 }

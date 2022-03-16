@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	ExtensionAttribute ::=  SEQUENCE {
 //		extension-attribute-type  [0] IMPLICIT INTEGER (0..ub-extension-attributes),
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class ExtensionAttribute : Sequence
 	{
 		// информация о структуре
@@ -49,6 +51,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			// неизвестный тип объекта
 			return encodable;	 
 		}
+		// конструктор при сериализации
+        protected ExtensionAttribute(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public ExtensionAttribute(IEncodable encodable) : base(encodable, info) 
 		{

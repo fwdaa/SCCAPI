@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	ExtendedCertificateInfo ::= SEQUENCE {
 //		version		INTEGER,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS6
 {
+	[Serializable]
 	public class ExtendedCertificateInfo : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS6
 			new ObjectInfo(new ObjectCreator<PKIX.Certificate	>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Attributes		    >().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected ExtendedCertificateInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public ExtendedCertificateInfo(IEncodable encodable) : base(encodable, info) {}
 

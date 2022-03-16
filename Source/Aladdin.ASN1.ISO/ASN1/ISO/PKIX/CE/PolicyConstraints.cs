@@ -1,4 +1,5 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 //	PolicyConstraints ::= SEQUENCE {
 //		requireExplicitPolicy   [0] IMPLICIT INTEGER OPTIONAL,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class PolicyConstraints : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(0), Cast.O, Tag.Context(0)), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(0), Cast.O, Tag.Context(1)), 
 		}; 
+		// конструктор при сериализации
+        protected PolicyConstraints(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PolicyConstraints(IEncodable encodable) : base(encodable, info) {}
 

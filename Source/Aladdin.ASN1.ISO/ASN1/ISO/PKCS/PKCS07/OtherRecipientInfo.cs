@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	OtherRecipientInfo ::= SEQUENCE {
 //		oriType		OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class OtherRecipientInfo : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected OtherRecipientInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OtherRecipientInfo(IEncodable encodable) : base(encodable, info) {}
 

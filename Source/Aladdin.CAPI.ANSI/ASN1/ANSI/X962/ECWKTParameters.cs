@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +9,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      wrap [1] EXPLICIT KeyWrapFunction OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECWKTParameters : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(), Cast.EO, Tag.Context(0)), 
 		    new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(), Cast.EO, Tag.Context(1)) 
 	    }; 
+		// конструктор при сериализации
+        protected ECWKTParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECWKTParameters(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,11 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Security;
+using System.Security.Permissions;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Объект с явным приведением типа от произвольного типа
 	///////////////////////////////////////////////////////////////////////////
+    [Serializable]
 	public class Explicit : Encodable
 	{
 		// закодировать объект
@@ -41,12 +45,32 @@ namespace Aladdin.ASN1
 
 		// исходный объект
 		public IEncodable Inner { get { return value; } } protected IEncodable value; 
+
+        /////////////////////////////////////////////////////////////////////////////
+        // Сохранение данных
+        /////////////////////////////////////////////////////////////////////////////
+        protected Explicit(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            // прочитать представление
+            value = (IEncodable)info.GetValue("Inner", typeof(IEncodable)); 
+        }
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // сохранить бинарное представление
+            base.GetObjectData(info, context); info.AddValue("Inner", value); 
+        }
 	}
 	///////////////////////////////////////////////////////////////////////////
 	// Объект с явным приведением типа от указанного типа
 	///////////////////////////////////////////////////////////////////////////
-	public class Explicit<T> : Explicit where T : IEncodable
+    [Serializable]
+	public sealed class Explicit<T> : Explicit where T : IEncodable
 	{
+		// конструктор при сериализации
+        private Explicit(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Explicit(IObjectFactory<T> factory, IEncodable encodable) : base(factory, encodable) 
 		{

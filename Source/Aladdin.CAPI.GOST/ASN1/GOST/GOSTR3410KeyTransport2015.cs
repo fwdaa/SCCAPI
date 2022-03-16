@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // GostR3410-KeyTransport ::= {
@@ -9,6 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3410KeyTransport2015 : Sequence 
 	{
 		// информация о структуре
@@ -18,6 +20,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<ISO.PKIX.SubjectPublicKeyInfo>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString				  >().Factory(), Cast.N)
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3410KeyTransport2015(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3410KeyTransport2015(IEncodable encodable) : base(encodable, info) {}
 

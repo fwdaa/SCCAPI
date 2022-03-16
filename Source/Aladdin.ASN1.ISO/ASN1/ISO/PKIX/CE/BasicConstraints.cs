@@ -1,4 +1,5 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 //	BasicConstraints ::= SEQUENCE {
 //		cA                BOOLEAN DEFAULT FALSE,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class BasicConstraints : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<Boolean>().Factory( ), Cast.O, Tag.Any, Boolean.False), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(0), Cast.O, Tag.Any				  ), 
 		}; 
+		// конструктор при сериализации
+        protected BasicConstraints(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public BasicConstraints(IEncodable encodable) : base(encodable, info) {} 
 

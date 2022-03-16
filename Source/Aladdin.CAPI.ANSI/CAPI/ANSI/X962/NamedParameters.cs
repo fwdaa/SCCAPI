@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.ANSI.X962
+﻿using System; 
+
+namespace Aladdin.CAPI.ANSI.X962
 {
     ///////////////////////////////////////////////////////////////////////////////
     // Именованный набор параметров
     ///////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class NamedParameters : Parameters, INamedParameters 
     {
         // конструктор

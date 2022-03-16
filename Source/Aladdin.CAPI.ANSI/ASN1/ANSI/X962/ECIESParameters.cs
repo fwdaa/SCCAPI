@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +10,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      mac [2] EXPLICIT MessageAuthenticationCode OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECIESParameters : Sequence
     {
 	    // информация о структуре
@@ -16,6 +20,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(), Cast.EO, Tag.Context(1)), 
 		    new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(), Cast.EO, Tag.Context(2)), 
 	    }; 
+		// конструктор при сериализации
+        protected ECIESParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECIESParameters(IEncodable encodable) : base(encodable, info) {}
 

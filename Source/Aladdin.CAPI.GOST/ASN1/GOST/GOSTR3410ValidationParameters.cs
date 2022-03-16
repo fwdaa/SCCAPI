@@ -1,4 +1,7 @@
-﻿// GostR3410-94-ValidationParameters-c ::= INTEGER (0 .. 65535)
+﻿using System; 
+using System.Runtime.Serialization; 
+
+// GostR3410-94-ValidationParameters-c ::= INTEGER (0 .. 65535)
 // GostR3410-94-ValidationParameters ::= SEQUENCE {
 //      x0   GostR3410-94-ValidationParameters-c,
 //      c    GostR3410-94-ValidationParameters-c,
@@ -13,6 +16,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
     public class GOSTR3410ValidationParameters : Sequence
     {
 	    // информация о структуре
@@ -22,6 +26,9 @@ namespace Aladdin.ASN1.GOST
 		    new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.O) 
 	    }; 
+		// конструктор при сериализации
+        protected GOSTR3410ValidationParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public GOSTR3410ValidationParameters(IEncodable encodable) : base(encodable, info) {}
 		

@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.EC
+﻿using System; 
+
+namespace Aladdin.CAPI.EC
 {
     ///////////////////////////////////////////////////////////////////////////////
     // Конечное поле 
     ///////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public abstract class Field : Math.IField<Math.BigInteger>
     {
         // разрядность поля

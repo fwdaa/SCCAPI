@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Aladdin.ASN1.GOST
+﻿namespace Aladdin.ASN1.GOST
 {
 	public class GOSTR3411DigestParameters : Choice
 	{

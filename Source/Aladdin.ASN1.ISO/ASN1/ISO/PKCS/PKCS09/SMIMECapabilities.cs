@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // SMIMECapabilities ::= SEQUENCE OF SMIMECapability
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 {
+	[Serializable]
 	public class SMIMECapabilities : Sequence<SMIMECapability>
 	{
+		// конструктор при сериализации
+        protected SMIMECapabilities(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public SMIMECapabilities(IEncodable encodable) : base(encodable) {} 
 

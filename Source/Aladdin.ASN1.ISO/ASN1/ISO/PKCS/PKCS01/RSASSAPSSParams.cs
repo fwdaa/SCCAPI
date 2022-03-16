@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 //	RSASSA-PSS-params ::= SEQUENCE {
 //		hashAlgorithm      [0] HashAlgorithm      DEFAULT sha1,
@@ -11,6 +12,7 @@ using System.IO;
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 {
+	[Serializable]
 	public class RSASSAPSSParams : Sequence
 	{
 		// значение по умолчанию
@@ -32,6 +34,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 			new ObjectInfo(new ObjectCreator<Integer				>().Factory(), Cast.EO, Tag.Context(2), new Integer(20) ), 
 			new ObjectInfo(new ObjectCreator<Integer				>().Factory(), Cast.EO, Tag.Context(3), trailerFieldBC  ), 
 		}; 
+		// конструктор при сериализации
+        protected RSASSAPSSParams(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RSASSAPSSParams(IEncodable encodable) : base(encodable, info) 
 		{

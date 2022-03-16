@@ -9,7 +9,10 @@ namespace Aladdin.ASN1
 	public class Choice : IObjectFactory 
 	{
 		// конструктор при раскодировании
-		public Choice(ObjectInfo[] info) { this.info = info; } private ObjectInfo[] info; 
+		public Choice(ObjectInfo[] info) 
+			
+			// сохранить переданные параметры
+			{ this.info = info; } private ObjectInfo[] info; 
 
 		// проверить допустимость типа
 		public bool IsValidTag(Tag tag)

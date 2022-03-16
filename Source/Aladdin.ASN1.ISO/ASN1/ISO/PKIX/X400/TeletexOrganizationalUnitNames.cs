@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 // TeletexOrganizationalUnitNames ::= SEQUENCE SIZE (1..ub-organizational-units) OF TeletexOrganizationalUnitName
 // ub-organizational-units INTEGER ::= 4
@@ -9,8 +10,12 @@ using System.IO;
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class TeletexOrganizationalUnitNames : Sequence<TeletexString>
 	{
+		// конструктор при сериализации
+        protected TeletexOrganizationalUnitNames(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public TeletexOrganizationalUnitNames(IEncodable encodable) : base(encodable) 
 		{

@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +9,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      point ECPoint 
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class SpecifiedMultiple : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<Integer    >().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected SpecifiedMultiple(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public SpecifiedMultiple(IEncodable encodable) : base(encodable, info) {}
 

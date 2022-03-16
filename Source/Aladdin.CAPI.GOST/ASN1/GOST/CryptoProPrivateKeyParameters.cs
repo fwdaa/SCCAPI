@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 using Aladdin.ASN1.ISO;
 
 //	GOSTRPrivateKeyParameters ::= SEQUENCE {
@@ -11,6 +12,7 @@ using Aladdin.ASN1.ISO;
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class CryptoProPrivateKeyParameters : Sequence
 	{
 		// информация о структуре
@@ -19,6 +21,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<BitString			>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N,	Tag.Context(0)	), 
 		}; 
+		// конструктор при сериализации
+        protected CryptoProPrivateKeyParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CryptoProPrivateKeyParameters(IEncodable encodable) : base(encodable, info) {}
 

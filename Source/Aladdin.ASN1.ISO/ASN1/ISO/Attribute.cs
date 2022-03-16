@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	Attribute ::= SEQUENCE {
 //		type	OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO
 {
+	[Serializable]
 	public class Attribute : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier	>().Factory(),	Cast.N), 
 			new ObjectInfo(new ObjectCreator<Set				>().Factory(),	Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected Attribute(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Attribute(IEncodable encodable) : base(encodable, info) {}
 

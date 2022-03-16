@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	CertificationRequest ::= SEQUENCE {
 //		certificationRequestInfo	CertificationRequestInfo,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS10
 {
+	[Serializable]
 	public class CertificationRequest : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS10
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier	 >().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<BitString				 >().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected CertificationRequest(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CertificationRequest(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,18 +1,23 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Пустое значение
 	///////////////////////////////////////////////////////////////////////////
-	public class Null : AsnObject
+	[Serializable]
+	public sealed class Null : AsnObject
 	{
         // проверить допустимость типа
         public static bool IsValidTag(Tag tag) { return tag == Tag.Null; }
     
 		// экземпляр объекта
 		public static readonly Null Instance = new Null(); 
+
+		// конструктор при сериализации
+        private Null(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
 		// конструктор при раскодировании
 		public Null(IEncodable encodable) : base(encodable)

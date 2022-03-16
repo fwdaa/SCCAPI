@@ -1,4 +1,5 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 //	GeneralSubtree ::= SEQUENCE {
 //		base                 GeneralName,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class GeneralSubtree : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<Integer	>().Factory(0), Cast.O, Tag.Context(0)	), 
 			new ObjectInfo(new ObjectCreator<Integer	>().Factory(0), Cast.O, Tag.Context(1)	), 
 		}; 
+		// конструктор при сериализации
+        protected GeneralSubtree(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GeneralSubtree(IEncodable encodable) : base(encodable, info) {}
 

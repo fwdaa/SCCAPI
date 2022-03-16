@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // KeySpecificInfo ::= SEQUENCE {
 //		algorithm	OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ANSI.X942
 {
+	[Serializable]
 	public class KeySpecificInfo : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ANSI.X942
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(    ), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString     >().Factory(4, 4), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected KeySpecificInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public KeySpecificInfo(IEncodable encodable) : base(encodable, info) {}
 

@@ -2,19 +2,60 @@
 using System.IO;
 using System.Collections; 
 using System.Collections.Generic; 
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Коллекция объектов
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class Collection : Encodable, IEnumerable<IEncodable> 
 	{
-		///////////////////////////////////////////////////////////////////////
-		// Функции коллекции элементов
-		///////////////////////////////////////////////////////////////////////
+		// коллекция элементов
+		[NonSerialized] private IEncodable[] values; 
+		[NonSerialized] private ObjectInfo[] info;
+
+		// перечислитель объектов
+		public IEnumerator<IEncodable> GetEnumerator() 
+		{ 
+			// перечислитель объектов
+			return new List<IEncodable>(values).GetEnumerator(); 
+		}
+		// перечислитель объектов
+		IEnumerator IEnumerable.GetEnumerator() { return values.GetEnumerator(); }
+
+		// получить элемент коллекции
+		public IEncodable this[int i] { get { return values[i]; } 
+
+			// установить элемент коллекции
+			protected set { values[i] = value; } 
+		}
+		// размер коллекции
+		public int Length { get { return values.Length; } } 
+
+		// конструктор при сериализации
+        protected Collection(SerializationInfo serialInfo, StreamingContext context) : base(serialInfo, context)
+        {
+			// получить конструктор при раскодировании
+			ConstructorInfo constructor = GetType().GetConstructor(new Type[] { typeof(IEncodable) }); 
+
+			// проверить наличие конструктора
+			if (constructor == null) throw new InvalidOperationException(); 
+			try {  
+				// создать объект 
+				Collection instance = (Collection)constructor.Invoke(new object[] { this }); 
+
+				// сохранить внутренние поля объекта
+				values = instance.values; info = instance.info; 
+			}
+			// обработать возможное исключение
+			catch (TargetInvocationException e) { throw e.InnerException; }
+        }
+		// извлечение элементов 
 		internal delegate IEncodable[] CastCallback(ObjectInfo[] info, IEncodable[] encodables);
- 
+
 		// конструктор при раскодировании
 		internal Collection(IEncodable encodable, ObjectInfo[] info, CastCallback callback) : base(encodable)
 		{
@@ -39,7 +80,7 @@ namespace Aladdin.ASN1
 			values = callback(this.info, list.ToArray()); 
 		}
 		// конструктор при раскодировании
-		internal Collection(IEncodable encodable, ObjectInfo info, CastCallback callback) : base(encodable)
+		internal Collection(IEncodable encodable, ObjectInfo info) : base(encodable)
 		{
 	        // создать список объектов
 			List<IEncodable> values = new List<IEncodable>(); 
@@ -172,26 +213,5 @@ namespace Aladdin.ASN1
 		}
 		// отсортировать представления
 		protected virtual void ArrangeEncodings(ref byte[][] encoded) {} 
-
-		// перечислитель объектов
-		public IEnumerator<IEncodable> GetEnumerator() 
-		{ 
-			// перечислитель объектов
-			return new List<IEncodable>(values).GetEnumerator(); 
-		}
-		// перечислитель объектов
-		IEnumerator IEnumerable.GetEnumerator() { return values.GetEnumerator(); }
-
-		// получить элемент коллекции
-		public IEncodable this[int i] { get { return values[i]; } 
-
-			// установить элемент коллекции
-			protected set { values[i] = value; } 
-		}
-		// размер коллекции
-		public int Length { get { return values.Length; } } 
-
-		// коллекция элементов
-		private IEncodable[] values; private ObjectInfo[] info;
 	}
 }

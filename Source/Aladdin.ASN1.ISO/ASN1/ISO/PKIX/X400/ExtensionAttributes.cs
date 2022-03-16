@@ -1,13 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 // ExtensionAttributes ::= SET SIZE (1..ub-extension-attributes) OF ExtensionAttribute
 // ub-extension-attributes INTEGER ::= 256
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class ExtensionAttributes : Set<ExtensionAttribute>
 	{
+		// конструктор при сериализации
+        protected ExtensionAttributes(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public ExtensionAttributes(IEncodable encodable) : base(encodable) 
 		{ 

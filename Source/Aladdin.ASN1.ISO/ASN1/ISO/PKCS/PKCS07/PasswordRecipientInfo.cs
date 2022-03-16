@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PasswordRecipientInfo ::= SEQUENCE {
 //		version								INTEGER,
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class PasswordRecipientInfo : Sequence
 	{
 		// информация о структуре
@@ -19,6 +21,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.N,	Tag.Any			), 
 		}; 
+		// конструктор при сериализации
+        protected PasswordRecipientInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PasswordRecipientInfo(IEncodable encodable) : base(encodable, info) {}
 

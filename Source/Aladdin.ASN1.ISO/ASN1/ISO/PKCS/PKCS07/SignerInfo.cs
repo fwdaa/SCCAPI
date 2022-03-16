@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	SignerInfo ::= SEQUENCE {
 //		version								INTEGER,
@@ -12,6 +13,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class SignerInfo : Sequence
 	{
 		// информация о структуре
@@ -25,6 +27,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<Attributes			>().Factory(), Cast.O,	Tag.Context(1)	), 
 		}; 
+		// конструктор при сериализации
+        protected SignerInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public SignerInfo(IEncodable encodable) : base(encodable, info) {}
 

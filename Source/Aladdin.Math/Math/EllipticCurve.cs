@@ -5,6 +5,7 @@ namespace Aladdin.Math
     ///////////////////////////////////////////////////////////////////////
     // Эллиптическая кривая
     ///////////////////////////////////////////////////////////////////////
+    [Serializable]
     public abstract class ElliticCurve<E, F> : GroupAdd<Point<E>>, 
         IEquatable<ElliticCurve<E, F>> where F : IField<E> where E : class
     {

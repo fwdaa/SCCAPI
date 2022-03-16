@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	RevokedCertificate ::= SEQUENCE  {
 //		userCertificate    INTEGER,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class RevokedCertificate : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ChoiceCreator<Time		>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Extensions	>().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected RevokedCertificate(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RevokedCertificate(IEncodable encodable) : base(encodable, info) {}
 

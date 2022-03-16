@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	SMIMECapability  ::=  SEQUENCE  {
 //		algorithm  OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 {
+	[Serializable]
 	public class SMIMECapability : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected SMIMECapability(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public SMIMECapability(IEncodable encodable) : base(encodable, info) {}
 

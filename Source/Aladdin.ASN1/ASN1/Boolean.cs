@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Булевое значение
 	///////////////////////////////////////////////////////////////////////////
-	public class Boolean : AsnObject
+	[Serializable]
+	public sealed class Boolean : AsnObject
 	{
         // проверить допустимость типа
         public static bool IsValidTag(Tag tag) { return tag == Tag.Boolean; }
@@ -15,18 +17,27 @@ namespace Aladdin.ASN1
 		public static readonly Boolean True  = new Boolean(true );
 		public static readonly Boolean False = new Boolean(false); 
 
-		// конструктор при раскодировании
-		public Boolean(IEncodable encodable) : base(encodable)
-		{
+		// конструктор при сериализации
+        private Boolean(SerializationInfo info, StreamingContext context) 
+		
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+		
+		// дополнительные вычисления при сериализации
+        public void OnDeserialization(object sender)
+        {
 			// проверить корректность способа кодирования
-			if (encodable.PC != PC.Primitive) throw new InvalidDataException();
+			if (PC != PC.Primitive) throw new InvalidDataException();
 
 			// проверить корректность объекта
-			if (encodable.Content.Length != 1) throw new InvalidDataException();
+			if (Content.Length != 1) throw new InvalidDataException();
 
 			// сохранить булевое значение
-			this.value = (encodable.Content[0] != 0); 
-		}
+			this.value = (Content[0] != 0); 
+        }
+		// конструктор при раскодировании
+		public Boolean(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public Boolean(bool value) : base(Tag.Boolean) { this.value = value; }
 
@@ -40,6 +51,6 @@ namespace Aladdin.ASN1
 			return new byte[] { value ? (byte)0xFF : (byte)0x00 } ; 
 		}}
  		// булевое значение
-		public bool Value { get { return value; } } private bool value;
+		public bool Value { get { return value; } } [NonSerialized] private bool value;
 	}
 }

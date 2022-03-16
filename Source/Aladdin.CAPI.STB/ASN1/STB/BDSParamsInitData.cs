@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.STB
 {
     ///////////////////////////////////////////////////////////////////////////////
@@ -8,6 +11,7 @@ namespace Aladdin.ASN1.STB
     //		bdsPrmsInitDValue INTEGER
     //	}
     ///////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class BDSParamsInitData : Sequence
     {
 	    // информация о структуре
@@ -18,6 +22,9 @@ namespace Aladdin.ASN1.STB
 		    new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<Integer    >().Factory(), Cast.N) 
 	    }; 
+		// конструктор при сериализации
+        protected BDSParamsInitData(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public BDSParamsInitData(IEncodable encodable) : base(encodable, info) {}  
     

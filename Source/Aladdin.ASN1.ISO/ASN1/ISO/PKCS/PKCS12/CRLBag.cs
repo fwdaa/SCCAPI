@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	CRLBag ::= SEQUENCE {
 //		crlId			         OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 {
+	[Serializable]
 	public class CRLBag : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.E,	Tag.Context(0)	), 
 		}; 
+		// конструктор при сериализации
+        protected CRLBag(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CRLBag(IEncodable encodable) : base(encodable, info) {}
 

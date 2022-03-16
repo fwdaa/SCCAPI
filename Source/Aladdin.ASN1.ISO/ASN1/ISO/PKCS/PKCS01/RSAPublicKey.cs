@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	RSAPublicKey ::= SEQUENCE {
 //		modulus			INTEGER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 {
+	[Serializable]
 	public class RSAPublicKey : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected RSAPublicKey(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RSAPublicKey(IEncodable encodable) : base(encodable, info) {}
 

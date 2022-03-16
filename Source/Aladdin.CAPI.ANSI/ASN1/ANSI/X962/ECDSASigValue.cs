@@ -1,4 +1,7 @@
-﻿namespace Aladdin.ASN1.ANSI.X962
+﻿using System; 
+using System.Runtime.Serialization;
+
+namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
     // EcdsaSigValue ::= SEQUENCE {
@@ -8,6 +11,7 @@
     //		y CHOICE { b BOOLEAN, f FieldElement } OPTIONAL 
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECDSASigValue : Sequence
     {
         public class ChoiceY : Choice
@@ -29,6 +33,9 @@
             new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.O),
             new ObjectInfo(new ChoiceCreator<ChoiceY>().Factory(), Cast.O) 
 	    }; 
+		// конструктор при сериализации
+        protected ECDSASigValue(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECDSASigValue(IEncodable encodable) : base(encodable, info) {}
 

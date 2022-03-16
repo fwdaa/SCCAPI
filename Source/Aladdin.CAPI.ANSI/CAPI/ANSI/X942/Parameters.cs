@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.ANSI.X942
+﻿using System; 
+
+namespace Aladdin.CAPI.ANSI.X942
 {
     ///////////////////////////////////////////////////////////////////////////
     // Параметры ключей DH
     ///////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class Parameters : IParameters 
     {
         // конструктор

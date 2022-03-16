@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Целое число со знаком
 	///////////////////////////////////////////////////////////////////////////
-	public class Integer : AsnObject
+	[Serializable]
+	public sealed class Integer : AsnObject
 	{
         // проверить допустимость типа
         public static bool IsValidTag(Tag tag) { return tag == Tag.Integer; }
@@ -37,18 +39,27 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
-		// конструктор при раскодировании
-		public Integer(IEncodable encodable) : base(encodable)
-		{
+		// конструктор при сериализации
+        private Integer(SerializationInfo info, StreamingContext context)
+
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+		
+		// дополнительные вычисления при сериализации
+        public void OnDeserialization(object sender)
+        {
 			// проверить корректность способа кодирования
-			if (encodable.PC != PC.Primitive) throw new InvalidDataException();
+			if (PC != PC.Primitive) throw new InvalidDataException();
 
 			// проверить корректность объекта
-			if (encodable.Content.Length == 0) throw new InvalidDataException();
+			if (Content.Length == 0) throw new InvalidDataException();
 
 			// раскодировать целое число со знаком
-			this.value = new Math.BigInteger(encodable.Content);  
-		}
+			this.value = new Math.BigInteger(Content);  
+        }
+		// конструктор при раскодировании
+		public Integer(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public Integer(Math.BigInteger value) : base(Tag.Integer) { this.value = value; }
 		
@@ -65,9 +76,12 @@ namespace Aladdin.ASN1
 		protected override byte[] DerContent { get { return value.ToByteArray(); } }
 
  		// целое число со знаком
-		public Math.BigInteger Value { get { return value; } } private Math.BigInteger value;
+		public Math.BigInteger Value { get { return value; } } 
 
 		// целое число со знаком
 		public int IntValue { get { return Value.IntValue; } } 
+
+		// раскодированное значение
+		[NonSerialized] private Math.BigInteger value;
 	}
 }

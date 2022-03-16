@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PBKDF2Parameter ::= SEQUENCE {
 //		salt			PBSalt,
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS5
 {
+	[Serializable]
 	public class PBKDF2Parameter : Sequence
 	{
 		// значение псевдослучайной функции по умолчанию
@@ -23,6 +25,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS5
 			new ObjectInfo(new ObjectCreator<Integer			>().Factory(1), Cast.O,	Tag.Any		), 
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory( ), Cast.O,	Tag.Any, prf), 
 		}; 
+		// конструктор при сериализации
+        protected PBKDF2Parameter(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PBKDF2Parameter(IEncodable encodable) : base(encodable, info) {}
 

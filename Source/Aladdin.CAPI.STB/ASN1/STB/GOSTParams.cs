@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.STB
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +10,7 @@ namespace Aladdin.ASN1.STB
     // 	sblock SBlock OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class GOSTParams : Sequence
     {
 	    // информация о структуре
@@ -15,6 +19,9 @@ namespace Aladdin.ASN1.STB
             new ObjectInfo(new ObjectCreator<OctetString>().Factory(8, 8), Cast.N), 
 		    new ObjectInfo(new ChoiceCreator<SBlock     >().Factory(    ), Cast.O) 
 	    }; 
+		// конструктор при сериализации
+        protected GOSTParams(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public GOSTParams(IEncodable encodable) : base(encodable, info) {} 
     

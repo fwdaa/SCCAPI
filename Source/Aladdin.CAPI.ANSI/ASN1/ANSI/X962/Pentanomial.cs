@@ -1,4 +1,7 @@
-﻿namespace Aladdin.ASN1.ANSI.X962
+﻿using System; 
+using System.Runtime.Serialization;
+
+namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Pentanomial ::= SEQUENCE {
@@ -7,6 +10,7 @@
     //      k3  INTEGER 
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class Pentanomial : Sequence
     {
 	    // информация о структуре
@@ -16,6 +20,9 @@
 		    new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N) 
 	    }; 
+		// конструктор при сериализации
+        protected Pentanomial(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public Pentanomial(IEncodable encodable) : base(encodable, info) {}
 

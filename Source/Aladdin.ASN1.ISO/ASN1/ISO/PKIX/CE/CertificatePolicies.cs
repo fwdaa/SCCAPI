@@ -1,11 +1,16 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 // CertificatePolicies ::= SEQUENCE OF PolicyInformation
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class CertificatePolicies : Sequence<PolicyInformation>
 	{
+		// конструктор при сериализации
+        protected CertificatePolicies(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CertificatePolicies(IEncodable encodable) : base(encodable) {} 
 

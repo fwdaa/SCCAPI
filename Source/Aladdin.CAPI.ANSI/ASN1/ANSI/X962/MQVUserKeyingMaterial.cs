@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +9,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //         addedukm [0] EXPLICIT UserKeyingMaterial OPTIONAL  
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class MQVUserKeyingMaterial : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(), Cast.N , Tag.Any       ), 
 		    new ObjectInfo(new ObjectCreator<OctetString            >().Factory(), Cast.EO, Tag.Context(0)) 
 	    };
+		// конструктор при сериализации
+        protected MQVUserKeyingMaterial(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public MQVUserKeyingMaterial(IEncodable encodable) : base(encodable, info) {}
     

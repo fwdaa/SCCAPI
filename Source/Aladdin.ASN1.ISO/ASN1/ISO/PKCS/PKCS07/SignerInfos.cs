@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // SignerInfos ::= SET OF SignerInfo
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class SignerInfos : Set<SignerInfo>
 	{
+		// конструктор при сериализации
+        protected SignerInfos(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public SignerInfos(IEncodable encodable) : base(encodable) {}
 

@@ -1,4 +1,7 @@
-﻿namespace Aladdin.ASN1.ANSI.X962
+﻿using System; 
+using System.Runtime.Serialization;
+
+namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Characteristic-two ::= SEQUENCE {
@@ -7,6 +10,7 @@
     //      parameters  ANY DEFINED BY basis 
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class CharacteristicTwo : Sequence
     {
 	    // информация о структуре
@@ -16,6 +20,9 @@
 		    new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 		    new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected CharacteristicTwo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public CharacteristicTwo(IEncodable encodable) : base(encodable, info) {}
 

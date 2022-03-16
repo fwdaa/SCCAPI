@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	CountryName ::= [APPLICATION 1] EXPLICIT CHOICE {
 //		x121-dcc-code			NumericString	(SIZE (ub-country-name-numeric-length)),
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class CountryName : Explicit
 	{
 		// допустимые типы объекта
@@ -20,6 +22,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<NumericString  >().Factory(3, 3), Cast.N), 
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(2, 2), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected CountryName(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CountryName(IEncodable encodable) : base(new Choice(info), encodable) {} 
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AttributeValidity  ::= SEQUENCE {
 //		notBeforeTime  GeneralizedTime,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class AttributeValidity : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<GeneralizedTime>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<GeneralizedTime>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected AttributeValidity(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AttributeValidity(IEncodable encodable) : base(encodable, info) {}
 

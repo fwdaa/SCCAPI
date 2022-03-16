@@ -1,4 +1,7 @@
-﻿//	EncryptedKey ::= SEQUENCE {
+﻿using System; 
+using System.Runtime.Serialization;
+
+//	EncryptedKey ::= SEQUENCE {
 //      version            INTEGER, 
 //		iv                 OCTET STRING (SIZE (8)),
 //      spc                OCTET STRING, 
@@ -8,6 +11,7 @@
 
 namespace Aladdin.ASN1.KZ
 {
+	[Serializable]
     public class EncryptedKey  : Sequence
 	{
 		// информация о структуре
@@ -19,6 +23,9 @@ namespace Aladdin.ASN1.KZ
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(    ), Cast.O, Tag.Any       ), 
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(8, 8), Cast.O, Tag.Context(0)), 
 		}; 
+		// конструктор при сериализации
+        protected EncryptedKey(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public EncryptedKey(IEncodable encodable) : base(encodable, info) {}
 

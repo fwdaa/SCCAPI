@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AuthenticatedData ::= SEQUENCE {
 //		version							INTEGER,
@@ -14,6 +15,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 {
+	[Serializable]
 	public class AuthenticatedData : Sequence
 	{
 		// информация о структуре
@@ -29,6 +31,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 			new ObjectInfo(new ObjectCreator<OctetString					>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<Attributes					    >().Factory(), Cast.O,	Tag.Context(3)	), 
 		}; 
+		// конструктор при сериализации
+        protected AuthenticatedData(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AuthenticatedData(IEncodable encodable) : base(encodable, info) {}
 

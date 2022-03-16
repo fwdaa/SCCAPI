@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.STB
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +9,7 @@ namespace Aladdin.ASN1.STB
     //  parameters INTEGER
     // }
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class FieldID : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@ namespace Aladdin.ASN1.STB
 		    new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<Integer         >().Factory(), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected FieldID(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public FieldID(IEncodable encodable) : base(encodable, info) {}  
     

@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +10,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      eccSupplements ECCSupplements
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECPKSupplements : Sequence
     {
 	    // информация о структуре
@@ -16,6 +20,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<ECCAlgorithms     >().Factory(), Cast.N), 
 		    new ObjectInfo(new ChoiceCreator<ECCSupplements    >().Factory(), Cast.N) 
 	    }; 
+		// конструктор при сериализации
+        protected ECPKSupplements(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECPKSupplements(IEncodable encodable) : base(encodable, info) {}
 

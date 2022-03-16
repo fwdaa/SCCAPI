@@ -1,6 +1,5 @@
 ﻿using System.Security;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -36,4 +35,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("8.0.0.140")]
 [assembly: AssemblyFileVersion("8.0.0.140")]
 [assembly: AllowPartiallyTrustedCallers]
-[assembly: SecurityTransparent]

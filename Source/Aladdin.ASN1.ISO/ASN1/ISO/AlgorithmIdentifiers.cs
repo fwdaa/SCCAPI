@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // AlgorithmIdentifiers ::= SET OF AlgorithmIdentifier
 
 namespace Aladdin.ASN1.ISO
 {
+	[Serializable]
 	public class AlgorithmIdentifiers : Set<AlgorithmIdentifier>
 	{
+		// конструктор при сериализации
+        protected AlgorithmIdentifiers(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AlgorithmIdentifiers(IEncodable encodable) : base(encodable) {} 
 

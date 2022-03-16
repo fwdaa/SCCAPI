@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AdministrationDomainName ::= [APPLICATION 2] EXPLICIT CHOICE {
 //		numeric   NumericString   (SIZE (0..ub-domain-name-length)),
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class AdministrationDomainName : Explicit
 	{
 		// допустимые типы объекта
@@ -19,6 +21,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<NumericString  >().Factory(0, 16), Cast.N), 
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(0, 16), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected AdministrationDomainName(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AdministrationDomainName(IEncodable encodable) : base(new Choice(info), encodable) {} 
 

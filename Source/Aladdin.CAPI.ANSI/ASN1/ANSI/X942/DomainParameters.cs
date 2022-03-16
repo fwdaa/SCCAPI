@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // DomainParameters ::= SEQUENCE {
 //		p					INTEGER, 
@@ -10,6 +11,7 @@
 
 namespace Aladdin.ASN1.ANSI.X942
 {
+	[Serializable]
 	public class DomainParameters : Sequence
 	{
 		// информация о структуре
@@ -21,6 +23,9 @@ namespace Aladdin.ASN1.ANSI.X942
 			new ObjectInfo(new ObjectCreator<Integer		>().Factory(), Cast.O), 
 			new ObjectInfo(new ObjectCreator<ValidationParms>().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected DomainParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public DomainParameters(IEncodable encodable) : base(encodable, info) {}
 

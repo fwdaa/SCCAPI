@@ -1,9 +1,16 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     // ECCAlgorithms ::= SEQUENCE OF ECCAlgorithm
 
+	[Serializable]
     public class ECCAlgorithms : Sequence<ISO.AlgorithmIdentifier>
     {
+		// конструктор при сериализации
+        protected ECCAlgorithms(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECCAlgorithms(IEncodable encodable) : base(encodable) {} 
 

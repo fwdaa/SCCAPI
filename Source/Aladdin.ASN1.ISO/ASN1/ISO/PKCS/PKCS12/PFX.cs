@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PFX ::= SEQUENCE {
 //		version		INTEGER {v3(3)}(v3,...),
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 {
+	[Serializable]
 	public class PFX : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 			new ObjectInfo(new ObjectCreator<ContentInfo>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<MacData	>().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected PFX(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PFX(IEncodable encodable) : base(encodable, info) {}
 

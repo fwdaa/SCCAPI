@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 //	GOST28147Parameters ::= SEQUENCE {
 //		iv                   OCTET STRING (SIZE (8)),
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOST28147CipherParameters : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(8, 8), Cast.N), 
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier	>().Factory(    ), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected GOST28147CipherParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOST28147CipherParameters(IEncodable encodable) : base(encodable, info) {}
 

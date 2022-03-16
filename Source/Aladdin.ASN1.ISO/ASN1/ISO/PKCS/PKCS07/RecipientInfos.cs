@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // RecipientInfos ::= SET SIZE OF RecipientInfo
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class RecipientInfos : Set
 	{
+		// конструктор при сериализации
+        protected RecipientInfos(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RecipientInfos(IEncodable encodable) : 
 			base(new ChoiceCreator<RecipientInfo>().Factory(), encodable) {}

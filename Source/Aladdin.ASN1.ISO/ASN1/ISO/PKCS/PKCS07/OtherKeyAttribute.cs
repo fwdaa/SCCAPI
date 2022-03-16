@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	OtherKeyAttribute ::= SEQUENCE {
 //		keyAttrId	OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class OtherKeyAttribute : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected OtherKeyAttribute(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OtherKeyAttribute(IEncodable encodable) : base(encodable, info) {}
 

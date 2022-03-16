@@ -1,13 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 // BuiltInDomainDefinedAttributes ::= SEQUENCE SIZE (1..ub-domain-defined-attributes) OF BuiltInDomainDefinedAttribute
 // ub-domain-defined-attributes INTEGER ::= 4
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class BuiltInDomainDefinedAttributes : Sequence<BuiltInDomainDefinedAttribute>
 	{
+		// конструктор при сериализации
+        protected BuiltInDomainDefinedAttributes(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public BuiltInDomainDefinedAttributes(IEncodable encodable) : base(encodable) 
 		{ 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	Extension  ::=  SEQUENCE  {
 //		extnID      OBJECT IDENTIFIER,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class Extension : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,13 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<Boolean			>().Factory(), Cast.O, Tag.Any,	Boolean.False	), 
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.N, Tag.Any					), 
 		}; 
+		// конструктор при сериализации
+        protected Extension(SerializationInfo info, StreamingContext context) : base(info, context) 
+		{
+			// раскодировать атрибут
+			decoded = Encodable.Decode(this[2].Content); 
+		}
+		// конструктор при раскодировании
 		public Extension(IEncodable encodable) : base(encodable, info) 
 		{
 			// раскодировать атрибут
@@ -33,7 +42,7 @@ namespace Aladdin.ASN1.ISO.PKIX
 		public Boolean			Critical	{ get { return (Boolean         )this[1]; } }
 
 		// раскодированное значение атрибута
-		public IEncodable ExtnValue { get { return decoded; } } private IEncodable decoded; 
+		public IEncodable ExtnValue { get { return decoded; } } [NonSerialized] private IEncodable decoded; 
 	}
 }
 

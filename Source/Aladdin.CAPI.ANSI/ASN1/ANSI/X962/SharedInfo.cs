@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -9,6 +12,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      suppPrivInfo [3] EXPLICIT OCTET STRING OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class SharedInfo : Sequence
     {
 	    // информация о структуре
@@ -20,6 +24,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<OctetString            >().Factory(), Cast.EO, Tag.Context(2)), 
 		    new ObjectInfo(new ObjectCreator<OctetString            >().Factory(), Cast.EO, Tag.Context(3)) 
 	    }; 
+		// конструктор при сериализации
+        protected SharedInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public SharedInfo(IEncodable encodable) : base(encodable, info) {}
 

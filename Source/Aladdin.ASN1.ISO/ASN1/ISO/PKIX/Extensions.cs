@@ -1,13 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 // Extensions ::= SEQUENCE OF Extension
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class Extensions : Sequence<Extension>
 	{
+		// конструктор при сериализации
+        protected Extensions(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Extensions(IEncodable encodable) : base(encodable) {}
 

@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.ANSI.X962
+﻿using System; 
+
+namespace Aladdin.CAPI.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Параметры ключа 
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class Parameters : IParameters
     {
         private EC.Curve                     curve; // эллиптическая кривая

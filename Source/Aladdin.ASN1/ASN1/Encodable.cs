@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Security;
+using System.Security.Permissions;
+using System.Runtime.Serialization;
 using System.IO;
 
 namespace Aladdin.ASN1
@@ -6,7 +9,8 @@ namespace Aladdin.ASN1
 	///////////////////////////////////////////////////////////////////////////
 	// Закодированное представление объекта
 	///////////////////////////////////////////////////////////////////////////
-	public class Encodable : IEncodable
+    [Serializable]
+	public class Encodable : IEncodable, ISerializable
 	{
         // конструктор
 		protected Encodable(IEncodable encodable)
@@ -80,6 +84,30 @@ namespace Aladdin.ASN1
 			// сравнить два объекта
 			return Arrays.Equals(Encoded, obj.Encoded);  
 		}
+        /////////////////////////////////////////////////////////////////////////////
+        // Сохранение данных
+        /////////////////////////////////////////////////////////////////////////////
+        protected Encodable(SerializationInfo info, StreamingContext context)
+        {
+            // прочитать бинарное представление
+            byte[] encoded = Convert.FromBase64String(info.GetString("Encoded")); 
+
+            // раскодировать представление
+            IEncodable encodable = Encodable.Decode(encoded); 
+
+            // сохранить раскодированные параметры 
+            this.tag = encodable.Tag; this.pc = encodable.PC;
+
+            // сохранить раскодированные параметры 
+			this.content = encodable.Content; this.encoded = encodable.Encoded;
+        }
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // сохранить бинарное представление
+            info.AddValue("Encoded", Convert.ToBase64String(Encoded)); 
+        }
         /////////////////////////////////////////////////////////////////////////////
         // Проверить отсутствие данных
         /////////////////////////////////////////////////////////////////////////////

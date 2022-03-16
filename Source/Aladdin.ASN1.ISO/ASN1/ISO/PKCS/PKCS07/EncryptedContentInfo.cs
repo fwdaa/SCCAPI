@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	EncryptedContentInfo ::= SEQUENCE {
 //		contentType									OBJECT IDENTIFIER,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class EncryptedContentInfo : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.O,	Tag.Context(0)	), 
 		}; 
+		// конструктор при сериализации
+        protected EncryptedContentInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public EncryptedContentInfo(IEncodable encodable) : base(encodable, info) {}
 

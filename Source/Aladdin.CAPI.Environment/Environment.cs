@@ -2,13 +2,15 @@
 using System.Xml;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis; 
 
 namespace Aladdin.CAPI
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Криптографическая среда
 	///////////////////////////////////////////////////////////////////////////
-	public class CryptoEnvironment : ExecutionContext
+    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
+	public class CryptoEnvironment : ExecutionContext, IParametersFactory
 	{
         // фабрики алгоритмов и криптопровайдеры
 		private Factories factories; private List<CryptoProvider> providers; 
@@ -200,7 +202,7 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Параметры и отображаемое имя ключа
         ///////////////////////////////////////////////////////////////////////
-        public override IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public virtual IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             // проверить наличие расширения 
             if (!mappings.ContainsKey(keyOID)) throw new NotFoundException();

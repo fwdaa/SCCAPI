@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.STB
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +10,7 @@ namespace Aladdin.ASN1.STB
     // 		sblock OBJECT IDENTIFIER OPTIONAL
     // 	}
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class BDHKeyTransParams : Sequence
     {
 	    // информация о структуре
@@ -16,6 +20,9 @@ namespace Aladdin.ASN1.STB
             new ObjectInfo(new ObjectCreator<OctetString 	 >().Factory(4, 4), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(    ), Cast.O) 
 	    }; 
+		// конструктор при сериализации
+        protected BDHKeyTransParams(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public BDHKeyTransParams(IEncodable encodable) : base(encodable, info) {} 
     

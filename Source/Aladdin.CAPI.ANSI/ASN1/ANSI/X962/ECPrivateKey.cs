@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -8,6 +11,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      publicKey  [1] EXPLICIT BIT STRING OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECPrivateKey : Sequence
     {
 	    // информация о структуре
@@ -18,6 +22,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ChoiceCreator<ECDomainParameters >().Factory(), Cast.EO, Tag.Context(0)),
 		    new ObjectInfo(new ObjectCreator<BitString          >().Factory(), Cast.EO, Tag.Context(1)) 
 	    }; 
+		// конструктор при сериализации
+        protected ECPrivateKey(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECPrivateKey(IEncodable encodable) : base(encodable, info) {}
 

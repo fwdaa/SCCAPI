@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	ORAddress ::= SEQUENCE {
 //		built-in-standard-attributes		BuiltInStandardAttributes,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class OrAddress : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<BuiltInDomainDefinedAttributes	>().Factory(), Cast.O), 
 			new ObjectInfo(new ObjectCreator<ExtensionAttributes			>().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected OrAddress(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OrAddress(IEncodable encodable) : base(encodable, info) {}
 

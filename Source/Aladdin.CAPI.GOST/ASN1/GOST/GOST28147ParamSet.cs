@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization; 
 
 //	GOST28147ParamSet ::= SEQUENCE {
 //		eUZ             OCTET STRING (SIZE(64)),
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOST28147ParamSet : Sequence
 	{
 		// информация о структуре
@@ -20,6 +22,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<Integer				>().Factory(64, 64), Cast.N), 
 			new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(      ), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected GOST28147ParamSet(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOST28147ParamSet(IEncodable encodable) : base(encodable, info) {}
 

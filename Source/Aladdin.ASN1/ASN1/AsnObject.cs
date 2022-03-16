@@ -1,11 +1,16 @@
-﻿using System;
+﻿using System; 
+using System.Reflection; 
+using System.Security;
+using System.Security.Permissions;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Известный объект ASN.1
 	///////////////////////////////////////////////////////////////////////////
-	public abstract class AsnObject : IEncodable
+    [Serializable]
+	public abstract class AsnObject : IEncodable, ISerializable
 	{
 		private Tag			tag;	// тип объекта
 		private IEncodable	ber;	// закодированное BER-представление
@@ -77,5 +82,33 @@ namespace Aladdin.ASN1
 			// сравнить два объекта
 			return Arrays.Equals(DerEncodable.Encoded, obj.DerEncodable.Encoded);  
 		}
+        /////////////////////////////////////////////////////////////////////////////
+        // Сохранение данных
+        /////////////////////////////////////////////////////////////////////////////
+        protected AsnObject(SerializationInfo info, StreamingContext context)
+        {
+			// получить конструктор при раскодировании
+			ConstructorInfo constructor = GetType().GetConstructor(
+				new Type[] { typeof(IEncodable) }
+			); 
+			// проверить наличие конструктора
+			if (constructor == null) throw new InvalidOperationException(); 
+			try {  
+				// создать объект 
+				AsnObject instance = (AsnObject)constructor.Invoke(new object[] { this }); 
+
+				// сохранить переменные объекта
+				this.tag = instance.Tag; ber = instance.BerEncodable; der = instance.DerEncodable; 
+			}
+			// обработать возможное исключение
+			catch (TargetInvocationException e) { throw e.InnerException; }
+        }
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // сохранить бинарное представление
+            info.AddValue("Encoded", Convert.ToBase64String(Encoded)); 
+        }
 	}
 }

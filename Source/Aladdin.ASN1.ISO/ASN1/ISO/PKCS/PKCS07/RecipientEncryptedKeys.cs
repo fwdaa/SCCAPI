@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // RecipientEncryptedKeys ::= SEQUENCE OF RecipientEncryptedKey
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class RecipientEncryptedKeys : Sequence<RecipientEncryptedKey>
 	{
+		// конструктор при сериализации
+        protected RecipientEncryptedKeys(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RecipientEncryptedKeys(IEncodable encodable) : base(encodable) {}
 

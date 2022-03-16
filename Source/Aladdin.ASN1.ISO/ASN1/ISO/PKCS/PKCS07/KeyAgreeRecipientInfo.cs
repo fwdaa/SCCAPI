@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	KeyAgreeRecipientInfo ::= SEQUENCE {
 //		version									INTEGER,
@@ -10,6 +11,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class KeyAgreeRecipientInfo : Sequence
 	{
 		// информация о структуре
@@ -21,6 +23,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier		>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<RecipientEncryptedKeys	    >().Factory(), Cast.N,	Tag.Any			), 
 		}; 
+		// конструктор при сериализации
+        protected KeyAgreeRecipientInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public KeyAgreeRecipientInfo(IEncodable encodable) : base(encodable, info) {}
 

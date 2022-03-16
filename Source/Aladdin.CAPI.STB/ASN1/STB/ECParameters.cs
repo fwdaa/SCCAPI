@@ -1,6 +1,7 @@
 using System; 
 using System.IO; 
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1.STB
 {
@@ -14,6 +15,7 @@ namespace Aladdin.ASN1.STB
     //      cofactor INTEGER (1) OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class ECParameters : Sequence
     {
 	    // информация о структуре
@@ -26,6 +28,9 @@ namespace Aladdin.ASN1.STB
 		    new ObjectInfo(new ObjectCreator<Integer    >().Factory(      ), Cast.N, Tag.Any                  ), 
 		    new ObjectInfo(new ObjectCreator<Integer    >().Factory(      ), Cast.O, Tag.Any, new Integer(1)  ) 
 	    }; 
+		// конструктор при сериализации
+        protected ECParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECParameters(IEncodable encodable) : base(encodable, info)
         { 

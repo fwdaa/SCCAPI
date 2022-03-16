@@ -1,4 +1,7 @@
-﻿namespace Aladdin.ASN1.ANSI.X962
+﻿using System; 
+using System.Runtime.Serialization;
+
+namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
     // FieldElement ::= OCTET STRING
@@ -8,6 +11,7 @@
     //      seed BIT STRING OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class Curve : Sequence
     {
 	    // информация о структуре
@@ -17,6 +21,9 @@
 		    new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<BitString  >().Factory(), Cast.O), 
 	    }; 
+		// конструктор при сериализации
+        protected Curve(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public Curve(IEncodable encodable) : base(encodable, info) {} 
     

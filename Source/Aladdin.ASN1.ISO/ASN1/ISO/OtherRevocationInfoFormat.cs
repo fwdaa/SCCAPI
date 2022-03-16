@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	OtherRevocationInfoFormat ::= SEQUENCE {
 //		otherRevInfoFormat	OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO
 {
+	[Serializable]
 	public class OtherRevocationInfoFormat : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected OtherRevocationInfoFormat(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OtherRevocationInfoFormat(IEncodable encodable) : base(encodable, info) {}
 

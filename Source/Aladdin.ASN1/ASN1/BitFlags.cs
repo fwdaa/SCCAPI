@@ -1,52 +1,35 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Строка флагов
 	///////////////////////////////////////////////////////////////////////////
-	public class BitFlags : BitString 
+	[Serializable]
+	public sealed class BitFlags : BitString
 	{
-		private Int64 numeric; // численное значение
+		// численное значение
+		[NonSerialized] private Int64 numeric; 
 
-		// конструктор при раскодировании
-		public BitFlags(IEncodable encodable) : base(encodable)
+		// конструктор при сериализации
+        private BitFlags(SerializationInfo info, StreamingContext context) 
+			
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public new void OnDeserialization(object sender)		
 		{
 			// определить последний ненулевой байт
-			int cb = value.Length; while (cb >= 1 && value[cb - 1] == 0) cb--;
+			int cb = value.Length; while (cb >= 1 && value[cb - 1] == 0) cb--; 
  
-			// проверить наличие ненулевых байтов
-			if (cb == 0) { value = new byte[0]; bits = 0; numeric = 0; return; }
-
-			// изменить размер массива
-			Array.Resize(ref value, cb); numeric = 0; 
-
-			// для всех битов ненулевого байта
-			for (int i = 0; i < 8; i++)
-			{
-				// извлечь бит
-				byte bt = (byte)((value[cb - 1] >> i) & 0x1); 
-
-				// установить число битов
-				if (bits == 0 && bt != 0) bits = 8 * cb - i; 
-				
-				// изменить позицию бита
-				numeric = (numeric << 1) | bt;
-			}
-			// для всех байтов 
-			for (int i = cb - 2; i >= 0; i--)
-			{
-				// для всех битов
-				for (int j = 0; j < 8; j++)
-				{
-					// извлечь бит
-					byte bt = (byte)((value[i] >> j) & 0x1); 
-
-					// изменить позицию бита
-					numeric = numeric << 1 | bt;
-				}
-			}
+			// прочитать закодированное значение
+			Array.Resize(ref value, cb); numeric = BitString.ToFlags(value, bits); 
 		}
+		// конструктор при раскодировании
+		public BitFlags(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public BitFlags(Int64 flags) : base(new byte[8], 64) 
 		{

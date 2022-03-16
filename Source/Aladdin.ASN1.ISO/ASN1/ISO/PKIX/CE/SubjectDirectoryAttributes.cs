@@ -1,11 +1,16 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 // SubjectDirectoryAttributes ::= SEQUENCE OF Attribute
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class SubjectDirectoryAttributes : Sequence<Attribute>
 	{
+		// конструктор при сериализации
+        protected SubjectDirectoryAttributes(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public SubjectDirectoryAttributes(IEncodable encodable) : base(encodable) {}
 

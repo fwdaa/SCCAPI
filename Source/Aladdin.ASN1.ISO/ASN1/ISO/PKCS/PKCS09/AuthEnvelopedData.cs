@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AuthEnvelopedData ::= SEQUENCE {
 //		version										INTEGER,
@@ -12,6 +13,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 {
+	[Serializable]
 	public class AuthEnvelopedData : Sequence
 	{
 		// информация о структуре
@@ -25,6 +27,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 			new ObjectInfo(new ObjectCreator<OctetString				>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<Attributes					>().Factory(), Cast.O,	Tag.Context(2)	), 
 		}; 
+		// конструктор при сериализации
+        protected AuthEnvelopedData(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AuthEnvelopedData(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	TBSCertificate  ::=  SEQUENCE  {
 //		version				 [0] EXPLICIT	INTEGER DEFAULT (0),
@@ -15,6 +16,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class TBSCertificate : Sequence
 	{
 		// информация о структуре
@@ -31,6 +33,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<BitString			    >().Factory(), Cast.O,	Tag.Context(2)				 	), 
 			new ObjectInfo(new ObjectCreator<Extensions			    >().Factory(), Cast.EO,	Tag.Context(3)				 	), 
 		}; 
+		// конструктор при сериализации
+        protected TBSCertificate(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public TBSCertificate(IEncodable encodable) : base(encodable, info) {}
 

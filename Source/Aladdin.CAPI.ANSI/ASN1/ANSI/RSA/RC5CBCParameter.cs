@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 // RC5-CBC-Parameters ::= SEQUENCE {
 //		version		INTEGER	{v1-0(16)} (v1-0),
@@ -10,6 +11,7 @@ using System.IO;
 
 namespace Aladdin.ASN1.ANSI.RSA
 {
+	[Serializable]
 	public class RC5CBCParameter : Sequence
 	{
 		// информация о структуре
@@ -20,6 +22,9 @@ namespace Aladdin.ASN1.ANSI.RSA
 			new ObjectInfo(new ObjectCreator<Integer		>().Factory(64, 128), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString	>().Factory(       ), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected RC5CBCParameter(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RC5CBCParameter(IEncodable encodable) : base(encodable, info) 
 		{

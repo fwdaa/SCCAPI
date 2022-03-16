@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.ANSI.X957
+﻿using System; 
+
+namespace Aladdin.CAPI.ANSI.X957
 {
     ///////////////////////////////////////////////////////////////////////////
     // Параметры ключей DSA
     ///////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class Parameters : IParameters 
     {
         // конструктор

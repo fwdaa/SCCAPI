@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Строка числовых символов
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class NumericString : OctetString
 	{
         // проверить допустимость типа
@@ -38,12 +40,21 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
-		// конструктор при раскодировании
-		public NumericString(IEncodable encodable) : base(encodable) 
-		{ 
+		// конструктор при сериализации
+        protected NumericString(SerializationInfo info, StreamingContext context) 
+
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public new void OnDeserialization(object sender)
+		{
 			// раскодировать строку
 			str = Encoding.ASCII.GetString(Content); 
 		}
+		// конструктор при раскодировании
+		public NumericString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public NumericString(string value) : base(Tag.NumericString, 
 			
@@ -51,6 +62,6 @@ namespace Aladdin.ASN1
 			Encoding.ASCII.GetBytes(value)) { str = value; } 
 
 		// строка символов
-		public new string Value { get { return str; } } private string str; 
+		public new string Value { get { return str; } } [NonSerialized] private string str; 
 	}
 }

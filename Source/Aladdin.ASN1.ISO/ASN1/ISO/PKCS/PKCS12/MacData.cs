@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	MacData ::= SEQUENCE {
 //		mac			DigestInfo,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 {
+	[Serializable]
 	public class MacData : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N,	Tag.Any					), 
 			new ObjectInfo(new ObjectCreator<Integer	>().Factory(), Cast.O,	Tag.Any,  new Integer(1)), 
 		}; 
+		// конструктор при сериализации
+        protected MacData(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public MacData(IEncodable encodable) : base(encodable, info) {}
 

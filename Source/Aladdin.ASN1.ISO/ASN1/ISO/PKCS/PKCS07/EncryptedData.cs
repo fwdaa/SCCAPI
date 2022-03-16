@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	EncryptedData ::= SEQUENCE {
 //		version									INTEGER,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class EncryptedData : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<EncryptedContentInfo	>().Factory(), Cast.N,	Tag.Any			),  
 			new ObjectInfo(new ObjectCreator<Attributes			    >().Factory(), Cast.O,	Tag.Context(1)	), 
 		}; 
+		// конструктор при сериализации
+        protected EncryptedData(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public EncryptedData(IEncodable encodable) : base(encodable, info) {}
 

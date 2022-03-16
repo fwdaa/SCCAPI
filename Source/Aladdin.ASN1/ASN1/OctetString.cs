@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Строка байтов
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class OctetString : AsnObject
 	{
         // проверить допустимость типа
@@ -37,20 +39,26 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
-		// конструктор при раскодировании
-		public OctetString(IEncodable encodable) : base(encodable)
-		{
+		// конструктор при сериализации
+        protected OctetString(SerializationInfo info, StreamingContext context)
+
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public void OnDeserialization(object sender)
+        {
 			// проверить способ кодирования строки байтов
-			if (encodable.PC == PC.Primitive) { value = encodable.Content; return; }
+			if (PC == PC.Primitive) { value = Content; return; }
 
 			// задать начальные условия при перечислении внутренних объектов
-			int length = encodable.Content.Length; value = new byte[0];  
+			int length = Content.Length; value = new byte[0];  
 
 			// для всех внутренних объектов
 			for (int cb = 0; length > 0; )
 			{
 				// раскодировать внутренний объект
-				OctetString inner = new OctetString(Encodable.Decode(encodable.Content, cb, length));
+				OctetString inner = new OctetString(Encodable.Decode(Content, cb, length));
 
 				// изменить размер содержимого
 				Array.Resize(ref value, value.Length + inner.Value.Length); 
@@ -61,7 +69,10 @@ namespace Aladdin.ASN1
 				// перейти на следующий объект
 				cb += inner.Encoded.Length; length -= inner.Encoded.Length; 
 			}
- 		}
+        }
+		// конструктор при раскодировании
+		public OctetString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		protected OctetString(Tag tag, byte[] value, int ofs, int cb) : base(tag) 
 		{
@@ -84,6 +95,6 @@ namespace Aladdin.ASN1
 		protected override byte[] DerContent { get { return value; } }
 
  		// строка байтов
-		public byte[] Value { get { return value; } } protected byte[] value;
+		public byte[] Value { get { return value; } } [NonSerialized] protected byte[] value;
 	}
 }

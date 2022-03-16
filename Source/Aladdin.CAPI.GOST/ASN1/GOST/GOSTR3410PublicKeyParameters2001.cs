@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Стандарт ГОСТ R34.10-2001
@@ -11,6 +12,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3410PublicKeyParameters2001 : Sequence
 	{
 		// значение идентификатора по умолчанию
@@ -23,6 +25,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N,	Tag.Any		), 
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.O,	Tag.Any, def), 
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3410PublicKeyParameters2001(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3410PublicKeyParameters2001(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,9 +1,11 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 // Skipjack-Parm ::= SEQUENCE { initialization-vector   OCTET STRING }
 
 namespace Aladdin.ASN1.ANSI
 {
+	[Serializable]
     public class SkipjackParm : Sequence
     {
 	    // информация о структуре
@@ -11,6 +13,9 @@ namespace Aladdin.ASN1.ANSI
 
             new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected SkipjackParm(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public SkipjackParm(IEncodable encodable) : base(encodable, info) {}
 

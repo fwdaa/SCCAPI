@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AttributeTypeValue ::= SEQUENCE {
 //		type    OBJECT IDENTIFIER,
@@ -6,6 +7,7 @@
 //	}
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class AttributeTypeValue : Sequence
 	{
 		// информация о структуре
@@ -14,6 +16,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N, Tag.Any), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.N, Tag.Any), 
 		}; 
+		// конструктор при сериализации
+        protected AttributeTypeValue(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AttributeTypeValue(IEncodable encodable) : base(encodable, info) {}
 		

@@ -1,6 +1,7 @@
 ﻿using System; 
 using System.IO; 
 using System.Collections.Generic; 
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1.ANSI.X962
 {
@@ -17,6 +18,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      hash AlgorithmIdentifier OPTIONAL 
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class SpecifiedECDomain : Sequence
     {
 	    // информация о структуре
@@ -30,6 +32,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<Integer                >().Factory(), Cast.O), 
 		    new ObjectInfo(new ObjectCreator<ISO.AlgorithmIdentifier>().Factory(), Cast.O) 
 	    }; 
+		// конструктор при сериализации
+        protected SpecifiedECDomain(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public SpecifiedECDomain(IEncodable encodable) : base(encodable, info) 
         {

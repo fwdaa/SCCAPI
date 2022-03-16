@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 // Attributes ::= SET OF Attribute
 
 namespace Aladdin.ASN1.ISO
 {
+	[Serializable]
 	public class Attributes : Set<Attribute>
 	{
+		// конструктор при сериализации
+        protected Attributes(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Attributes(IEncodable encodable) : base(encodable) {} 
 

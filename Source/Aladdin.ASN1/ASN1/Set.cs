@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Collections; 
 using System.Collections.Generic; 
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Множество объектов
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class Set : Collection
 	{
         // проверить допустимость типа
@@ -83,17 +84,20 @@ namespace Aladdin.ASN1
 			// атрибуты элемента в множестве
 			return new ObjectInfo(factory, ASN1.Cast.N, Tag.Any, null); 
 		}
-		// конструктор при раскодировании
-		public Set(IObjectFactory factory, IEncodable encodable) : 
-			base(encodable, GetInfo(factory), Cast) {}
+		// конструктор при сериализации
+        protected Set(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
 		// конструктор при раскодировании
-		public Set(IEncodable encodable) : 
-			base(encodable, GetInfo(ImplicitCreator.Factory), Cast) {}
+		public Set(IObjectFactory factory, IEncodable encodable) 
+			: base(encodable, GetInfo(factory)) {}
 
 		// конструктор при раскодировании
-		protected Set(IEncodable encodable, ObjectInfo[] info) : 
-			base(encodable, info, Cast) {}
+		public Set(IEncodable encodable) 
+			: base(encodable, GetInfo(ImplicitCreator.Factory)) {}
+
+		// конструктор при раскодировании
+		protected Set(IEncodable encodable, ObjectInfo[] info) 
+			: base(encodable, info, Cast) {}
 
 		// конструктор при закодировании
 		public Set(IObjectFactory factory, params IEncodable[] values) : 
@@ -154,8 +158,12 @@ namespace Aladdin.ASN1
 	///////////////////////////////////////////////////////////////////////////
 	// Множество объектов произвольного типа
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class Set<T> : Set, IEnumerable<T> where T : IEncodable
 	{
+		// конструктор при сериализации
+        protected Set(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Set(IObjectFactory<T> factory, IEncodable encodable) : 
 			base(factory, encodable) {}

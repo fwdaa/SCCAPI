@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	SafeBag ::= SEQUENCE {
 //		bagId						 OBJECT IDENTIFIER
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 {
+	[Serializable]
 	public class SafeBag : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS12
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.E,	Tag.Context(0)	), 
 			new ObjectInfo(new ObjectCreator<Attributes		 >().Factory(), Cast.O,	Tag.Any			), 
 		}; 
+		// конструктор при сериализации
+        protected SafeBag(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public SafeBag(IEncodable encodable) : base(encodable, info) {}
 

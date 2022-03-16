@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.STB
 {
     ///////////////////////////////////////////////////////////////////////////////
@@ -7,6 +10,7 @@ namespace Aladdin.ASN1.STB
     // 		bdhKey INTEGER
     // 	}
     ///////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class BDSBDHKeyValue : Sequence 
     {
 	    // информация о структуре
@@ -15,6 +19,9 @@ namespace Aladdin.ASN1.STB
 		    new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N),
 		    new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N) 
 	    }; 
+		// конструктор при сериализации
+        protected BDSBDHKeyValue(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public BDSBDHKeyValue(IEncodable encodable) : base(encodable, info) {}  
     

@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.EC
+﻿using System; 
+
+namespace Aladdin.CAPI.EC
 {
     ///////////////////////////////////////////////////////////////////////////
     // Точка на эллиптической кривой
     ///////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class Point : Math.Point<Math.BigInteger>
     {
         // бесконечно удаленная точка

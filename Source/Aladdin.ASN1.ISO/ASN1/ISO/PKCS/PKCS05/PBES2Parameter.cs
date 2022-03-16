@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PBES2Parameter ::= SEQUENCE {
 //		keyDerivationFunc	AlgorithmIdentifier,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS5
 {
+	[Serializable]
 	public class PBES2Parameter : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS5
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected PBES2Parameter(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PBES2Parameter(IEncodable encodable) : base(encodable, info) {}
 

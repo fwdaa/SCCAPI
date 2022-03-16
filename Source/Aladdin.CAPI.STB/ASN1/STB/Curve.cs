@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1.STB
 {
@@ -10,6 +11,7 @@ namespace Aladdin.ASN1.STB
     //  seed BIT STRING (SIZE(64))
     // }
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class Curve : Sequence
     {
 	    // информация о структуре
@@ -19,6 +21,9 @@ namespace Aladdin.ASN1.STB
 		    new ObjectInfo(new ObjectCreator<OctetString>().Factory(32, 64), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<BitString  >().Factory(64, 64), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected Curve(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public Curve(IEncodable encodable) : base(encodable, info) 
         {

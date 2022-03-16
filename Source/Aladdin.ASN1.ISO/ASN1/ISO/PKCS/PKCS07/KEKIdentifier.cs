@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	KEKIdentifier ::= SEQUENCE {
 //		keyIdentifier	OCTET STRING,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class KEKIdentifier : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<GeneralizedTime	>().Factory(), Cast.O), 
 			new ObjectInfo(new ObjectCreator<OtherKeyAttribute  >().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected KEKIdentifier(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public KEKIdentifier(IEncodable encodable) : base(encodable, info) {}
 

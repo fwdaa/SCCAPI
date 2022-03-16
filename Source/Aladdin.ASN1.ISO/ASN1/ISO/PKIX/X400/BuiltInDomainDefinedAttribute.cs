@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	BuiltInDomainDefinedAttribute ::= SEQUENCE {
 //		type  PrintableString (SIZE (1..ub-domain-defined-attribute-type-length)),
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class BuiltInDomainDefinedAttribute : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(1,   8), Cast.N), 
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(1, 128), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected BuiltInDomainDefinedAttribute(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public BuiltInDomainDefinedAttribute(IEncodable encodable) : base(encodable, info) {} 
 

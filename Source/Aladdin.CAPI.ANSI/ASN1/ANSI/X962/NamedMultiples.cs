@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +9,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      points SEQUENCE OF ECPoint
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class NamedMultiples : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<ECPoints        >().Factory(), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected NamedMultiples(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public NamedMultiples(IEncodable encodable) : base(encodable, info) {}
 

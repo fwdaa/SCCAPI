@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PDSParameter ::= SET {
 //		printable-string PrintableString (SIZE(1..ub-pds-parameter-length)) OPTIONAL,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class PDSParameter : Set
 	{
 		// информация о структуре
@@ -16,6 +18,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(1, 30), Cast.O), 
 			new ObjectInfo(new ObjectCreator<TeletexString  >().Factory(1, 30), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected PDSParameter(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PDSParameter(IEncodable encodable) : base(encodable, info) {}  
 

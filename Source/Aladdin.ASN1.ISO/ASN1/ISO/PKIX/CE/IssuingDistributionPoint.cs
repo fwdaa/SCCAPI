@@ -1,5 +1,6 @@
 ﻿using System; 
 using System.IO;
+using System.Runtime.Serialization;
 
 // IssuingDistributionPoint ::= SEQUENCE {
 //		distributionPoint          [0] IMPLICIT DistributionPointName OPTIONAL,
@@ -12,6 +13,7 @@ using System.IO;
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class IssuingDistributionPoint : Sequence
 	{
 		// информация о структуре
@@ -24,6 +26,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<Boolean				>().Factory(), Cast.O, Tag.Context(4), Boolean.False), 
 			new ObjectInfo(new ObjectCreator<Boolean				>().Factory(), Cast.O, Tag.Context(5), Boolean.False), 
 		}; 
+		// конструктор при сериализации
+        protected IssuingDistributionPoint(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public IssuingDistributionPoint(IEncodable encodable) : base(encodable, info) 
 		{

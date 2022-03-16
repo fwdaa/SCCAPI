@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // DssSigValue ::= SEQUENCE {
 //		r            INTEGER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ANSI.X957
 {
+	[Serializable]
 	public class DssSigValue : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ANSI.X957
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected DssSigValue(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public DssSigValue(IEncodable encodable) : base(encodable, info) {}
 

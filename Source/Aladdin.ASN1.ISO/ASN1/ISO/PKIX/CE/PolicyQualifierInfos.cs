@@ -1,11 +1,16 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 // PolicyQualifierInfos ::= SEQUENCE OF PolicyQualifierInfo
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class PolicyQualifierInfos : Sequence<PolicyQualifierInfo>
 	{
+		// конструктор при сериализации
+        protected PolicyQualifierInfos(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PolicyQualifierInfos(IEncodable encodable) : base(encodable) {}
 

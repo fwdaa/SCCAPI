@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	EncKeyWithID ::= SEQUENCE {
 //		privateKey      PrivateKeyInfo,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 {
+	[Serializable]
 	public class EncKeyWithID : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 			new ObjectInfo(new ObjectCreator<PKCS8.PrivateKeyInfo	>().Factory(), Cast.N), 
 			new ObjectInfo(new ChoiceCreator<Identifier			    >().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected EncKeyWithID(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public EncKeyWithID(IEncodable encodable) : base(encodable, info) {}
 

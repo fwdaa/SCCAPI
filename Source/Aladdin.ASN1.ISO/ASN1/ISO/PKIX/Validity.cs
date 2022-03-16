@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	Validity ::= SEQUENCE {
 //		notBefore      Time,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class Validity : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ChoiceCreator<Time>().Factory(), Cast.N), 
 			new ObjectInfo(new ChoiceCreator<Time>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected Validity(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Validity(IEncodable encodable) : base(encodable, info) {}
 

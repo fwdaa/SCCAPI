@@ -1,8 +1,11 @@
+using System; 
+
 ///////////////////////////////////////////////////////////////////////
 // Параметры подписи с параметрами обмена
 ///////////////////////////////////////////////////////////////////////
 namespace Aladdin.CAPI.STB.STB11762
 {
+    [Serializable]
     public class BDSBDHParameters : IBDSBDHParameters
     {
         public BDSBDHParameters(IBDSParameters bdsParameters, IBDHParameters bdhParameters)

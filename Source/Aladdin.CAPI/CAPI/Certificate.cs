@@ -7,7 +7,7 @@ namespace Aladdin.CAPI
 	///////////////////////////////////////////////////////////////////////////
 	// Сертификат X509
 	///////////////////////////////////////////////////////////////////////////
-    public class Certificate
+    public sealed class Certificate
 	{
 	    public Certificate(Stream stream) 
         {
@@ -53,12 +53,6 @@ namespace Aladdin.CAPI
             // сохранить содержимое сертификата
             this.certificate = new ASN1.ISO.PKIX.Certificate(encodable); 
         }
-        // конструктор
-		private Certificate(ASN1.ISO.PKIX.Certificate certificate)
-        {
-            // сохранить содержимое сертификата
-            this.certificate = certificate; 
-        }
         // раскодированный сертификат
 		private ASN1.ISO.PKIX.Certificate certificate;	
 
@@ -103,12 +97,12 @@ namespace Aladdin.CAPI
 
 			return false; 
 		}
-		public virtual bool Equals(X509Certificate other)
+		public bool Equals(X509Certificate other)
 		{
 			// проверить совпадение сертификатов
 			return certificate.Equals(other); 
 		}
-		public virtual bool Equals(Certificate other)
+		public bool Equals(Certificate other)
 		{
 			// проверить совпадение сертификатов
 			return certificate.Equals(other.certificate); 

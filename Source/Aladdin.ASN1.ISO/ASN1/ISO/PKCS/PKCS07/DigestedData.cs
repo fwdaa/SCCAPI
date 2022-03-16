@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	DigestedData ::= SEQUENCE {
 //		version				INTEGER,
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class DigestedData : Sequence
 	{
 		// информация о структуре
@@ -19,6 +21,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<EncapsulatedContentInfo>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString			>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected DigestedData(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public DigestedData(IEncodable encodable) : base(encodable, info) {}
 

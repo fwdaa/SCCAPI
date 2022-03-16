@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 // OrganizationalUnitNames ::= SEQUENCE SIZE (1..ub-organizational-units) OF OrganizationalUnitName
 // ub-organizational-units INTEGER ::= 4
@@ -9,8 +10,12 @@ using System.IO;
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class OrganizationalUnitNames : Sequence<PrintableString>
 	{
+		// конструктор при сериализации
+        protected OrganizationalUnitNames(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OrganizationalUnitNames(IEncodable encodable) : base(encodable) 
 		{

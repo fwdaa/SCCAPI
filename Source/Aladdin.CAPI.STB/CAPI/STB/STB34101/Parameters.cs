@@ -5,6 +5,7 @@ using System;
 ////////////////////////////////////////////////////////////////////////////////
 namespace Aladdin.CAPI.STB.STB34101
 {
+    [Serializable]
     public class Parameters : IParameters
     {
         // конструктор 

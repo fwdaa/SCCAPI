@@ -1,5 +1,9 @@
-﻿namespace Aladdin.ASN1.GOST
+﻿using System; 
+using System.Runtime.Serialization; 
+
+namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3410PrivateKeyValueInfo : Sequence
 	{
 		// информация о структуре
@@ -8,6 +12,9 @@
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3410PrivateKeyValueInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3410PrivateKeyValueInfo(IEncodable encodable) : base(encodable, info) {}
 

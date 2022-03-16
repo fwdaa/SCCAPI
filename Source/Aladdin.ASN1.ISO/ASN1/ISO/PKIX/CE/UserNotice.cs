@@ -1,4 +1,5 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 // UserNotice ::= SEQUENCE {
 //		noticeRef    NoticeReference OPTIONAL,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class UserNotice : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<NoticeReference>().Factory(), Cast.O), 
 			new ObjectInfo(new ChoiceCreator<DisplayText    >().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected UserNotice(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public UserNotice(IEncodable encodable) : base(encodable, info) {}
 

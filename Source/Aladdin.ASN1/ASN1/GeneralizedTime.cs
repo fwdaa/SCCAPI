@@ -2,20 +2,29 @@
 using System.IO;
 using System.Text;
 using System.Globalization;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Произвольная дата
 	///////////////////////////////////////////////////////////////////////////
-	public class GeneralizedTime : VisibleString
+	[Serializable]
+	public sealed class GeneralizedTime : VisibleString
 	{
         // проверить допустимость типа
         public static new bool IsValidTag(Tag tag) { return tag == Tag.GeneralizedTime; }
     
-		/////////////////////////////////////////////////////////////////////////////
-		// Закодировать время
-		/////////////////////////////////////////////////////////////////////////////
+		// закодировать время
+		private static string Encode(DateTime value, string frac)
+		{
+			// закодировать дату
+			string encoded = GeneralizedTime.Encode(value);
+
+			// добавить дробную часть секунд
+			return (frac.Length != 0) ? String.Format("{0}.{1}", encoded, frac) : encoded;
+		}
+		// закодировать время
 		private static string Encode(DateTime value)
 		{
 			// получить время по Гринвичу 
@@ -26,16 +35,16 @@ namespace Aladdin.ASN1
 				time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second
 			);
 		}
-		private static string Encode(DateTime value, string frac)
-		{
-			// закодировать дату
-			string encoded = GeneralizedTime.Encode(value);
+		// конструктор при сериализации
+        private GeneralizedTime(SerializationInfo info, StreamingContext context) 
 
-			// добавить дробную часть секунд
-			return (frac.Length != 0) ? String.Format("{0}.{1}", encoded, frac) : encoded;
-		}
-		// конструктор при раскодировании
-		public GeneralizedTime(IEncodable encodable) : base(encodable) { string value = base.Value; 
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public new void OnDeserialization(object sender)
+		{
+			string value = base.Value; 
 
 			// указать допустимость точки как разделителя
 			IFormatProvider provider = NumberFormatInfo.InvariantInfo; frac = String.Empty; 
@@ -128,6 +137,9 @@ namespace Aladdin.ASN1
 			// скорректировать время
 			time = time.AddHours((double)hhz).AddMinutes((double)mmz);
 		}
+		// конструктор при раскодировании
+		public GeneralizedTime(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public GeneralizedTime(DateTime time) : 
 			base(Tag.GeneralizedTime, GeneralizedTime.Encode(time)) 
@@ -145,6 +157,6 @@ namespace Aladdin.ASN1
 		public new DateTime Value { get { return time; } } 
 		
 		// время и дробная часть секунд
-		private DateTime time; private string frac; 
+		[NonSerialized] private DateTime time; [NonSerialized] private string frac; 
 	}
 }

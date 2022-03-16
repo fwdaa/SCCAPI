@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 //	GOST28147EncryptedKey ::= SEQUENCE {
 //		encryptedKey				OCTET STRING (SIZE (32 | 64)),
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class EncryptedKey : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(32, 64), Cast.O, Tag.Context(0)	), 
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory( 4,  4), Cast.N, Tag.Any		), 
 		}; 
+		// конструктор при сериализации
+        protected EncryptedKey(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public EncryptedKey(IEncodable encodable) : base(encodable, info) {}
 

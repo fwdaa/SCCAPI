@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	RSAES-OAEP-params ::= SEQUENCE {
 //		hashAlgorithm      [0] EXPLICIT AlgorithmIdentifier DEFAULT sha1,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 {
+	[Serializable]
 	public class RSAESOAEPParams : Sequence
 	{
 		// значение по умолчанию
@@ -32,6 +34,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.EO, Tag.Context(1), mgf1_sha1		), 
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.EO, Tag.Context(2), pSpecifiedEmpty	), 
 		}; 
+		// конструктор при сериализации
+        protected RSAESOAEPParams(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RSAESOAEPParams(IEncodable encodable) : base(encodable, info) {}
 

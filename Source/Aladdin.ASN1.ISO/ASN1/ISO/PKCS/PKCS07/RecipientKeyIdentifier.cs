@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	RecipientKeyIdentifier ::= SEQUENCE {
 //		subjectKeyIdentifier	OCTET STRING,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class RecipientKeyIdentifier : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<GeneralizedTime	>().Factory(), Cast.O), 
 			new ObjectInfo(new ObjectCreator<OtherKeyAttribute  >().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected RecipientKeyIdentifier(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RecipientKeyIdentifier(IEncodable encodable) : base(encodable, info) {}
 

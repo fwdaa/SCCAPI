@@ -2,20 +2,20 @@
 using System.IO;
 using System.Text; 
 using System.Globalization;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Дата в диапазоне 1950-2049 
 	///////////////////////////////////////////////////////////////////////////
-	public class UTCTime : VisibleString
+	[Serializable]
+	public sealed class UTCTime : VisibleString
 	{
         // проверить допустимость типа
         public static new bool IsValidTag(Tag tag) { return tag == Tag.UTCTime; }
     
-		/////////////////////////////////////////////////////////////////////////////
-		// Закодировать время
-		/////////////////////////////////////////////////////////////////////////////
+		// закодировать время
 		private static string Encode(DateTime value)
 		{
 			// получить время по Гринвичу 
@@ -32,8 +32,16 @@ namespace Aladdin.ASN1
 				YY, time.Month, time.Day, time.Hour, time.Minute, time.Second
 			);
 		}
-		// конструктор при раскодировании
-		public UTCTime(IEncodable encodable) : base(encodable) { string value = base.Value; 
+		// конструктор при сериализации
+        private UTCTime(SerializationInfo info, StreamingContext context) 
+
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public new void OnDeserialization(object sender)
+		{
+			string value = base.Value; 
 
 			// извлечь номер года, месяца и дня
 			int YY = Int32.Parse(value.Substring(0, 2), NumberStyles.None);
@@ -76,8 +84,11 @@ namespace Aladdin.ASN1
 			if (value[10 + cb] == '+') { hhz = -hhz; mmz = -mmz; }
 			
 			// скорректировать время
-			time = time.AddHours((double)hhz).AddMinutes((double)mmz);
-		}
+			time = time.AddHours((double)hhz).AddMinutes((double)mmz);		}
+
+		// конструктор при раскодировании
+		public UTCTime(IEncodable encodable) : base(encodable) { OnDeserialization(this); } 
+
 		// конструктор при закодировании
 		public UTCTime(DateTime time) : 
 			base(Tag.UTCTime, UTCTime.Encode(time)) { this.time = time; } 
@@ -89,6 +100,6 @@ namespace Aladdin.ASN1
 			return Encoding.ASCII.GetBytes(UTCTime.Encode(time)); 
 		}}
 		// закодированное время
-		public new DateTime Value { get { return time; } } private DateTime time; 
+		public new DateTime Value { get { return time; } } [NonSerialized] private DateTime time; 
 	}
 }

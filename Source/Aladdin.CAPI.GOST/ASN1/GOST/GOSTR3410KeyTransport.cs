@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 //	KeyTransport ::= SEQUENCE {
 //		sessionEncryptedKey					GOST28147EncryptedKey,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3410KeyTransport : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<EncryptedKey		         >().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<GOSTR3410TransportParameters>().Factory(), Cast.O,	Tag.Context(0)	), 
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3410KeyTransport(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3410KeyTransport(IEncodable encodable) : base(encodable, info) {}
 

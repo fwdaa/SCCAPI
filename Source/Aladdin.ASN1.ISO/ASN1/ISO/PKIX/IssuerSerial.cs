@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	IssuerSerial  ::=  SEQUENCE {
 //		issuer    GeneralNames,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class IssuerSerial : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<Integer		>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<BitString	    >().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected IssuerSerial(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public IssuerSerial(IEncodable encodable) : base(encodable, info) {}
 

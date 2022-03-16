@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // BuiltInStandardAttributes ::= SEQUENCE {
 //		country-name							CountryName					OPTIONAL,
@@ -14,6 +15,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class BuiltInStandardAttributes : Sequence
 	{
 		// информация о структуре
@@ -29,6 +31,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<PersonalName				>().Factory(     ),	Cast.O,	 Tag.Context(5)	), 
 			new ObjectInfo(new ObjectCreator<OrganizationalUnitNames	>().Factory(     ),	Cast.O,	 Tag.Context(6)	), 
 		}; 
+		// конструктор при сериализации
+        protected BuiltInStandardAttributes(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public BuiltInStandardAttributes(IEncodable encodable) : base(encodable, info) {} 
 

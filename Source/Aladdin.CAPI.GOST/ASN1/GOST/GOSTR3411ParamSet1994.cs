@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization; 
 
 //	GOSTR3411ParamSet ::= SEQUENCE {
 //		hUZ OCTET STRING (SIZE(64)),    
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3411ParamSet1994 : Sequence
 	{
 		// информация о структуре
@@ -16,6 +18,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(64, 64), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(32, 32), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3411ParamSet1994(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3411ParamSet1994(IEncodable encodable) : base(encodable, info) {}
 

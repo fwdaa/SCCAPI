@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AttributeCertificate ::= SEQUENCE {
 //		acinfo               AttributeCertificateInfo,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class AttributeCertificate : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier		>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<BitString				    >().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected AttributeCertificate(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AttributeCertificate(IEncodable encodable) : base(encodable, info) {} 
 

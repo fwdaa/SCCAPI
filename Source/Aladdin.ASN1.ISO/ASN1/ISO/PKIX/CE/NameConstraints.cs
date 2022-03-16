@@ -1,4 +1,5 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 //	NameConstraints ::= SEQUENCE {
 //		permittedSubtrees [0] IMPLICIT GeneralSubtrees OPTIONAL,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class NameConstraints : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<GeneralSubtrees>().Factory(), Cast.O, Tag.Context(0)), 
 			new ObjectInfo(new ObjectCreator<GeneralSubtrees>().Factory(), Cast.O, Tag.Context(1)), 
 		}; 
+		// конструктор при сериализации
+        protected NameConstraints(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public NameConstraints(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AttrributeGeneralNames ::= SEQUENCE {
 //		issuerName						GeneralNames		OPTIONAL,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class AttrributeGeneralNames : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<IssuerSerial		>().Factory(), Cast.O,	Tag.Context(0)	), 
 			new ObjectInfo(new ObjectCreator<ObjectDigestInfo	>().Factory(), Cast.O,	Tag.Context(1)	), 
 		}; 
+		// конструктор при сериализации
+        protected AttrributeGeneralNames(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AttrributeGeneralNames(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,4 +1,7 @@
-﻿namespace Aladdin.ASN1.ANSI.X962
+﻿using System; 
+using System.Runtime.Serialization;
+
+namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
     //	FieldID  ::=  SEQUENCE  {
@@ -6,6 +9,7 @@
     //		parameters ANY DEFINED BY fieldType  
     //	}
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class FieldID : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@
 		    new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N), 
 		    new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.N), 
 	    };
+		// конструктор при сериализации
+        protected FieldID(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public FieldID(IEncodable encodable) : base(encodable, info) {} 
 

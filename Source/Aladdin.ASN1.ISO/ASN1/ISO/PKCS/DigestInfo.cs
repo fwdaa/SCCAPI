@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	DigestInfo ::= SEQUENCE {
 //		digestAlgorithm AlgorithmIdentifier,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS
 {
+	[Serializable]
 	public class DigestInfo : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected DigestInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public DigestInfo(IEncodable encodable) : base(encodable, info) {}
 

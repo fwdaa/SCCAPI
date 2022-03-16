@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	AnotherName ::= SEQUENCE {
 //		type-id    OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class AnotherName : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier>().Factory(), Cast.N, Tag.Any			), 
 			new ObjectInfo(    ImplicitCreator				    .Factory  , Cast.E,	Tag.Context(0)  ), 
 		}; 
+		// конструктор при сериализации
+        protected AnotherName(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AnotherName(IEncodable encodable) : base(encodable, info) {}
 

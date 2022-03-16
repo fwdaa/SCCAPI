@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PersonalName ::= SET {
 //		surname				 [0] IMPLICIT PrintableString (SIZE (1..ub-surname-length)),
@@ -13,6 +14,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class PersonalName : Set
 	{
 		// информация о структуре
@@ -23,6 +25,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(1,  5), Cast.O, Tag.Context(2)), 
 			new ObjectInfo(new ObjectCreator<PrintableString>().Factory(1,  3), Cast.O, Tag.Context(3)), 
 		}; 
+		// конструктор при сериализации
+        protected PersonalName(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PersonalName(IEncodable encodable) : base(encodable, info) {}
 

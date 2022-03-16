@@ -1,4 +1,5 @@
 ﻿using System; 
+using System.Runtime.Serialization;
 
 //	PolicyInformation ::= SEQUENCE {
 //		policyIdentifier   OBJECT IDENTIFIER,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class PolicyInformation : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ObjectCreator<ObjectIdentifier		>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<PolicyQualifierInfos	>().Factory(), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected PolicyInformation(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PolicyInformation(IEncodable encodable) : base(encodable, info) {}
 

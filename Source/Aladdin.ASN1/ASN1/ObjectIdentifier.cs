@@ -3,71 +3,22 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Идентификатор объекта
 	///////////////////////////////////////////////////////////////////////////
-	public class ObjectIdentifier : AsnObject
+	[Serializable]
+	public sealed class ObjectIdentifier : AsnObject
 	{
         // проверить допустимость типа
         public static bool IsValidTag(Tag tag) { return tag == Tag.ObjectIdentifier; }
-    
-		// конструктор при раскодировании
-		public ObjectIdentifier(IEncodable encodable) : base(encodable)
-		{
-			StringBuilder builder = new StringBuilder();
 
-			// проверить корректность способа кодирования
-			if (encodable.PC != PC.Primitive) throw new InvalidDataException();
-
-			// проверить корректность объекта
-			if (encodable.Content.Length == 0) throw new InvalidDataException();
-			
-			// проверить корректность объекта
-			if ((encodable.Content[encodable.Content.Length - 1] & 0x80) != 0)
-			{
-				// при ошибке выбросить исключение
-				throw new InvalidDataException();
-			}
-			// для всех байтов представления
-			int count = 1; for (int i = 0; i < encodable.Content.Length; i++)
-			{
-				// подсчитать количество чисел идентификатора
-				if ((encodable.Content[i] & 0x80) == 0) count++; 
-			}
-			// выделить память для идентификатора
-			ids = new long[count]; int cb = 0;
-
-			// для всех чисел идентификатора
-			for (int i = 1; i < count; i++)
-			{
-				// для всех непоследних разрядов числа
-				for (; (encodable.Content[cb] & 0x80) != 0; cb++, ids[i] <<= 7)
-				{
-					// учесть непоследние разряды числа
-					ids[i] |= (byte)(encodable.Content[cb] & 0x7F);
-				}
-				// учесть последние разряды числа
-				ids[i] |= encodable.Content[cb++];
-			}
-				 // извлечь первые два числа
-			     if (ids[1] >= 80) { ids[0] = 2; ids[1] -= 80; }
-			else if (ids[1] >= 40) { ids[0] = 1; ids[1] -= 40; }
- 
-			// для всех чисел идентификатора
-			for (int i = 0; i < ids.Length - 1; i++)
-			{
-				// поместить число в строку
-				builder.AppendFormat("{0}.", ids[i]); 
-			}
-			// поместить последнее число в строку
-			value = builder.AppendFormat("{0}", ids[ids.Length - 1]).ToString(); 
-		}
-		// конструктор при закодировании
-		public ObjectIdentifier(string value) : base(Tag.ObjectIdentifier) 
-		{
+		// преобразовать строковую в числовую форму
+		public static long[] ToArray(string value) 
+		{ 
 			// указать начальные условия разбора строки
 			int pos = 0; List<Int64> list = new List<Int64>(); 
 
@@ -91,8 +42,73 @@ namespace Aladdin.ASN1
 					list.Add(Int64.Parse(substr, NumberStyles.None)); break;
 				}
 			}
+			return list.ToArray(); 
+		}
+		// конструктор при сериализации
+        private ObjectIdentifier(SerializationInfo info, StreamingContext context) 
+			
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public void OnDeserialization(object sender)		
+		{
+			StringBuilder builder = new StringBuilder();
+
+			// проверить корректность способа кодирования
+			if (PC != PC.Primitive) throw new InvalidDataException();
+
+			// проверить корректность объекта
+			if (Content.Length == 0) throw new InvalidDataException();
+			
+			// проверить корректность объекта
+			if ((Content[Content.Length - 1] & 0x80) != 0)
+			{
+				// при ошибке выбросить исключение
+				throw new InvalidDataException();
+			}
+			// для всех байтов представления
+			int count = 1; for (int i = 0; i < Content.Length; i++)
+			{
+				// подсчитать количество чисел идентификатора
+				if ((Content[i] & 0x80) == 0) count++; 
+			}
+			// выделить память для идентификатора
+			ids = new long[count]; int cb = 0;
+
+			// для всех чисел идентификатора
+			for (int i = 1; i < count; i++)
+			{
+				// для всех непоследних разрядов числа
+				for (; (Content[cb] & 0x80) != 0; cb++, ids[i] <<= 7)
+				{
+					// учесть непоследние разряды числа
+					ids[i] |= (byte)(Content[cb] & 0x7F);
+				}
+				// учесть последние разряды числа
+				ids[i] |= Content[cb++];
+			}
+				 // извлечь первые два числа
+			     if (ids[1] >= 80) { ids[0] = 2; ids[1] -= 80; }
+			else if (ids[1] >= 40) { ids[0] = 1; ids[1] -= 40; }
+ 
+			// для всех чисел идентификатора
+			for (int i = 0; i < ids.Length - 1; i++)
+			{
+				// поместить число в строку
+				builder.AppendFormat("{0}.", ids[i]); 
+			}
+			// поместить последнее число в строку
+			value = builder.AppendFormat("{0}", ids[ids.Length - 1]).ToString(); 
+		}
+		// конструктор при раскодировании
+		public ObjectIdentifier(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
+		// конструктор при закодировании
+		public ObjectIdentifier(string value) : base(Tag.ObjectIdentifier) 
+		{
 			// сохранить значение идентификатора
-			this.value = value; this.ids = list.ToArray(); 
+			this.value = value; this.ids = ToArray(value); 
 		}
 		// способ кодирования для DER-кодировки
 		protected override PC DerPC { get { return PC.Primitive; } }
@@ -189,9 +205,9 @@ namespace Aladdin.ASN1
 		}}
  		// идентификатор объекта
 		public string Value { get { return value; } } 
-			
+
 		// идентификатор объекта в строковой и числовой форме
-		private string value; private long[] ids; 
+		[NonSerialized] private string value; [NonSerialized] private long[] ids; 
 	}
 }
 

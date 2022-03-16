@@ -1,5 +1,6 @@
 using System; 
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1.STB
 {
@@ -13,6 +14,7 @@ namespace Aladdin.ASN1.STB
     //		bdhParamsInitData BDHParamsInitData OPTIONAL
     //	}
     ///////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class BDHParamsList : Sequence 
     {
 	    // информация о структуре
@@ -25,6 +27,9 @@ namespace Aladdin.ASN1.STB
 		    new ObjectInfo(new ObjectCreator<Integer          >().Factory(), Cast.N, Tag.Context(4)), 
 		    new ObjectInfo(new ObjectCreator<BDHParamsInitData>().Factory(), Cast.O, Tag.Any       ) 
 	    }; 
+		// конструктор при сериализации
+        protected BDHParamsList(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public BDHParamsList(IEncodable encodable) : base(encodable, info) {}  
     

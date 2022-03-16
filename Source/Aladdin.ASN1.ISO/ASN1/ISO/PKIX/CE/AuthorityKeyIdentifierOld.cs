@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 //	AuthorityKeyIdentifierOld ::= SEQUENCE {
 //		keyIdentifier             [0] IMPLICIT OCTET STRING	OPTIONAL,
@@ -9,6 +10,7 @@ using System.IO;
 
 namespace Aladdin.ASN1.ISO.PKIX.CE
 {
+	[Serializable]
 	public class AuthorityKeyIdentifierOld : Sequence
 	{
 		// информация о структуре
@@ -18,6 +20,9 @@ namespace Aladdin.ASN1.ISO.PKIX.CE
 			new ObjectInfo(new ChoiceCreator<Name        	>().Factory(), Cast.O, Tag.Context(1)), 
 			new ObjectInfo(new ObjectCreator<Integer		>().Factory(), Cast.O, Tag.Context(2)), 
 		}; 
+		// конструктор при сериализации
+        protected AuthorityKeyIdentifierOld(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public AuthorityKeyIdentifierOld(IEncodable encodable) : base(encodable, info) 
 		{

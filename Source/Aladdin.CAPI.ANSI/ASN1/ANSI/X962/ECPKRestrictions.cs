@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +9,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      eccAlgorithms ECCAlgorithms
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECPKRestrictions : Sequence
     {
 	    // информация о структуре
@@ -14,6 +18,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ChoiceCreator<ECDomainParameters>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<ECCAlgorithms     >().Factory(), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected ECPKRestrictions(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECPKRestrictions(IEncodable encodable) : base(encodable, info) {}
 

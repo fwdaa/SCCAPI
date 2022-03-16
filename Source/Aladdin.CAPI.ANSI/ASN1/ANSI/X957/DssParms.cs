@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 // DssParms ::= SEQUENCE {
 //		p            INTEGER,
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 
 namespace Aladdin.ASN1.ANSI.X957
 {
+	[Serializable]
 	public class DssParms : Sequence
 	{
 		// информация о структуре
@@ -18,6 +20,9 @@ namespace Aladdin.ASN1.ANSI.X957
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected DssParms(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public DssParms(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	OriginatorInfo ::= SEQUENCE {
 //		certs	[0] IMPLICIT CertificateSet			OPTIONAL,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 {
+	[Serializable]
 	public class OriginatorInfo : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS7
 			new ObjectInfo(new ObjectCreator<CertificateSet		    >().Factory(), Cast.O, Tag.Context(0)), 
 			new ObjectInfo(new ObjectCreator<RevocationInfoChoices  >().Factory(), Cast.O, Tag.Context(1)), 
 		}; 
+		// конструктор при сериализации
+        protected OriginatorInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OriginatorInfo(IEncodable encodable) : base(encodable, info) {}
 

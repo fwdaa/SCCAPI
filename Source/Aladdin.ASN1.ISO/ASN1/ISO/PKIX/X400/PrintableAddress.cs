@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 // PrintableAddress	::= SEQUENCE SIZE (1..ub-pds-physical-address-lines) OF PrintableString (SIZE (1..ub-pds-parameter-length))
 
@@ -8,8 +9,12 @@ using System.IO;
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class PrintableAddress : Sequence<PrintableString>
 	{
+		// конструктор при сериализации
+        protected PrintableAddress(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PrintableAddress(IEncodable encodable) : base(encodable) 
 		{

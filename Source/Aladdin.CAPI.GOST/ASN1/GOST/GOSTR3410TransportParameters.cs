@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 //	GOSTR3410TransportParameters ::= SEQUENCE {
 //		encryptionParamSet				OBJECT IDENTIFIER,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3410TransportParameters : Sequence 
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<ISO.PKIX.SubjectPublicKeyInfo  >().Factory(    ), Cast.O,	Tag.Context(0)	), 
 			new ObjectInfo(new ObjectCreator<OctetString					>().Factory(8, 8), Cast.N,	Tag.Any			), 
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3410TransportParameters(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3410TransportParameters(IEncodable encodable) : base(encodable, info) {}
 

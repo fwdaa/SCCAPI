@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	PBEParameter ::= SEQUENCE {
 //		salt			OCTET STRING,
@@ -7,6 +8,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS5
 {
+	[Serializable]
 	public class PBEParameter : Sequence
 	{
 		// информация о структуре
@@ -15,6 +17,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS5
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Integer	>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected PBEParameter(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PBEParameter(IEncodable encodable) : base(encodable, info) {}
 

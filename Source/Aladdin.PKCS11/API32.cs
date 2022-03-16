@@ -220,7 +220,7 @@ namespace Aladdin.PKCS11
         public delegate CK_RV CK_GETOBJECTSIZE(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
             [In     ] CK_OBJECT_HANDLE                  hObject,                    // the object's handle
-            [    Out] out CK_LONG                      pulSize                      // receives size of object
+            [    Out] out CK_LONG                       pulSize                     // receives size of object
         );
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate CK_RV CK_GETATTRIBUTEVALUE(

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	DHParameter ::= SEQUENCE {
 //		prime				INTEGER, 
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS3
 {
+	[Serializable]
 	public class DHParameter : Sequence
 	{
 		// параметры именованных наборов
@@ -61,6 +63,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS3
 			new Integer(new Math.BigInteger(1, SecondOakleyP)), 
 			new Integer(	Math.BigInteger.Two), null
 		); 
+		// конструктор при сериализации
+        protected DHParameter(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public DHParameter(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	TeletexPersonalName ::= SET {
 //		surname				 [0] IMPLICIT TeletexString (SIZE (1..ub-surname-length)),
@@ -13,6 +14,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class TeletexPersonalName : Set
 	{
 		// информация о структуре
@@ -23,6 +25,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<TeletexString>().Factory(1,  5), Cast.O, Tag.Context(2)), 
 			new ObjectInfo(new ObjectCreator<TeletexString>().Factory(1,  3), Cast.O, Tag.Context(3)), 
 		}; 
+		// конструктор при сериализации
+        protected TeletexPersonalName(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public TeletexPersonalName(IEncodable encodable) : base(encodable, info) {}
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Runtime.Serialization;
 
 //	RC2CBCParameter ::= SEQUENCE {
 //		parameterVersion	INTEGER	OPTIONAL,
@@ -8,6 +8,7 @@ using System.IO;
 
 namespace Aladdin.ASN1.ANSI.RSA
 {
+	[Serializable]
 	public class RC2CBCParams : Sequence
 	{
 		// информация о структуре
@@ -16,6 +17,9 @@ namespace Aladdin.ASN1.ANSI.RSA
 			new ObjectInfo(new ObjectCreator<Integer	>().Factory(1, 1024), Cast.O), 
 			new ObjectInfo(new ObjectCreator<OctetString>().Factory(8,    8), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected RC2CBCParams(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public RC2CBCParams(IEncodable encodable) : base(encodable, info) {}
 

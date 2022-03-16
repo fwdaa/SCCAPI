@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Строка битов
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class BitString : AsnObject
 	{
         // проверить допустимость типа
@@ -37,47 +39,88 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
-		// конструктор при раскодировании
-		public BitString(IEncodable encodable) : base(encodable)
-		{
+		public static long ToFlags(byte[] value, int bits)
+		{ 
+			// определить последний ненулевой байт
+			int cb = value.Length; while (cb >= 1 && value[cb - 1] == 0) cb--; 
+ 
+			// проверить наличие ненулевых байтов
+			if (cb == 0) return 0; long numeric = 0;
+
+			// для всех битов ненулевого байта
+			for (int i = 0; i < 8; i++)
+			{
+				// извлечь бит
+				byte bt = (byte)((value[cb - 1] >> i) & 0x1); 
+
+				// установить число битов
+				if (bits == 0 && bt != 0) bits = 8 * cb - i; 
+				
+				// изменить позицию бита
+				numeric = (numeric << 1) | bt;
+			}
+			// для всех байтов 
+			for (int i = cb - 2; i >= 0; i--)
+			{
+				// для всех битов
+				for (int j = 0; j < 8; j++)
+				{
+					// извлечь бит
+					byte bt = (byte)((value[i] >> j) & 0x1); 
+
+					// изменить позицию бита
+					numeric = numeric << 1 | bt;
+				}
+			}
+			return numeric; 
+		}
+		// конструктор при сериализации
+        protected BitString(SerializationInfo info, StreamingContext context) 
+			
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+        public void OnDeserialization(object sender)
+        {
 			// проверить корректность объекта
-			if (encodable.Content.Length == 0) throw new InvalidDataException();
+			if (Content.Length == 0) throw new InvalidDataException();
 
 			// проверить способ кодирования строки битов
-			if (encodable.PC == PC.Primitive) 
+			if (PC == PC.Primitive) 
 			{
 				// проверить корректность объекта
-				if (encodable.Content[0] >= 8) throw new InvalidDataException();
+				if (Content[0] >= 8) throw new InvalidDataException();
 
 				// для пустого объекта
-				if (encodable.Content.Length == 1)
+				if (Content.Length == 1)
 				{
 					// проверить корректность объекта
-					if (encodable.Content[0] > 0) throw new InvalidDataException();
+					if (Content[0] > 0) throw new InvalidDataException();
 
 					// проверить на пустую строку
 					value = new byte[0]; bits = 0; return; 
 				}
 				// выделить память под строку битов
-				int unused = encodable.Content[0]; value = new byte[encodable.Content.Length - 1];
+				int unused = Content[0]; value = new byte[Content.Length - 1];
 
 				// определить число ненулевых битов 
-				bits = 8 * (encodable.Content.Length - 1) - unused;
+				bits = 8 * (Content.Length - 1) - unused;
 
 				// скопировать строку битов
-				Array.Copy(encodable.Content, 1, value, 0, value.Length);
+				Array.Copy(Content, 1, value, 0, value.Length);
 
 				// обнулить неиспользуемые биты
 				value[(bits - 1) / 8] &= unchecked((byte)~((1 << unused) - 1)); return;
 			}
 			// задать начальные условия при перечислении внутренних объектов
-			int length = encodable.Content.Length; value = new byte[0]; bits = 0; 
+			int length = Content.Length; value = new byte[0]; bits = 0; 
 
 			// для всех внутренних объектов
 			for (int cb = 0; length > 0; )
 			{
 				// раскодировать внутренний объект
-				BitString inner = new BitString(Encodable.Decode(encodable.Content, cb, length));
+				BitString inner = new BitString(Encodable.Decode(Content, cb, length));
 
 				// проверить корректность объекта
 				if ((inner.Bits % 8) != 0 && length != inner.Encoded.Length) 
@@ -94,7 +137,10 @@ namespace Aladdin.ASN1
 				// перейти на следующий объект
 				bits += inner.Bits; cb += inner.Encoded.Length; length -= inner.Encoded.Length;
 			}
-		}
+        }
+		// конструктор при раскодировании
+		public BitString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public BitString(byte[] value) : this(value, value.Length * 8) {} 
 
@@ -167,6 +213,6 @@ namespace Aladdin.ASN1
 			return new Math.BigInteger(1, value).ShiftRight(unused); 
 		}
 		// строка битов и их количество
-		protected byte[] value; protected int bits; 
+		[NonSerialized] protected byte[] value; [NonSerialized] protected int bits; 
 	}
 }

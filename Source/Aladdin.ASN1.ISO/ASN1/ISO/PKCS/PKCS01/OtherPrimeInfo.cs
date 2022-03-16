@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	OtherPrimeInfo ::= SEQUENCE {
 //		prime		INTEGER, 
@@ -7,6 +8,7 @@
 //}
 namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 {
+	[Serializable]
 	public class OtherPrimeInfo : Sequence
 	{
 		// информация о структуре
@@ -16,6 +18,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS1
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected OtherPrimeInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public OtherPrimeInfo(IEncodable encodable) : base(encodable, info) {}
 

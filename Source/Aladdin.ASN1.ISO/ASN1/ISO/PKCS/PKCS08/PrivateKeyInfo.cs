@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 // PrivateKeyInfo ::= SEQUENCE {
 //		version								INTEGER,
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKCS.PKCS8
 {
+	[Serializable]
 	public class PrivateKeyInfo : Sequence
 	{
 		// информация о структуре
@@ -19,6 +21,9 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS8
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<Attributes			>().Factory(), Cast.O,	Tag.Context(0)	), 
 		}; 
+		// конструктор при сериализации
+        protected PrivateKeyInfo(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public PrivateKeyInfo(IEncodable encodable) : base(encodable, info) {}
 

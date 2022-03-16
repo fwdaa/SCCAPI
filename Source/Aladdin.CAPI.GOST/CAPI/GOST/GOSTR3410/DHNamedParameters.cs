@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.GOST.GOSTR3410
+﻿using System; 
+
+namespace Aladdin.CAPI.GOST.GOSTR3410
 {
     ///////////////////////////////////////////////////////////////////////////
     // Именованные параметры ГОСТ Р34.10-1994
     ///////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class DHNamedParameters : DHParameters, INamedParameters
     {
         // выполнить преобразование типа

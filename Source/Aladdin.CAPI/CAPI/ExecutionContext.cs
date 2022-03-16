@@ -8,7 +8,7 @@ namespace Aladdin.CAPI
     // Контекст выполнения
     ///////////////////////////////////////////////////////////////////////////
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-    public class ExecutionContext : RefObject, IRandFactory, IParametersFactory, PBE.IPBECultureFactory
+    public class ExecutionContext : RefObject, IRandFactory, PBE.IPBECultureFactory
     {
         // кэши аутентификации провайдеров
         private static Dictionary<String, CredentialsManager> providerCaches; 
@@ -94,12 +94,6 @@ namespace Aladdin.CAPI
         // генератор случайных данных
         public virtual IRand CreateRand(object window) { return new Rand(window); } 
 
-        // получить параметры ключа
-        public virtual IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
-        {
-            // выбросить исключение
-            throw new InvalidOperationException(); 
-        }
         // получить парольную защиту
         public virtual PBE.PBECulture GetCulture(object window, string keyOID)
         {

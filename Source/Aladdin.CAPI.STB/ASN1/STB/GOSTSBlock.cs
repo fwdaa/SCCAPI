@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.STB
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -5,6 +8,7 @@ namespace Aladdin.ASN1.STB
     // 	sblock SBlock OPTIONAL
     // }
     ////////////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class GOSTSBlock : Sequence
     {
 	    // информация о структуре
@@ -12,6 +16,9 @@ namespace Aladdin.ASN1.STB
 
 		    new ObjectInfo(new ChoiceCreator<SBlock>().Factory(), Cast.O), 
 	    }; 
+		// конструктор при сериализации
+        protected GOSTSBlock(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public GOSTSBlock(IEncodable encodable) : base(encodable, info) {} 
     

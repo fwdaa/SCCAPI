@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	TeletexDomainDefinedAttribute ::= SEQUENCE {
 //		type  TeletexString (SIZE (1..ub-domain-defined-attribute-type-length)),
@@ -9,6 +10,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class TeletexDomainDefinedAttribute : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<TeletexString>().Factory(1,   8), Cast.N, Tag.Any), 
 			new ObjectInfo(new ObjectCreator<TeletexString>().Factory(1, 128), Cast.N, Tag.Any), 
 		}; 
+		// конструктор при сериализации
+        protected TeletexDomainDefinedAttribute(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public TeletexDomainDefinedAttribute(IEncodable encodable) : base(encodable, info) {} 
 

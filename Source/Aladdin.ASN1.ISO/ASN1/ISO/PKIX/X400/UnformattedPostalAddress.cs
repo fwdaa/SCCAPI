@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	UnformattedPostalAddress ::= SET {
 //		printable-address	PrintableAddress OPTIONAL,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX.X400
 {
+	[Serializable]
 	public class UnformattedPostalAddress : Set
 	{
 		// информация о структуре
@@ -16,6 +18,9 @@ namespace Aladdin.ASN1.ISO.PKIX.X400
 			new ObjectInfo(new ObjectCreator<PrintableAddress>().Factory(      ), Cast.O), 
 			new ObjectInfo(new ObjectCreator<TeletexString   >().Factory(1, 180), Cast.O), 
 		}; 
+		// конструктор при сериализации
+        protected UnformattedPostalAddress(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public UnformattedPostalAddress(IEncodable encodable) : base(encodable, info) {} 
 

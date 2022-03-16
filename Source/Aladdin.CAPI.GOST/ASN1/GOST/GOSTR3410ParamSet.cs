@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization; 
 
 //	GOSTR3410ParamSet ::= SEQUENCE {
 //		a INTEGER,
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class GOSTR3410ParamSet : Sequence
 	{
 		// информация о структуре
@@ -24,6 +26,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<Integer>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected GOSTR3410ParamSet(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public GOSTR3410ParamSet(IEncodable encodable) : base(encodable, info) {}
 		

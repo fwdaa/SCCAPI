@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization; 
 
 //	KeyTransferContent ::= SEQUENCE {
 //		seanceVector			OCTET STRING (8),
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.GOST
 {
+    [Serializable]
 	public class CryptoProKeyTransferContent : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.GOST
 			new ObjectInfo(new ObjectCreator<EncryptedKey			      >().Factory(), Cast.N,	Tag.Any			), 
 			new ObjectInfo(new ObjectCreator<CryptoProPrivateKeyParameters>().Factory(), Cast.O,	Tag.Context(0)	), 
 		}; 
+		// конструктор при сериализации
+        protected CryptoProKeyTransferContent(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CryptoProKeyTransferContent(IEncodable encodable) : base(encodable, info) {}
 

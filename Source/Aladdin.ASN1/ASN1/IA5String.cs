@@ -1,13 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	//////////////////////////////////////////////////////////////////////////////
 	// Строка символов ASCII
 	//////////////////////////////////////////////////////////////////////////////
-	public class IA5String : OctetString
+	[Serializable]
+	public sealed class IA5String : OctetString
 	{
         // проверить допустимость типа
         public static new bool IsValidTag(Tag tag) { return tag == Tag.IA5String; }
@@ -38,12 +40,21 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
-		// конструктор при раскодировании
-		public IA5String(IEncodable encodable) : base(encodable) 
-		{ 
+		// конструктор при сериализации
+        private IA5String(SerializationInfo info, StreamingContext context) 
+
+			// выполнить дополнительные вычисления 
+			: base(info, context) { OnDeserialization(this); }
+
+		// дополнительные вычисления при сериализации
+		public new void OnDeserialization(object sender)
+		{
 			// раскодировать строку
 			str = Encoding.ASCII.GetString(Content); 
 		}
+		// конструктор при раскодировании
+		public IA5String(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+
 		// конструктор при закодировании
 		public IA5String(string value) : base(Tag.IA5String, 
 			
@@ -51,6 +62,6 @@ namespace Aladdin.ASN1
 			Encoding.ASCII.GetBytes(value)) { str = value; } 
 
 		// строка символов
-		public new string Value { get { return str; } } private string str; 
+		public new string Value { get { return str; } } [NonSerialized] private string str; 
 	}
 }

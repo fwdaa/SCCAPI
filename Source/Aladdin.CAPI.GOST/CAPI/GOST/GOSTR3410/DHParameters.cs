@@ -1,8 +1,11 @@
-﻿namespace Aladdin.CAPI.GOST.GOSTR3410
+﻿using System; 
+
+namespace Aladdin.CAPI.GOST.GOSTR3410
 {
     ///////////////////////////////////////////////////////////////////////////
     // Параметры ГОСТ Р 34.10-1994
     ///////////////////////////////////////////////////////////////////////////
+    [Serializable]
     public class DHParameters : IDHParameters
     {
         // конструктор 

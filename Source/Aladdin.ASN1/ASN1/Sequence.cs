@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Collections; 
 using System.Collections.Generic; 
+using System.Runtime.Serialization;
 
 namespace Aladdin.ASN1
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Последовательность объектов
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class Sequence : Collection
 	{
         // проверить допустимость типа
@@ -83,25 +84,28 @@ namespace Aladdin.ASN1
 			// атрибуты элемента в последовательности
 			return new ObjectInfo(factory, ASN1.Cast.N, Tag.Any, null); 
 		}
-		// конструктор при раскодировании
-		public Sequence(IObjectFactory factory, IEncodable encodable) : 
-			base(encodable, GetInfo(factory), Cast) {}
+		// конструктор при сериализации
+        protected Sequence(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
 		// конструктор при раскодировании
-		public Sequence(IEncodable encodable) : 
-			base(encodable, GetInfo(ImplicitCreator.Factory), Cast) {}
+		public Sequence(IObjectFactory factory, IEncodable encodable) 
+			: base(encodable, GetInfo(factory)) {}
 
 		// конструктор при раскодировании
-		protected Sequence(IEncodable encodable, ObjectInfo[] info) : 
-			base(encodable, info, Cast) {}
+		public Sequence(IEncodable encodable) 
+			: base(encodable, GetInfo(ImplicitCreator.Factory)) {}
+
+		// конструктор при раскодировании
+		protected Sequence(IEncodable encodable, ObjectInfo[] info) 
+			: base(encodable, info, Cast) {}
 
 		// конструктор при закодировании
-		public Sequence(IObjectFactory factory, params IEncodable[] values) : 
-			base(Tag.Sequence, GetInfo(factory), values) {}
+		public Sequence(IObjectFactory factory, params IEncodable[] values) 
+			: base(Tag.Sequence, GetInfo(factory), values) {}
 
 		// конструктор при закодировании
-		protected Sequence(ObjectInfo[] info, params IEncodable[] values) : 
-			base(Tag.Sequence, info, values) {}
+		protected Sequence(ObjectInfo[] info, params IEncodable[] values) 
+			: base(Tag.Sequence, info, values) {}
 
 		// приведение типа объектов
 		private static IEncodable[] Cast(ObjectInfo[] info, IEncodable[] encodables)
@@ -151,8 +155,12 @@ namespace Aladdin.ASN1
 	///////////////////////////////////////////////////////////////////////////
 	// Последовательность объектов произвольного типа
 	///////////////////////////////////////////////////////////////////////////
+	[Serializable]
 	public class Sequence<T> : Sequence, IEnumerable<T> where T : IEncodable
 	{
+		// конструктор при сериализации
+        protected Sequence(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public Sequence(IObjectFactory<T> factory, IEncodable encodable) : 
 			base(factory, encodable) {}

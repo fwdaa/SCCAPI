@@ -1,3 +1,6 @@
+using System; 
+using System.Runtime.Serialization;
+
 namespace Aladdin.ASN1.ANSI.X962
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +10,7 @@ namespace Aladdin.ASN1.ANSI.X962
     //      macTag OCTET STRING
     // }
     ////////////////////////////////////////////////////////////////////////////////
+	[Serializable]
     public class ECIESCiphertextValue : Sequence
     {
 	    // информация о структуре
@@ -16,6 +20,9 @@ namespace Aladdin.ASN1.ANSI.X962
 		    new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 		    new ObjectInfo(new ObjectCreator<OctetString>().Factory(), Cast.N), 
 	    }; 
+		// конструктор при сериализации
+        protected ECIESCiphertextValue(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 	    // конструктор при раскодировании
 	    public ECIESCiphertextValue(IEncodable encodable) : base(encodable, info) {}
 

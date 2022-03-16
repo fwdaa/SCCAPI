@@ -123,12 +123,12 @@
     <Compile Include="Math\Fp\Field.cs" />
     <Compile Include="Math\Fp\MontGroup.cs" />
     <Compile Include="Math\Group.cs" />
-    <Compile Include="Math\AddGroup.cs" />
-    <Compile Include="Math\MulGroup.cs" />
+    <Compile Include="Math\GroupAdd.cs" />
+    <Compile Include="Math\GroupMul.cs" />
     <Compile Include="Math\IField.cs" />
     <Compile Include="Math\IGroup.cs" />
-    <Compile Include="Math\IAddGroup.cs" />
-    <Compile Include="Math\IMulGroup.cs" />
+    <Compile Include="Math\IGroupAdd.cs" />
+    <Compile Include="Math\IGroupMul.cs" />
     <Compile Include="Math\IRing.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\MatrixBuilder.cs" />

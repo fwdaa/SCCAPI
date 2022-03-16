@@ -562,9 +562,6 @@ namespace Aladdin.CAPI
             Certificate certificate, ASN1.Tag recipientChoice, 
             ASN1.ISO.AlgorithmIdentifier parameters, ISecretKey key)
 		{
-            // получить идентификатор ключа
-            string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
-
             // указать номер версии структуры
             ASN1.Integer version = new ASN1.Integer(0); ASN1.IEncodable rid = null; 
 

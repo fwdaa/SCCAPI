@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 //	CertificateList  ::=  SEQUENCE  {
 //		tbsCertList          TBSCertList,
@@ -8,6 +9,7 @@
 
 namespace Aladdin.ASN1.ISO.PKIX
 {
+	[Serializable]
 	public class CertificateList : Sequence
 	{
 		// информация о структуре
@@ -17,6 +19,9 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<AlgorithmIdentifier>().Factory(), Cast.N), 
 			new ObjectInfo(new ObjectCreator<BitString			>().Factory(), Cast.N), 
 		}; 
+		// конструктор при сериализации
+        protected CertificateList(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
 		// конструктор при раскодировании
 		public CertificateList(IEncodable encodable) : base(encodable, info) {}
 
