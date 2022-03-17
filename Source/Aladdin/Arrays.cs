@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Globalization;
-using System.Collections.Generic;
 
 namespace Aladdin
 {
@@ -18,14 +17,11 @@ namespace Aladdin
 			// проверить наличие элементов
 			int code = array.Length; if (code == 0) return code; 
 
-			// указать способ вычисления хэш-кода
-			EqualityComparer<T> comparer = EqualityComparer<T>.Default;            
-
 			// учесть последнее слово
-			code ^= comparer.GetHashCode(array[code - 1]);
+			code ^= array[code - 1].GetHashCode();
 
 		    // учесть первое слово
-		    if (array.Length != 1) code ^= comparer.GetHashCode(array[0]); return code; 
+		    if (array.Length != 1) code ^= array[0].GetHashCode(); return code; 
         }
 		/////////////////////////////////////////////////////////////////////////////
 		// Сравнение массивов на равенство

@@ -56,7 +56,7 @@ namespace Aladdin.ASN1
 		public override int GetHashCode()
 		{
 			// получить хэш-код объекта
-			return Arrays.GetHashCode(DerEncodable.Encoded); 
+			return DerEncodable.GetHashCode(); 
 		}
 		public override bool Equals(object obj)
 		{
