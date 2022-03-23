@@ -211,8 +211,8 @@ namespace Aladdin.CAPI.PKCS12
 			    CMSData cmsData = new CMSData(dataType, data);
                 try { 
                     // зашифровать данные
-                    return culture.PasswordEncryptData(container.Factory, null, container.Rand, 
-                        true, container.EncryptionKey, cmsData, attributes).Encoded; 
+                    return culture.PasswordEncryptData(container.Factory, null, 
+                        container.Rand, container.EncryptionKey, cmsData, attributes).Encoded; 
                 }
                 // обработать неожидаемое исключение
                 catch (InvalidKeyException e) { throw new InvalidDataException(e.Message, e); }

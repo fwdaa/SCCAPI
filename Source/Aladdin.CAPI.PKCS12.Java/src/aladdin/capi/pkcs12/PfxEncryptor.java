@@ -218,7 +218,7 @@ public abstract class PfxEncryptor
             try { 
                 // зашифровать данные
                 return culture.passwordEncryptData(
-                    container.factory(), null, container.rand(), true, 
+                    container.factory(), null, container.rand(), 
                     container.encryptionKey(), cmsData, attributes).encoded(); 
             }
             // обработать неожидаемое исключение

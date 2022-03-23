@@ -9,6 +9,7 @@ namespace Aladdin.CAPI
 	{
 		// параметры алгоритмов
         public virtual ASN1.ISO.AlgorithmIdentifier HashAlgorithm               (IRand rand) { return null; }
+        public virtual ASN1.ISO.AlgorithmIdentifier HMacAlgorithm               (IRand rand) { return null; }
 		public virtual ASN1.ISO.AlgorithmIdentifier CipherAlgorithm             (IRand rand) { return null; }
 		public virtual ASN1.ISO.AlgorithmIdentifier KeyWrapAlgorithm            (IRand rand) { return null; }
 		public virtual ASN1.ISO.AlgorithmIdentifier CiphermentAlgorithm         (IRand rand) { return null; }

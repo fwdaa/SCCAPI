@@ -20,6 +20,14 @@ public class RSA extends aladdin.capi.Culture
             Null.INSTANCE
         ); 
     }
+    @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
+    { 
+        // вернуть параметры алгоритма
+        return new AlgorithmIdentifier(
+            new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_HMAC_SHA1),
+            Null.INSTANCE
+        ); 
+    }
     @Override public AlgorithmIdentifier cipherAlgorithm(IRand rand) throws IOException
     { 
 	    // сгенерировать синхропосылку
@@ -72,27 +80,16 @@ public class RSA extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     public static class PKCS12 extends PBECulture
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
-        public PKCS12(PBEParameters parameters) 
-        {         
-            // сохранить переданные параметры
-            super(parameters); culture = new RSA(); 
-        } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
+        public PKCS12(PBEParameters parameters) { super(parameters); } 
         
-        // параметры алгоритмов
-        @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
-        { 
-            // вернуть параметры алгоритма
-            return new AlgorithmIdentifier(
-                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_HMAC_SHA1), 
-                Null.INSTANCE
-            ); 
+        // параметры алгоритма хэширования
+        @Override public AlgorithmIdentifier hashAlgorithm(IRand rand) throws IOException
+        {
+            // параметры алгоритма хэширования
+            return new RSA().hashAlgorithm(rand); 
         }
+        // параметры алгоритма шифрования
         @Override public AlgorithmIdentifier cipherAlgorithm(IRand rand) throws IOException	
         { 
             // определить число итераций

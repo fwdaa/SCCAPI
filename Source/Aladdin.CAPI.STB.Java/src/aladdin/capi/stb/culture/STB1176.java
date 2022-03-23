@@ -31,6 +31,17 @@ public class STB1176 extends aladdin.capi.Culture
             new ObjectIdentifier(OID.STB11761_HASH), new OctetString(start)
         ); 
     }
+    @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
+    { 
+        // вернуть параметры алгоритма
+        return new AlgorithmIdentifier(
+            new ObjectIdentifier(OID.STB34101_HMAC_HSPEC), 
+            new AlgorithmIdentifier(
+                new ObjectIdentifier(OID.STB11761_HASH), 
+                Null.INSTANCE
+            )
+        ); 
+    }
     @Override public AlgorithmIdentifier cipherAlgorithm(IRand rand) throws IOException
     { 
         // сгенерировать синхропосылку
@@ -78,32 +89,14 @@ public class STB1176 extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture
+    public static class PKCS12 extends PBECulture.Default
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
         public PKCS12(String sboxParams, PBEParameters parameters) 
         {         
             // сохранить переданные параметры
-            super(parameters); culture = new STB1176(sboxParams); 
+            super(new STB1176(sboxParams), parameters, true); 
         } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
-        
-        // параметры алгоритмов
-        @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
-        { 
-            // вернуть параметры алгоритма
-            return new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.STB34101_HMAC_HSPEC), 
-                new AlgorithmIdentifier(
-                    new ObjectIdentifier(OID.STB11761_HASH), 
-                    Null.INSTANCE
-                )
-            ); 
-        }
     }
 }
 

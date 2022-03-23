@@ -53,28 +53,13 @@ public class GOSTR1994 extends GOST28147
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture
+    public static class PKCS12 extends PBECulture.Default
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
         public PKCS12(String encryptionParams, PBEParameters parameters) 
         {         
             // сохранить переданные параметры
-            super(parameters); culture = new GOSTR1994(encryptionParams); 
+            super(new GOSTR1994(encryptionParams), parameters, true); 
         } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
-        
-        // параметры алгоритмов
-        @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
-        { 
-            // вернуть параметры алгоритма
-            return new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GOSTR3411_94_HMAC), 
-                Null.INSTANCE
-            ); 
-        }
     }
 }

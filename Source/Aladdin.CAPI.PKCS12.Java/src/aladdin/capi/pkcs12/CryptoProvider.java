@@ -110,15 +110,15 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
         // получить параметры шифрования по паролю
         PBEParameters pbeParameters = culture.pbeParameters(); 
             
-        // выделить память для salt-значения
-        byte[] salt = new byte[pbeParameters.pbmSaltLength()]; 
-                
         // закодировать параметры алгоритма хэширования
         AlgorithmIdentifier hashAlgorithm = culture.hashAlgorithm(rand); 
-                
+
+        // выделить память для salt-значения 
+        byte[] salt = new byte[pbeParameters.pbmSaltLength()]; 
+        
         // сгенерировать salt-значение
         rand.generate(salt, 0, salt.length); 
-                
+        
         // создать пустой контейнер
         PFX pfx = Pfx.createAuthenticatedContainer(this, 
             authenticatedSafe, hashAlgorithm, 

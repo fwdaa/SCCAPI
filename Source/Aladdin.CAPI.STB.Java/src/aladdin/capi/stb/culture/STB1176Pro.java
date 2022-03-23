@@ -25,31 +25,13 @@ public class STB1176Pro extends STB1176
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture
+    public static class PKCS12 extends PBECulture.Default
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
         public PKCS12(String sboxParams, PBEParameters parameters) 
         {         
             // сохранить переданные параметры
-            super(parameters); culture = new STB1176Pro(sboxParams); 
+            super(new STB1176Pro(sboxParams), parameters, true); 
         } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
-        
-        // параметры алгоритмов
-        @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
-        { 
-            // вернуть параметры алгоритма
-            return new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.STB34101_HMAC_HSPEC), 
-                new AlgorithmIdentifier(
-                    new ObjectIdentifier(OID.STB11761_HASH), 
-                    Null.INSTANCE
-                )
-            ); 
-        }
     }
 }

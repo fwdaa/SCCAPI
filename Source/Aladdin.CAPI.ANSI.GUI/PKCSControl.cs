@@ -30,16 +30,12 @@ namespace Aladdin.CAPI.ANSI.GUI
 		// получить криптографическую культуру
         public override PBE.PBECulture GetCulture() 
         { 
-            string hashOID = null; string hmacOID = null; string cipherOIDV = null;
+            string hashOID = null; string cipherOIDV = null;
 
             // указать идентификатор алгоритма хэширования
             if (radioMD2 .Checked) hashOID = ASN1.ANSI.OID.rsa_md2; 
             if (radioMD5 .Checked) hashOID = ASN1.ANSI.OID.rsa_md5; 
             if (radioSHA1.Checked) hashOID = ASN1.ANSI.OID.ssig_sha1; 
-
-            // указать идентификатор алгоритма вычисления имитовставки
-            if (radioMD5 .Checked) hmacOID = ASN1.ANSI.OID.ipsec_hmac_md5; 
-            if (radioSHA1.Checked) hmacOID = ASN1.ANSI.OID.rsa_hmac_sha1; 
 
             // указать идентификатор алгоритма шифрования
             if (radioMD2_DES_CBC      .Checked) cipherOIDV = ASN1.ISO.PKCS.PKCS5 .OID.pbe_md2_des_cbc; 
@@ -66,7 +62,7 @@ namespace Aladdin.CAPI.ANSI.GUI
                 pbmSaltLength, pbmIterations, pbeSaltLength, pbeIterations
             ); 
             // создать криптографическую культуру
-            return new Culture.PKCS(pbeParameters, hashOID, hmacOID, cipherOIDV); 
+            return new Culture.PKCS(pbeParameters, hashOID, cipherOIDV); 
         }
         private void OnCheckedChanged(object sender, EventArgs e)
         {

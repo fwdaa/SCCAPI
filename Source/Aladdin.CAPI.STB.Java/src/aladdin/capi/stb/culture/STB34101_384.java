@@ -31,18 +31,13 @@ public class STB34101_384 extends STB34101
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends STB34101.PKCS12
+    public static class PKCS12 extends PBECulture.Default
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
         public PKCS12(PBEParameters parameters) 
         {         
             // сохранить переданные параметры
-            super(parameters); culture = new STB34101_384(); 
+            super(new STB34101_384(), parameters, true); 
         } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
     }
 }

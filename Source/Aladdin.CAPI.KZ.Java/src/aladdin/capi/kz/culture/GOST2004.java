@@ -19,6 +19,14 @@ public class GOST2004 extends aladdin.capi.Culture
             new ObjectIdentifier(OID.GAMMA_GOST34310_34311_2004_T), Null.INSTANCE
         ); 
     }
+    @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
+    { 
+        // вернуть параметры алгоритма
+        return new AlgorithmIdentifier(
+            new ObjectIdentifier(OID.GAMMA_HMAC_GOST34311_95_T), 
+            Null.INSTANCE
+        ); 
+    }
     @Override public AlgorithmIdentifier cipherAlgorithm(IRand rand) throws IOException
     { 
         // сгенерировать синхропосылку
@@ -64,28 +72,9 @@ public class GOST2004 extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture
+    public static class PKCS12 extends PBECulture.Default
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
-        public PKCS12(PBEParameters parameters) 
-        {         
-            // сохранить переданные параметры
-            super(parameters); culture = new GOST2004(); 
-        } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
-        
-        // параметры алгоритмов
-        @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
-        { 
-            // вернуть параметры алгоритма
-            return new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GAMMA_HMAC_GOST34311_95_T), 
-                Null.INSTANCE
-            ); 
-        }
+        public PKCS12(PBEParameters parameters) { super(new GOST2004(), parameters, true); } 
     }
 }

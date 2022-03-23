@@ -14,6 +14,14 @@
                 ASN1.Null.Instance
             ); 
         }
+        public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
+        { 
+            // вернуть параметры алгоритма
+            return new ASN1.ISO.AlgorithmIdentifier(
+                new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_hmac_gost34311_95_t), 
+                ASN1.Null.Instance
+            ); 
+        }
         public override ASN1.ISO.AlgorithmIdentifier CipherAlgorithm(IRand rand) 
         { 
 	        // сгенерировать синхропосылку
@@ -62,29 +70,13 @@
         ///////////////////////////////////////////////////////////////////////////
         // Парольная защита
         ///////////////////////////////////////////////////////////////////////////
-        public class PKCS12 : PBE.PBECulture
+        public class PKCS12 : PBE.PBECulture.Default
         {
-            // национальные особенности
-            private CAPI.Culture culture; 
-
             // конструктор
             public PKCS12(PBE.PBEParameters parameters) 
                 
                 // сохранить переданные параметры
-                : base(parameters) { culture = new GOST2004(); } 
-            
-            // национальные особенности
-            protected override CAPI.Culture BaseCulture { get { return culture; }} 
-
-            // параметры алгоритмов
-            public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
-            { 
-                // вернуть параметры алгоритма
-                return new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_hmac_gost34311_95_t), 
-                    ASN1.Null.Instance
-                ); 
-            }
+                : base(new GOST2004(), parameters, true) {} 
         }
     }
 }

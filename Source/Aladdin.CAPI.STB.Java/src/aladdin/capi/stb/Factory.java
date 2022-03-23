@@ -86,7 +86,7 @@ public final class Factory extends aladdin.capi.Factory
         if (keyOID.equals(aladdin.asn1.stb.OID.STB34101_BIGN_PUBKEY)) 
         {
             // вернуть параметры по умолчанию
-            return new aladdin.capi.stb.culture.STB34101.PKCS12(parameters); 
+            return new aladdin.capi.stb.culture.STB34101_256.PKCS12(parameters); 
         }
         if (keyOID.equals(aladdin.asn1.stb.OID.STB11762_BDS_PUBKEY)) 
         {

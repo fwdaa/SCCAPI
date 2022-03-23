@@ -26,6 +26,17 @@
                 new ASN1.OctetString(start)
             ); 
         }
+        public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
+        { 
+            // вернуть параметры алгоритма
+            return new ASN1.ISO.AlgorithmIdentifier(
+                new ASN1.ObjectIdentifier(ASN1.STB.OID.stb34101_hmac_hspec), 
+                new ASN1.ISO.AlgorithmIdentifier(
+                    new ASN1.ObjectIdentifier(ASN1.STB.OID.stb11761_hash), 
+                    ASN1.Null.Instance
+                )
+            ); 
+        }
         public override ASN1.ISO.AlgorithmIdentifier CipherAlgorithm(IRand rand) 
         { 
             // сгенерировать синхропосылку
@@ -77,32 +88,13 @@
         ///////////////////////////////////////////////////////////////////////////
         // Парольная защита
         ///////////////////////////////////////////////////////////////////////////
-        public class PKCS12 : PBE.PBECulture
+        public class PKCS12 : PBE.PBECulture.Default
         {
-            // национальные особенности
-            private CAPI.Culture culture; 
-
             // конструктор
             public PKCS12(PBE.PBEParameters parameters, string sboxParams) 
                 
                 // сохранить переданные параметры
-                : base(parameters) { culture = new STB1176(sboxParams); } 
-            
-            // национальные особенности
-            protected override CAPI.Culture BaseCulture { get { return culture; }} 
-
-            // параметры алгоритмов
-            public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
-            { 
-                // вернуть параметры алгоритма
-                return new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.STB.OID.stb34101_hmac_hspec), 
-                    new ASN1.ISO.AlgorithmIdentifier(
-                        new ASN1.ObjectIdentifier(ASN1.STB.OID.stb11761_hash), 
-                        ASN1.Null.Instance
-                    )
-                ); 
-            }
+                : base(new STB1176(sboxParams), parameters, true) {} 
         }
     }
 }

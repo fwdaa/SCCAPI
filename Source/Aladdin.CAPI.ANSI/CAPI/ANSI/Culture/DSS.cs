@@ -14,6 +14,14 @@
                 ASN1.Null.Instance
             ); 
         }
+        public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
+        { 
+            // вернуть параметры алгоритма
+            return new ASN1.ISO.AlgorithmIdentifier(
+                new ASN1.ObjectIdentifier(ASN1.ANSI.OID.rsa_hmac_sha1),
+                ASN1.Null.Instance
+             ); 
+        }
         public override ASN1.ISO.AlgorithmIdentifier CipherAlgorithm(IRand rand) 
         { 
 		    // сгенерировать синхропосылку
@@ -60,27 +68,16 @@
         ///////////////////////////////////////////////////////////////////////////
         public class PKCS12 : PBE.PBECulture
         {
-            // национальные особенности
-            private CAPI.Culture culture; 
-
             // конструктор
-            public PKCS12(PBE.PBEParameters parameters) 
-                
-                // сохранить переданные параметры
-                : base(parameters) { culture = new DSS(); } 
-            
-            // национальные особенности
-            protected override CAPI.Culture BaseCulture { get { return culture; }} 
-
-            // параметры алгоритмов
-            public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
+            public PKCS12(PBE.PBEParameters parameters) : base(parameters) {} 
+        
+            // параметры алгоритма хэширования
+            public override ASN1.ISO.AlgorithmIdentifier HashAlgorithm(IRand rand) 
             { 
-                // вернуть параметры алгоритма
-                return new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.ANSI.OID.rsa_hmac_sha1),
-                    ASN1.Null.Instance
-                ); 
+                // параметры алгоритма хэширования
+                return new DSS().HashAlgorithm(rand); 
             }
+            // параметры алгоритма шифрования
             public override ASN1.ISO.AlgorithmIdentifier CipherAlgorithm(IRand rand)
             { 
                 // указать число итераций

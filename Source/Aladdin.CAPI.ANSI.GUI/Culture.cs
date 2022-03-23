@@ -11,16 +11,16 @@
         public class PKCS : PBE.PBECulture
         {
             // идентификаторы алгоритмов
-            private string hashOID; private string hmacOID; private string cipherOIDV;
+            private string hashOID; private string cipherOIDV;
         
             // конструктор
             public PKCS(PBE.PBEParameters pbeParameters, 
 
                 // сохранить переданные параметры
-                string hashOID, string hmacOID, string cipherOIDV) : base(pbeParameters)
+                string hashOID, string cipherOIDV) : base(pbeParameters)
             {
                 // сохранить переданные параметры
-                this.hashOID = hashOID; this.hmacOID = hmacOID; this.cipherOIDV = cipherOIDV;
+                this.hashOID = hashOID; this.cipherOIDV = cipherOIDV;
             }
             // параметры алгоримтов
             public override ASN1.ISO.AlgorithmIdentifier HashAlgorithm(IRand rand)
@@ -28,13 +28,6 @@
                 // вернуть параметры алгоритма
                 return new ASN1.ISO.AlgorithmIdentifier(
                     new ASN1.ObjectIdentifier(hashOID), ASN1.Null.Instance
-                ); 
-            }
-            public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
-            { 
-                // вернуть параметры алгоритма
-                return new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(hmacOID), ASN1.Null.Instance
                 ); 
             }
             public override ASN1.ISO.AlgorithmIdentifier CipherAlgorithm(IRand rand)

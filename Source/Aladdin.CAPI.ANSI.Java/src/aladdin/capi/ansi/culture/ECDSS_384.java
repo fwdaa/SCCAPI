@@ -19,6 +19,14 @@ public class ECDSS_384 extends aladdin.capi.Culture
             Null.INSTANCE
         ); 
     }
+    @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
+    { 
+        // вернуть параметры алгоритма
+        return new AlgorithmIdentifier(
+            new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_384), 
+            Null.INSTANCE
+        ); 
+    }
     @Override public AlgorithmIdentifier cipherAlgorithm(IRand rand) throws IOException 
     { 
         // сгенерировать синхропосылку
@@ -63,28 +71,9 @@ public class ECDSS_384 extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture
+    public static class PKCS12 extends PBECulture.Default
     {
-        // национальные особенности
-        private final aladdin.capi.Culture culture; 
-
         // конструктор
-        public PKCS12(PBEParameters parameters) 
-        {         
-            // сохранить переданные параметры
-            super(parameters); culture = new ECDSS_384(); 
-        } 
-        // национальные особенности
-        @Override protected aladdin.capi.Culture baseCulture() { return culture; } 
-        
-        // параметры алгоритмов
-        @Override public AlgorithmIdentifier hmacAlgorithm(IRand rand) 
-        { 
-            // вернуть параметры алгоритма
-            return new AlgorithmIdentifier(
-                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_384), 
-                Null.INSTANCE
-            ); 
-        }
+        public PKCS12(PBEParameters parameters) { super(new ECDSS_384(), parameters, true); } 
     }
 }

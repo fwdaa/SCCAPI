@@ -28,19 +28,13 @@
         ///////////////////////////////////////////////////////////////////////////
         // Парольная защита
         ///////////////////////////////////////////////////////////////////////////
-        public new class PKCS12 : STB34101.PKCS12
+        public class PKCS12 : PBE.PBECulture.Default
         {
-            // национальные особенности
-            private CAPI.Culture culture; 
-
             // конструктор
             public PKCS12(PBE.PBEParameters parameters) 
                 
                 // сохранить переданные параметры
-                : base(parameters) { culture = new STB34101_512(); } 
-            
-            // национальные особенности
-            protected override CAPI.Culture BaseCulture { get { return culture; }} 
+                : base(new STB34101_512(), parameters, true) {} 
         }
     }
 }

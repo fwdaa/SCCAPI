@@ -20,6 +20,14 @@ namespace Aladdin.CAPI.GOST.Culture
                 ASN1.Null.Instance
             ); 
         }
+        public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
+        { 
+            // вернуть параметры алгоритма
+            return new ASN1.ISO.AlgorithmIdentifier(
+                new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_HMAC_256), 
+                ASN1.Null.Instance
+            ); 
+        }
         public override ASN1.ISO.AlgorithmIdentifier SignHashAlgorithm(IRand rand) 
         { 
             // вернуть параметры алгоритма
@@ -54,29 +62,13 @@ namespace Aladdin.CAPI.GOST.Culture
         ///////////////////////////////////////////////////////////////////////////
         // Парольная защита
         ///////////////////////////////////////////////////////////////////////////
-        public class PKCS12 : PBE.PBECulture
+        public class PKCS12 : PBE.PBECulture.Default
         {
-            // национальные особенности
-            private CAPI.Culture culture; 
-
             // конструктор
             public PKCS12(PBE.PBEParameters parameters) 
                 
                 // сохранить переданные параметры
-                : base(parameters) { culture = new GOSTR2012_256(); } 
-            
-            // национальные особенности
-            protected override CAPI.Culture BaseCulture { get { return culture; }} 
-            
-            // параметры алгоритмов
-            public override ASN1.ISO.AlgorithmIdentifier HMacAlgorithm(IRand rand)
-            { 
-                // вернуть параметры алгоритма
-                return new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_HMAC_256), 
-                    ASN1.Null.Instance
-                ); 
-            }
+                : base(new GOSTR2012_256(), parameters, true) {} 
         }
     }
 }

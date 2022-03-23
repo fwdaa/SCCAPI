@@ -13,6 +13,7 @@ public abstract class Culture
 {
     // параметры алгоритмов
 	public AlgorithmIdentifier hashAlgorithm              (IRand rand) throws IOException { return null; } 
+    public AlgorithmIdentifier hmacAlgorithm              (IRand rand) throws IOException { return null; } 
 	public AlgorithmIdentifier cipherAlgorithm            (IRand rand) throws IOException { return null; } 
 	public AlgorithmIdentifier keyWrapAlgorithm           (IRand rand) throws IOException { return null; } 
 	public AlgorithmIdentifier ciphermentAlgorithm        (IRand rand) throws IOException { return null; } 
