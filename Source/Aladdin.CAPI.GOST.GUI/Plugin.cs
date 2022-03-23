@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Diagnostics.CodeAnalysis; 
 
 namespace Aladdin.CAPI.GOST.GUI
 {
     ///////////////////////////////////////////////////////////////////////////
     // Расширение криптографических культур
     ///////////////////////////////////////////////////////////////////////////
-    public class Plugin : CulturePlugin
+    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
+    public class Plugin : RefObject, ICulturePlugin
     { 
-        public Plugin(PBE.PBEParameters pbeParameters) : base(pbeParameters) {}
+        // параметры шифрования по паролю
+        private PBE.PBEParameters pbeParameters; 
 
-        public override IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        // конструктор
+        public Plugin(PBE.PBEParameters pbeParameters) 
+            
+            // сохранить переданные параметры 
+            { this.pbeParameters = pbeParameters; } 
+
+        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.GOST.OID.gostR3410_1994)
             {
@@ -234,13 +243,13 @@ namespace Aladdin.CAPI.GOST.GUI
             }
             throw new NotSupportedException(); 
         }
-        public override PBE.PBECulture GetCulture(object window, string keyOID)
+        public PBE.PBECulture GetCulture(object window, string keyOID)
         { 
             // создать диалог выбора криптографической культуры
             CAPI.GUI.CultureDialog dialog = new CAPI.GUI.CultureDialog( 
-                new CAPI.ANSI.GUI.PKCSControl   (PBEParameters), 
-                new CAPI.ANSI.GUI.NISTControl   (PBEParameters), 
-                new CAPI.GOST.GUI.CultureControl(PBEParameters)
+                new CAPI.ANSI.GUI.PKCSControl   (pbeParameters), 
+                new CAPI.ANSI.GUI.NISTControl   (pbeParameters), 
+                new CAPI.GOST.GUI.CultureControl(pbeParameters)
             ); 
             // отобразить диалог
             DialogResult dialogResult = Aladdin.GUI.ModalView.Show(

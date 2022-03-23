@@ -16,7 +16,7 @@ namespace Aladdin.CAPI
 		private Factories factories; private List<CryptoProvider> providers; 
         
         // фабрики генераторов случайных данных
-        private List<ConfigRandFactory> randFactories; 
+        private List<IRandFactory> randFactories; private bool hardwareRand; 
         
         // отображаемые имена ключей по идентификатору
         private Dictionary<String, String> names;
@@ -25,7 +25,7 @@ namespace Aladdin.CAPI
         private Dictionary<String, String> mappings; 
 
         // расширения криптографических культур по именам 
-        private Dictionary<String, CulturePlugin> plugins;
+        private Dictionary<String, GuiPlugin> plugins;
 
         // конструктор
 		public CryptoEnvironment(string file) 
@@ -43,9 +43,9 @@ namespace Aladdin.CAPI
         public CryptoEnvironment(Environment.ConfigSection section)
 		{
             // инициализировать переменные
-		    names      = new Dictionary<String, String       >();
-            mappings   = new Dictionary<String, String       >();
-            plugins    = new Dictionary<String, CulturePlugin>();
+		    names      = new Dictionary<String, String   >();
+            mappings   = new Dictionary<String, String   >();
+            plugins    = new Dictionary<String, GuiPlugin>();
 
             // получить параметры сборки
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName(); 
@@ -62,7 +62,7 @@ namespace Aladdin.CAPI
 			List<Factory> factories = new List<Factory>(); 
             
 			// создать список фабрик генераторов
-            randFactories = new List<ConfigRandFactory>(); 
+            randFactories = new List<IRandFactory>(); hardwareRand = false; 
 
 			// для всех фабрик алгоритмов
 			foreach (Environment.ConfigFactory element in section.Factories)
@@ -82,16 +82,16 @@ namespace Aladdin.CAPI
                 foreach (Factory factory in factories) RefObject.Release(factory);
             }
 			// для генераторов случайных данных
-			foreach (Environment.ConfigRand element in section.Rands)
+			foreach (Environment.ConfigRandFactory element in section.Rands)
 			try {
-                // определить класс генератора
-                string className = element.Class + identityString; 
-
                 // создать фабрику генераторов
-                using (IRandFactory randFactory = (IRandFactory)LoadObject(className))
-                { 
+                if (element.GUI) randFactories.Add(new GuiRandFactory(element, identityString)); 
+                else { 
+                    // определить класс генератора
+                    string className = element.Class + identityString; 
+
                     // создать фабрику генераторов
-                    randFactories.Add(new ConfigRandFactory(randFactory, element.Critical)); 
+                    randFactories.Add((IRandFactory)LoadObject(className)); hardwareRand = true; 
                 }
             }
             catch {}
@@ -99,16 +99,8 @@ namespace Aladdin.CAPI
 			// для всех типов криптографических культур
 			foreach (Environment.ConfigPlugin element in section.Plugins)
             try { 
-                // определить класс фабрики
-                string className = element.Class + identityString; 
-
-                // прочитать параметры шифрования по паролю
-                PBE.PBEParameters pbeParameters = new PBE.PBEParameters(
-                    element.PBMSaltLength, element.PBMIterations,  
-                    element.PBESaltLength, element.PBEIterations 
-                ); 
-                // загрузить расширение
-                CulturePlugin plugin = (CulturePlugin)LoadObject(className, pbeParameters); 
+                // создать расширение
+                GuiPlugin plugin = new GuiPlugin(element, identityString); 
 
                 // сохранить расширение
                 plugins.Add(element.Name, plugin);
@@ -169,13 +161,13 @@ namespace Aladdin.CAPI
         protected override void OnDispose()
         {
             // для всех плагинов
-            foreach (CulturePlugin plugin in plugins.Values)
+            foreach (GuiPlugin plugin in plugins.Values)
             {
                 // освободить выделенные ресурсы
                 plugin.Release(); 
             }
             // для всех фабрик генераторов
-            foreach (ConfigRandFactory randFactory in randFactories)
+            foreach (IRandFactory randFactory in randFactories)
             {
                 // освободить выделенные ресурсы
                 randFactory.Release(); 
@@ -224,7 +216,7 @@ namespace Aladdin.CAPI
             if (!mappings.ContainsKey(keyOID)) throw new NotFoundException();
 
             // получить соответствующий плагин
-            CulturePlugin plugin = plugins[mappings[keyOID]]; 
+            GuiPlugin plugin = plugins[mappings[keyOID]]; 
 
             // отобразить диалог выбора криптографической культуры
             if (window != null) return plugin.GetCulture(window, keyOID); 
@@ -235,14 +227,14 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Cоздать генератор случайных данных
         ///////////////////////////////////////////////////////////////////////
-        public bool HasHardwareRand() { return randFactories.Count > 0; }
-        
-        // создать генератор случайных данных
         public override IRand CreateRand(object window)
         {
 			// для генераторов случайных данных
-			foreach (ConfigRandFactory randFactory in randFactories)
+			foreach (IRandFactory randFactory in randFactories)
 			{
+                // проверить допустимость фабрики
+                if (window == null && randFactory is GuiRandFactory) continue; 
+
                 // создать генератор
                 IRand rand = randFactory.CreateRand(window); 
                 
@@ -269,5 +261,7 @@ namespace Aladdin.CAPI
             // создать генератор случайных данных
             return new Rand(window); 
         }
+        // признак наличия аппаратного генератора
+        public bool IsHardwareRand() { return hardwareRand; }
 	}
 }

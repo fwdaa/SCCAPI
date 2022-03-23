@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Diagnostics.CodeAnalysis; 
 
 namespace Aladdin.CAPI.STB.GUI
 {
     ///////////////////////////////////////////////////////////////////////////
     // Расширение криптографических культур
     ///////////////////////////////////////////////////////////////////////////
-    public class Plugin : CulturePlugin
+    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
+    public class Plugin : RefObject, ICulturePlugin
     { 
-        public Plugin(PBE.PBEParameters pbeParameters) : base(pbeParameters) {}
+        // параметры шифрования по паролю
+        private PBE.PBEParameters pbeParameters; 
 
-        public override IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        // конструктор
+        public Plugin(PBE.PBEParameters pbeParameters) 
+            
+            // сохранить переданные параметры 
+            { this.pbeParameters = pbeParameters; } 
+
+        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.STB.OID.stb34101_bign_pubKey)
             {
@@ -102,14 +111,14 @@ namespace Aladdin.CAPI.STB.GUI
             }
             throw new NotSupportedException(); 
         }
-        public override PBE.PBECulture GetCulture(object window, string keyOID)
+        public PBE.PBECulture GetCulture(object window, string keyOID)
         { 
             // создать диалог выбора криптографической культуры
             CAPI.GUI.CultureDialog dialog = new CAPI.GUI.CultureDialog(
-                new CAPI.ANSI.GUI.PKCSControl    (PBEParameters), 
-                new CAPI.ANSI.GUI.NISTControl    (PBEParameters), 
-                new CAPI.STB .GUI.STB34101Control(PBEParameters), 
-                new CAPI.STB .GUI.STB1176Control (PBEParameters)
+                new CAPI.ANSI.GUI.PKCSControl    (pbeParameters), 
+                new CAPI.ANSI.GUI.NISTControl    (pbeParameters), 
+                new CAPI.STB .GUI.STB34101Control(pbeParameters), 
+                new CAPI.STB .GUI.STB1176Control (pbeParameters)
             ); 
             // отобразить диалог
             DialogResult dialogResult = Aladdin.GUI.ModalView.Show(

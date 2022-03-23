@@ -16,7 +16,7 @@ public class CryptoEnvironment extends ExecutionContext
     // фабрики алгоритмов и криптопровайдеры
     private final Factories factories; private final List<CryptoProvider> providers;  
     // фабрики генераторов случайных данных
-    private final List<ConfigRandFactory> randFactories; 
+    private final List<IRandFactory> randFactories; private boolean hardwareRand; 
         
     // отображаемые имена ключей
     private final Map<String, String> names;
@@ -24,7 +24,7 @@ public class CryptoEnvironment extends ExecutionContext
     private final Map<String, String> mappings; 
     
     // расширения криптографических культур
-    private final Map<String, CulturePlugin> plugins;
+    private final Map<String, GuiPlugin> plugins;
 
     // конструктор
 	public CryptoEnvironment(String fileName) throws Exception
@@ -44,13 +44,13 @@ public class CryptoEnvironment extends ExecutionContext
         // инициализировать переменные
 	    names      = new HashMap<String, String       >();
         mappings   = new HashMap<String, String       >();
-        plugins    = new HashMap<String, CulturePlugin>();
+        plugins    = new HashMap<String, GuiPlugin>();
 
 		// создать список фабрик классов
 		List<Factory> factories = new ArrayList<Factory>(); 
             
 		// создать список фабрик генераторов
-        randFactories = new ArrayList<ConfigRandFactory>(); 
+        randFactories = new ArrayList<IRandFactory>(); hardwareRand = false; 
 
 		// для всех фабрик алгоритмов
 		for (ConfigFactory element : section.factories())
@@ -70,16 +70,16 @@ public class CryptoEnvironment extends ExecutionContext
             for (Factory factory : factories) RefObject.release(factory);
         }
 		// для генераторов случайных данных
-		for (ConfigRand element : section.rands())
+		for (ConfigRandFactory element : section.rands())
         try {  
-            // определить имя модуля и класс генератора
-            String classLoader = element.classLoader(); String className = element.className(); 
-                
             // создать фабрику генераторов
-            try (IRandFactory randFactory = (IRandFactory)loadObject(classLoader, className))
-            { 
+            if (element.gui()) randFactories.add(new GuiRandFactory(element)); 
+            else {
+                // определить имя модуля и класс генератора
+                String classLoader = element.classLoader(); String className = element.className(); 
+                
                 // создать фабрику генераторов
-                randFactories.add(new ConfigRandFactory(randFactory, element.critical())); 
+                randFactories.add((IRandFactory)loadObject(classLoader, className)); hardwareRand = true; 
             }
         }
         catch (Throwable e) {}
@@ -87,17 +87,8 @@ public class CryptoEnvironment extends ExecutionContext
 		// для всех типов криптографических культур
         for (ConfigPlugin element : section.plugins())
         try {
-            // определить имя модуля и класс фабрики
-            String classLoader = element.classLoader(); String className = element.className(); 
-
-            // прочитать параметры шифрования по паролю
-            PBEParameters pbeParameters = new PBEParameters(
-                element.pbmSaltLength(), element.pbmIterations(),  
-                element.pbeSaltLength(), element.pbeIterations() 
-            ); 
             // загрузить расширение
-            CulturePlugin plugin = (CulturePlugin)
-                loadObject(classLoader, className, pbeParameters); 
+            GuiPlugin plugin = new GuiPlugin(element);  
 
             // сохранить расширение
             plugins.put(element.name(), plugin);
@@ -158,13 +149,13 @@ public class CryptoEnvironment extends ExecutionContext
     @Override protected void onClose() throws IOException  
     {
         // для всех плагинов
-        for (CulturePlugin plugin : plugins.values())
+        for (GuiPlugin plugin : plugins.values())
         {
             // освободить выделенные ресурсы
             plugin.release(); 
         }
         // для всех фабрик генераторов
-        for (ConfigRandFactory randFactory : randFactories)
+        for (IRandFactory randFactory : randFactories)
         {
             // освободить выделенные ресурсы
             randFactory.release(); 
@@ -191,7 +182,8 @@ public class CryptoEnvironment extends ExecutionContext
     ///////////////////////////////////////////////////////////////////////
     // Параметры и отображаемое имя ключа
     ///////////////////////////////////////////////////////////////////////
-    @Override public IParameters getParameters(IRand rand, String keyOID, KeyUsage keyUsage)
+    @Override public IParameters getParameters(
+        IRand rand, String keyOID, KeyUsage keyUsage) throws IOException
     {
         // проверить наличие расширения 
         if (!mappings.containsKey(keyOID)) throw new NoSuchElementException();
@@ -207,13 +199,13 @@ public class CryptoEnvironment extends ExecutionContext
     ///////////////////////////////////////////////////////////////////////
     // Парольная защита для контейнера PKCS12
     ///////////////////////////////////////////////////////////////////////
-    @Override public PBECulture getCulture(Object window, String keyOID)
+    @Override public PBECulture getCulture(Object window, String keyOID) throws IOException
     {
         // проверить наличие расширения 
         if (!mappings.containsKey(keyOID)) throw new NoSuchElementException();
 
         // получить соответствующий плагин
-        CulturePlugin plugin = plugins.get(mappings.get(keyOID)); 
+        GuiPlugin plugin = plugins.get(mappings.get(keyOID)); 
 
         // отобразить диалог выбора криптографической культуры
         if (window != null) return plugin.getCulture(window, keyOID); 
@@ -224,14 +216,14 @@ public class CryptoEnvironment extends ExecutionContext
     ///////////////////////////////////////////////////////////////////////
     // Cоздать генератор случайных данных
     ///////////////////////////////////////////////////////////////////////
-    public final boolean hasHardwareRand() { return !randFactories.isEmpty(); }
-        
-    // создать генератор случайных данных
     @Override public IRand createRand(Object window) throws IOException
     {
         // для генераторов случайных данных
-		for (ConfigRandFactory randFactory : randFactories)
+		for (IRandFactory randFactory : randFactories)
 		{
+            // проверить допустимость фабрики
+            if (window == null && randFactory instanceof GuiRandFactory) continue; 
+            
             // создать генератор
             IRand rand = randFactory.createRand(window); 
                 
@@ -258,4 +250,6 @@ public class CryptoEnvironment extends ExecutionContext
         // создать генератор случайных данных
         return new Rand(window); 
     }
+    // признак наличия аппаратного генератора
+    public final boolean hasHardwareRand() { return hardwareRand; }
 }

@@ -13,7 +13,7 @@ public class ConfigSection
 	// фабрики алгоритмов
     private final List<ConfigFactory> factories; 
 	// генераторы случайных данных
-    private final List<ConfigRand> rands; 
+    private final List<ConfigRandFactory> rands; 
 	// расширения криптографических культур
     private final List<ConfigPlugin> plugins; 
 	// идентификаторы ключей
@@ -46,7 +46,7 @@ public class ConfigSection
     {
         // создать пустые списки
         factories = new ArrayList<ConfigFactory>(); 
-        rands     = new ArrayList<ConfigRand   >(); 
+        rands     = new ArrayList<ConfigRandFactory   >(); 
         plugins   = new ArrayList<ConfigPlugin >(); 
         keys      = new ArrayList<ConfigKey    >(); 
         
@@ -86,7 +86,7 @@ public class ConfigSection
                 if (nodes.item(i).getNodeType() != Node.ELEMENT_NODE) continue;                
 
                 // раскодировать элемент генератора случайных данных
-                rands.add(new ConfigRand((Element)nodes.item(i)));
+                rands.add(new ConfigRandFactory((Element)nodes.item(i)));
             }
             catch (Throwable e) {}
         }
@@ -134,7 +134,7 @@ public class ConfigSection
 	// фабрики алгоритмов
 	public final List<ConfigFactory> factories() { return factories; }
 	// генераторы случайных данных
-	public final List<ConfigRand> rands() { return rands; }
+	public final List<ConfigRandFactory> rands() { return rands; }
 	// расширения криптографических культур
 	public final List<ConfigPlugin> plugins() { return plugins; }
 	// идентификаторы ключей

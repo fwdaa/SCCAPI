@@ -91,13 +91,15 @@ public class ExecutionContext extends RefObject
     @Override public IRand createRand(Object window) throws IOException { return new Rand(window); } 
     
     // получить параметры ключа
-    @Override public IParameters getParameters(IRand rand, String keyOID, KeyUsage keyUsage)
+    @Override public IParameters getParameters(
+        IRand rand, String keyOID, KeyUsage keyUsage) throws IOException
     {
         // выбросить исключение
         throw new IllegalStateException(); 
     }
     // получить парольную защиту
-    @Override public PBECulture getCulture(Object window, String keyOID)
+    @Override public PBECulture getCulture(
+        Object window, String keyOID) throws IOException
     {
         // выбросить исключение
         throw new IllegalStateException(); 

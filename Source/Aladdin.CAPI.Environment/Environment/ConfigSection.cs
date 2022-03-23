@@ -10,7 +10,7 @@ namespace Aladdin.CAPI.Environment
     public class ConfigSection 
     {
 	    // фабрики алгоритмов и генераторы случайных данных
-        private List<ConfigFactory> factories; private List<ConfigRand> rands;
+        private List<ConfigFactory> factories; private List<ConfigRandFactory> rands;
 	    // расширения криптографических культур и идентификаторы ключей
         private List<ConfigPlugin> plugins; private List<ConfigKey> keys; 
 
@@ -36,8 +36,8 @@ namespace Aladdin.CAPI.Environment
         public ConfigSection(XmlDocument document)
         {
             // создать пустые списки
-            factories = new List<ConfigFactory>(); rands = new List<ConfigRand>(); 
-            plugins   = new List<ConfigPlugin >(); keys  = new List<ConfigKey >(); 
+            factories = new List<ConfigFactory>(); rands = new List<ConfigRandFactory>(); 
+            plugins   = new List<ConfigPlugin >(); keys  = new List<ConfigKey        >(); 
         
             // получить элемент для фабрик
             XmlNodeList factoriesNodes = document.GetElementsByTagName("factories");
@@ -74,7 +74,7 @@ namespace Aladdin.CAPI.Environment
                     if (nodes[i].NodeType != XmlNodeType.Element) continue;                
 
                     // раскодировать элемент генератора случайных данных
-                    rands.Add(new ConfigRand((XmlElement)nodes[i]));
+                    rands.Add(new ConfigRandFactory((XmlElement)nodes[i]));
                 }
             }
             // получить элемент для расширений криптографических культур
@@ -117,12 +117,12 @@ namespace Aladdin.CAPI.Environment
             }
         }
 	    // фабрики алгоритмов
-	    public List<ConfigFactory> Factories { get { return factories; }}
+	    public List<ConfigFactory    > Factories { get { return factories; }}
 	    // генераторы случайных данных
-	    public List<ConfigRand   > Rands     { get { return rands;     }}
+	    public List<ConfigRandFactory> Rands     { get { return rands;     }}
 	    // расширения криптографических культур
-	    public List<ConfigPlugin > Plugins   { get { return plugins;   }}
+	    public List<ConfigPlugin     > Plugins   { get { return plugins;   }}
 	    // идентификаторы ключей
-	    public List<ConfigKey    > Keys      { get { return keys;      }}
+	    public List<ConfigKey        > Keys      { get { return keys;      }}
     }
 }

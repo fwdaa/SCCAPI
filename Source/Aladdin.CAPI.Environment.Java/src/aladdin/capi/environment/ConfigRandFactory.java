@@ -5,15 +5,15 @@ import org.w3c.dom.*;
 ///////////////////////////////////////////////////////////////////////////
 // Элемент описания генератора случайных данных
 ///////////////////////////////////////////////////////////////////////////
-public class ConfigRand 
+public class ConfigRandFactory 
 {
-    // имя элемента и признак обязательного использования 
-    private final String name; private final String critical; 
+    // имя элемента и признак наличия GUI
+    private final String name; private final String gui; 
     // имя модуля и класса фабрики
     private final String classLoader; private final String className; 
     
     // конструктор
-    public ConfigRand(Element element) throws IOException
+    public ConfigRandFactory(Element element) throws IOException
     {
         // получить имя элемента 
         name = element.getAttribute("name"); 
@@ -30,8 +30,8 @@ public class ConfigRand
         // проверить наличие класса фабрики
         if (className.length() == 0) throw new IOException(); 
 
-        // получить признак обязательного использования
-        critical = element.getAttribute("critical"); 
+        // получить признак наличия GUI
+        gui = element.getAttribute("gui"); 
     }
     // имя элемента
     public final String name() { return name; } 
@@ -41,10 +41,10 @@ public class ConfigRand
     // класс фабрики
     public final String className() { return className; } 
     
-    // признак обязательного использования
-    public final boolean critical() 
+    // признак наличия GUI
+    public final boolean gui() 
     { 
-        // признак обязательного использования
-        return (critical.length() > 0) ? Boolean.parseBoolean(critical) : false; 
+        // признак наличия GUI
+        return (gui.length() > 0) ? Boolean.parseBoolean(gui) : false; 
     } 
 }

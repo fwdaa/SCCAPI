@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Diagnostics.CodeAnalysis; 
 
 namespace Aladdin.CAPI.KZ.GUI
 {
     ///////////////////////////////////////////////////////////////////////////
     // Расширение криптографических культур
     ///////////////////////////////////////////////////////////////////////////
-    public class Plugin : CulturePlugin
+    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
+    public class Plugin : RefObject, ICulturePlugin
     { 
-        public Plugin(PBE.PBEParameters pbeParameters) : base(pbeParameters) {}
+        // параметры шифрования по паролю
+        private PBE.PBEParameters pbeParameters; 
 
-        public override IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        // конструктор
+        public Plugin(PBE.PBEParameters pbeParameters) 
+            
+            // сохранить переданные параметры 
+            { this.pbeParameters = pbeParameters; } 
+
+        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1024     || 
                 keyOID == ASN1.KZ.OID.gamma_key_rsa_1536     || 
@@ -44,13 +53,13 @@ namespace Aladdin.CAPI.KZ.GUI
             // при ошибке выбросить исключение
             throw new NotSupportedException(); 
         }
-        public override PBE.PBECulture GetCulture(object window, string keyOID)
+        public PBE.PBECulture GetCulture(object window, string keyOID)
         {
             // создать диалог выбора криптографической культуры
             CAPI.GUI.CultureDialog dialog = new CAPI.GUI.CultureDialog(
-                new CAPI.ANSI.GUI.PKCSControl   (PBEParameters), 
-                new CAPI.ANSI.GUI.NISTControl   (PBEParameters), 
-                new CAPI.KZ  .GUI.CultureControl(PBEParameters)
+                new CAPI.ANSI.GUI.PKCSControl   (pbeParameters), 
+                new CAPI.ANSI.GUI.NISTControl   (pbeParameters), 
+                new CAPI.KZ  .GUI.CultureControl(pbeParameters)
             ); 
             // отобразить диалог
             DialogResult dialogResult = Aladdin.GUI.ModalView.Show(

@@ -8,7 +8,7 @@
     <ProjectGuid>{CB835C0C-E96B-424E-8C82-E52EB59BC020}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aladdin.CAPI.Environment</RootNamespace>
+    <RootNamespace>Aladdin.CAPI</RootNamespace>
     <AssemblyName>Aladdin.CAPI.Environment</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
@@ -60,15 +60,16 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigSection.cs" />
-    <Compile Include="ConfigKey.cs" />
-    <Compile Include="ConfigFactory.cs" />
-    <Compile Include="ConfigPlugin.cs" />
-    <Compile Include="ConfigRand.cs" />
-    <Compile Include="CulturePlugin.cs" />
+    <Compile Include="Environment\ConfigPlugin.cs" />
+    <Compile Include="Environment\ConfigSection.cs" />
+    <Compile Include="Environment\ConfigKey.cs" />
+    <Compile Include="Environment\ConfigFactory.cs" />
+    <Compile Include="GuiPlugin.cs" />
+    <Compile Include="Environment\ConfigRandFactory.cs" />
+    <Compile Include="ICulturePlugin.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ConfigRandFactory.cs" />
+    <Compile Include="GuiRandFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">
