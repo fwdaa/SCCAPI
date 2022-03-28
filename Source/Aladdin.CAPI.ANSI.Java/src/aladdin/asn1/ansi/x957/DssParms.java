@@ -15,6 +15,8 @@ import java.util.*;
 
 public final class DssParms extends Sequence<Integer>
 {
+    private static final long serialVersionUID = -1968151636347683643L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class RevokedCertificates extends Sequence<RevokedCertificate>
 {
+    private static final long serialVersionUID = -5959341407700025141L;
+    
 	// конструктор при раскодировании
 	public RevokedCertificates(IEncodable encodable) throws IOException 
 	{

@@ -6,6 +6,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class IA5String extends OctetString
 {
+    private static final long serialVersionUID = -7693513491640112578L;
+
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.IA5STRING); }
     
@@ -40,7 +42,20 @@ public final class IA5String extends OctetString
     // конструктор при раскодировании
     public IA5String(IEncodable encodable) throws IOException
     {
-        super(encodable); string = new String(content(), "US-ASCII"); 
+        // инициализировать объект
+        super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        // раскодировать объект
+        string = new String(content(), "US-ASCII"); 
     }
     // конструктор при закодировании
     public IA5String(String value) 
@@ -48,5 +63,5 @@ public final class IA5String extends OctetString
         super(Tag.IA5STRING, Utils.encodeString(value, "US-ASCII")); string = value; 
     }
     // строка символов
-    public final String str() { return string; } private final String string;
+    public final String str() { return string; } private String string;
 }

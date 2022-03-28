@@ -107,14 +107,14 @@ namespace Aladdin.CAPI.COM
 				using (IRand rand = environment.CreateRand(null))
 				{
 					// указать общие параметры
-					PBE.PBECulture culturePBE = environment.GetCulture(null, cultureOID);
+					PBE.PBECulture culturePBE = environment.GetPBECulture(null, cultureOID);
 
 					// получить параметры алгоритма наследования ключа
 					ASN1.ISO.AlgorithmIdentifier[] keyDeriveAlgorithms =
 						new ASN1.ISO.AlgorithmIdentifier[] { culturePBE.KDFAlgorithm(rand) };
 
 					// указать общие параметры
-					Culture culture = environment.Factories.GetCulture((SecurityStore)null, cultureOID);
+					Culture culture = environment.GetCulture(cultureOID);
 
 					// получить параметры алгоритма шифрования
 					ASN1.ISO.AlgorithmIdentifier cipherAlgorithm = culture.CipherAlgorithm(rand);

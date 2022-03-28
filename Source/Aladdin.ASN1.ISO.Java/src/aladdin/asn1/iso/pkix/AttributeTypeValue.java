@@ -8,6 +8,8 @@ import java.io.*;
 //	}
 public final class AttributeTypeValue extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7216394889780610415L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

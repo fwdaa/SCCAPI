@@ -38,7 +38,7 @@ namespace Aladdin.CAPI.PKCS12
             : base(factories, executionContext, "PKCS12", new string[] { "p12", "pfx" }) 
         {
             // сохранить парольную защиту
-            this.cultureFactory = RefObject.AddRef(cultureFactory); 
+            this.cultureFactory = executionContext; 
         }
 		// конструктор
 		public CryptoProvider(IEnumerable<Factory> factories, IRandFactory randFactory) 
@@ -48,12 +48,6 @@ namespace Aladdin.CAPI.PKCS12
         {
             // сохранить парольную защиту
             this.cultureFactory = null; 
-        }
-        // освободить выделенные ресурсы
-        protected override void OnDispose()
-        {
-            // освободить выделенные ресурсы
-            RefObject.Release(cultureFactory); base.OnDispose();
         }
 		///////////////////////////////////////////////////////////////////////
         // Генерация случайных данных
@@ -91,7 +85,7 @@ namespace Aladdin.CAPI.PKCS12
             if (password == null || cultureFactory == null) throw new InvalidOperationException(); 
 
             // получить парольную защиту
-            PBE.PBECulture culture = cultureFactory.GetCulture(rand.Window, keyOID); 
+            PBE.PBECulture culture = cultureFactory.GetPBECulture(rand.Window, keyOID); 
 
             // проверить поддержку защиты
             if (culture == null) throw new NotSupportedException(); 

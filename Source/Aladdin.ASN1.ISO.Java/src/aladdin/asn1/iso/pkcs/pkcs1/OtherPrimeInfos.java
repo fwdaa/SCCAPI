@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class OtherPrimeInfos extends Sequence<OtherPrimeInfo>
 {
+    private static final long serialVersionUID = 6535003750560071942L;
+    
 	// конструктор при раскодировании
 	public OtherPrimeInfos(IEncodable encodable) throws IOException
 	{

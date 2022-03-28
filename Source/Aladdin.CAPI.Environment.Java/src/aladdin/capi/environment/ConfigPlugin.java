@@ -1,86 +1,37 @@
 package aladdin.capi.environment;
-import java.io.*; 
-import org.w3c.dom.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент расширения
 ///////////////////////////////////////////////////////////////////////////
 public class ConfigPlugin 
 {
-    // имя плагина, имя модуля и класса плагина
-    private final String name; private final String classLoader; private final String className; 
+    // имя плагина и класса плагина
+    private final String name; private final String className; 
     // размер salt-значения и число итераций
-    private final String pbmSaltLength; private final String pbmIterations; 
-    private final String pbeSaltLength; private final String pbeIterations; 
+    private final int pbmSaltLength; private final int pbmIterations; 
+    private final int pbeSaltLength; private final int pbeIterations;
     
     // конструктор
-    public ConfigPlugin(Element element) throws IOException
+    public ConfigPlugin(String name, String className, 
+        int pbmSaltLength, int pbmIterations, int pbeSaltLength, int pbeIterations)
     {
-        // получить имя элемента 
-        name = element.getAttribute("name"); 
-        // проверить наличие имени элемента
-        if (name.length() == 0) throw new IOException(); 
+        // сохранить переданные параметры
+        this.name = name; this.className = className; 
         
-        // получить имя модуля
-        classLoader = element.getAttribute("classLoader"); 
-        // проверить наличие имени модуля
-        if (classLoader.length() == 0) throw new IOException(); 
-        
-        // получить класс расширения
-        className = element.getAttribute("className"); 
-        // проверить наличие класса расширения
-        if (className.length() == 0) throw new IOException(); 
-
-        // получить размер salt-значения
-        pbmSaltLength = element.getAttribute("pbmSaltLength"); 
-        // проверить наличие размера 
-        if (pbmSaltLength.length() == 0) throw new IOException(); 
-        
-        // получить число итераций
-        pbmIterations = element.getAttribute("pbmIterations"); 
-        // проверить наличие числа итераций
-        if (pbmIterations.length() == 0) throw new IOException(); 
-        
-        // получить размер salt-значения
-        pbeSaltLength = element.getAttribute("pbeSaltLength"); 
-        // проверить наличие размера 
-        if (pbeSaltLength.length() == 0) throw new IOException(); 
-        
-        // получить число итераций
-        pbeIterations = element.getAttribute("pbeIterations"); 
-        // проверить наличие числа итераций
-        if (pbeIterations.length() == 0) throw new IOException(); 
+        // сохранить переданные параметры
+        this.pbmSaltLength = pbmSaltLength; this.pbmIterations = pbmIterations; 
+        this.pbeSaltLength = pbeSaltLength; this.pbeIterations = pbeIterations; 
     }
     // имя плагина
     public final String name() { return name; } 
-    
-    // имя модуля
-    public final String classLoader() { return classLoader; } 
     // имя класса
     public final String className() { return className; } 
-    
     // размер salt-значения
-    public final int pbmSaltLength()
-    { 
-        // вернуть число итераций
-        return Integer.parseInt(pbmSaltLength); 
-    } 
+    public final int pbmSaltLength() { return pbmSaltLength; }
     // число итераций
-    public final int pbmIterations()
-    { 
-        // вернуть число итераций
-        return Integer.parseInt(pbmIterations); 
-    } 
+    public final int pbmIterations() { return pbmIterations; }
     // размер salt-значения
-    public final int pbeSaltLength()
-    { 
-        // вернуть число итераций
-        return Integer.parseInt(pbeSaltLength); 
-    } 
+    public final int pbeSaltLength() { return pbeSaltLength; }
     // число итераций
-    public final int pbeIterations()
-    { 
-        // вернуть число итераций
-        return Integer.parseInt(pbeIterations); 
-    } 
+    public final int pbeIterations() { return pbeIterations; }
 }

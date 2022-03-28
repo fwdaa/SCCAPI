@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class SMIMECapability extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 4733823962398502622L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

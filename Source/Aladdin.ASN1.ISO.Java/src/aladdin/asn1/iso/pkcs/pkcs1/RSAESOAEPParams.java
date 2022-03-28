@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class RSAESOAEPParams extends Sequence<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = -7912648453711845071L;
+    
 	// значение по умолчанию
 	private static final OctetString empty = new OctetString(new byte[0]); 
 	

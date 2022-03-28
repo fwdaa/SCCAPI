@@ -8,6 +8,8 @@ import java.math.*;
 ////////////////////////////////////////////////////////////////////////////////
 public class Parameters extends ECParameterSpec implements IParameters
 {
+    private static final long serialVersionUID = 2232571374244238399L;
+    
     // выполнить преобразование типа
     public static Parameters convert(IParameters parameters)
     {

@@ -9,6 +9,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class NamedParameters extends Parameters implements INamedParameters 
 {
+    private static final long serialVersionUID = 4373315597761819829L;
+    
     // конструктор
     public NamedParameters(String oid, CurveFp ec, ECPoint g, BigInteger q)
     { 

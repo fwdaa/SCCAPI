@@ -3,8 +3,10 @@ package aladdin.math;
 ///////////////////////////////////////////////////////////////////////
 // Эллиптическая кривая
 ///////////////////////////////////////////////////////////////////////
-public abstract class EllipticCurve<E, F extends Field<E>> extends AddGroup<Point<E>> 
+public abstract class EllipticCurve<E, F extends Field<E>> extends GroupAdd<Point<E>> 
 {
+    private static final long serialVersionUID = 4282191011459910523L;
+    
     // коэффициенты эллиптической кривой
     public abstract F field();
     public abstract E a    ();

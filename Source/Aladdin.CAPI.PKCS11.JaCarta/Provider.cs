@@ -60,29 +60,6 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
             // вернуть список ключей
             return keyOIDs.ToArray(); 
 	    }
-        public override Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            // получить алгоритмы по умолчанию
-            Culture culture = gostProvider.GetCulture(scope, keyOID); 
-        
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
-
-            // вызвать базовую функцию
-            return base.GetCulture(scope, keyOID); 
-        }
-        public override CAPI.PBE.PBECulture GetCulture(
-            CAPI.PBE.PBEParameters parameters, string keyOID) 
-        {
-            // получить алгоритмы по умолчанию
-            CAPI.PBE.PBECulture culture = gostProvider.GetCulture(parameters, keyOID); 
-        
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
-
-            // вызвать базовую функцию
-            return base.GetCulture(parameters, keyOID); 
-        }
 	    // преобразование ключей
 	    public override IPublicKey ConvertPublicKey(
             CAPI.PKCS11.Applet applet, SessionObject obj)

@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class NameConstraints extends Sequence<GeneralSubtrees>
 {
+    private static final long serialVersionUID = -2009194775226965366L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -12,6 +12,21 @@ namespace Aladdin.ASN1
     [Serializable]
 	public class Encodable : IEncodable, ISerializable
 	{
+        // конструктор при сериализации
+        protected Encodable(SerializationInfo info, StreamingContext context)
+        {
+            // прочитать бинарное представление
+            byte[] encoded = Convert.FromBase64String(info.GetString("Encoded")); 
+
+            // раскодировать представление
+            IEncodable encodable = Encodable.Decode(encoded); 
+
+            // сохранить раскодированные параметры 
+            this.tag = encodable.Tag; this.pc = encodable.PC;
+
+            // сохранить раскодированные параметры 
+			this.content = encodable.Content; this.encoded = encodable.Encoded;
+        }
         // конструктор
 		protected Encodable(IEncodable encodable)
 		{
@@ -64,6 +79,16 @@ namespace Aladdin.ASN1
 			return encoded = Encode(tag, pc, Content).Encoded; 	
 		}}
 		/////////////////////////////////////////////////////////////////////////////
+        // Сохранение данных
+		/////////////////////////////////////////////////////////////////////////////
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // сохранить бинарное представление
+            info.AddValue("Encoded", Convert.ToBase64String(Encoded)); 
+        }
+		/////////////////////////////////////////////////////////////////////////////
 		// Сравнить два объекта
 		/////////////////////////////////////////////////////////////////////////////
 		public override int GetHashCode()
@@ -84,30 +109,6 @@ namespace Aladdin.ASN1
 			// сравнить два объекта
 			return Arrays.Equals(Encoded, obj.Encoded);  
 		}
-        /////////////////////////////////////////////////////////////////////////////
-        // Сохранение данных
-        /////////////////////////////////////////////////////////////////////////////
-        protected Encodable(SerializationInfo info, StreamingContext context)
-        {
-            // прочитать бинарное представление
-            byte[] encoded = Convert.FromBase64String(info.GetString("Encoded")); 
-
-            // раскодировать представление
-            IEncodable encodable = Encodable.Decode(encoded); 
-
-            // сохранить раскодированные параметры 
-            this.tag = encodable.Tag; this.pc = encodable.PC;
-
-            // сохранить раскодированные параметры 
-			this.content = encodable.Content; this.encoded = encodable.Encoded;
-        }
-        [SecurityCritical]
-        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            // сохранить бинарное представление
-            info.AddValue("Encoded", Convert.ToBase64String(Encoded)); 
-        }
         /////////////////////////////////////////////////////////////////////////////
         // Проверить отсутствие данных
         /////////////////////////////////////////////////////////////////////////////

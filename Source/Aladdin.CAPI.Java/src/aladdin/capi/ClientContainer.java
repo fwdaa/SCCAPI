@@ -357,7 +357,7 @@ public class ClientContainer extends RefObject implements IClient
     ///////////////////////////////////////////////////////////////////////
     // Выполнение криптографических операций
     ///////////////////////////////////////////////////////////////////////
-    @Override public byte[] encryptData(IRand rand,
+    @Override public byte[] encryptData(IRand rand, Culture culture, 
         Certificate certificate, Certificate[] recipientCertificates, 
         CMSData data, Attributes attributes) throws IOException
     {
@@ -369,7 +369,7 @@ public class ClientContainer extends RefObject implements IClient
             try (IRand rebindRand = selector.rebindRand(rand))
             {
                 // зашифровать данные
-                return container.encryptData(rebindRand, 
+                return container.encryptData(rebindRand, culture, 
                     certificate, recipientCertificates, data, attributes
                 ); 
             }
@@ -385,7 +385,7 @@ public class ClientContainer extends RefObject implements IClient
             return container.decryptData(contentInfo);
         }
     }
-    @Override public byte[] signData(IRand rand, 
+    @Override public byte[] signData(IRand rand, Culture culture, 
         Certificate certificate, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
     {
@@ -397,7 +397,7 @@ public class ClientContainer extends RefObject implements IClient
             try (IRand rebindRand = selector.rebindRand(rand))
             {
                 // подписать данные
-                return container.signData(rebindRand, 
+                return container.signData(rebindRand, culture, 
                     certificate, data, authAttributes, unauthAttributes
                 );
             }

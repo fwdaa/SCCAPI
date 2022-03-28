@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class PrintableAddress extends Sequence<PrintableString>
 {
+    private static final long serialVersionUID = 1377517232132180406L;
+    
 	// конструктор при раскодировании
 	public PrintableAddress(IEncodable encodable) throws IOException
 	{

@@ -8,6 +8,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Set<T extends IEncodable> extends Collection<T>
 {
+    private static final long serialVersionUID = 2872976045810028116L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.SET); }
     
@@ -104,12 +106,12 @@ public class Set<T extends IEncodable> extends Collection<T>
     // конструктор при раскодировании
     public Set(IObjectFactory<? extends IEncodable> factory, IEncodable encodable) throws IOException
     {
-        super(encodable, getInfo(factory), new CastCallback<T>()); 
+        super(encodable, getInfo(factory)); 
     }
     // конструктор при раскодировании
     public Set(IEncodable encodable) throws IOException
     {
-        super(encodable, getInfo(ImplicitCreator.factory), new CastCallback<T>()); 
+        super(encodable, getInfo(ImplicitCreator.factory)); 
     }
     // конструктор при раскодировании
     protected Set(IEncodable encodable, ObjectInfo[] info) throws IOException

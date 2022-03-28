@@ -88,7 +88,7 @@ public final class Client extends RefObject implements IClient
         return privateKey.encode(attributes).encoded(); 
     }
     // зашифровать данные
-    @Override public byte[] encryptData(IRand rand, 
+    @Override public byte[] encryptData(IRand rand, Culture culture, 
         Certificate certificate, Certificate[] recipientCertificates, 
         CMSData data, Attributes attributes) throws IOException
     {
@@ -97,15 +97,6 @@ public final class Client extends RefObject implements IClient
 
         // проверить наличие ключа
         if (privateKey == null) throw new NoSuchElementException(); 
-        
-        // указать идентификатор ключа
-        String keyOID = certificate.publicKeyInfo().algorithm().algorithm().value(); 
-        
-        // получить алгоритмы по умолчанию
-        Culture culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-            
-        // проверить наличие алгоритмов
-        if (culture == null) throw new UnsupportedOperationException(); 
         
         // зашифровать данные
         ContentInfo contentInfo = Culture.keyxEncryptData(culture, rand, 
@@ -137,7 +128,8 @@ public final class Client extends RefObject implements IClient
         return CMS.keyxDecryptData(keyPairs.get(certificate), certificate, null, envelopedData); 
     }
     // подписать данные
-    @Override public byte[] signData(IRand rand, Certificate certificate, CMSData data, 
+    @Override public byte[] signData(IRand rand, Culture culture, 
+        Certificate certificate, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
     {
         // найти подходящий личный ключ
@@ -145,15 +137,6 @@ public final class Client extends RefObject implements IClient
 
         // проверить наличие ключа
         if (privateKey == null) throw new NoSuchElementException(); 
-        
-        // указать идентификатор ключа
-        String keyOID = certificate.publicKeyInfo().algorithm().algorithm().value(); 
-            
-        // получить алгоритмы по умолчанию
-        Culture culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-            
-        // проверить наличие алгоритмов
-        if (culture == null) throw new UnsupportedOperationException(); 
         
         // подписать данные
         ContentInfo contentInfo = Culture.signData(culture, rand, 

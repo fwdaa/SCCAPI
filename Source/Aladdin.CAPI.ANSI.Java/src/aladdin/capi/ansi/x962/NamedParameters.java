@@ -8,6 +8,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class NamedParameters extends Parameters implements INamedParameters 
 {
+    private static final long serialVersionUID = -5477801709063940959L;
+    
     // конструктор
     public NamedParameters(String oid, aladdin.capi.ec.Curve curve, 
         java.security.spec.ECPoint g, BigInteger n, int h, AlgorithmIdentifier hash)

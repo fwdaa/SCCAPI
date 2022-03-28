@@ -8,6 +8,8 @@ import java.util.*;
 
 public final class RecipientEncryptedKeys extends Sequence<RecipientEncryptedKey>
 {
+    private static final long serialVersionUID = -7620641955156201239L;
+    
 	// конструктор при раскодировании
 	public RecipientEncryptedKeys(IEncodable encodable) throws IOException 
 	{

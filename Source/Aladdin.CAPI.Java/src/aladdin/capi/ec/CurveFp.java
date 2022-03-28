@@ -8,6 +8,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////
 public class CurveFp extends Curve
 {
+    private static final long serialVersionUID = 6005509912835011602L;
+    
     // эллиптическая кривая
     private final aladdin.math.Fp.EllipticCurve ec;
         

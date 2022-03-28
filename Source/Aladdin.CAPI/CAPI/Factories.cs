@@ -118,68 +118,6 @@ namespace Aladdin.CAPI
             // создать список фабрик
             return new List<KeyFactory>(keyFactories.Values).ToArray(); 
         }
-	    ///////////////////////////////////////////////////////////////////////
-        // Используемые алгоритмы по умолчанию
-	    ///////////////////////////////////////////////////////////////////////
-        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID) 
-        {
-            // для всех фабрик алгоритмов
-            foreach (Factory factory in factories)
-            {
-                // получить алгоритмы по умолчанию
-                PBE.PBECulture culture = factory.GetCulture(parameters, keyOID); 
-
-                // проверить наличие алгоритмов
-                if (culture != null) return culture; 
-            }
-            return null; 
-        }
-	    ///////////////////////////////////////////////////////////////////////
-        // Используемые алгоритмы по умолчанию
-	    ///////////////////////////////////////////////////////////////////////
-        public override Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            if (scope == null) 
-            {
-                // для всех программных фабрик алгоритмов
-                foreach (Factory factory in factories)
-                {
-                    // проверить тип фабрики
-                    if (factory is CryptoProvider) continue; 
-
-                    // получить алгоритмы по умолчанию
-                    Culture culture = factory.GetCulture(scope, keyOID); 
-                
-                    // проверить наличие алгоритмов
-                    if (culture != null) return culture; 
-                }
-                // для всех программных провайдеров
-                foreach (Factory factory in factories)
-                {
-                    // проверить тип фабрики
-                    if (!(factory is Software.CryptoProvider)) continue; 
-
-                    // получить алгоритмы по умолчанию
-                    Culture culture = factory.GetCulture(scope, keyOID); 
-                
-                    // проверить наличие алгоритмов
-                    if (culture != null) return culture; 
-                }
-            }
-            // для провайдера алгоритмов
-            else if (scope.Provider is CryptoProvider)
-            { 
-                // выполнить преобразование типа
-                CryptoProvider provider = (CryptoProvider)scope.Provider; 
-
-                // получить алгоритмы по умолчанию
-                Culture culture = provider.GetCulture(scope, keyOID); 
-                
-                // проверить наличие алгоритмов
-                if (culture != null) return culture; 
-            }
-            return null; 
-        }
         ///////////////////////////////////////////////////////////////////////
         // Создать алгоритм генерации ключей
         ///////////////////////////////////////////////////////////////////////

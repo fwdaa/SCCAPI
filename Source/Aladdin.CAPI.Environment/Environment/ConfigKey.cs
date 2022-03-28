@@ -9,8 +9,10 @@ namespace Aladdin.CAPI.Environment
     ///////////////////////////////////////////////////////////////////////////
     public class ConfigKey 
     {
-        // идентификатор ключа, отображаемое имя и имя расширения 
-        private string oid; private string name; private string plugin; 
+        // идентификатор ключа, отображаемое имя
+        private string oid; private string name;
+        // имя расширения и класс культуры 
+        private string plugin; private string className;
     
         // конструктор
         public ConfigKey(XmlElement element)
@@ -29,6 +31,11 @@ namespace Aladdin.CAPI.Environment
             plugin = element.GetAttribute("plugin"); 
             // проверить наличие имени расширения 
             if (plugin.Length == 0) throw new IOException(); 
+
+            // получить класс культуры
+            className = element.GetAttribute("class"); 
+            // проверить наличие класса культуры
+            if (className.Length == 0) throw new IOException(); 
         }
         // идентификатор ключа
         public string OID { get { return oid; }} 
@@ -36,5 +43,7 @@ namespace Aladdin.CAPI.Environment
         public string Name { get { return name; }}
         // имя расширения 
         public string Plugin { get { return plugin; }}
+        // класс культуры 
+        public string Class { get { return className; }}
     }
 }

@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class RecipientKeyIdentifier extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8609637787234167442L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

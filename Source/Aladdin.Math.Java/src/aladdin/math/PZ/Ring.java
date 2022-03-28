@@ -7,6 +7,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Ring extends aladdin.math.Ring<Polynom>
 {
+    private static final long serialVersionUID = -4597188960298450026L;
+    
     // экземпляр кольца
     public static final Ring INSTANCE = new Ring(); 
 

@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class PolicyQualifierInfos extends Sequence<PolicyQualifierInfo>
 {
+    private static final long serialVersionUID = 4710550668467799684L;
+    
 	// конструктор при раскодировании
 	public PolicyQualifierInfos(IEncodable encodable) throws IOException 
 	{ 

@@ -497,5 +497,19 @@
           <attribute name="Main-Class" value="aladdin.capi.pkcs11.jacarta.Test"/>
         </manifest>
       </jar>
+      <retrotranslator13 target="1.2" destjar="dist/Aladdin.CAPI.Environment.jar"
+            smart="true" verify="true" failonwarning="true" embed="aladdin.capi.environment.embed">
+        <fileset dir="../../Aladdin.CAPI.Environment.Java/build/classes" includes="**/*.class" excludes="**/Xml*.class"/>
+	    <classpath>
+            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
+            <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
+            <fileset dir="dist" includes="**/*.jar"/>
+        </classpath>
+      </retrotranslator13>
+      <jar jarfile="dist/Aladdin.CAPI.Environment.jar" update = "true" compress="yes">
+        <manifest>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar"/>
+        </manifest>
+      </jar>
    </target>
 </project>

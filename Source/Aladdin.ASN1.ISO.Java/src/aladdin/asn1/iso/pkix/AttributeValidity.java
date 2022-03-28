@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class AttributeValidity extends Sequence<GeneralizedTime>
 {
+    private static final long serialVersionUID = 6669920512900335813L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

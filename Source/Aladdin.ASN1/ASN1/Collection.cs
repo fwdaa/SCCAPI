@@ -17,23 +17,8 @@ namespace Aladdin.ASN1
 		[NonSerialized] private IEncodable[] values; 
 		[NonSerialized] private ObjectInfo[] info;
 
-		// перечислитель объектов
-		public IEnumerator<IEncodable> GetEnumerator() 
-		{ 
-			// перечислитель объектов
-			return new List<IEncodable>(values).GetEnumerator(); 
-		}
-		// перечислитель объектов
-		IEnumerator IEnumerable.GetEnumerator() { return values.GetEnumerator(); }
-
-		// получить элемент коллекции
-		public IEncodable this[int i] { get { return values[i]; } 
-
-			// установить элемент коллекции
-			protected set { values[i] = value; } 
-		}
-		// размер коллекции
-		public int Length { get { return values.Length; } } 
+		// извлечение элементов 
+		internal delegate IEncodable[] CastCallback(ObjectInfo[] info, IEncodable[] encodables);
 
 		// конструктор при сериализации
         protected Collection(SerializationInfo serialInfo, StreamingContext context) : base(serialInfo, context)
@@ -53,9 +38,6 @@ namespace Aladdin.ASN1
 			// обработать возможное исключение
 			catch (TargetInvocationException e) { throw e.InnerException; }
         }
-		// извлечение элементов 
-		internal delegate IEncodable[] CastCallback(ObjectInfo[] info, IEncodable[] encodables);
-
 		// конструктор при раскодировании
 		internal Collection(IEncodable encodable, ObjectInfo[] info, CastCallback callback) : base(encodable)
 		{
@@ -157,6 +139,24 @@ namespace Aladdin.ASN1
 				this.values[i] = info.Factory.Decode(values[i]); 
 			}
 		}
+		// перечислитель объектов
+		public IEnumerator<IEncodable> GetEnumerator() 
+		{ 
+			// перечислитель объектов
+			return new List<IEncodable>(values).GetEnumerator(); 
+		}
+		// перечислитель объектов
+		IEnumerator IEnumerable.GetEnumerator() { return values.GetEnumerator(); }
+
+		// получить элемент коллекции
+		public IEncodable this[int i] { get { return values[i]; } 
+
+			// установить элемент коллекции
+			protected set { values[i] = value; } 
+		}
+		// размер коллекции
+		public int Length { get { return values.Length; } } 
+
 		// содержимое объекта
 		protected override byte[] GetContent() 
 		{

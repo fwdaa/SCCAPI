@@ -9,6 +9,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class GOSTSBlock extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7077035712595283098L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

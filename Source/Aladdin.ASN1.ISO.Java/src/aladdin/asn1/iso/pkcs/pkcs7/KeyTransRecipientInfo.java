@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class KeyTransRecipientInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -4090114070415795974L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

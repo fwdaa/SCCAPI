@@ -7,8 +7,7 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 // Контекст выполнения
 ///////////////////////////////////////////////////////////////////////////
-public class ExecutionContext extends RefObject 
-    implements IRandFactory, IParametersFactory, IPBECultureFactory
+public class ExecutionContext extends RefObject implements IRandFactory, IPBECultureFactory
 {
     // кэши аутентификации провайдеров
     private static final Map<String, CredentialsManager> providerCaches; 
@@ -90,15 +89,8 @@ public class ExecutionContext extends RefObject
     // генератор случайных данных
     @Override public IRand createRand(Object window) throws IOException { return new Rand(window); } 
     
-    // получить параметры ключа
-    @Override public IParameters getParameters(
-        IRand rand, String keyOID, KeyUsage keyUsage) throws IOException
-    {
-        // выбросить исключение
-        throw new IllegalStateException(); 
-    }
     // получить парольную защиту
-    @Override public PBECulture getCulture(
+    @Override public PBECulture getPBECulture(
         Object window, String keyOID) throws IOException
     {
         // выбросить исключение

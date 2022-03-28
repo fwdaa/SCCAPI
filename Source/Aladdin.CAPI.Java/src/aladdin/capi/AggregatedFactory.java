@@ -44,28 +44,6 @@ public final class AggregatedFactory extends Factory
         // поддерживаемые ключи
         return outer.keyFactories(); 
     }
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        Culture culture = factory.getCulture(scope, keyOID); 
-        
-        // проверить наличие алгоритмов
-        if (culture != null) return culture; 
-                
-        // создать алгоритмы из внешней фабрики
-        return outer.getCulture(scope, keyOID); 
-    }
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        PBECulture culture = factory.getCulture(parameters, keyOID); 
-        
-        // проверить наличие алгоритмов
-        if (culture != null) return culture; 
-                
-        // создать алгоритмы из внешней фабрики
-        return outer.getCulture(parameters, keyOID); 
-    }
     @Override public KeyPairGenerator createGenerator(
         SecurityObject scope, IRand rand, 
         String keyOID, IParameters parameters) throws IOException

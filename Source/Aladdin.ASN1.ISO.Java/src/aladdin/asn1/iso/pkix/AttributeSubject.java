@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class AttributeSubject extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 4514590958282084334L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

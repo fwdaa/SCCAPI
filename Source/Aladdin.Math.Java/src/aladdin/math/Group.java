@@ -6,6 +6,8 @@ import java.math.*;
 ////////////////////////////////////////////////////////////////////////////
 public abstract class Group<E> implements IGroup<E>
 {
+    private static final long serialVersionUID = 6152803905290025461L;
+    
     // признак нулевого элемента
     @Override public boolean isIdentity(E a) { return a.equals(identity()); } 
     

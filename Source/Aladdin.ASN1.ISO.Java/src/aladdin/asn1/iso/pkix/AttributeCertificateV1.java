@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class AttributeCertificateV1 extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 2531399348478191157L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

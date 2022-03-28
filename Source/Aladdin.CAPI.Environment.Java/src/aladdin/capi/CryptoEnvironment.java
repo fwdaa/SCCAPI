@@ -2,72 +2,71 @@ package aladdin.capi;
 import aladdin.*; 
 import aladdin.capi.pbe.*;
 import aladdin.capi.environment.*;
-import java.lang.reflect.*; 
 import java.io.*; 
-import java.net.*; 
 import java.util.*; 
-import org.w3c.dom.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Криптографическая среда
 ///////////////////////////////////////////////////////////////////////////
-public class CryptoEnvironment extends ExecutionContext
+public class CryptoEnvironment extends ExecutionContext implements IParametersFactory, ICultureFactory
 {
     // фабрики алгоритмов и криптопровайдеры
     private final Factories factories; private final List<CryptoProvider> providers;  
     // фабрики генераторов случайных данных
     private final List<IRandFactory> randFactories; private boolean hardwareRand; 
         
-    // отображаемые имена ключей
-    private final Map<String, String> names;
-    // отображение идентификаторов ключей на имена расширений
-    private final Map<String, String> mappings; 
-    
     // расширения криптографических культур
-    private final Map<String, GuiPlugin> plugins;
-
+    private final Map<String, GuiPlugin> plugins; private final PBEParameters pbeParameters; 
+    
+    // отображения по идентификаторам ключей
+    private Map<String, String > keyNames;       // имена ключей
+    private Map<String, String > keyPlugins;     // имена расширений
+    private Map<String, Culture> keyCultures;    // параметры алгоритмов
+    
     // конструктор
-	public CryptoEnvironment(String fileName) throws Exception
-    {
-		// прочитать среду из файла
-		this(ConfigSection.fromFile(fileName));  
-    } 
+    public CryptoEnvironment(PBEParameters parameters) { this(Config.DEFAULT, parameters); }
+        
     // конструктор
-    public CryptoEnvironment(Document document) throws IOException 
-    {
-		// прочитать среду из секции конфигурации
-		this(new ConfigSection(document)); 
-    }
-    // конструктор
-    public CryptoEnvironment(ConfigSection section) throws IOException
+    public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters)
 	{
+        // сохранить переданные параметры
+        this.pbeParameters = pbeParameters; hardwareRand = false; 
+        
+        // указать загрузчик классов
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        
         // инициализировать переменные
-	    names      = new HashMap<String, String       >();
-        mappings   = new HashMap<String, String       >();
-        plugins    = new HashMap<String, GuiPlugin>();
+        plugins     = new HashMap<String, GuiPlugin>();
+        keyNames    = new HashMap<String, String   >();
+        keyPlugins  = new HashMap<String, String   >();
+	    keyCultures = new HashMap<String, Culture  >();
 
 		// создать список фабрик классов
 		List<Factory> factories = new ArrayList<Factory>(); 
             
 		// создать список фабрик генераторов
-        randFactories = new ArrayList<IRandFactory>(); hardwareRand = false; 
+        randFactories = new ArrayList<IRandFactory>(); 
 
 		// для всех фабрик алгоритмов
 		for (ConfigFactory element : section.factories())
 		try { 
-            // определить имя модуля и класс фабрики
-            String classLoader = element.classLoader(); String className = element.className(); 
+            // определить класс фабрики
+            String className = element.className(); 
                 
             // добавить фабрику классов
-            factories.add((Factory)loadObject(classLoader, className)); 
+            factories.add((Factory)Loader.loadClass(classLoader, className)); 
         }
         catch (Throwable e) {}
         
         // объединить фабрики алгоритмов
-        try { this.factories = new Factories(false, factories); }
+        try { this.factories = new Factories(false, factories); } 
         finally { 
-            // освободить выделенные ресурсы
-            for (Factory factory : factories) RefObject.release(factory);
+            // для всех используемых фабрик
+            for (Factory factory : factories) 
+            {
+                // освободить выделенные ресурсы
+                try { RefObject.release(factory); } catch (Throwable e) {}
+            }
         }
 		// для генераторов случайных данных
 		for (ConfigRandFactory element : section.rands())
@@ -75,11 +74,13 @@ public class CryptoEnvironment extends ExecutionContext
             // создать фабрику генераторов
             if (element.gui()) randFactories.add(new GuiRandFactory(element)); 
             else {
-                // определить имя модуля и класс генератора
-                String classLoader = element.classLoader(); String className = element.className(); 
+                // определить класс генератора
+                String className = element.className(); 
                 
                 // создать фабрику генераторов
-                randFactories.add((IRandFactory)loadObject(classLoader, className)); hardwareRand = true; 
+                randFactories.add((IRandFactory)Loader.loadClass(classLoader, className)); 
+                
+                hardwareRand = true; 
             }
         }
         catch (Throwable e) {}
@@ -98,14 +99,17 @@ public class CryptoEnvironment extends ExecutionContext
 		// для всех допустимых ключей
 		for (ConfigKey element : section.keys())
         try {
-            // проверить наличие описания семейства
-            if (!plugins.containsKey(element.plugin())) throw new NoSuchElementException();
-                
-            // добавить отображаемое имя
-            names.put(element.oid(), element.name()); 
+            // определить класс культуры
+            String className = element.className(); 
+            
+            // добавить культуру в список
+            keyCultures.put(element.oid(), (Culture)Loader.loadClass(classLoader, className)); 
+            
+            // сохранить имя ключа
+            keyNames.put(element.oid(), element.name()); 
 
-            // добавить отображение имени
-            mappings.put(element.oid(), element.plugin()); 
+            // добавить имя расширения 
+            keyPlugins.put(element.oid(), element.plugin()); 
         }
         // создать список криптопровайдеров
         catch (Throwable e) {} providers = new ArrayList<CryptoProvider>(); 
@@ -116,50 +120,15 @@ public class CryptoEnvironment extends ExecutionContext
         // заполнить список криптопровайдеров
         providers.add(provider); providers.addAll(this.factories.providers()); 
     }
-	// загрузить объект
-    @SuppressWarnings({"rawtypes"}) 
-	private Object loadObject(String classLoader, String className, Object... args) throws Throwable
-    {
-        // получить имя файла 
-        File fileName = new File(classLoader); URL url = fileName.toURI().toURL(); 
-        
-        // создать загрузчик типов
-        ClassLoader loader = new URLClassLoader(
-            new URL[] { url }, getClass().getClassLoader()
-        );        
-		// получить описание типа
-		Class<?> type = loader.loadClass(className); 
-
-        // создать список типов аргументов
-        Class[] argTypes = new Class[args.length]; 
-
-        // заполнить список типов аргументов
-        for (int i = 0; i < args.length; i++) argTypes[i] = args[i].getClass(); 
-
-        // получить описание конструктора
-		Constructor constructor = type.getConstructor(argTypes); 
-        
-		// загрузить объект
-		try { return constructor.newInstance(args); }
-
-        // обработать исключение
-        catch (InvocationTargetException e) { throw e.getTargetException(); }
-	}
     // освободить используемые ресурсы
     @Override protected void onClose() throws IOException  
     {
-        // для всех плагинов
-        for (GuiPlugin plugin : plugins.values())
-        {
-            // освободить выделенные ресурсы
-            plugin.release(); 
-        }
-        // для всех фабрик генераторов
-        for (IRandFactory randFactory : randFactories)
-        {
-            // освободить выделенные ресурсы
-            randFactory.release(); 
-        }
+        // освободить выделенные ресурсы
+        for (GuiPlugin plugin : plugins.values()) plugin.release(); 
+        
+        // освободить выделенные ресурсы
+        for (IRandFactory randFactory : randFactories) randFactory.release();
+        
         // освободить выделенные ресурсы
         providers.get(0).release(); factories.release(); super.onClose(); 
     }
@@ -186,32 +155,69 @@ public class CryptoEnvironment extends ExecutionContext
         IRand rand, String keyOID, KeyUsage keyUsage) throws IOException
     {
         // проверить наличие расширения 
-        if (!mappings.containsKey(keyOID)) throw new NoSuchElementException();
+        if (!keyPlugins.containsKey(keyOID)) throw new NoSuchElementException();
+        
+        // получить имя расширения
+        String name = keyPlugins.get(keyOID); 
+        
+        // проверить наличие расширения 
+        if (!plugins.containsKey(name)) throw new NoSuchElementException();
 
         // отобразить диалог выбора параметров ключа
-        return plugins.get(mappings.get(keyOID)).getParameters(rand, keyOID, keyUsage);
+        return plugins.get(name).getParameters(rand, keyOID, keyUsage);
     }
     public final String getKeyName(String keyOID)
     {
         // отображаемое имя идентификатора
-        return names.containsKey(keyOID) ? names.get(keyOID) : keyOID;
+        return keyNames.containsKey(keyOID) ? keyNames.get(keyOID) : keyOID;
+    }
+    ///////////////////////////////////////////////////////////////////////
+    // Параметры алгоритмов по умолчанию
+    ///////////////////////////////////////////////////////////////////////
+    @Override public Culture getCulture(String keyOID)
+    {
+        // проверить наличие расширения 
+        if (!keyCultures.containsKey(keyOID)) throw new NoSuchElementException();
+
+        // вернуть параметры алгоритмов по умолчанию
+        return keyCultures.get(keyOID); 
     }
     ///////////////////////////////////////////////////////////////////////
     // Парольная защита для контейнера PKCS12
     ///////////////////////////////////////////////////////////////////////
-    @Override public PBECulture getCulture(Object window, String keyOID) throws IOException
+    @Override public PBECulture getPBECulture(Object window, String keyOID) throws IOException
     {
         // проверить наличие расширения 
-        if (!mappings.containsKey(keyOID)) throw new NoSuchElementException();
+        if (!keyPlugins.containsKey(keyOID)) throw new NoSuchElementException();
 
-        // получить соответствующий плагин
-        GuiPlugin plugin = plugins.get(mappings.get(keyOID)); 
+        // получить имя расширения
+        String name = keyPlugins.get(keyOID); if (window != null) 
+        {
+            // проверить наличие расширения 
+            if (!plugins.containsKey(name)) throw new NoSuchElementException();
+            
+            // получить соответствующий плагин
+            GuiPlugin plugin = plugins.get(name); 
 
-        // отобразить диалог выбора криптографической культуры
-        if (window != null) return plugin.getCulture(window, keyOID); 
-             
-        // вернуть парольную защиту по умолчанию
-        return factories.getCulture(plugin.pbeParameters(), keyOID); 
+            // отобразить диалог выбора криптографической культуры
+            return plugin.getPBECulture(window, keyOID); 
+        }
+        else {
+            // указать параметры шифрования по паролю
+            PBEParameters parameters = pbeParameters; 
+            
+            // проверить наличие расширения 
+            if (plugins.containsKey(name))
+            {
+                // получить параметры шифрования по паролю
+                parameters = plugins.get(name).pbeParameters(); 
+            }
+            // проверить наличие прараметров
+            if (parameters == null) throw new IllegalStateException(); 
+            
+            // вернуть парольную защиту по умолчанию
+            return getCulture(keyOID).pbe(parameters); 
+        }
     }
     ///////////////////////////////////////////////////////////////////////
     // Cоздать генератор случайных данных

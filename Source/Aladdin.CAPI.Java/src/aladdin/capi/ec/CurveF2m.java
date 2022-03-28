@@ -9,6 +9,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////
 public class CurveF2m extends Curve
 {
+    private static final long serialVersionUID = -1687595551416292398L;
+    
     // эллиптическая кривая
     private final aladdin.math.F2m.EllipticCurve ec; 
     

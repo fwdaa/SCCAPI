@@ -16,6 +16,8 @@ import java.io.*;
 
 public class BuiltInStandardAttributes extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -6912104830270219054L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

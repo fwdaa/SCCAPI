@@ -37,64 +37,6 @@ namespace Aladdin.CAPI.KZ
             }; 
 	    }
 	    ///////////////////////////////////////////////////////////////////////
-        // Используемые алгоритмы по умолчанию
-	    ///////////////////////////////////////////////////////////////////////
-        public override CAPI.Culture GetCulture(SecurityStore scope, string keyOID)
-        {
-            if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1024     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_4096     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1024_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_4096_xch) 
-            {
-                // вернуть параметры по умолчанию
-                return new ANSI.Culture.RSA(); 
-            }
-            if (keyOID == ASN1.KZ.OID.gamma_key_ec256_512_a     || 
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_b     ||
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_c     || 
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_a_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_b_xch)
-            {
-                // вернуть параметры по умолчанию
-                return new KZ.Culture.GOST2004(); 
-            }
-            return null; 
-        }
-        // указать используемые алгоритмы
-        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID)
-        {
-            if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1024     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_4096     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1024_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_4096_xch) 
-            {
-                // вернуть параметры по умолчанию
-                return new ANSI.Culture.RSA.PKCS12(parameters); 
-            }
-            if (keyOID == ASN1.KZ.OID.gamma_key_ec256_512_a     || 
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_b     ||
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_c     || 
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_a_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_ec256_512_b_xch)
-            {
-                // вернуть параметры по умолчанию
-                return new KZ.Culture.GOST2004.PKCS12(parameters); 
-            }
-            return null; 
-        }
-	    ///////////////////////////////////////////////////////////////////////
 	    // Cоздать алгоритм генерации ключей
 	    ///////////////////////////////////////////////////////////////////////
 	    protected override KeyPairGenerator CreateGenerator(

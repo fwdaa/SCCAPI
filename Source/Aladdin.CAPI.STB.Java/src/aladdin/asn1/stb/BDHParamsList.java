@@ -17,6 +17,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class BDHParamsList extends Sequence<IEncodable> 
 {
+    private static final long serialVersionUID = 6402939046560811894L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

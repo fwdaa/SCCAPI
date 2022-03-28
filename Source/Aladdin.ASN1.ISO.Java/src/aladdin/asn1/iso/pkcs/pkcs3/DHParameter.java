@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class DHParameter extends Sequence<Integer>
 {
+    private static final long serialVersionUID = -978591128467760344L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

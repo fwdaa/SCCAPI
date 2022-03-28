@@ -86,6 +86,7 @@
     <Compile Include="CAPI\Exception.cs" />
     <Compile Include="CAPI\ExecutionContext.cs" />
     <Compile Include="CAPI\IBlockCipher.cs" />
+    <Compile Include="CAPI\ICultureFactory.cs" />
     <Compile Include="CAPI\IParametersFactory.cs" />
     <Compile Include="CAPI\KeyAgreement.cs" />
     <Compile Include="CAPI\PBE\PBECultureFactory.cs" />

@@ -6,6 +6,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class OctetString extends AsnObject
 {
+    private static final long serialVersionUID = -4910182668916117790L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.OCTETSTRING); }
     
@@ -40,22 +42,29 @@ public class OctetString extends AsnObject
     // конструктор при раскодировании
     public OctetString(IEncodable encodable) throws IOException
     {
-        super(encodable);
-	
+        // инициализировать объект
+        super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
         // проверить способ кодирования строки байтов
-		if (encodable.pc().equals(PC.PRIMITIVE))
-        { 
-            // извлечь значение строки байтов
-            value = encodable.content(); return;
-		}
+		if (pc().equals(PC.PRIMITIVE)) { value = content(); return; }
+        
 		// задать начальные условия при перечислении внутренних объектов
-		int length = encodable.content().length; byte[] bytes = new byte[0];
+		int length = content().length; byte[] bytes = new byte[0];
 
 		// для всех внутренних объектов
 		for (int cb = 0; length > 0;)
 		{
             // раскодировать внутренний объект
-            OctetString inner = new OctetString(Encodable.decode(encodable.content(), cb, length));
+            OctetString inner = new OctetString(Encodable.decode(content(), cb, length));
 
              // определить новый размер данных
             int resizeLength = bytes.length + inner.value().length; 
@@ -80,10 +89,10 @@ public class OctetString extends AsnObject
     // конструктор при закодировании
     protected OctetString(Tag tag, byte[] value, int ofs, int cb)
     {
-    	super(tag);
+    	super(tag); this.value = new byte[cb]; 
 
         // сохранить строку байтов
-		this.value = new byte[cb]; System.arraycopy(value, ofs, this.value, 0, cb);
+		System.arraycopy(value, ofs, this.value, 0, cb);
     }
     // конструктор при закодировании
     protected OctetString(Tag tag, byte[] value)
@@ -97,7 +106,7 @@ public class OctetString extends AsnObject
     }
     // конструктор при закодировании
     public OctetString(byte[] value) { this(value, 0, value.length); }
-
+    
     // способ кодирования для DER-кодировки
     @Override protected final PC derPC() { return PC.PRIMITIVE; }
 
@@ -105,5 +114,5 @@ public class OctetString extends AsnObject
     @Override protected byte[] derContent() { return value; }
 
     // строка байтов
-    public final byte[] value() { return value; } protected final byte[] value;
+    public final byte[] value() { return value; } protected byte[] value;
 }

@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class ECCAlgorithms extends Sequence<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = 8820446117519037101L;
+    
 	// конструктор при раскодировании
 	public ECCAlgorithms(IEncodable encodable) throws IOException 
 	{

@@ -6,6 +6,8 @@ import aladdin.asn1.gost.*;
 ///////////////////////////////////////////////////////////////////////////
 public class DHNamedParameters extends DHParameters implements INamedParameters
 {
+    private static final long serialVersionUID = -7904337561052255467L;
+    
     // выполнить преобразование типа
     public static DHNamedParameters convert(INamedParameters parameters)
     {

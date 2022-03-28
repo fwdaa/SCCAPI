@@ -1,6 +1,7 @@
 package aladdin.math;
 import java.math.*; 
 import java.util.*;
+import java.io.*;
 
 ///////////////////////////////////////////////////////////////////////
 // Многочлен (a_0 x^m + ... + a_{m-1} x^1 + a_m). Внутренее представление
@@ -13,8 +14,10 @@ import java.util.*;
 // вид: a_0 2^m + ... + a_{m-1} 2 + a_m, т.е. в младших разрядах содержит
 // коэффициенты при младших степенях. 
 ///////////////////////////////////////////////////////////////////////
-public final class Polynom
+public final class Polynom implements Serializable
 {
+    private static final long serialVersionUID = 4828668862967432355L;
+    
     // коэффициенты многочлена от старших к младшим
     private final int[] magnitude; 
 

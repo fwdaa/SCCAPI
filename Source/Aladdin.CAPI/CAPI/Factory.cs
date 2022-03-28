@@ -75,11 +75,6 @@ namespace Aladdin.CAPI
 			// раскодировать личный ключ
 			return keyFactory.DecodeKeyPair(this, privateKeyInfo); 
 		}
-        // используемые алгоритмы по умолчанию
-        public abstract Culture GetCulture(SecurityStore scope, string keyOID);  
-        // указать алгоритмы по умолчанию
-        public abstract PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID); 
-
         // создать алгоритм генерации ключей
 		public virtual KeyPairGenerator CreateGenerator(
             SecurityObject scope, IRand rand, string keyOID, IParameters parameters) 

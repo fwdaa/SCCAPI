@@ -15,6 +15,8 @@ import java.io.*;
 
 public final class TeletexPersonalName extends Set<TeletexString>
 {
+    private static final long serialVersionUID = -7734241253649211741L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

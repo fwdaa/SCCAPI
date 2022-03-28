@@ -20,8 +20,8 @@ public interface IClient extends IRefObject
         throws IOException; 
     
     // зашифровать данные
-    byte[] encryptData(IRand rand, Certificate certificate, 
-        Certificate[] recipientCertificates, 
+    byte[] encryptData(IRand rand, Culture culture, 
+        Certificate certificate, Certificate[] recipientCertificates, 
         CMSData data, Attributes attributes
     ) throws IOException;
     
@@ -29,7 +29,8 @@ public interface IClient extends IRefObject
 	CMSData decryptData(byte[] contentInfo) throws IOException; 
 
     // подписать данные
-    byte[] signData(IRand rand, Certificate certificate, CMSData data, 
+    byte[] signData(IRand rand, Culture culture,
+        Certificate certificate, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes
     ) throws IOException; 
 }; 

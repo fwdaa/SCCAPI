@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class MQVUserKeyingMaterial extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -2509165690424500980L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -10,6 +10,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECPKRestrictions extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -6699044103813447724L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

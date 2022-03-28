@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class PBMParameter extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 5993699113930333145L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

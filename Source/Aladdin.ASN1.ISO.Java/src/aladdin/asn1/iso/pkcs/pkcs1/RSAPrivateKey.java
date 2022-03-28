@@ -18,6 +18,8 @@ import java.io.*;
 
 public final class RSAPrivateKey extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -6546266204791370795L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -4,8 +4,10 @@ import java.math.*;
 ////////////////////////////////////////////////////////////////////////////
 // Мультипликативная группа (умножение скользящим окном)
 ////////////////////////////////////////////////////////////////////////////
-public abstract class MulGroup<E> extends Group<E> implements IMulGroup<E>
+public abstract class GroupMul<E> extends Group<E> implements IGroupMul<E>
 {
+    private static final long serialVersionUID = 1542785450834169951L;
+    
     // признак единичного элемента
     @Override public boolean isOne(E a) { return a.equals(one()); } 
     

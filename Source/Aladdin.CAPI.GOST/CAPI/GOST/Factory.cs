@@ -69,62 +69,6 @@ namespace Aladdin.CAPI.GOST
             }; 
 	    }
 	    ///////////////////////////////////////////////////////////////////////
-        // Используемые по умолчанию алгоритмы
-	    ///////////////////////////////////////////////////////////////////////
-        public override CAPI.Culture GetCulture(SecurityStore scope, string keyOID)
-        {
-            if (keyOID == ASN1.GOST.OID.gostR3410_1994) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR1994(ASN1.GOST.OID.encrypts_A); 
-            }
-            if (keyOID == ASN1.GOST.OID.gostR3410_2001) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR2001(ASN1.GOST.OID.encrypts_A); 
-            }
-            if (keyOID == ASN1.GOST.OID.gostR3410_2012_256) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR2012_256(); 
-            }
-            if (keyOID == ASN1.GOST.OID.gostR3410_2012_512) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR2012_512(); 
-            }
-            return null; 
-        }
-        // указать используемые алгоритмы
-        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID)
-        {
-            if (keyOID == ASN1.GOST.OID.gostR3410_1994) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR1994.PKCS12(
-                    parameters, ASN1.GOST.OID.encrypts_A
-                ); 
-            }
-            if (keyOID == ASN1.GOST.OID.gostR3410_2001) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR2001.PKCS12(
-                    parameters, ASN1.GOST.OID.encrypts_A
-                ); 
-            }
-            if (keyOID == ASN1.GOST.OID.gostR3410_2012_256) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR2012_256.PKCS12(parameters); 
-            }
-            if (keyOID == ASN1.GOST.OID.gostR3410_2012_512) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.GOSTR2012_512.PKCS12(parameters); 
-            }
-            return null; 
-        }
-	    ///////////////////////////////////////////////////////////////////////
 	    // Cоздать алгоритм генерации ключей
 	    ///////////////////////////////////////////////////////////////////////
 	    protected override KeyPairGenerator CreateGenerator(

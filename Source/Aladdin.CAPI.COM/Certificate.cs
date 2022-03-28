@@ -94,15 +94,21 @@ namespace Aladdin.CAPI.COM
 		[ComVisible(false)] 
 		public byte[] Encrypt(byte[] data)
 		{
+			// указать идентификатор ключа
+			string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
+
+			// получить криптографическую культуру
+			Culture culture = environment.GetCulture(keyOID); 
+
             // указать тип данных
             CMSData cmsData = new CMSData(ASN1.ISO.PKCS.PKCS7.OID.data, data); 
 
 			// указать генератор случайных данных
 			using (IRand rand = environment.CreateRand(null))
 			{ 
-				// зашифровать данные на открытом ключе
+				// зашифровать данные на открытом ключе 
 				ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.KeyxEncryptData(
-					null, environment.Factories, null, rand, certificate, cmsData, null
+					culture, environment.Factories, null, rand, certificate, cmsData, null
 				); 
 				// вернуть зашифрованные данные
 				return contentInfo.Encoded; 

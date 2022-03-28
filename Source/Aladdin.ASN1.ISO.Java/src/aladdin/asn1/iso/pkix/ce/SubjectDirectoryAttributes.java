@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class SubjectDirectoryAttributes extends Sequence<Attribute>
 {
+    private static final long serialVersionUID = -499217808455482173L;
+    
 	// конструктор при раскодировании
 	public SubjectDirectoryAttributes(IEncodable encodable) throws IOException
 	{

@@ -10,6 +10,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class GOSTR3410KEGParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -1976890161718619096L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

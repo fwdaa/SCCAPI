@@ -12,6 +12,8 @@ import java.io.*;
 public class GOSTR1994 extends GOST28147
 {
     // конструктор
+    public GOSTR1994() { this(OID.ENCRYPTS_A); }
+    // конструктор
     public GOSTR1994(String encryptionParams) { super(encryptionParams); }
     
     // параметры алгоритмов

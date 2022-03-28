@@ -7,6 +7,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class SpecifiedMultiples extends Sequence<SpecifiedMultiple>
 {
+    private static final long serialVersionUID = -5711293012914758220L;
+    
 	// конструктор при раскодировании
 	public SpecifiedMultiples(IEncodable encodable) throws IOException 
 	{

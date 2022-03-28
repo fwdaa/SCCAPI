@@ -1,4 +1,5 @@
 package aladdin.math;
+import java.io.*;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Матрица (unused   , ..., unused       )
@@ -6,8 +7,10 @@ package aladdin.math;
 //         (  ...    , ...,   ...        )
 //         (a_{m-1}_0, ..., a_{m-1}_{m-1})
 ////////////////////////////////////////////////////////////////////////////////
-public final class Matrix 
+public final class Matrix implements Serializable
 {
+    private static final long serialVersionUID = 5561089138698459516L;
+    
     // столбцы матрицы и число строк
     private final Vector[] columns; private final int rows; 
     

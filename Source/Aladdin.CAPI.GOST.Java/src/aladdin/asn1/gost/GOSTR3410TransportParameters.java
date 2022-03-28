@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class GOSTR3410TransportParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 3866696569188681795L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

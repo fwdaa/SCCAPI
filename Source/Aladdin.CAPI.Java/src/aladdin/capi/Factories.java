@@ -1,6 +1,5 @@
 package aladdin.capi;
 import aladdin.*; 
-import aladdin.capi.pbe.*; 
 import aladdin.asn1.iso.*; 
 import java.util.*; 
 import java.io.*; 
@@ -128,68 +127,6 @@ public class Factories extends Factory implements Iterable<Factory>
         
         // вернуть список фабрик
         return collection.toArray(new KeyFactory[collection.size()]); 
-    }
-	///////////////////////////////////////////////////////////////////////
-    // Используемые алгоритмы по умолчанию
-	///////////////////////////////////////////////////////////////////////
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        // для всех фабрик алгоритмов
-        for (Factory factory : factories)
-        {
-            // получить алгоритмы по умолчанию
-            PBECulture culture = factory.getCulture(parameters, keyOID); 
-
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
-        }
-        return null; 
-    }
-	///////////////////////////////////////////////////////////////////////
-    // Используемые алгоритмы по умолчанию
-	///////////////////////////////////////////////////////////////////////
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        if (scope == null) 
-        {
-            // для всех программных фабрик алгоритмов
-            for (Factory factory : factories)
-            {
-                // проверить тип фабрики
-                if (factory instanceof CryptoProvider) continue; 
-
-                // получить алгоритмы по умолчанию
-                Culture culture = factory.getCulture(scope, keyOID); 
-                
-                // проверить наличие алгоритмов
-                if (culture != null) return culture; 
-            }
-            // для всех программных провайдеров
-            for (Factory factory : factories)
-            {
-                // проверить тип фабрики
-                if (!(factory instanceof aladdin.capi.software.CryptoProvider)) continue; 
-
-                // получить алгоритмы по умолчанию
-                Culture culture = factory.getCulture(scope, keyOID); 
-                
-                // проверить наличие алгоритмов
-                if (culture != null) return culture; 
-            }
-        }
-        // для провайдера алгоритмов
-        else if (scope.provider() instanceof CryptoProvider)
-        { 
-            // выполнить преобразование типа
-            CryptoProvider provider = (CryptoProvider)scope.provider(); 
-
-            // получить алгоритмы по умолчанию
-            Culture culture = provider.getCulture(scope, keyOID); 
-                
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
-        }
-        return null; 
     }
     ///////////////////////////////////////////////////////////////////////
     // Создать алгоритм генерации ключей

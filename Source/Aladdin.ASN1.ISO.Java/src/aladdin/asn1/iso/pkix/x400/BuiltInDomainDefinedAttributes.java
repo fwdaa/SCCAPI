@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class BuiltInDomainDefinedAttributes extends Sequence<BuiltInDomainDefinedAttribute>
 {
+    private static final long serialVersionUID = 5132331948696895152L;
+    
     // конструктор при раскодировании
     public BuiltInDomainDefinedAttributes(IEncodable encodable) throws IOException  
     { 

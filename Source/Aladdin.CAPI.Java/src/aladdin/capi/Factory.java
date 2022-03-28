@@ -98,11 +98,6 @@ public abstract class Factory extends RefObject
 		// раскодировать личный ключ
 		return keyFactory.decodeKeyPair(this, privateKeyInfo); 
 	}
-    // указать алгоритмы по умолчанию
-    public abstract Culture getCulture(SecurityStore scope, String keyOID); 
-    // указать алгоритмы по умолчанию
-    public abstract PBECulture getCulture(PBEParameters parameters, String keyOID); 
-    
 	// создать алгоритм генерации ключей
 	public KeyPairGenerator createGenerator(SecurityObject scope, 
         IRand rand, String keyOID, IParameters parameters) throws IOException 

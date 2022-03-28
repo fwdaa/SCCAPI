@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class PolicyMapping extends Sequence<ObjectIdentifier>
 {
+    private static final long serialVersionUID = 3719969418027847060L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

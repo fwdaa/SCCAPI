@@ -9,6 +9,7 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public class DHParameters extends DSAParameterSpec implements IDHParameters
 {
+    private static final long serialVersionUID = -7173437093791632739L;
 /*    
     // выполнить преобразование типа
     public static DHParameters convert(IDHParameters parameters)

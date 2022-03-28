@@ -43,11 +43,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private UniversalString(SerializationInfo info, StreamingContext context) 
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public new void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
 		{
 			// выделить память для изменения порядка байтов
 			byte[] content = new byte[value.Length]; 
@@ -63,7 +60,7 @@ namespace Aladdin.ASN1
 			str = Encoding.UTF32.GetString(content); 
 		}
 		// конструктор при раскодировании
-		public UniversalString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public UniversalString(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public UniversalString(string str) : base(Tag.UniversalString, Encoding.UTF32.GetBytes(str)) 

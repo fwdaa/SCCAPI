@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class EDIPartyName extends Sequence<OctetString>
 {
+    private static final long serialVersionUID = 1627598266681309836L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

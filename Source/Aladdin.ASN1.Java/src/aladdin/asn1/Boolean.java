@@ -6,6 +6,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class Boolean extends AsnObject
 {
+    private static final long serialVersionUID = 5029530852418640069L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.BOOLEAN); }
     
@@ -16,20 +18,30 @@ public final class Boolean extends AsnObject
     // конструктор при раскодировании
     public Boolean(IEncodable encodable) throws IOException
     {
-    	super(encodable);
-
+        // инициализировать объект
+    	super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
         // проверить корректность способа кодирования
-		if (encodable.pc() != PC.PRIMITIVE) throw new IOException();
+		if (pc() != PC.PRIMITIVE) throw new IOException();
 
 		// проверить корректность объекта
-		if (encodable.content().length != 1) throw new IOException();
+		if (content().length != 1) throw new IOException();
 
 		// сохранить булевое значение
-		this.value = (encodable.content()[0] != 0);
+		this.value = (content()[0] != 0);
     }
     // конструктор при закодировании
     public Boolean(boolean value) { super(Tag.BOOLEAN); this.value = value; }
-
+    
     // способ кодирования для DER-кодировки
     @Override protected final PC derPC() { return PC.PRIMITIVE; }
 
@@ -40,5 +52,5 @@ public final class Boolean extends AsnObject
 		return new byte[] { value ? (byte)0xFF : (byte)0x00 };
     }
     // булевое значение
-    public final boolean value() { return value; } private final boolean value;
+    public final boolean value() { return value; } private boolean value;
 }

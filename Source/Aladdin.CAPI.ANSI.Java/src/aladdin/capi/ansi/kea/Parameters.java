@@ -7,6 +7,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class Parameters extends DHParameterSpec implements IParameters 
 {
+    private static final long serialVersionUID = 6480493715555195269L;
+    
     // параметр Q
     private final BigInteger q;
     

@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class KEKRecipientInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -6426521276311204296L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

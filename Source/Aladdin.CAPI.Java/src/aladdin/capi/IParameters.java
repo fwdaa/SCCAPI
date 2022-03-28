@@ -1,8 +1,9 @@
 package aladdin.capi;
+import java.io.*;
 import java.security.spec.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры алгоритма
 ///////////////////////////////////////////////////////////////////////////
-public interface IParameters extends AlgorithmParameterSpec {}
+public interface IParameters extends AlgorithmParameterSpec, Serializable  {}
 

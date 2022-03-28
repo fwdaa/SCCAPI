@@ -8,6 +8,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////
 public class BDSParameters extends DSAParameterSpec implements IBDSParameters
 {
+    private static final long serialVersionUID = 6836485618865537858L;
+    
     // конструктор
     public BDSParameters(int l, int r, BigInteger p, BigInteger q, BigInteger a, byte[] h, byte[] z)
     {

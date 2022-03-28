@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class SpecifiedMultiple extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 2408513498253009004L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

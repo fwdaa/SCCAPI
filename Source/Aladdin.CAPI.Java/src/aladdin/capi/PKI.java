@@ -139,19 +139,6 @@ public abstract class PKI
 		// извлечь подписываемые данные
 		byte[] data = certificationRequestInfo.encoded(); 
         
-        // при отсутствии параметров подписи
-        if (signParameters == null) 
-        {
-            // получить алгоритмы по умолчанию
-            Culture culture = privateKey.factory().getCulture(
-                privateKey.scope(), publicKey.keyOID()
-            ); 
-            // указать параметры алгоритма подписи
-            signParameters = culture.signDataAlgorithm(rand); 
-                
-            // проверить указание алгоритма
-            if (signParameters == null) throw new UnsupportedOperationException();
-        }
         // при отсутствии алгоритма
         if (signParameters.algorithm().value().equals("2.5.8.0"))
         {

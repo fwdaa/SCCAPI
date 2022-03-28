@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class CertificateSet extends Set<IEncodable>
 {
+    private static final long serialVersionUID = 727826057387120526L;
+    
 	// конструктор при раскодировании
 	public CertificateSet(IEncodable encodable) throws IOException 
 	{

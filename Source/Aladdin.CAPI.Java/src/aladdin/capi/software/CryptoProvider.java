@@ -237,21 +237,6 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         // вернуть поддерживаемые ключи
         return factories.keyFactories(); 
     }
-    // получить алгоритмы по умолчанию
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        return factories.getCulture(parameters, keyOID); 
-    }
-    // получить алгоритмы по умолчанию
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        // проверить тип хранилища
-        if (scope != null && !(scope instanceof ContainerStore)) return null; 
-        
-        // получить алгоритмы по умолчанию
-        return factories.getCulture((SecurityStore)null, keyOID); 
-    }
 	// создать алгоритм генерации ключей
 	@Override protected aladdin.capi.KeyPairGenerator createAggregatedGenerator(
         Factory outer, SecurityObject scope, IRand rand, 

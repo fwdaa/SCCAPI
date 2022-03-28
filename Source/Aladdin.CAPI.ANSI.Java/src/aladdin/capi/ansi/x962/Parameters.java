@@ -9,6 +9,8 @@ import java.math.*;
 ////////////////////////////////////////////////////////////////////////////////
 public class Parameters extends ECParameterSpec implements aladdin.capi.ansi.x962.IParameters
 {
+    private static final long serialVersionUID = 3811184664225753306L;
+    
     // выполнить преобразование типа
     public static Parameters convert(IParameters parameters)
     {

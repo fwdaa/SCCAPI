@@ -1,32 +1,20 @@
 package aladdin.capi.environment;
-import java.io.*; 
-import org.w3c.dom.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент описания идентификатора ключа
 ///////////////////////////////////////////////////////////////////////////
 public class ConfigKey 
 {
-    // идентификатор ключа, отображаемое имя и имя расширения 
-    private final String oid; private final String name; private final String plugin; 
+    // идентификатор ключа, отображаемое имя
+    private final String oid; private final String name; 
+    // имя расширения и класс культуры 
+    private final String plugin; private final String className; 
     
     // конструктор
-    public ConfigKey(Element element) throws IOException
+    public ConfigKey(String oid, String name, String plugin, String className)
     {
-        // получить идентификатор ключа
-        oid = element.getAttribute("oid"); 
-        // проверить наличие идентификатора ключа
-        if (oid.length() == 0) throw new IOException(); 
-        
-        // получить отображаемое имя
-        name = element.getAttribute("name"); 
-        // проверить наличие отображаемого имени
-        if (name.length() == 0) throw new IOException(); 
-        
-        // получить имя расширения 
-        plugin = element.getAttribute("plugin"); 
-        // проверить наличие имени расширения 
-        if (plugin.length() == 0) throw new IOException(); 
+        // сохранить переданные параметры
+        this.oid = oid; this.name = name; this.plugin = plugin; this.className = className;
     }
     // идентификатор ключа
     public final String oid() { return oid; } 
@@ -34,4 +22,6 @@ public class ConfigKey
     public final String name() { return name; } 
     // имя расширения 
     public String plugin() { return plugin; } 
+    // имя класса
+    public final String className() { return className; } 
 }

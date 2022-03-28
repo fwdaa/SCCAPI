@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class OriginatorInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7761978646299491697L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

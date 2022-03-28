@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Diagnostics.CodeAnalysis; 
 
@@ -16,6 +19,21 @@ namespace Aladdin.CAPI
         // описатель окна и дополнительный генератор
         private object window; private IRand rand; 
 
+        // создать сериализуемый генератор на основе другого генератора
+        public static IRand Create(IRand rand, Type type)
+        {
+            // получить описание конструктора
+            ConstructorInfo constructor = type.GetConstructor(new Type[] { typeof(IRand) }); 
+
+            // проверить наличие конструктора
+            if (constructor == null) throw new InvalidOperationException(); 
+
+            // создать генератор на основе другого генератора
+            try { return (IRand)constructor.Invoke(new object[] { rand });  }
+
+            // обработать возможное исключение
+            catch (TargetInvocationException e) { throw e.InnerException; }
+        }
         // изменить окно для генератора
         public static IRand Rebind(IRand rand, object window) 
         { 
@@ -31,6 +49,7 @@ namespace Aladdin.CAPI
             // сохранить дополнительный генератор
             this.window = window; this.rand = RefObject.AddRef(rand); 
         }
+
 		// конструктор
         public Rand(object window) : this(RNGCryptoServiceProvider.Create(), window) {}
         // конструктор

@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class RevocationInfoChoices extends Set<IEncodable>
 {
+    private static final long serialVersionUID = -5326891966301076119L;
+    
 	// конструктор при раскодировании
 	public RevocationInfoChoices(IEncodable encodable) throws IOException 
 	{

@@ -19,6 +19,8 @@ import java.io.*;
 
 public class AuthenticatedData extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -6709161065952962344L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

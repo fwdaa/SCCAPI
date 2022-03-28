@@ -39,6 +39,7 @@ namespace Aladdin.ASN1
 			    if (encode) throw new ArgumentException(); else throw new InvalidDataException(); 
             }
 		} 
+		// преобразовать значение во флаги
 		public static long ToFlags(byte[] value, int bits)
 		{ 
 			// определить последний ненулевой байт
@@ -77,11 +78,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         protected BitString(SerializationInfo info, StreamingContext context) 
 			
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-        public void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
         {
 			// проверить корректность объекта
 			if (Content.Length == 0) throw new InvalidDataException();
@@ -139,7 +137,7 @@ namespace Aladdin.ASN1
 			}
         }
 		// конструктор при раскодировании
-		public BitString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public BitString(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public BitString(byte[] value) : this(value, value.Length * 8) {} 

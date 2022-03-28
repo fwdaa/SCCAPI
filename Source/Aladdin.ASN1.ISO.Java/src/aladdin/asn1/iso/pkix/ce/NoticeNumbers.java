@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class NoticeNumbers extends Sequence<Integer> 
 {
+    private static final long serialVersionUID = 1257504700148257187L;
+    
     // конструктор при раскодировании
     public NoticeNumbers(IEncodable encodable) throws IOException  
     { 

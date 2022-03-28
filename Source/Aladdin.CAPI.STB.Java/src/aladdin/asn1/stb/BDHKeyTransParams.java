@@ -12,6 +12,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class BDHKeyTransParams extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 5488286253194901179L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

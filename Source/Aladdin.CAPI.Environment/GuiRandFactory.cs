@@ -16,8 +16,8 @@ namespace Aladdin.CAPI
         // конструктор
         public GuiRandFactory(Environment.ConfigRandFactory element, string identityString)
         {
-            // сохранить переданные параметры
-            className = element.Class + identityString; 
+            // получить класс расширения
+            className = element.Class + identityString;
         }
         // создать генератор случайных данных
         public virtual IRand CreateRand(object window)

@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class SecretBag extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 599396725636019607L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

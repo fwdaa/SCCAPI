@@ -8,8 +8,10 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 // Эллиптическая кривая
 ////////////////////////////////////////////////////////////////////////////////
-public abstract class Curve extends java.security.spec.EllipticCurve 
+public abstract class Curve extends java.security.spec.EllipticCurve implements Serializable 
 {
+    private static final long serialVersionUID = -7881172098594151095L;
+    
     // преобразовать тип кривой
     public static Curve convert(java.security.spec.EllipticCurve curve)
     {

@@ -16,6 +16,8 @@ import java.io.*;
 
 public final class SignedEnvelopedData extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -7793897647141733672L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

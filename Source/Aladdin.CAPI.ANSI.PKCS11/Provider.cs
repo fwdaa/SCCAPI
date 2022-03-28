@@ -91,24 +91,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             // вернуть список ключей
             return keyOIDs.ToArray(); 
 	    }
-        public override CAPI.Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            // указать фабрику алгоритмов
-            using (Factory factory = new CAPI.ANSI.Factory())
-            {
-                // получить алгоритмы по умолчанию
-                return factory.GetCulture(scope, keyOID); 
-            }
-        }
-        public override CAPI.PBE.PBECulture GetCulture(CAPI.PBE.PBEParameters parameters, string keyOID) 
-        {
-            // указать фабрику алгоритмов
-            using (Factory factory = new CAPI.ANSI.Factory())
-            {
-                // получить алгоритмы по умолчанию
-                return factory.GetCulture(parameters, keyOID); 
-            }
-        }
 	    // преобразование ключей
 	    public override IPublicKey ConvertPublicKey(
             CAPI.PKCS11.Applet applet, CAPI.PKCS11.SessionObject obj)

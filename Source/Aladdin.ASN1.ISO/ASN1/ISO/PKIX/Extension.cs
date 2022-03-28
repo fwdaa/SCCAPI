@@ -20,17 +20,17 @@ namespace Aladdin.ASN1.ISO.PKIX
 			new ObjectInfo(new ObjectCreator<OctetString		>().Factory(), Cast.N, Tag.Any					), 
 		}; 
 		// конструктор при сериализации
-        protected Extension(SerializationInfo info, StreamingContext context) : base(info, context) 
-		{
+        protected Extension(SerializationInfo info, StreamingContext context) 
+			
+		// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
+        {
 			// раскодировать атрибут
 			decoded = Encodable.Decode(this[2].Content); 
-		}
+        }
 		// конструктор при раскодировании
-		public Extension(IEncodable encodable) : base(encodable, info) 
-		{
-			// раскодировать атрибут
-			decoded = Encodable.Decode(this[2].Content); 
-		}
+		public Extension(IEncodable encodable) : base(encodable, info) { Init(); }
+
 		// конструктор при закодировании
 		public Extension(ObjectIdentifier extnID, Boolean critical, IEncodable extnValue) : 
 			base(info, extnID, critical, new OctetString(extnValue.Encoded)) 

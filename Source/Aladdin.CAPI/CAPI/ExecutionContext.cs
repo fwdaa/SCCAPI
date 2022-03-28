@@ -95,7 +95,7 @@ namespace Aladdin.CAPI
         public virtual IRand CreateRand(object window) { return new Rand(window); } 
 
         // получить парольную защиту
-        public virtual PBE.PBECulture GetCulture(object window, string keyOID)
+        public virtual PBE.PBECulture GetPBECulture(object window, string keyOID)
         {
             // выбросить исключение
             throw new InvalidOperationException(); 

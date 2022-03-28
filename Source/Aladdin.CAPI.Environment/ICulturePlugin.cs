@@ -3,5 +3,5 @@
     ///////////////////////////////////////////////////////////////////////////
     // Расширение криптографических культур
     ///////////////////////////////////////////////////////////////////////////
-    public interface ICulturePlugin : IParametersFactory, PBE.IPBECultureFactory {}
+    public interface ICulturePlugin : IRefObject, IParametersFactory, PBE.IPBECultureFactory {}
 }

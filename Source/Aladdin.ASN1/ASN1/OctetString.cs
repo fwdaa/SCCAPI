@@ -42,11 +42,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         protected OctetString(SerializationInfo info, StreamingContext context)
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
         {
 			// проверить способ кодирования строки байтов
 			if (PC == PC.Primitive) { value = Content; return; }
@@ -71,7 +68,7 @@ namespace Aladdin.ASN1
 			}
         }
 		// конструктор при раскодировании
-		public OctetString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public OctetString(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		protected OctetString(Tag tag, byte[] value, int ofs, int cb) : base(tag) 

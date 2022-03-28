@@ -7,6 +7,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Sequence<T extends IEncodable> extends Collection<T>
 {
+    private static final long serialVersionUID = -5179913445481073736L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.SEQUENCE); }
     
@@ -106,12 +108,12 @@ public class Sequence<T extends IEncodable> extends Collection<T>
     // конструктор при раскодировании
     public Sequence(IObjectFactory<? extends IEncodable> factory, IEncodable encodable) throws IOException
     {
-        super(encodable, getInfo(factory), new CastCallback<T>()); 
+        super(encodable, getInfo(factory)); 
     }
     // конструктор при раскодировании
     public Sequence(IEncodable encodable) throws IOException
     {
-        super(encodable, getInfo(ImplicitCreator.factory), new CastCallback<T>()); 
+        super(encodable, getInfo(ImplicitCreator.factory)); 
     }
     // конструктор при раскодировании
     protected Sequence(IEncodable encodable, ObjectInfo[] info) throws IOException

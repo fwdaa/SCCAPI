@@ -12,6 +12,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class GOSTR3410PrivateKeyValueInfo extends Sequence<OctetString>
 {
+    private static final long serialVersionUID = 8667252808432446090L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

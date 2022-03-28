@@ -6,6 +6,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class UTF8String extends OctetString
 {
+    private static final long serialVersionUID = -3082389892162986253L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.UTF8STRING); }
     
@@ -40,7 +42,20 @@ public final class UTF8String extends OctetString
     // конструктор при раскодировании
     public UTF8String(IEncodable encodable) throws IOException
     {
-        super(encodable); string = new String(content(), "UTF-8"); 
+        // инициализировать объект
+        super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        // раскодировать объект
+        string = new String(content(), "UTF-8"); 
     }
     // конструктор при закодировании
     public UTF8String(String value) 
@@ -48,5 +63,5 @@ public final class UTF8String extends OctetString
         super(Tag.UTF8STRING, Utils.encodeString(value, "UTF-8")); string = value; 
     }
     // строка символов
-    public final String str() { return string; } private final String string;
+    public final String str() { return string; } private String string;
 }

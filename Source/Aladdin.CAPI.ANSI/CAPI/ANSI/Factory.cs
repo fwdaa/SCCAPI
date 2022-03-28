@@ -22,45 +22,6 @@ namespace Aladdin.CAPI.ANSI
             };
 	    }
 		///////////////////////////////////////////////////////////////////////
-        // Алгоритмы по умолчанию
-		///////////////////////////////////////////////////////////////////////
-        public override CAPI.Culture GetCulture(SecurityStore scope, string keyOID)
-        {
-            if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa     ) return new Culture.RSA      (); 
-            if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa_oaep) return new Culture.RSAOP    ();  
-            if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa_pss ) return new Culture.RSAOP    (); 
-            if (keyOID == ASN1.ANSI.OID.x942_dh_public_key) return new Culture.DSS      (); 
-            if (keyOID == ASN1.ANSI.OID.x957_dsa          ) return new Culture.DSS      (); 
-            if (keyOID == ASN1.ANSI.OID.x962_ec_public_key) return new Culture.ECDSS_256(); 
-
-            return null; 
-        }
-        public override PBE.PBECulture GetCulture(
-            PBE.PBEParameters parameters, string keyOID)
-        {
-            if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.RSA.PKCS12(parameters); 
-            }
-            if (keyOID == ASN1.ANSI.OID.x942_dh_public_key) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.DSS.PKCS12(parameters); 
-            }
-            if (keyOID == ASN1.ANSI.OID.x957_dsa) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.DSS.PKCS12(parameters); 
-            }
-            if (keyOID == ASN1.ANSI.OID.x962_ec_public_key) 
-            {
-                // вернуть параметры по умолчанию
-                return new Culture.ECDSS_256.PKCS12(parameters); 
-            }
-            return null; 
-        }
-		///////////////////////////////////////////////////////////////////////
 		// Cоздать алгоритм генерации ключей
 		///////////////////////////////////////////////////////////////////////
 		protected override KeyPairGenerator CreateGenerator(

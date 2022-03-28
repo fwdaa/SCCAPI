@@ -172,13 +172,10 @@ namespace Aladdin.CAPI
             foreach (byte[] keyID in GetKeyIDs()) DeleteKeyPair(keyID);
         }
         // зашифровать данные
-        public byte[] EncryptData(IRand rand, Certificate certificate, 
-            Certificate[] recipientCertificates, 
+        public byte[] EncryptData(IRand rand, Culture culture, 
+            Certificate certificate, Certificate[] recipientCertificates, 
             CMSData data, ASN1.ISO.Attributes attributes)
         {
-            // указать идентификатор ключа
-            string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
-            
             // найти соответствующую пару ключей
             byte[] keyID = GetKeyPair(certificate); 
             
@@ -188,12 +185,6 @@ namespace Aladdin.CAPI
             // получить личный ключ
             using (IPrivateKey privateKey = GetPrivateKey(keyID))  
             {
-                // получить алгоритмы по умолчанию
-                Culture culture = privateKey.Factory.GetCulture(privateKey.Scope, keyOID); 
-            
-                // проверить наличие алгоритмов
-                if (culture == null) throw new NotSupportedException(); 
-            
                 // зашифровать данные
                 ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.KeyxEncryptData(
                     culture, rand, privateKey, certificate, 
@@ -250,24 +241,19 @@ namespace Aladdin.CAPI
             }
         }
         // подписать данные
-        public byte[] SignData(IRand rand, Certificate certificate, CMSData data, 
+        public byte[] SignData(IRand rand, Culture culture, 
+            Certificate certificate, CMSData data, 
             ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
         {
             // найти соответствующую пару ключей
-            byte[] keyID = GetKeyPair(certificate); if (keyID == null) throw new NotFoundException();
-
-            // указать идентификатор ключа
-            string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
+            byte[] keyID = GetKeyPair(certificate); 
             
+            // проверить наличие ключей
+            if (keyID == null) throw new NotFoundException();
+
             // получить личный ключ
             using (IPrivateKey privateKey = GetPrivateKey(keyID))  
             {
-                // получить алгоритмы по умолчанию
-                Culture culture = privateKey.Factory.GetCulture(privateKey.Scope, keyOID); 
-            
-                // проверить наличие алгоритмов
-                if (culture == null) throw new NotSupportedException(); 
-            
                 // подписать данные
                 ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.SignData(
                     culture, rand, privateKey, certificate, 

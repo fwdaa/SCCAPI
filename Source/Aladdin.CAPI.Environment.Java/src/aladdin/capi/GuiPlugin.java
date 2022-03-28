@@ -3,16 +3,14 @@ import aladdin.capi.pbe.*;
 import aladdin.capi.environment.*; 
 import aladdin.*; 
 import java.io.*;
-import java.net.*;
-import java.lang.reflect.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент расширения с использованием GUI
 ///////////////////////////////////////////////////////////////////////////
 public class GuiPlugin extends RefObject implements ICulturePlugin
 {
-    // класса плагина
-    private final String classLoader; private final String className; 
+    // класс плагина
+    private final String className; 
     // параметры шифрования по паролю
     private final PBEParameters pbeParameters; 
 
@@ -20,7 +18,7 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
     public GuiPlugin(ConfigPlugin element) 
     {
         // получить класс расширения
-        classLoader = element.classLoader(); className = element.className(); 
+        className = element.className(); 
         
         // создать параметры шифрования по паролю
         pbeParameters = new PBEParameters(
@@ -35,8 +33,18 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
     @Override public IParameters getParameters(
         IRand rand, String keyOID, KeyUsage keyUsage) throws IOException
     {
+        // проверить наличие имени класса
+        if (className == null || className.length() == 0) 
+        {
+            // при ошибке выбросить исключение
+            throw new UnsupportedOperationException(); 
+        }
+        // указать загрузчик классов
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        
         // загрузить плагин
-        try (ICulturePlugin plugin = loadPlugin(className))
+        try (ICulturePlugin plugin = (ICulturePlugin)
+            Loader.loadClass(classLoader, className))
         {
             // получить параметры ключа
             return plugin.getParameters(rand, keyOID, keyUsage); 
@@ -45,39 +53,26 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
         catch (Throwable e) { throw new IOException(e); }
     }
     // параметры шифрования по паролю
-    @Override public PBECulture getCulture(
+    @Override public PBECulture getPBECulture(
         Object window, String keyOID) throws IOException
     {
+        // проверить наличие имени класса
+        if (className == null || className.length() == 0) 
+        {
+            // при ошибке выбросить исключение
+            throw new UnsupportedOperationException(); 
+        }
+        // указать загрузчик классов
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        
         // загрузить плагин
-        try (ICulturePlugin plugin = loadPlugin(className))
+        try (ICulturePlugin plugin = (ICulturePlugin)
+            Loader.loadClass(classLoader, className))
         {
             // получить параметры шифрования по паролю
-            return plugin.getCulture(window, keyOID); 
+            return plugin.getPBECulture(window, keyOID); 
         }
         // обработать врзможное исключение
         catch (Throwable e) { throw new IOException(e); }
     }
-	// загрузить плагин
-	private ICulturePlugin loadPlugin(String className) throws Throwable
-	{
-        // получить имя файла 
-        File fileName = new File(classLoader); URL url = fileName.toURI().toURL(); 
-        
-        // создать загрузчик типов
-        ClassLoader loader = new URLClassLoader(
-            new URL[] { url }, getClass().getClassLoader()
-        );        
-		// получить описание типа
-		Class<?> type = loader.loadClass(className); 
-
-        // получить описание конструктора
-		Constructor constructor = type.getConstructor(
-            new Class[] { pbeParameters.getClass() } 
-        ); 
-		// загрузить объект
-		try { return (ICulturePlugin)constructor.newInstance(pbeParameters); }
-
-        // обработать исключение
-        catch (InvocationTargetException e) { throw e.getTargetException(); }
-	}
 }

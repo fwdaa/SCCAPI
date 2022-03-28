@@ -6,6 +6,8 @@ import java.io.*;
 
 public class SMIMECapabilities extends Sequence<SMIMECapability>
 {
+    private static final long serialVersionUID = 5361612941496122591L;
+    
 	// конструктор при раскодировании
 	public SMIMECapabilities(IEncodable encodable) throws IOException
 	{

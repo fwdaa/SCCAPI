@@ -1,9 +1,10 @@
 package aladdin.asn1;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Закодированное BER-представление объекта
 ///////////////////////////////////////////////////////////////////////////
-public interface IEncodable
+public interface IEncodable extends Serializable
 {
     Tag     tag    ();  // тип объекта
     PC      pc     ();  // способ кодирования

@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class KeyWrapParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -7523928910366253811L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

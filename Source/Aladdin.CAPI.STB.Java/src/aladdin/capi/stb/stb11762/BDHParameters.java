@@ -8,6 +8,8 @@ import javax.crypto.spec.*;
 ///////////////////////////////////////////////////////////////////////
 public class BDHParameters extends DHParameterSpec implements IBDHParameters
 {
+    private static final long serialVersionUID = 5383091543128678349L;
+    
     // параметры обмена
     private final int l; private final int r; private final byte[] z;	
     

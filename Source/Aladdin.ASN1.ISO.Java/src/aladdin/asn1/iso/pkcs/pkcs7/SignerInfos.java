@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class SignerInfos extends Set<SignerInfo>
 {
+    private static final long serialVersionUID = 4892318201782154042L;
+    
 	// конструктор при раскодировании
 	public SignerInfos(IEncodable encodable) throws IOException
 	{

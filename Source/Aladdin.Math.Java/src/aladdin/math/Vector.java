@@ -1,4 +1,5 @@
 package aladdin.math;
+import java.io.*;
 import java.math.*; 
 
 ///////////////////////////////////////////////////////////////////////
@@ -7,8 +8,10 @@ import java.math.*;
 // содержит биты [..., a_{m-1}]. При преобразовании вектора в число 
 // создаваемое число имеет вид: a_0 2^{m-1} + ... + a_{m-2} 2 + a_{m-1}.  
 ///////////////////////////////////////////////////////////////////////
-public final class Vector
+public final class Vector implements Serializable
 {
+    private static final long serialVersionUID = -7213935803212489983L;
+    
     // коэффициенты вектора
     private final int[] magnitude; private final int m; 
 

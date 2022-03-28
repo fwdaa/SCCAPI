@@ -8,6 +8,8 @@ import aladdin.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public class PolyField extends Field
 {
+    private static final long serialVersionUID = 5019732556118149277L;
+    
     // образующий многочлен и единичный элемент
     private final Polynom polynom; private final Vector one;
 

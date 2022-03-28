@@ -108,28 +108,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         // вернуть список ключей
         return keyOIDs.toArray(new String[keyOIDs.size()]); 
 	}
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        // указать фабрику алгоритмов
-        try (Factory factory = new aladdin.capi.ansi.Factory())
-        {
-            // получить алгоритмы по умолчанию
-            return factory.getCulture(scope, keyOID); 
-        }
-        // обработать неожидаемое исключение
-        catch (IOException e) { throw new RuntimeException(e); }
-    }
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        // указать фабрику алгоритмов
-        try (Factory factory = new aladdin.capi.ansi.Factory())
-        {
-            // получить алгоритмы по умолчанию
-            return factory.getCulture(parameters, keyOID); 
-        }
-        // обработать неожидаемое исключение
-        catch (IOException e) { throw new RuntimeException(e); }
-    }
 	// преобразование ключей
 	@Override public IPublicKey convertPublicKey(Applet applet, 
         aladdin.capi.pkcs11.SessionObject object) throws IOException

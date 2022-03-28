@@ -1,11 +1,15 @@
 package aladdin.asn1;
 import java.util.*; 
+import java.io.*; 
+import java.lang.reflect.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Известный объект ASN.1
 ///////////////////////////////////////////////////////////////////////////
 public abstract class AsnObject implements IEncodable
 {
+    private static final long serialVersionUID = -417216351471319950L;
+
     // конструктор при раскодировании
     protected AsnObject(IEncodable encodable)
     {
@@ -40,10 +44,51 @@ public abstract class AsnObject implements IEncodable
 		// вернуть закодированное DER-представление
 		if (der == null) der = Encodable.encode(tag, derPC(), derContent()); return der;
     }
-    private final Tag  tag; // тип объекта
+    private Tag        tag; // тип объекта
     private IEncodable ber; // закодированное BER-представление
     private IEncodable der; // закодированное DER-представление
 
+    /////////////////////////////////////////////////////////////////////////////
+    // Сериализация
+    /////////////////////////////////////////////////////////////////////////////
+    protected void writeObject(ObjectOutputStream oos) throws IOException 
+    {
+        // записать закодированное представление
+        oos.writeObject(encoded()); 
+    }
+    @SuppressWarnings({"rawtypes"}) 
+    protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        try { 
+            // получить конструктор при раскодировании
+            Constructor constructor = getClass().getConstructor(IEncodable.class); 
+            
+            // раскодировать представление
+            IEncodable encodable = Encodable.decode((byte[])ois.readObject()); 
+            
+            // создать объект 
+            AsnObject instance = (AsnObject)constructor.newInstance(encodable); 
+
+            // сохранить переменные объекта
+            this.tag = instance.tag(); ber = instance.berEncodable(); der = instance.derEncodable(); 
+        }
+        // обработать возможную ошибку
+        catch (ClassNotFoundException    e) { throw new IOException(e); }
+        catch (NoSuchMethodException     e) { throw new IOException(e); }
+		catch (InstantiationException    e) { throw new IOException(e); }
+		catch (IllegalAccessException    e) { throw new IOException(e); }
+		catch (InvocationTargetException e) 
+        { 
+            // получить внутреннее исключение 
+            Throwable inner = e.getCause(); 
+            
+            // проверить тип исключения 
+            if (inner instanceof IOException) throw (IOException)inner; 
+            
+            // выбросить исключение 
+            throw new IOException(inner);
+        }
+    }    
     /////////////////////////////////////////////////////////////////////////////
     // Сравнить два объекта
     /////////////////////////////////////////////////////////////////////////////

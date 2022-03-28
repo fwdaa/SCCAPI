@@ -12,6 +12,8 @@ import java.io.*;
 
 public final class AuthorityKeyIdentifierOld extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 2379433824276032717L;
+        
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

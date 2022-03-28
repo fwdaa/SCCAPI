@@ -9,6 +9,8 @@ import java.util.*;
 
 public final class RecipientInfos extends Set<IEncodable>
 {
+    private static final long serialVersionUID = 8264260148302910480L;
+    
 	// конструктор при раскодировании
 	public RecipientInfos(IEncodable encodable) throws IOException 
 	{

@@ -5,8 +5,10 @@ import java.math.*;
 ////////////////////////////////////////////////////////////////////////////
 // Интерфейс кольца
 ////////////////////////////////////////////////////////////////////////////
-public abstract class Ring<E> extends AddGroup<E> implements IRing<E>
+public abstract class Ring<E> extends GroupAdd<E> implements IRing<E>
 {
+    private static final long serialVersionUID = 7144127971844674154L;
+    
     // нулевой элемент
     @Override public abstract E zero(); 
     // противоположный элемент

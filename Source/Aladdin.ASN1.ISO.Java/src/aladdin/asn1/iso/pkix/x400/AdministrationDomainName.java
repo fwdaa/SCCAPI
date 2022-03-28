@@ -10,8 +10,10 @@ import java.io.*;
 
 public final class AdministrationDomainName extends Explicit<IEncodable>
 {
+    private static final long serialVersionUID = 6617706551421678316L;
+    
     // допустимые типы объекта
-    public static boolean IsValidTag(Tag tag) { return tag.equals(Tag.application(2)); }
+    public static boolean isValidTag(Tag tag) { return tag.equals(Tag.application(2)); }
 
     // информация о структуре
     private static final ObjectInfo[] info = new ObjectInfo[] { 

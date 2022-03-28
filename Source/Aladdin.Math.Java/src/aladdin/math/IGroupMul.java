@@ -1,10 +1,11 @@
 package aladdin.math;
+import java.io.*;
 import java.math.*;
 
 ////////////////////////////////////////////////////////////////////////////
 // Интерфейс мультипливативной группы
 ////////////////////////////////////////////////////////////////////////////
-public interface IMulGroup<E> 
+public interface IGroupMul<E> extends Serializable
 {
     // признак единичного элемента
     boolean isOne(E a); E one();

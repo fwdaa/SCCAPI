@@ -7,6 +7,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////
 public class EllipticCurve extends aladdin.math.EllipticCurve<BigInteger, Field>
 {
+    private static final long serialVersionUID = -2216824986699057261L;
+    
     // коэффициенты эллиптической кривой
     private final Field field; private final BigInteger a; private final BigInteger b;
 

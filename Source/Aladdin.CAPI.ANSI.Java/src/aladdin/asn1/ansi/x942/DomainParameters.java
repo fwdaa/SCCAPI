@@ -14,6 +14,8 @@ import java.math.*;
 
 public final class DomainParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7639903497942578170L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

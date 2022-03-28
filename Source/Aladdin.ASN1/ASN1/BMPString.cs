@@ -43,17 +43,14 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private BMPString(SerializationInfo info, StreamingContext context)
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public new void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
 		{
 			// раскодировать строку
 			str = Encoding.BigEndianUnicode.GetString(Content); 
 		}
 		// конструктор при раскодировании
-		public BMPString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public BMPString(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public BMPString(string value) : base(Tag.BMPString, 

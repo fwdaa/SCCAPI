@@ -156,6 +156,12 @@ namespace Aladdin.CAPI.COM
 			// указать способ аутентификации
 			if (authentication != null) selector = authentication.Selector; 
 
+			// получить идентификатор ключа
+			string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
+
+			// получить параметры используемых алгоритмов
+			Culture culture = environment.GetCulture(keyOID); 
+
 	        // получить интерфейс клиента
 	        using (ClientContainer client = new ClientContainer(provider, containerInfo, selector))
 	        { 
@@ -170,7 +176,7 @@ namespace Aladdin.CAPI.COM
 				using (IRand rand = client.CreateRand())
 				{ 
 					// зашифровать данные на открытом ключе
-					return client.EncryptData(rand, certificate, recipientCertificates, cmsData, null); 
+					return client.EncryptData(rand, culture, certificate, recipientCertificates, cmsData, null); 
 				}
             }
         }
@@ -245,6 +251,12 @@ namespace Aladdin.CAPI.COM
 			// указать способ аутентификации
 			if (authentication != null) selector = authentication.Selector; 
 
+			// получить идентификатор ключа
+			string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
+
+			// получить параметры используемых алгоритмов
+			Culture culture = environment.GetCulture(keyOID); 
+
 	        // получить интерфейс клиента
 	        using (ClientContainer client = new ClientContainer(provider, containerInfo, selector))
 			{ 
@@ -255,7 +267,7 @@ namespace Aladdin.CAPI.COM
 				using (IRand rand = client.CreateRand())
 				{ 
 					// подписать данные
-					return client.SignData(rand, certificate, cmsData, null, null);
+					return client.SignData(rand, culture, certificate, cmsData, null, null);
 				}
             }
 		}

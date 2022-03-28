@@ -8,6 +8,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class BitString extends AsnObject
 {
+    private static final long serialVersionUID = -1240351884017526628L;
+
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.BITSTRING); }
     
@@ -39,52 +41,98 @@ public class BitString extends AsnObject
             if (encode) throw new IllegalArgumentException(); else throw new IOException();
         }
 	}
+	// преобразовать значение во флаги
+	public static long toFlags(byte[] value, int bits)
+	{ 
+        // определить последний ненулевой байт
+		int cb = value.length; while (cb >= 1 && value[cb - 1] == 0) cb--;
+
+		// проверить наличие ненулевых байтов
+		if (cb == 0) return 0; long numeric = 0; 
+
+        // для всех битов ненулевого байта
+		for (int i = 0; i < 8; i++)
+		{
+            // извлечь бит
+            byte bt = (byte)((value[cb - 1] >>> i) & 0x1);
+
+            // установить число битов
+            if (bits == 0 && bt != 0) bits = 8 * cb - i;
+
+            // изменить позицию бита
+            numeric = (numeric << 1) | bt;
+		}
+		// для всех байтов 
+		for (int i = cb - 2; i >= 0; i--)
+		{
+            // для всех битов
+            for (int j = 0; j < 8; j++)
+            {
+                // извлечь бит
+				byte bt = (byte)((value[i] >>> j) & 0x1);
+
+				// изменить позицию бита
+				numeric = numeric << 1 | bt;
+            }
+		}
+        return numeric; 
+    }
     // конструктор при раскодировании
     public BitString(IEncodable encodable) throws IOException
     {
-    	super(encodable);
-        
+        // инициализировать объект
+    	super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
         // проверить корректность объекта
-		if (encodable.content().length == 0) throw new IOException();
+		if (content().length == 0) throw new IOException();
 
         // проверить способ кодирования строки битов
-        if (encodable.pc().equals(PC.PRIMITIVE))
+        if (pc().equals(PC.PRIMITIVE))
         {
             // проверить корректность объекта
-            if (encodable.content()[0] >= 8) throw new IOException();
+            if (content()[0] >= 8) throw new IOException();
 
             // для пустого объекта
-            if (encodable.content().length == 1)
+            if (content().length == 1)
             {
 				// проверить корректность объекта
-				if (encodable.content()[0] > 0) throw new IOException();
+				if (content()[0] > 0) throw new IOException();
 
 				// проверить на пустую строку
 				value = new byte[0]; bits = 0; return;
             }
             // определить число неиспользуемых битов
-            int unused = encodable.content()[0];
+            int unused = content()[0];
             
             // выделить память под строку битов
-            value = new byte[encodable.content().length - 1];
+            value = new byte[content().length - 1];
 
             // определить число ненулевых битов 
             bits = 8 * value.length - unused;
 
             // скопировать строку битов
-            System.arraycopy(encodable.content(), 1, value, 0, value.length);
+            System.arraycopy(content(), 1, value, 0, value.length);
 
             // обнулить неиспользуемые биты
             value[(bits - 1) / 8] &= (byte)~((1 << unused) - 1); return;
         }
 		// задать начальные условия при перечислении внутренних объектов
-		int length = encodable.content().length; value = new byte[0]; bits = 0;
+		int length = content().length; value = new byte[0]; bits = 0;
 
 		// для всех внутренних объектов
 		for (int cb = 0; length > 0;)
 		{
             // раскодировать внутренний объект
-            BitString inner = new BitString(Encodable.decode(encodable.content(), cb, length));
+            BitString inner = new BitString(Encodable.decode(content(), cb, length));
 
             // проверить корректность объекта
             if ((inner.bits() % 8) != 0 && length != inner.encoded().length)

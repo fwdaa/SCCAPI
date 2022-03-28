@@ -14,6 +14,8 @@ import java.io.*;
 
 public final class IssuingDistributionPoint extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -5777031738412857829L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -4,8 +4,10 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 // Тип объекта
 ///////////////////////////////////////////////////////////////////////////
-public final class Tag 
+public final class Tag implements Serializable
 {
+    private static final long serialVersionUID = -7569211790664468161L;
+    
     // тип объекта заданного класса
     public static Tag universal  (int value) { return new Tag(TagClass.UNIVERSAL  , value); }
     public static Tag application(int value) { return new Tag(TagClass.APPLICATION, value); }

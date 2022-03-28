@@ -75,28 +75,6 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
         // вернуть список ключей
         return keyOIDs.toArray(new String[keyOIDs.size()]); 
 	}
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        Culture culture = gostProvider.getCulture(scope, keyOID); 
-        
-        // проверить наличие алгоритмов
-        if (culture != null) return culture; 
-
-        // вызвать базовую функцию
-        return super.getCulture(scope, keyOID); 
-    }
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        // получить алгоритмы по умолчанию
-        PBECulture culture = gostProvider.getCulture(parameters, keyOID); 
-        
-        // проверить наличие алгоритмов
-        if (culture != null) return culture; 
-
-        // вызвать базовую функцию
-        return super.getCulture(parameters, keyOID); 
-    }
 	// преобразование ключей
     @Override
 	public IPublicKey convertPublicKey(Applet applet, 

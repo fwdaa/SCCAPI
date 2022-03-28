@@ -18,6 +18,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class BDSParamsList extends Sequence<IEncodable> 
 {
+    private static final long serialVersionUID = 6715047381792388564L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

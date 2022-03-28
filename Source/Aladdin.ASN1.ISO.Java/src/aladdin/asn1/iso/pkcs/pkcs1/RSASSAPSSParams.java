@@ -14,6 +14,8 @@ import java.io.*;
 
 public final class RSASSAPSSParams extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -7369400982699366738L;
+    
 	// значение по умолчанию
 	private static final AlgorithmIdentifier sha1 = 
 		new AlgorithmIdentifier(new ObjectIdentifier("1.3.14.3.2.26"), Null.INSTANCE);

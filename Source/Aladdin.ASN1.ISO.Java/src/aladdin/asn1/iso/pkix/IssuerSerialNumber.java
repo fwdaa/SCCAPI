@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class IssuerSerialNumber extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -765807028901536567L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

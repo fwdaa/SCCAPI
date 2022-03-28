@@ -56,64 +56,6 @@ public final class Factory extends aladdin.capi.Factory
         }; 
 	}
 	///////////////////////////////////////////////////////////////////////
-    // Используемые алгоритмы по умолчанию
-	///////////////////////////////////////////////////////////////////////
-    @Override public Culture getCulture(SecurityStore scope, String keyOID)
-    {
-        if (keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1024)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1536)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_2048)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_3072)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_4096)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1024_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1536_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_2048_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_3072_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_4096_XCH)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.RSA(); 
-        }
-        if (keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_A)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_B)     ||
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_C)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_A_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_B_XCH))
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.kz.culture.GOST2004(); 
-        }
-        return null; 
-    }
-    // указать используемые алгоритмы
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID)
-    {
-        if (keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1024)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1536)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_2048)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_3072)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_4096)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1024_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_1536_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_2048_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_3072_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_RSA_4096_XCH)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.RSA.PKCS12(parameters); 
-        }
-        if (keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_A)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_B)     ||
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_C)     || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_A_XCH) || 
-            keyOID.equals(aladdin.asn1.kz.OID.GAMMA_KEY_EC256_512_B_XCH))
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.kz.culture.GOST2004.PKCS12(parameters); 
-        }
-        return null; 
-    }   
-	///////////////////////////////////////////////////////////////////////
 	// Cоздать алгоритм генерации ключей
 	///////////////////////////////////////////////////////////////////////
 	@Override protected KeyPairGenerator createGenerator(

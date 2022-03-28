@@ -14,17 +14,17 @@ namespace Aladdin.CAPI
         byte[] GetPrivateKey(Certificate certificate, ASN1.ISO.Attributes attributes); 
 
         // зашифровать данные
-        byte[] EncryptData(IRand rand, Certificate certificate, 
-            Certificate[] recipientCertificates, 
+        byte[] EncryptData(IRand rand, Culture culture, 
+            Certificate certificate, Certificate[] recipientCertificates, 
             CMSData data, ASN1.ISO.Attributes attributes
         );
 		// расшифровать данные на личном ключе
 		CMSData DecryptData(byte[] contentInfo); 
 
         // подписать данные
-        byte[] SignData(IRand rand, Certificate certificate, 
-            CMSData data, ASN1.ISO.Attributes authAttributes, 
-            ASN1.ISO.Attributes unauthAttributes
+        byte[] SignData(IRand rand, Culture culture, 
+            Certificate certificate, CMSData data, 
+            ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes
         ); 
     }; 
 }

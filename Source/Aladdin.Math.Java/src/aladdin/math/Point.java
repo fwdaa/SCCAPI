@@ -1,10 +1,13 @@
 package aladdin.math;
+import java.io.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Точка на эллиптической кривой
 ///////////////////////////////////////////////////////////////////////////
-public final class Point<E>
+public final class Point<E> implements Serializable
 {
+    private static final long serialVersionUID = 7857502039354720698L;
+    
     // бесконечно удаленная точка
     @SuppressWarnings({"unchecked", "rawtypes"}) 
     public static final Point INFINITY = new Point(); 

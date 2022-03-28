@@ -7,6 +7,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class UTCTime extends VisibleString
 {
+    private static final long serialVersionUID = 5467557855714370591L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.UTCTIME); }
     
@@ -42,10 +44,20 @@ public final class UTCTime extends VisibleString
     // конструктор при раскодировании
     public UTCTime(IEncodable encodable) throws IOException
     {
-    	super(encodable); String encoded = str();
-
+        // инициализировать объект
+    	super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
         // использовать время по Гринвичу
-        TimeZone timeZone = TimeZone.getTimeZone("GMT"); 
+        String encoded = str(); TimeZone timeZone = TimeZone.getTimeZone("GMT"); 
         
         // получить используемый календарь
         Calendar calendar = Calendar.getInstance(timeZone);  
@@ -91,7 +103,7 @@ public final class UTCTime extends VisibleString
 		if (encoded.charAt(10 + cb) == '+') { hhz = -hhz; mmz = -mmz; }
 
         // скорректировать время 
-        calendar.add(Calendar.HOUR, hhz); calendar.add(Calendar.MINUTE, mmz); time = calendar.getTime();
+        calendar.add(Calendar.HOUR, hhz); calendar.add(Calendar.MINUTE, mmz); time = calendar.getTime();    
     }
     // конструктор при закодировании
     public UTCTime(Date time) 
@@ -108,5 +120,5 @@ public final class UTCTime extends VisibleString
         catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
     }
     // закодированное время
-    public final Date date() { return time; } private final Date time;
+    public final Date date() { return time; } private Date time;
 }

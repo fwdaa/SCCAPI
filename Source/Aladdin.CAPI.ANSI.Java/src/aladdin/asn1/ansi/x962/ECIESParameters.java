@@ -12,6 +12,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECIESParameters extends Sequence<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = 374753048296425610L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

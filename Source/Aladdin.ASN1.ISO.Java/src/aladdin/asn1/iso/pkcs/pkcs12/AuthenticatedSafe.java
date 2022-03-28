@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class AuthenticatedSafe extends Sequence<ContentInfo>
 {
+    private static final long serialVersionUID = 2160378347255272245L;
+    
 	// конструктор при раскодировании
 	public AuthenticatedSafe(IEncodable encodable) throws IOException
 	{

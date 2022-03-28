@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class PBES2Parameter extends Sequence<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = -8253854200958284542L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

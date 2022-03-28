@@ -174,13 +174,10 @@ public abstract class Container extends SecurityObject implements IClient
         for (byte[] keyID : getKeyIDs()) deleteKeyPair(keyID);
     }
     // зашифровать данные
-    @Override public byte[] encryptData(IRand rand, 
+    @Override public byte[] encryptData(IRand rand, Culture culture, 
         Certificate certificate, Certificate[] recipientCertificates, 
         CMSData data, Attributes attributes) throws IOException
     {
-        // указать идентификатор ключа
-        String keyOID = certificate.publicKeyInfo().algorithm().algorithm().value(); 
-            
         // найти соответствующую пару ключей
         byte[] keyID = getKeyPair(certificate); 
         
@@ -190,12 +187,6 @@ public abstract class Container extends SecurityObject implements IClient
         // получить личный ключ
         try (IPrivateKey privateKey = getPrivateKey(keyID))  
         {
-            // получить алгоритмы по умолчанию
-            Culture culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-
-            // проверить наличие алгоритмов
-            if (culture == null) throw new UnsupportedOperationException(); 
-            
             // зашифровать данные
             ContentInfo contentInfo = Culture.keyxEncryptData(culture, rand, 
                 privateKey, certificate, recipientCertificates, null, data, attributes
@@ -247,7 +238,8 @@ public abstract class Container extends SecurityObject implements IClient
         }
     }
     // подписать данные
-    @Override public byte[] signData(IRand rand, Certificate certificate, CMSData data, 
+    @Override public byte[] signData(IRand rand, Culture culture, 
+        Certificate certificate, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
     {
         // найти соответствующую пару ключей
@@ -256,18 +248,9 @@ public abstract class Container extends SecurityObject implements IClient
         // проверить наличие пары ключей
         if (keyID == null) throw new NoSuchElementException();
 
-        // указать идентификатор ключа
-        String keyOID = certificate.publicKeyInfo().algorithm().algorithm().value(); 
-            
         // получить личный ключ
         try (IPrivateKey privateKey = getPrivateKey(keyID))  
         {
-            // получить алгоритмы по умолчанию
-            Culture culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-            
-            // проверить наличие алгоритмов
-            if (culture == null) throw new UnsupportedOperationException(); 
-            
             // подписать данные
             ContentInfo contentInfo = Culture.signData(culture, rand, 
                 privateKey, certificate, data, authAttributes, unauthAttributes

@@ -196,6 +196,9 @@ namespace Aladdin.CAPI.GUI
 				// указать способ аутентификации
 				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
 
+				// получить криптографическую культуру
+				Culture culture = environment.GetCulture(keyPair.KeyOID); 
+
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 { 
@@ -211,9 +214,12 @@ namespace Aladdin.CAPI.GUI
 					// указать генератор случайных данных
 					using (IRand rand = container.CreateRand())
 					{ 
-						// создать самоподписанный сертификат
+						// получить параметры алгоритма подписи
+						ASN1.ISO.AlgorithmIdentifier signParameters = culture.SignDataAlgorithm(rand); 
+
+						// создать самоподписанный сертификат 
 						Certificate certificate = container.CreateSelfSignedCertificate(rand,  
-							keyPair.KeyID, dialog.Subject, null, dialog.NotBefore, dialog.NotAfter,  
+							keyPair.KeyID, dialog.Subject, signParameters, dialog.NotBefore, dialog.NotAfter,  
 							dialog.KeyUsage, dialog.ExtendedKeyUsage, dialog.BasicConstraints, null, null
 						); 
 						// сохранить измененную информацию
@@ -243,16 +249,22 @@ namespace Aladdin.CAPI.GUI
 				// указать способ аутентификации
 				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
 
+				// получить криптографическую культуру
+				Culture culture = environment.GetCulture(keyPair.KeyOID); 
+
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 { 
 					// создать генератор случайных данных
 					using (IRand rand = container.CreateRand())
 					{ 
+						// получить параметры алгоритма подписи
+						ASN1.ISO.AlgorithmIdentifier signParameters = culture.SignDataAlgorithm(rand); 
+
 						// сгенерировать запрос на сертификат
 						CertificateRequest request = container.CreateCertificateRequest( 
-							null, keyPair.KeyID, keyPair.Certificate.Subject, 
-							null, keyPair.Certificate.Extensions
+							rand, keyPair.KeyID, keyPair.Certificate.Subject, 
+							signParameters, keyPair.Certificate.Extensions
 						); 
 						// сохранить запрос на сертификат в файл
 						File.WriteAllBytes(file, request.Encoded); 

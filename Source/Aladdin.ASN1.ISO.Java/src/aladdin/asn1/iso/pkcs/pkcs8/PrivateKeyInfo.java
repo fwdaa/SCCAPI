@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class PrivateKeyInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -7796202407410196356L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

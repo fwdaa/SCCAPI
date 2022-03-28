@@ -8,6 +8,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public class FieldFp extends ECFieldFp implements IField<BigInteger>
 {
+    private static final long serialVersionUID = -7786251191037833551L;
+    
     // математическое поле
     private final aladdin.math.Fp.Field field; 
     

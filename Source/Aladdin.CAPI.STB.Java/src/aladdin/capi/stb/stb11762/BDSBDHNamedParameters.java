@@ -7,6 +7,8 @@ import aladdin.capi.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class BDSBDHNamedParameters extends BDSBDHParameters implements INamedParameters 
 {
+    private static final long serialVersionUID = 6096876325316083934L;
+    
     // конструктор
     public BDSBDHNamedParameters(String oid, BDSBDHParamsList list) { super(list); this.oid = oid; }
     

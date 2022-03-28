@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class E1634Address extends Sequence<NumericString>
 {
+    private static final long serialVersionUID = -3418077251152058731L;
+    
     // информация о структуре
     private static final ObjectInfo[] info = new ObjectInfo[] { 
 

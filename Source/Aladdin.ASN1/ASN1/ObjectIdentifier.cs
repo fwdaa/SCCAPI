@@ -47,11 +47,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private ObjectIdentifier(SerializationInfo info, StreamingContext context) 
 			
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public void OnDeserialization(object sender)		
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()		
 		{
 			StringBuilder builder = new StringBuilder();
 
@@ -102,7 +99,7 @@ namespace Aladdin.ASN1
 			value = builder.AppendFormat("{0}", ids[ids.Length - 1]).ToString(); 
 		}
 		// конструктор при раскодировании
-		public ObjectIdentifier(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public ObjectIdentifier(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public ObjectIdentifier(string value) : base(Tag.ObjectIdentifier) 

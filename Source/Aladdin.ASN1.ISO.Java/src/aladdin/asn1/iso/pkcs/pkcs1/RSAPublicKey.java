@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class RSAPublicKey extends Sequence<Integer>
 {
+    private static final long serialVersionUID = -6626467423948640468L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

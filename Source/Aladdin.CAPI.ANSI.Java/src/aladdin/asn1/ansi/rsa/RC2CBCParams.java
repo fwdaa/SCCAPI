@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class RC2CBCParams extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -6146661156049173570L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECIESCiphertextValue extends Sequence<OctetString>
 {
+    private static final long serialVersionUID = 3283983043795388216L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

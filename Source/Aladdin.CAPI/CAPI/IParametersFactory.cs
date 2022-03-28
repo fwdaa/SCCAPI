@@ -3,7 +3,7 @@
     ///////////////////////////////////////////////////////////////////////////
     // Фабрика создания параметров
     ///////////////////////////////////////////////////////////////////////////
-    public interface IParametersFactory : IRefObject
+    public interface IParametersFactory
     {
         // получить параметры алгоритма
         IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage); 

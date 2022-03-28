@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
@@ -25,6 +26,24 @@ namespace Aladdin.CAPI.Environment
 
             // указать способ чтения XML
             using (XmlReader reader = XmlReader.Create(fileName, settings))
+            { 
+                // прочитать модель документа
+                document.Load(reader); 
+            }
+            // прочитать параметры приложения
+            return new ConfigSection(document); 
+        }
+        // конструктор
+        public static ConfigSection FromStream(Stream stream)
+        {
+            // указать параметры по умолчанию
+            XmlReaderSettings settings = new XmlReaderSettings(); 
+
+            // создать объект документа 
+            XmlDocument document = new XmlDocument(); 
+
+            // указать способ чтения XML
+            using (XmlReader reader = XmlReader.Create(stream, settings))
             { 
                 // прочитать модель документа
                 document.Load(reader); 

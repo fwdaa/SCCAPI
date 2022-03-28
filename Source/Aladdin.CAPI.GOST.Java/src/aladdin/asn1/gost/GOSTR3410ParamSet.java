@@ -16,6 +16,8 @@ import java.util.*;
 
 public final class GOSTR3410ParamSet extends Sequence<Integer>
 {
+    private static final long serialVersionUID = -5493857634643285374L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

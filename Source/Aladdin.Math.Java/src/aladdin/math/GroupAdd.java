@@ -4,8 +4,10 @@ import java.math.*;
 ////////////////////////////////////////////////////////////////////////////
 // Аддитивная группа (умножение NAF)
 ////////////////////////////////////////////////////////////////////////////
-public abstract class AddGroup<E> extends Group<E> implements IAddGroup<E>
+public abstract class GroupAdd<E> extends Group<E> implements IGroupAdd<E>
 {
+    private static final long serialVersionUID = 5828950157540284823L;
+    
     // признак нулевого элемента
     @Override public boolean isZero(E a) { return a.equals(zero()); } 
     // нулевой элемент

@@ -6,6 +6,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Ring extends aladdin.math.Ring<BigInteger>
 {
+    private static final long serialVersionUID = -7015677653809575266L;
+    
     // экземпляр кольца
     public static final Ring INSTANCE = new Ring(); 
     

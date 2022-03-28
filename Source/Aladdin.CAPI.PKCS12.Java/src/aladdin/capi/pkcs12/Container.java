@@ -29,7 +29,7 @@ public class Container extends aladdin.capi.software.Container
         ContainerStream stream, PFX pfx) throws IOException
 	{
 		// сохранить переданные параметры
-		super(store, stream); this.cultureFactory = RefObject.addRef(cultureFactory); 
+		super(store, stream); this.cultureFactory = cultureFactory; 
         
         // сохранить переданные параметры
         container = new PfxAuthenticatedEncryptedContainer(pfx, store.provider(), rand);
@@ -38,7 +38,7 @@ public class Container extends aladdin.capi.software.Container
     @Override protected void onClose() throws IOException   
     {
         // освободить выделенные ресурсы
-        RefObject.release(container); RefObject.release(cultureFactory); super.onClose(); 
+        RefObject.release(container); super.onClose(); 
     }
 	// содержимое контейнера
 	@Override public byte[] encoded() { return container.encoded().encoded(); }
@@ -750,7 +750,7 @@ public class Container extends aladdin.capi.software.Container
             else if (itemKey == null && itemReq != null)
             {
                 // получить тип парольной защиты
-                PBECulture culture = cultureFactory.getCulture(rand.window(), keyOID); 
+                PBECulture culture = cultureFactory.getPBECulture(rand.window(), keyOID); 
                 
                 // проверить поддержку защиты
                 if (culture == null) throw new UnsupportedOperationException(); 
@@ -770,7 +770,7 @@ public class Container extends aladdin.capi.software.Container
             else if (itemKey == null && itemCert != null)
             {
                 // получить тип парольной защиты
-                PBECulture culture = cultureFactory.getCulture(rand.window(), keyOID); 
+                PBECulture culture = cultureFactory.getPBECulture(rand.window(), keyOID); 
                 
                 // проверить поддержку защиты
                 if (culture == null) throw new UnsupportedOperationException(); 
@@ -828,7 +828,7 @@ public class Container extends aladdin.capi.software.Container
                 secretBag, attributes
             ); 
             // получить тип парольной защиты
-            PBECulture culture = cultureFactory.getCulture(rand.window(), keyOID); 
+            PBECulture culture = cultureFactory.getPBECulture(rand.window(), keyOID); 
 
             // проверить поддержку защиты
             if (culture == null) throw new UnsupportedOperationException(); 

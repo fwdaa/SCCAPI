@@ -7,32 +7,46 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class ObjectIdentifier extends AsnObject
 {
+    private static final long serialVersionUID = 7359578378752075835L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.OBJECTIDENTIFIER); }
     
     // конструктор при раскодировании
     public ObjectIdentifier(IEncodable encodable) throws IOException
     {
-    	super(encodable); StringBuilder builder = new StringBuilder();
+        // инициализировать объект
+    	super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        StringBuilder builder = new StringBuilder();
 
     	// проверить корректность способа кодирования
-    	if (encodable.pc() != PC.PRIMITIVE) throw new IOException();
+    	if (pc() != PC.PRIMITIVE) throw new IOException();
 
         // проверить корректность объекта
-        if (encodable.content().length == 0) throw new IOException();
+        if (content().length == 0) throw new IOException();
 
 		// проверить корректность объекта
-		if ((encodable.content()[encodable.content().length - 1] & 0x80) != 0)
+		if ((content()[content().length - 1] & 0x80) != 0)
 		{
             // при ошибке выбросить исключение
             throw new IOException();
         }
 		// для всех байтов представления
 		int count = 1;
-		for (int i = 0; i < encodable.content().length; i++)
+		for (int i = 0; i < content().length; i++)
 		{
             // подсчитать количество чисел идентификатора
-            if ((encodable.content()[i] & 0x80) == 0) count++;
+            if ((content()[i] & 0x80) == 0) count++;
         }
 		// выделить память для идентификатора
 		ids = new long[count]; int cb = 0;
@@ -41,13 +55,13 @@ public class ObjectIdentifier extends AsnObject
 		for (int i = 1; i < count; i++)
 		{
             // для всех непоследних разрядов числа
-            for (; (encodable.content()[cb] & 0x80) != 0; cb++, ids[i] <<= 7)
+            for (; (content()[cb] & 0x80) != 0; cb++, ids[i] <<= 7)
             {
                 // учесть непоследние разряды числа
-				ids[i] |= encodable.content()[cb] & 0x7F;
+				ids[i] |= content()[cb] & 0x7F;
             }
             // учесть последние разряды числа
-            ids[i] |= encodable.content()[cb++] & 0xFF;
+            ids[i] |= content()[cb++] & 0xFF;
 		}
 		// извлечь первые два числа
 	         if (ids[1] >= 80) { ids[0] = 2; ids[1] -= 80; }
@@ -60,7 +74,7 @@ public class ObjectIdentifier extends AsnObject
             builder.append(String.format("%1$s.", ids[i]));
         }
 		// поместить последнее число в строку
-		value = builder.append(String.format("%1$s", ids[ids.length - 1])).toString();
+		value = builder.append(String.format("%1$s", ids[ids.length - 1])).toString();    
     }
     // конструктор при закодировании
     public ObjectIdentifier(String value)

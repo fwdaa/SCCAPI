@@ -38,16 +38,13 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private GeneralizedTime(SerializationInfo info, StreamingContext context) 
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public new void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
 		{
-			string value = base.Value; 
+			string value = base.Value; frac = String.Empty; 
 
 			// указать допустимость точки как разделителя
-			IFormatProvider provider = NumberFormatInfo.InvariantInfo; frac = String.Empty; 
+			IFormatProvider provider = NumberFormatInfo.InvariantInfo; 
 
 			// извлечь номер года, месяца, дня и часы
 			int YYYY = Int32.Parse(value.Substring(0, 4), NumberStyles.None);
@@ -138,7 +135,7 @@ namespace Aladdin.ASN1
 			time = time.AddHours((double)hhz).AddMinutes((double)mmz);
 		}
 		// конструктор при раскодировании
-		public GeneralizedTime(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public GeneralizedTime(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public GeneralizedTime(DateTime time) : 

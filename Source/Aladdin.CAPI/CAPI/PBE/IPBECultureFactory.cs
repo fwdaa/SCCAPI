@@ -3,9 +3,9 @@
     ///////////////////////////////////////////////////////////////////////////////
     // Указание параметров парольной защиты
     ///////////////////////////////////////////////////////////////////////////////
-    public interface IPBECultureFactory : IRefObject 
+    public interface IPBECultureFactory
     {
         // получить параметры парольной защиты
-        PBECulture GetCulture(object window, string keyOID); 
+        PBECulture GetPBECulture(object window, string keyOID); 
     }
 }

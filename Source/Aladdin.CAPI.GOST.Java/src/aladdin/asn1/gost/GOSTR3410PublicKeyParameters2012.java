@@ -12,6 +12,8 @@ import java.io.*;
 
 public final class GOSTR3410PublicKeyParameters2012 extends Sequence<ObjectIdentifier>
 {
+    private static final long serialVersionUID = -5802575844014916629L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

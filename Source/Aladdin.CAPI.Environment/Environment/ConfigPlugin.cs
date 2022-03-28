@@ -25,8 +25,6 @@ namespace Aladdin.CAPI.Environment
         
             // получить класс расширения
             className = element.GetAttribute("class"); 
-            // проверить наличие класса расширения
-            if (className.Length == 0) throw new IOException(); 
 
             // получить размер salt-значения
             pbmSaltLength = element.GetAttribute("pbmSaltLength"); 

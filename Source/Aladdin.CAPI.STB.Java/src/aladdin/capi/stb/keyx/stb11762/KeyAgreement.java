@@ -40,7 +40,7 @@ public class KeyAgreement extends RefObject implements IKeyAgreement
             K = new BigInteger(R, random); 
         }
         // указать группу Монтгомери
-        MulGroup<BigInteger> group = new MontGroup(P); 
+        GroupMul<BigInteger> group = new MontGroup(P); 
 
         // вычислить U = Y^(K) (mod P) и V = G^(K) (mod P)
         BigInteger U = group.power(Y, K); BigInteger V = group.power(G, K);

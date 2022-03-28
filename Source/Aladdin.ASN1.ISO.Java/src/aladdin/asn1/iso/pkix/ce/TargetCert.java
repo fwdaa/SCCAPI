@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class TargetCert extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 1020913941254362662L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

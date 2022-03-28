@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class GOSTR3410PublicKeyParameters2001 extends Sequence<ObjectIdentifier>
 {
+    private static final long serialVersionUID = 9119097931045465195L;
+    
 	// значение идентификатора по умолчанию
 	private static final ObjectIdentifier def = new ObjectIdentifier(OID.ENCRYPTS_A); 
 

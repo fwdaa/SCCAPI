@@ -20,11 +20,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private Boolean(SerializationInfo info, StreamingContext context) 
 		
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-		
-		// дополнительные вычисления при сериализации
-        public void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
         {
 			// проверить корректность способа кодирования
 			if (PC != PC.Primitive) throw new InvalidDataException();
@@ -36,7 +33,7 @@ namespace Aladdin.ASN1
 			this.value = (Content[0] != 0); 
         }
 		// конструктор при раскодировании
-		public Boolean(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public Boolean(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public Boolean(bool value) : base(Tag.Boolean) { this.value = value; }

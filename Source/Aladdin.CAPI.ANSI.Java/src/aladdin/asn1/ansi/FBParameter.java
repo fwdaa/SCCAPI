@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class FBParameter extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -4042776102470860717L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

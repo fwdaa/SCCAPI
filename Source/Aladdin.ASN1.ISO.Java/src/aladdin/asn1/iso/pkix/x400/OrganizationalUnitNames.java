@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class OrganizationalUnitNames extends Sequence<PrintableString>
 {
+    private static final long serialVersionUID = 7583732866530486362L;
+    
 	// конструктор при раскодировании
 	public OrganizationalUnitNames(IEncodable encodable) throws IOException
 	{

@@ -142,19 +142,6 @@ namespace Aladdin.CAPI
 			// извлечь подписываемые данные
 			byte[] data = certificationRequestInfo.Encoded; 
 
-            // при отсутствии параметров подписи
-            if (signParameters == null) 
-            {
-                // получить алгоритмы по умолчанию
-                Culture culture = privateKey.Factory.GetCulture(
-                    privateKey.Scope, publicKey.KeyOID
-                ); 
-                // указать параметры алгоритма подписи
-                signParameters = culture.SignDataAlgorithm(rand); 
-            
-                // проверить указание алгоритма
-                if (signParameters == null) throw new NotSupportedException();
-            }
             // при отсутствии алгоритма
             if (signParameters.Algorithm.Value == "2.5.8.0")
             {

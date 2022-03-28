@@ -15,6 +15,8 @@ import java.io.*;
 
 public final class PersonalName extends Set<PrintableString>
 {
+    private static final long serialVersionUID = -723388449814373758L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

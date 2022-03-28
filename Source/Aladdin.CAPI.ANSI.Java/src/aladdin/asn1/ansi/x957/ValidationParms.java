@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class ValidationParms extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7694887962411797851L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

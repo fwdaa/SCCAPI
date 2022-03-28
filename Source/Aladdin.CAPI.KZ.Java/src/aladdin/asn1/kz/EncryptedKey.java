@@ -13,6 +13,8 @@ import java.io.*;
 
 public class EncryptedKey extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -3041902074030430561L;
+    
     // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -1,13 +1,14 @@
 package aladdin.math.F2m;
 import aladdin.math.*;
 import java.math.*;
-import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Поле многочленов (F_{2^m})
 ///////////////////////////////////////////////////////////////////////////
 public abstract class Field extends aladdin.math.Field<Vector>
 {
+    private static final long serialVersionUID = 2028930922515454354L;
+    
     // нулевой элемент
     private final Vector zero; 
 

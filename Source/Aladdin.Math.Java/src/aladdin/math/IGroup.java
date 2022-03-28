@@ -1,10 +1,11 @@
 package aladdin.math;
+import java.io.*;
 import java.math.*; 
 
 ////////////////////////////////////////////////////////////////////////////
 // Интерфейс группы
 ////////////////////////////////////////////////////////////////////////////
-public interface IGroup<E> 
+public interface IGroup<E> extends Serializable
 {
     // признак нулевого элемента
     boolean isIdentity(E a); E identity();

@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class CertificatePolicies extends Sequence<PolicyInformation>
 {
+    private static final long serialVersionUID = 3614621043531773766L;
+    
 	// конструктор при раскодировании
 	public CertificatePolicies(IEncodable encodable) throws IOException
 	{

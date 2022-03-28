@@ -12,6 +12,8 @@ import java.io.*;
 
 public final class GeneralSubtree extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 6417573131821982148L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

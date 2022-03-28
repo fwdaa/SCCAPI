@@ -1,14 +1,15 @@
 package aladdin.math.Fp;
-import aladdin.math.MulGroup;
+import aladdin.math.GroupMul;
 import aladdin.math.Utils;
 import java.math.*; 
-import java.io.*; 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Группа Монтгомери
 ////////////////////////////////////////////////////////////////////////////////
-public class MontGroup extends MulGroup<BigInteger>
+public class MontGroup extends GroupMul<BigInteger>
 {
+    private static final long serialVersionUID = 4859957514212254420L;
+    
     // значение и закодированное представление модуля
     private final BigInteger P; private final int[] arrP; 
     

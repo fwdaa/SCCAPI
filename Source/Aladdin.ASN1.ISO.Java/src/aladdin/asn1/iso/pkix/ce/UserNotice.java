@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class UserNotice extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -4077553356289624972L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

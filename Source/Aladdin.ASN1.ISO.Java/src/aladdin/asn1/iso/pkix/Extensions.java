@@ -10,6 +10,8 @@ import java.util.*;
 
 public final class Extensions extends Sequence<Extension>
 {
+    private static final long serialVersionUID = 4404689124704298247L;
+    
 	// конструктор при раскодировании
 	public Extensions(IEncodable encodable) throws IOException
 	{ 

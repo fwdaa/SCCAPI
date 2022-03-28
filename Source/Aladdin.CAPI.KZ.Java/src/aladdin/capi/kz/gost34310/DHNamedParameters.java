@@ -9,6 +9,8 @@ import java.io.*;
 public class DHNamedParameters extends aladdin.capi.gost.gostr3410.DHNamedParameters
     implements INamedParameters
 {    
+    private static final long serialVersionUID = 7981178530133119288L;    
+    
     // конструктор
     public DHNamedParameters(String oid, String paramOID) throws IOException
     {

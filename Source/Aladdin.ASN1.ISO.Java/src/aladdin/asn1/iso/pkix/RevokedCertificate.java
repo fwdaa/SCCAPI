@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class RevokedCertificate extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8285693939983043404L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -14,6 +14,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECDSASigValue extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 1742539138784136960L;
+    
     public static final class Y extends Choice
     {
         // информация о структуре

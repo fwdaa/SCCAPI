@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class ECPoints extends Sequence<OctetString>
 {
+    private static final long serialVersionUID = 1046749377821581054L;
+    
 	// конструктор при раскодировании
 	public ECPoints(IEncodable encodable) throws IOException 
 	{

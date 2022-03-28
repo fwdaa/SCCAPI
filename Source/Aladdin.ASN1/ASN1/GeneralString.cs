@@ -43,17 +43,14 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private GeneralString(SerializationInfo info, StreamingContext context) 
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public new void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
 		{
 			// раскодировать строку
 			str = Encoding.Default.GetString(Content); 
 		}
 		// конструктор при раскодировании
-		public GeneralString(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public GeneralString(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public GeneralString(string value) : base(Tag.GeneralString, 

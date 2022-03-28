@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class GeneralNames extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -5924511161574958299L;
+    
 	// конструктор при раскодировании
 	public GeneralNames(IEncodable encodable) throws IOException 
 	{

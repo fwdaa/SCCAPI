@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class FieldID extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 6321730623072159637L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

@@ -14,6 +14,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class SharedInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 6755859612731961181L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

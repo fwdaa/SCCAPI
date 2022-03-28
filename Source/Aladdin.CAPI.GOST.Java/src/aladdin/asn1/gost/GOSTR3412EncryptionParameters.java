@@ -10,6 +10,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class GOSTR3412EncryptionParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8507115886274680816L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

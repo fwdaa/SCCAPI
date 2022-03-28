@@ -1,4 +1,5 @@
 package aladdin.capi;
+import aladdin.capi.pbe.*; 
 import aladdin.*; 
 import aladdin.asn1.*; 
 import aladdin.asn1.iso.*; 
@@ -22,6 +23,12 @@ public abstract class Culture
 	public AlgorithmIdentifier transportKeyAlgorithm      (IRand rand) throws IOException { return null; }
 	public AlgorithmIdentifier transportAgreementAlgorithm(IRand rand) throws IOException { return null; } 
     
+    // параметры шифрования по паролю
+    public PBECulture pbe(PBEParameters parameters)
+    {
+        // параметры шифрования по паролю
+        return new PBECulture.Default(this, parameters, true); 
+    }
 	///////////////////////////////////////////////////////////////////////
 	// Параметры шифрования на открытом ключе (KeyX)
 	///////////////////////////////////////////////////////////////////////
@@ -76,15 +83,6 @@ public abstract class Culture
         Certificate recipientCertificate, CMSData data, 
         Attributes attributes) throws IOException
 	{
-        // определить идентификатор ключа
-        String keyOID = recipientCertificate.publicKeyInfo().algorithm().algorithm().value(); 
-
-        // указать используемые алгоритмы
-        if (culture == null) culture = factory.getCulture(scope, keyOID); 
-
-        // проверить указание алгоритмов
-        if (culture == null) throw new UnsupportedOperationException(); 
-
         // зашифровать данные
         return Culture.keyxEncryptData(culture, factory, scope,
             rand, new Certificate[] { recipientCertificate }, 
@@ -115,20 +113,8 @@ public abstract class Culture
         // для всех сертификатов
         for (int i = 0; i < keyxParameters.length; i++)
         {
-            // определить идентификатор ключа
-            String keyOID = recipientCertificates[i].publicKeyInfo().algorithm().algorithm().value(); 
-
-            // указать используемые алгоритмы
-            culture = (cultures != null) ? cultures[i] : null; 
-                    
-            // указать используемые алгоритмы
-            if (culture == null) culture = factory.getCulture(scope, keyOID); 
-
-            // проверить указание алгоритмов
-            if (culture == null) throw new UnsupportedOperationException(); 
-
             // получить параметры алгоритма
-            keyxParameters[i] = culture.keyxParameters(
+            keyxParameters[i] = cultures[i].keyxParameters(
                 factory, scope, rand, recipientCertificates[i].keyUsage()
             ); 
             // проверить отсутствие ошибок
@@ -146,15 +132,6 @@ public abstract class Culture
         IPrivateKey privateKey, Certificate certificate, Certificate[] recipientCertificates, 
         Culture[] cultures, CMSData data, Attributes attributes) throws IOException
 	{
-        // определить идентификатор ключа
-        String keyOID = certificate.publicKeyInfo().algorithm().algorithm().value(); 
-
-        // указать используемые алгоритмы
-        if (culture == null) culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-
-        // проверить указание алгоритмов
-        if (culture == null) throw new UnsupportedOperationException(); 
-        
         // указать идентификатор типа 
         ObjectIdentifier dataType = new ObjectIdentifier(
             aladdin.asn1.iso.pkcs.pkcs7.OID.ENVELOPED_DATA
@@ -172,20 +149,8 @@ public abstract class Culture
         // для всех сертификатов
         for (int i = 0; i < keyxParameters.length; i++)
         {
-            // определить идентификатор ключа
-            keyOID = recipientCertificates[i].publicKeyInfo().algorithm().algorithm().value(); 
-
-            // указать используемые алгоритмы
-            culture = (cultures != null) ? cultures[i] : null; 
-
-            // указать используемые алгоритмы
-            if (culture == null) culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-
-            // проверить указание алгоритмов
-            if (culture == null) throw new UnsupportedOperationException(); 
-
             // получить параметры алгоритма
-            keyxParameters[i] = culture.keyxParameters( 
+            keyxParameters[i] = cultures[i].keyxParameters( 
                 privateKey.factory(), privateKey.scope(), 
                 rand, recipientCertificates[i].keyUsage()
             ); 
@@ -208,15 +173,6 @@ public abstract class Culture
         IPrivateKey privateKey, Certificate certificate, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
     {
-        // определить идентификатор ключа
-        String keyOID = certificate.publicKeyInfo().algorithm().algorithm().value(); 
-
-        // указать используемые алгоритмы
-        if (culture == null) culture = privateKey.factory().getCulture(privateKey.scope(), keyOID); 
-
-        // проверить указание алгоритмов
-        if (culture == null) throw new UnsupportedOperationException(); 
-        
         // подписать данные
         return Culture.signData(new Culture[] { culture }, rand, 
             new IPrivateKey[] { privateKey }, new Certificate[] { certificate }, 
@@ -242,19 +198,6 @@ public abstract class Culture
         // для всех личных ключей
         for (int i = 0; i < privateKeys.length; i++)
         { 
-            // определить идентификатор ключа
-            String keyOID = certificates[i].publicKeyInfo().algorithm().algorithm().value(); 
-
-            // указать используемые алгоритмы
-            Culture culture = (cultures != null) ? cultures[i] : null; 
-
-            // указать используемые алгоритмы
-            if (culture == null) culture = privateKeys[i].factory().getCulture(
-                privateKeys[i].scope(), keyOID
-            ); 
-            // проверить указание алгоритмов
-            if (culture == null) throw new UnsupportedOperationException(); 
-
             // получить параметры алгоритма хэширования
             hashParameters[i] = cultures[i].hashAlgorithm(rand);
                 

@@ -8,6 +8,8 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////////
 public class FieldF2m extends ECFieldF2m implements IField<BigInteger>
 {
+    private static final long serialVersionUID = -6167456552875200424L;
+    
     // математическое поле
     private final aladdin.math.F2m.Field field; 
     

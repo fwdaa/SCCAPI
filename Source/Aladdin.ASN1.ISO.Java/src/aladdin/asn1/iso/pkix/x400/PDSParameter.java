@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class PDSParameter extends Set<IEncodable>
 {
+    private static final long serialVersionUID = -6355771553128635887L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class RelativeDistinguishedNames extends Sequence<RelativeDistinguishedName>
 {
+    private static final long serialVersionUID = 7537394503179015424L;
+    
 	// конструктор при раскодировании
 	public RelativeDistinguishedNames(IEncodable encodable) throws IOException
 	{

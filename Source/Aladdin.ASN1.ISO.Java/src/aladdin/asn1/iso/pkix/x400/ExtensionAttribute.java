@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class ExtensionAttribute extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8147404776328436065L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

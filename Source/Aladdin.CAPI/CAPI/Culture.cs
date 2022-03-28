@@ -18,6 +18,12 @@ namespace Aladdin.CAPI
 		public virtual ASN1.ISO.AlgorithmIdentifier TransportKeyAlgorithm       (IRand rand) { return null; }
 		public virtual ASN1.ISO.AlgorithmIdentifier TransportAgreementAlgorithm (IRand rand) { return null; }
 
+        // параметры шифрования по паролю
+        public virtual PBE.PBECulture PBE(PBE.PBEParameters parameters)
+        {
+            // параметры шифрования по паролю
+            return new PBE.PBECulture.Default(this, parameters, true); 
+        }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Параметры шифрования на открытом ключе (KeyX)
 	    ///////////////////////////////////////////////////////////////////////
@@ -67,15 +73,6 @@ namespace Aladdin.CAPI
             Factory factory, SecurityStore scope, IRand rand, 
             Certificate recipientCertificate, CMSData data, ASN1.ISO.Attributes attributes)
 		{
-            // определить идентификатор ключа
-            string keyOID = recipientCertificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
-
-            // указать используемые алгоритмы
-            if (culture == null) culture = factory.GetCulture(scope, keyOID); 
-
-            // проверить указание алгоритмов
-            if (culture == null) throw new NotSupportedException(); 
-
             // зашифровать данные
             return Culture.KeyxEncryptData(culture, factory, scope, rand, 
                 new Certificate[] { recipientCertificate }, 
@@ -87,9 +84,6 @@ namespace Aladdin.CAPI
             Certificate[] recipientCertificates, Culture[] cultures,
             CMSData data, ASN1.ISO.Attributes attributes)
 		{
-            // проверить указание алгоритмов
-            if (culture == null) throw new NotSupportedException(); 
-
             // указать идентификатор типа 
             ASN1.ObjectIdentifier dataType = new ASN1.ObjectIdentifier(
                 ASN1.ISO.PKCS.PKCS7.OID.envelopedData
@@ -107,20 +101,8 @@ namespace Aladdin.CAPI
             // для всех сертификатов
             for (int i = 0; i < keyxParameters.Length; i++)
             {
-                // определить идентификатор ключа
-                string keyOID = recipientCertificates[i].PublicKeyInfo.Algorithm.Algorithm.Value; 
-
-                // указать используемые алгоритмы
-                culture = (cultures != null) ? cultures[i] : null; 
-                
-                // указать используемые алгоритмы
-                if (culture == null) culture = factory.GetCulture(scope, keyOID); 
-
-                // проверить указание алгоритмов
-                if (culture == null) throw new NotSupportedException(); 
-
                 // получить параметры алгоритма
-                keyxParameters[i] = culture.KeyxParameters(
+                keyxParameters[i] = cultures[i].KeyxParameters(
                     factory, scope, rand, recipientCertificates[i].KeyUsage
                 ); 
                 // проверить отсутствие ошибок
@@ -139,15 +121,6 @@ namespace Aladdin.CAPI
             Certificate certificate, Certificate[] recipientCertificates, 
             Culture[] cultures, CMSData data, ASN1.ISO.Attributes attributes) 
 	    {
-            // определить идентификатор ключа
-            string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
-
-            // указать используемые алгоритмы
-            if (culture == null) culture = privateKey.Factory.GetCulture(privateKey.Scope, keyOID); 
-
-            // проверить указание алгоритмов
-            if (culture == null) throw new NotSupportedException(); 
-
             // указать идентификатор типа 
             ASN1.ObjectIdentifier dataType = new ASN1.ObjectIdentifier(
                 ASN1.ISO.PKCS.PKCS7.OID.envelopedData
@@ -165,20 +138,8 @@ namespace Aladdin.CAPI
             // для всех сертификатов
             for (int i = 0; i < keyxParameters.Length; i++)
             {
-                // определить идентификатор ключа
-                keyOID = recipientCertificates[i].PublicKeyInfo.Algorithm.Algorithm.Value; 
-
-                // указать используемые алгоритмы
-                culture = (cultures != null) ? cultures[i] : null; 
-
-                // указать используемые алгоритмы
-                if (culture == null) culture = privateKey.Factory.GetCulture(privateKey.Scope, keyOID); 
-
-                // проверить указание алгоритмов
-                if (culture == null) throw new NotSupportedException(); 
-
                 // получить параметры алгоритма
-                keyxParameters[i] = culture.KeyxParameters( 
+                keyxParameters[i] = cultures[i].KeyxParameters( 
                     privateKey.Factory, privateKey.Scope, 
                     rand, recipientCertificates[i].KeyUsage
                 ); 
@@ -219,19 +180,6 @@ namespace Aladdin.CAPI
             // для всех личных ключей
             for (int i = 0; i < privateKeys.Length; i++)
             { 
-                // определить идентификатор ключа
-                string keyOID = certificates[i].PublicKeyInfo.Algorithm.Algorithm.Value; 
-
-                // указать используемые алгоритмы
-                Culture culture = (cultures != null) ? cultures[i] : null; 
-
-                // указать используемые алгоритмы
-                if (culture == null) culture = privateKeys[i].Factory.GetCulture(
-                    privateKeys[i].Scope, keyOID
-                ); 
-                // проверить указание алгоритмов
-                if (culture == null) throw new NotSupportedException(); 
-
                 // получить параметры алгоритма хэширования
                 hashParameters[i] = cultures[i].HashAlgorithm(rand); 
 
@@ -257,15 +205,6 @@ namespace Aladdin.CAPI
             Culture culture, IRand rand, IPrivateKey privateKey, Certificate certificate, 
             CMSData data, ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
 		{
-            // определить идентификатор ключа
-            string keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value; 
-
-            // указать используемые алгоритмы
-            if (culture == null) culture = privateKey.Factory.GetCulture(privateKey.Scope, keyOID); 
-
-            // проверить указание алгоритмов
-            if (culture == null) throw new NotSupportedException(); 
-
             // подписать данные
             return Culture.SignData(new Culture[] { culture }, rand, 
                 new IPrivateKey[] { privateKey  }, 

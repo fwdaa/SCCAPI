@@ -12,6 +12,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class CharacteristicTwo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -2861765226321137600L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

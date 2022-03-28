@@ -19,6 +19,8 @@ import java.io.*;
 
 public final class TBSCertificate extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -7388801566437996272L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

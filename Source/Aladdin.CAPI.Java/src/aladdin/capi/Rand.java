@@ -2,6 +2,7 @@ package aladdin.capi;
 import aladdin.*; 
 import java.io.*;
 import java.security.*; 
+import java.lang.reflect.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Генератор случайных данных
@@ -14,14 +15,33 @@ public class Rand extends RefObject implements IRand
     // описатель окна и дополнительный генератор
     private final Object window; private final IRand rand; 
 
+    // создать генератор на основе другого генератора
+    public static IRand create(IRand rand, Class<? extends IRand> type) throws Throwable
+    {
+        // получить описание конструктора
+        Constructor constructor = type.getConstructor(IRand.class); 
+
+        // создать генератор на основе другого генератора
+        try { return (IRand)constructor.newInstance(rand);  }
+
+        // обработать возможное исключение
+        catch (InvocationTargetException e) { throw e.getCause(); }
+    }
+    // изменить окно для генератора
+    public static IRand rebind(IRand rand, Object window) 
+    { 
+        // изменить окно для генератора
+        return new Rand(rand, window); 
+    }
 	// конструктор
-	public Rand(Object window) { this(new SecureRandom(), window); }
-	// конструктор
-	public Rand(IRand rand, Object window) { this.generator = null; 
+	private Rand(IRand rand, Object window) { this.generator = null; 
 
         // сохранить дополнительный генератор
         this.window = window; this.rand = RefObject.addRef(rand); 
     }
+	// конструктор
+	public Rand(Object window) { this(new SecureRandom(), window); }
+    
     // конструктор
 	public Rand(java.util.Random generator, Object window) 
     { 

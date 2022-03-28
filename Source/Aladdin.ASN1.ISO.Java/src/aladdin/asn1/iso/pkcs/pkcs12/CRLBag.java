@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class CRLBag extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 2355667790911104062L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

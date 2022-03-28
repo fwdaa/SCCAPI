@@ -6,6 +6,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class NumericString extends OctetString
 {
+    private static final long serialVersionUID = -3805270896455461779L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.NUMERICSTRING); }
     
@@ -40,7 +42,20 @@ public final class NumericString extends OctetString
     // конструктор при раскодировании
     public NumericString(IEncodable encodable) throws IOException
     {
-        super(encodable); string = new String(content(), "US-ASCII"); 
+        // инициализировать объект
+        super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        // раскодировать объект
+        string = new String(content(), "US-ASCII"); 
     }
     // конструктор при закодировании
     public NumericString(String value) 
@@ -48,5 +63,5 @@ public final class NumericString extends OctetString
         super(Tag.NUMERICSTRING, Utils.encodeString(value, "US-ASCII")); string = value; 
     }
     // строка символов
-    public final String str() { return string; } private final String string;
+    public final String str() { return string; } private String string;
 }

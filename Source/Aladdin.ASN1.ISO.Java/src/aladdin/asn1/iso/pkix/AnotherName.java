@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class AnotherName extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -2004599008123093969L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

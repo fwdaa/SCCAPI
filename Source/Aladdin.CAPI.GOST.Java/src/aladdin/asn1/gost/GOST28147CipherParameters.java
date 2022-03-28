@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class GOST28147CipherParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -2108673951171737831L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

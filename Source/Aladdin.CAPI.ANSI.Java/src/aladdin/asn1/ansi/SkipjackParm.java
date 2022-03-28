@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class SkipjackParm extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -5352300078305840936L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

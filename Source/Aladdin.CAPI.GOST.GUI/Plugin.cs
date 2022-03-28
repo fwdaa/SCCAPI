@@ -243,7 +243,7 @@ namespace Aladdin.CAPI.GOST.GUI
             }
             throw new NotSupportedException(); 
         }
-        public PBE.PBECulture GetCulture(object window, string keyOID)
+        public PBE.PBECulture GetPBECulture(object window, string keyOID)
         { 
             // создать диалог выбора криптографической культуры
             CAPI.GUI.CultureDialog dialog = new CAPI.GUI.CultureDialog( 

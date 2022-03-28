@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class PBMAC1Parameter extends Sequence<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = -6790562017777740538L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class TeletexDomainDefinedAttribute extends Sequence<TeletexString>
 {
+    private static final long serialVersionUID = 1530091793988729823L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

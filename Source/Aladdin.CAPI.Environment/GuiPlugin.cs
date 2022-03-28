@@ -17,8 +17,11 @@ namespace Aladdin.CAPI
         public GuiPlugin(Environment.ConfigPlugin element, string identityString) 
         {
             // получить класс расширения
-            className = element.Class + identityString; 
-        
+            className = element.Class; if (!String.IsNullOrEmpty(className))
+            {
+                // указать строку идентификации
+                className += identityString; 
+            }
             // создать параметры шифрования по паролю
             pbeParameters = new PBE.PBEParameters(
                 element.PBMSaltLength, element.PBMIterations, 
@@ -31,21 +34,27 @@ namespace Aladdin.CAPI
         // параметры ключа
         public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
+            // проверить наличие имени класса
+            if (String.IsNullOrEmpty(className)) throw new NotSupportedException(); 
+
             // загрузить плагин
             using (ICulturePlugin plugin = LoadPlugin(className))
-            {
+            { 
                 // получить параметры ключа
                 return plugin.GetParameters(rand, keyOID, keyUsage); 
             }
         }
         // параметры шифрования по паролю
-        public PBE.PBECulture GetCulture(object window, string keyOID)
+        public PBE.PBECulture GetPBECulture(object window, string keyOID)
         {
+            // проверить наличие имени класса
+            if (String.IsNullOrEmpty(className)) throw new NotSupportedException(); 
+
             // загрузить плагин
             using (ICulturePlugin plugin = LoadPlugin(className))
-            {
+            { 
                 // получить параметры шифрования по паролю
-                return plugin.GetCulture(window, keyOID); 
+                return plugin.GetPBECulture(window, keyOID); 
             }
         }
 		// загрузить плагин

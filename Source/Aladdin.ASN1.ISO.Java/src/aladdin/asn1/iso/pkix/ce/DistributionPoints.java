@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class DistributionPoints extends Sequence<DistributionPoint>
 {
+    private static final long serialVersionUID = -8178727199716067465L;
+    
 	// конструктор при раскодировании
 	public DistributionPoints(IEncodable encodable) throws IOException 
 	{

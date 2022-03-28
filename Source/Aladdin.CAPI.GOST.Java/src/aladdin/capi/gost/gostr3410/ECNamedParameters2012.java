@@ -6,6 +6,8 @@ import aladdin.asn1.gost.*;
 ///////////////////////////////////////////////////////////////////////////
 public class ECNamedParameters2012 extends ECNamedParameters
 {
+    private static final long serialVersionUID = -924876826481587138L;
+    
     // конструктор
     public ECNamedParameters2012(String paramOID, String hashOID) 
     {

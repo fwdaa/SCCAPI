@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class SafeContents extends Sequence<SafeBag>
 {
+    private static final long serialVersionUID = -7514215561210347671L;
+    
 	// конструктор при раскодировании
 	public SafeContents(IEncodable encodable) throws IOException
 	{

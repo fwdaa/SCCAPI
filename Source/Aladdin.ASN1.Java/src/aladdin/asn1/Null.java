@@ -6,6 +6,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class Null extends AsnObject
 {
+    private static final long serialVersionUID = -3024807687587783254L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.NULL); }
     

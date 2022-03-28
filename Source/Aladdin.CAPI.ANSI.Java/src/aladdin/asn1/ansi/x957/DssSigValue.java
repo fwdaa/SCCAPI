@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class DssSigValue extends Sequence<Integer>
 {
+    private static final long serialVersionUID = -8928732534194593289L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

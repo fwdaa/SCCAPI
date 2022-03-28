@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class AlgorithmIdentifiers extends Set<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = 1181741206056796749L;
+    
 	// конструктор при раскодировании
 	public AlgorithmIdentifiers(IEncodable encodable) throws IOException 
 	{

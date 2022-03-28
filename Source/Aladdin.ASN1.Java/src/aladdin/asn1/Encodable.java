@@ -7,8 +7,10 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Encodable implements IEncodable
 {
+    private static final long serialVersionUID = -2616504145584887811L;
+
     // тип объекта, содержимое объекта и закодированное представление
-    private final Tag tag; private final PC pc; private byte[] content; private byte[] encoded;
+    private Tag tag; private PC pc; private byte[] content; private byte[] encoded;
     
     // конструктор
     protected Encodable(IEncodable encodable)
@@ -56,6 +58,29 @@ public class Encodable implements IEncodable
 		// создать представление объекта
 		return encoded = encode(tag, pc, content()).encoded();
     }
+    /////////////////////////////////////////////////////////////////////////////
+    // Сериализация
+    /////////////////////////////////////////////////////////////////////////////
+    protected void writeObject(ObjectOutputStream oos) throws IOException 
+    {
+        // записать закодированное представление
+        oos.writeObject(encoded()); 
+    }
+    protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        try { 
+            // раскодировать представление
+            IEncodable encodable = Encodable.decode((byte[])ois.readObject()); 
+
+            // сохранить раскодированные параметры 
+            tag = encodable.tag(); pc = encodable.pc(); 
+
+            // сохранить раскодированные параметры 
+            content = encodable.content(); encoded = encodable.encoded();
+        }
+        // обработать возможное исключение
+        catch (ClassNotFoundException e) { throw new IOException(e); }
+    }    
     /////////////////////////////////////////////////////////////////////////////
     // Сравнить два объекта
     /////////////////////////////////////////////////////////////////////////////

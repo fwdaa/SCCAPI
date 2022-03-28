@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public class ECDSAFullR extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 4193250784545916711L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

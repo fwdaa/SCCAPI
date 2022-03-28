@@ -16,6 +16,31 @@ namespace Aladdin.ASN1
 		private IEncodable	ber;	// закодированное BER-представление
 		private IEncodable	der;	// закодированное DER-представление
 
+        // конструктор при сериализации
+        protected AsnObject(SerializationInfo info, StreamingContext context)
+        {
+			// получить конструктор при раскодировании
+			ConstructorInfo constructor = GetType().GetConstructor(
+				new Type[] { typeof(IEncodable) }
+			); 
+			// проверить наличие конструктора
+			if (constructor == null) throw new InvalidOperationException(); 
+
+            // прочитать бинарное представление
+            byte[] encoded = Convert.FromBase64String(info.GetString("Encoded")); 
+
+            // раскодировать представление
+            IEncodable encodable = Encodable.Decode(encoded); 
+			try {  
+				// создать объект 
+				AsnObject instance = (AsnObject)constructor.Invoke(new object[] { encodable }); 
+
+				// сохранить переменные объекта
+				this.tag = instance.Tag; ber = instance.BerEncodable; der = instance.DerEncodable; 
+			}
+			// обработать возможное исключение
+			catch (TargetInvocationException e) { throw e.InnerException; }
+        }
 		// конструктор при раскодировании
 		protected AsnObject(IEncodable encodable)
 		{
@@ -51,6 +76,16 @@ namespace Aladdin.ASN1
 			if (der == null) der = Encodable.Encode(tag, DerPC, DerContent); return der;  
 		}}
 		/////////////////////////////////////////////////////////////////////////////
+        // Сохранение данных
+		/////////////////////////////////////////////////////////////////////////////
+        [SecurityCritical]
+        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // сохранить бинарное представление
+            info.AddValue("Encoded", Convert.ToBase64String(Encoded)); 
+        }
+		/////////////////////////////////////////////////////////////////////////////
 		// Сравнить два объекта
 		/////////////////////////////////////////////////////////////////////////////
 		public override int GetHashCode()
@@ -82,39 +117,5 @@ namespace Aladdin.ASN1
 			// сравнить два объекта
 			return Arrays.Equals(DerEncodable.Encoded, obj.DerEncodable.Encoded);  
 		}
-        /////////////////////////////////////////////////////////////////////////////
-        // Сохранение данных
-        /////////////////////////////////////////////////////////////////////////////
-        protected AsnObject(SerializationInfo info, StreamingContext context)
-        {
-			// получить конструктор при раскодировании
-			ConstructorInfo constructor = GetType().GetConstructor(
-				new Type[] { typeof(IEncodable) }
-			); 
-			// проверить наличие конструктора
-			if (constructor == null) throw new InvalidOperationException(); 
-
-            // прочитать бинарное представление
-            byte[] encoded = Convert.FromBase64String(info.GetString("Encoded")); 
-
-            // раскодировать представление
-            IEncodable encodable = Encodable.Decode(encoded); 
-			try {  
-				// создать объект 
-				AsnObject instance = (AsnObject)constructor.Invoke(new object[] { encodable }); 
-
-				// сохранить переменные объекта
-				this.tag = instance.Tag; ber = instance.BerEncodable; der = instance.DerEncodable; 
-			}
-			// обработать возможное исключение
-			catch (TargetInvocationException e) { throw e.InnerException; }
-        }
-        [SecurityCritical]
-        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            // сохранить бинарное представление
-            info.AddValue("Encoded", Convert.ToBase64String(Encoded)); 
-        }
 	}
 }

@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class GOSTR3410KeyTransport extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8789332942676245959L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

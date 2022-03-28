@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class PBKDF2Parameter extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -1171946123998459940L;
+    
 	// значение псевдослучайной функции по умолчанию
 	private static final AlgorithmIdentifier prf = new AlgorithmIdentifier(
         new ObjectIdentifier("1.2.840.113549.2.7"), Null.INSTANCE

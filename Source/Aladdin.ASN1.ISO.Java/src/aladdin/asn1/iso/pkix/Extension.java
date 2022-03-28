@@ -11,18 +11,32 @@ import java.io.*;
 
 public final class Extension extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 178351428137649005L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(ObjectIdentifier.class).factory(), Cast.N, Tag.ANY	 			    ), 
-		new ObjectInfo(new ObjectCreator(Boolean         .class).factory(), Cast.O, Tag.ANY, Boolean.FALSE), 
+		new ObjectInfo(new ObjectCreator(Boolean         .class).factory(), Cast.O, Tag.ANY, Boolean.FALSE  ), 
 		new ObjectInfo(new ObjectCreator(OctetString	 .class).factory(), Cast.N, Tag.ANY					), 
 	}; 
 	public Extension(IEncodable encodable) throws IOException
 	{
-		// раскодировать атрибут
-		super(encodable, info); decoded = Encodable.decode(get(2).content()); 
+        // инициализировать объект
+		super(encodable, info); init(); 
 	}
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        // раскодировать объект
+        decoded = Encodable.decode(get(2).content()); 
+    }
 	// конструктор при закодировании
 	public Extension(ObjectIdentifier extnID, Boolean critical, IEncodable extnValue) 
 	{
@@ -33,5 +47,5 @@ public final class Extension extends Sequence<IEncodable>
 	public final Boolean	        critical() { return (Boolean         )get(1); }
 
 	// раскодированное значение атрибута
-	public final IEncodable extnValue() { return decoded; } private final IEncodable decoded; 
+	public final IEncodable extnValue() { return decoded; } private IEncodable decoded; 
 }

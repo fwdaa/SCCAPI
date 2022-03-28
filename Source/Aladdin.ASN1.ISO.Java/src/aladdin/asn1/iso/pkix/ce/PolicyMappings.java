@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class PolicyMappings extends Sequence<PolicyMapping>
 {
+    private static final long serialVersionUID = -3281204096475973506L;
+    
 	// конструктор при раскодировании
 	public PolicyMappings(IEncodable encodable) throws IOException 
 	{

@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class RelativeDistinguishedName extends Set<AttributeTypeValue>
 {
+    private static final long serialVersionUID = -6174285326087233431L;
+    
 	// конструктор при раскодировании
 	public RelativeDistinguishedName(IEncodable encodable) throws IOException
 	{

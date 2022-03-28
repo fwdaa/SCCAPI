@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECPKSupplements extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7652772337931428297L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

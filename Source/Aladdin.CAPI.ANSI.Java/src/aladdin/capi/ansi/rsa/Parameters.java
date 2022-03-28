@@ -7,6 +7,8 @@ import java.security.spec.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class Parameters extends RSAKeyGenParameterSpec implements IParameters
 {
+    private static final long serialVersionUID = 6673813195098845477L;
+    
     // конструктор
     public Parameters(int modulusBits, BigInteger publicExponent) 
     { 

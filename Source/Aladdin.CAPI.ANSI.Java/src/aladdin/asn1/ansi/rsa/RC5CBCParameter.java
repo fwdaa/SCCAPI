@@ -12,6 +12,8 @@ import java.io.*;
 
 public final class RC5CBCParameter extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -5259285225252509063L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

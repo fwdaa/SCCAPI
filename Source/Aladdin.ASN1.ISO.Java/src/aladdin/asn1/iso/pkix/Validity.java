@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class Validity extends Sequence<VisibleString>
 {
+    private static final long serialVersionUID = 1681565745523487026L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

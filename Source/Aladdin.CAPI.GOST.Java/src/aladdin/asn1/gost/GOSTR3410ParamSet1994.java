@@ -17,6 +17,8 @@ import java.util.*;
 
 public final class GOSTR3410ParamSet1994 extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 3929065680948900199L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

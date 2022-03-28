@@ -7,6 +7,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Field extends aladdin.math.Field<BigInteger>
 {
+    private static final long serialVersionUID = 1037580975082462768L;
+    
     // величина модуля
     private final BigInteger p;
 

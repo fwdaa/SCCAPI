@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class ObjectDigestInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -5788724948362088969L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

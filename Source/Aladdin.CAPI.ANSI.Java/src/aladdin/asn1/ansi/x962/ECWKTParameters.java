@@ -11,6 +11,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECWKTParameters extends Sequence<AlgorithmIdentifier>
 {
+    private static final long serialVersionUID = 8570973033010665712L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

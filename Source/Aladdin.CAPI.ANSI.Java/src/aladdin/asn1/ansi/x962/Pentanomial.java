@@ -12,6 +12,8 @@ import java.io.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class Pentanomial extends Sequence<Integer>
 {
+    private static final long serialVersionUID = -2793834533754765982L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

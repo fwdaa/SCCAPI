@@ -10,6 +10,8 @@ import java.util.*;
 
 public final class GOSTR3411ParamSet1994 extends Sequence<OctetString>
 {
+    private static final long serialVersionUID = 5276152301978876141L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

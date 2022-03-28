@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class EncapsulatedContentInfo extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -581353768563607995L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -13,6 +13,8 @@ import java.io.*;
 
 public final class CryptoProPrivateKeyParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 2787577905335138755L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using System.Runtime.Serialization;
@@ -18,6 +19,28 @@ namespace Aladdin.ASN1
 			// закодировать объект
 			return Encodable.Encode(tag, PC.Constructed, encodable.Encoded); 
 		}
+		// конструктор при сериализации
+        protected Explicit(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+			// получить конструктор при раскодировании
+			ConstructorInfo constructor = GetType().GetConstructor(
+				new Type[] { typeof(IEncodable) }
+			); 
+			// при отсутствии конструктора
+			if (constructor != null)
+			try {  
+				// создать объект 
+				Explicit instance = (Explicit)constructor.Invoke(new object[] { this }); 
+
+				// сохранить переменные объекта
+				value = instance.value; 
+			}
+			// обработать возможное исключение
+			catch (TargetInvocationException e) { throw e.InnerException; }
+		
+			// прочитать представление
+			else value = (IEncodable)info.GetValue("Inner", typeof(IEncodable)); 
+        }
 		// конструктор при раскодировании
 		public Explicit(IObjectFactory factory, IEncodable encodable) : base(encodable) 
 		{
@@ -49,17 +72,19 @@ namespace Aladdin.ASN1
         /////////////////////////////////////////////////////////////////////////////
         // Сохранение данных
         /////////////////////////////////////////////////////////////////////////////
-        protected Explicit(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            // прочитать представление
-            value = (IEncodable)info.GetValue("Inner", typeof(IEncodable)); 
-        }
         [SecurityCritical]
         [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]        
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             // сохранить бинарное представление
-            base.GetObjectData(info, context); info.AddValue("Inner", value); 
+            base.GetObjectData(info, context); 
+			
+			// получить конструктор при раскодировании
+			ConstructorInfo constructor = GetType().GetConstructor(
+				new Type[] { typeof(IEncodable) }
+			); 
+			// сохранить данные при отсутствии конструктора
+			if (constructor == null) info.AddValue("Inner", value); 
         }
 	}
 	///////////////////////////////////////////////////////////////////////////

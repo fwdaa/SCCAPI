@@ -14,12 +14,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		// конструктор
 		protected: BaseProvider(DWORD type, String^ name, bool sspi) : Provider(type, name, sspi) {}
 
-		// получить алгоритмы по умолчанию
-		public: virtual CAPI::Culture^ GetCulture(SecurityStore^ scope, String^ keyOID) override
-        {
-			// получить алгоритмы по умолчанию
-			return (gcnew ANSI::Factory())->GetCulture(scope, keyOID); 
-		}
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
 			Factory^ outer, SecurityStore^ scope, 

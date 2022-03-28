@@ -1,10 +1,11 @@
 package aladdin.math;
+import java.io.*;
 import java.math.*;
 
 ////////////////////////////////////////////////////////////////////////////
 // Интерфейс аддитивной группы
 ////////////////////////////////////////////////////////////////////////////
-public interface IAddGroup<E> 
+public interface IGroupAdd<E> extends Serializable
 {
     // признак нулевого элемента
     boolean isZero(E a); E zero();

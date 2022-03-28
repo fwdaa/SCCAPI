@@ -10,6 +10,8 @@ import java.io.*;
 //}
 public final class OtherPrimeInfo extends Sequence<Integer>
 {
+    private static final long serialVersionUID = 5777406538413810669L;
+        
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

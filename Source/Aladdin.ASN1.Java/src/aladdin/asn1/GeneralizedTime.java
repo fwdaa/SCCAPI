@@ -7,6 +7,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class GeneralizedTime extends VisibleString
 {
+    private static final long serialVersionUID = -633192662888974738L;
+
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.GENERALIZEDTIME); }
     
@@ -39,7 +41,19 @@ public final class GeneralizedTime extends VisibleString
     // конструктор при раскодировании
     public GeneralizedTime(IEncodable encodable) throws IOException
     {
-    	super(encodable); String encoded = str(); String frac = "";
+        // инициализировать объект
+    	super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        String encoded = str(); String frac = "";
 
         // использовать время по Гринвичу
         TimeZone timeZone = TimeZone.getDefault(); 
@@ -145,7 +159,7 @@ public final class GeneralizedTime extends VisibleString
         calendar.add(Calendar.HOUR, hhz); calendar.add(Calendar.MINUTE, mmz); 
         
         // сохранить время
-        time = calendar.getTime(); this.fractional = frac;
+        time = calendar.getTime(); this.fractional = frac;    
     }
     // конструктор при закодировании
     public GeneralizedTime(Date time) 
@@ -168,5 +182,5 @@ public final class GeneralizedTime extends VisibleString
     public final Date date() { return time; }
 
     // время и дробная часть секунд
-    private final Date time; private final String fractional;
+    private Date time; private String fractional;
 }

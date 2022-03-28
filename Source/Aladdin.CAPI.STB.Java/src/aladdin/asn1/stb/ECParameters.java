@@ -18,6 +18,8 @@ import java.util.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class ECParameters extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 8688221409511455199L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

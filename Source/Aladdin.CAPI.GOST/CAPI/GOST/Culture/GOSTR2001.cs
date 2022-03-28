@@ -6,6 +6,8 @@
     public class GOSTR2001 : GOST28147
     {
         // конструктор
+        public GOSTR2001() : this(ASN1.GOST.OID.encrypts_A) {}
+        // конструктор
         public GOSTR2001(string encryptionParams) : base(encryptionParams) {}
 
         // параметры алгоритмов

@@ -7,6 +7,8 @@ import java.io.*;
 
 public final class TeletexDomainDefinedAttributes extends Sequence<TeletexDomainDefinedAttribute>
 {
+    private static final long serialVersionUID = 5667628547359538429L;
+    
 	// конструктор при раскодировании
 	public TeletexDomainDefinedAttributes(IEncodable encodable) throws IOException
 	{ 

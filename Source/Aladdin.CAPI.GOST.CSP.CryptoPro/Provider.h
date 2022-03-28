@@ -66,24 +66,6 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 	    // поддерживаемые фабрики кодирования ключей
 		public: virtual array<KeyFactory^>^ KeyFactories() override; 
 
-		// получить алгоритмы по умолчанию
-		public: virtual CAPI::Culture^ GetCulture(SecurityStore^ scope, String^ keyOID) override
-        {
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew GOST::Factory()); 
-
-			// получить алгоритмы по умолчанию
-			return factory.Get()->GetCulture(scope, keyOID); 
-		}
-		// получить алгоритмы по умолчанию
-		public: virtual PBE::PBECulture^ GetCulture(PBE::PBEParameters^ parameters, String^ keyOID) override
-        {
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew GOST::Factory()); 
-
-			// получить алгоритмы по умолчанию
-			return factory.Get()->GetCulture(parameters, keyOID); 
-		}
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
 			CAPI::Factory^ outer, SecurityStore^ scope, 

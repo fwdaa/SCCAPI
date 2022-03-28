@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class CertificateList extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 8020198960971862409L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

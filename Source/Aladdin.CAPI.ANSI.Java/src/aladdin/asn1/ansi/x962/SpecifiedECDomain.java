@@ -22,6 +22,8 @@ import java.util.*;
 ////////////////////////////////////////////////////////////////////////////////
 public final class SpecifiedECDomain extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8092051869739935396L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

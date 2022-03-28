@@ -64,24 +64,6 @@ namespace Aladdin.CAPI.GOST.PKCS11
             // вернуть список ключей
             return keyOIDs.ToArray(); 
 	    }
-        public override CAPI.Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            // указать фабрику алгоритмов
-            using (Factory factory = new CAPI.GOST.Factory())
-            {
-                // получить алгоритмы по умолчанию
-                return factory.GetCulture(scope, keyOID); 
-            }
-        }
-        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID) 
-        {
-            // указать фабрику алгоритмов
-            using (Factory factory = new CAPI.GOST.Factory())
-            {
-                // получить алгоритмы по умолчанию
-                return factory.GetCulture(parameters, keyOID); 
-            }
-        }
 		// атрибуты открытого и личного ключа
 		public override CAPI.PKCS11.Attribute[] PublicKeyAttributes(
             CAPI.PKCS11.Applet applet, IPublicKey publicKey, MechanismInfo info)

@@ -21,24 +21,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// ”правление алгоритмами
 		///////////////////////////////////////////////////////////////////////
 
-		// получить алгоритмы по умолчанию
-		public: virtual CAPI::Culture^ GetCulture(SecurityStore^ scope, String^ keyOID) override
-        {
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew ANSI::Factory()); 
-
-			// получить алгоритмы по умолчанию
-			return factory.Get()->GetCulture(scope, keyOID); 
-		}
-		// получить алгоритмы по умолчанию
-		public: virtual PBE::PBECulture^ GetCulture(PBE::PBEParameters^ parameters, String^ keyOID) override
-        {
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew ANSI::Factory()); 
-
-			// получить алгоритмы по умолчанию
-			return factory.Get()->GetCulture(parameters, keyOID); 
-		}
 		// фабрика генераторов случайных данных
 		public:	virtual IRandFactory^ CreateRandFactory(SecurityObject^ scope, bool strong) override 
 		{ 

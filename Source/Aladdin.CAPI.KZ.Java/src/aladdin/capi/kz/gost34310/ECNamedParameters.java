@@ -8,6 +8,8 @@ import aladdin.capi.*;
 public class ECNamedParameters extends aladdin.capi.gost.gostr3410.ECNamedParameters2001
     implements INamedParameters
 {    
+    private static final long serialVersionUID = -5595401322126263308L;
+    
     // конструктор
     public ECNamedParameters(String oid, String paramOID) 
     {

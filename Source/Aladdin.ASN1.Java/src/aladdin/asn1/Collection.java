@@ -1,12 +1,15 @@
 package aladdin.asn1;
 import java.util.*; 
 import java.io.*; 
+import java.lang.reflect.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Коллекция объектов
 ///////////////////////////////////////////////////////////////////////////
 public class Collection<T extends IEncodable> extends Encodable implements Iterable<T>
 {
+    private static final long serialVersionUID = -7416893672395847585L;
+    
     ///////////////////////////////////////////////////////////////////////
     // Функции коллекции элементов
     ///////////////////////////////////////////////////////////////////////
@@ -15,7 +18,7 @@ public class Collection<T extends IEncodable> extends Encodable implements Itera
     	List<T> invoke(ObjectInfo[] info, List<IEncodable> encodables) throws IOException;
     }
     // коллекция элементов
-    private final List<T> values; private final ObjectInfo[] info;
+    private List<T> values; private ObjectInfo[] info;
     
     // конструктор при раскодировании
     public Collection(IEncodable encodable, ObjectInfo[] info, ICastCallback<T> callback) throws IOException
@@ -43,7 +46,7 @@ public class Collection<T extends IEncodable> extends Encodable implements Itera
     }
     // конструктор при раскодировании
     @SuppressWarnings({"unchecked"}) 
-    public Collection(IEncodable encodable, ObjectInfo info, ICastCallback<T> callback) throws IOException
+    public Collection(IEncodable encodable, ObjectInfo info) throws IOException
     {
         // создать список объектов
         super(encodable); values = new ArrayList<T>();
@@ -131,6 +134,31 @@ public class Collection<T extends IEncodable> extends Encodable implements Itera
 			catch (IOException e) { throw new IllegalArgumentException(); }
 		}
     }
+    // сериализация
+    @SuppressWarnings({"rawtypes", "unchecked"}) 
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // выполнить дополнительные вычисления 
+        super.readObject(ois); 
+        try {
+            // получить конструктор при раскодировании
+            Constructor constructor = getClass().getConstructor(IEncodable.class); 
+			try {  
+				// создать объект 
+				Collection instance = (Collection)constructor.newInstance(this); 
+
+				// сохранить внутренние поля объекта
+				values = instance.values; info = instance.info; 
+			}
+			// обработать возможное исключение
+			catch (InvocationTargetException e) { throw e.getCause(); }
+        }
+        // обработать возможное исключение
+        catch (IOException e) { throw e; }
+        
+        // обработать возможное исключение
+        catch (Throwable e) { throw new IOException(e); }
+    }    
     // содержимое объекта
     @Override protected final byte[] evaluateContent()
     {

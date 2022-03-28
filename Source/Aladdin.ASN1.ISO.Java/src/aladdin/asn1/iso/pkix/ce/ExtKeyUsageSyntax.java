@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class ExtKeyUsageSyntax extends Sequence<ObjectIdentifier>
 {
+    private static final long serialVersionUID = 3395090662622544339L;
+    
 	// конструктор при раскодировании
 	public ExtKeyUsageSyntax(IEncodable encodable) throws IOException 
 	{

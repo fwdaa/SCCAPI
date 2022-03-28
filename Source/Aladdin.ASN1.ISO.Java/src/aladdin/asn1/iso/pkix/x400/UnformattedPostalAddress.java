@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class UnformattedPostalAddress extends Set<IEncodable>
 {
+    private static final long serialVersionUID = -7797337612740386358L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

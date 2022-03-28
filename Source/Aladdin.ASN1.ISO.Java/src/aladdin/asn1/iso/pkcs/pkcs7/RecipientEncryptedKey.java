@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class RecipientEncryptedKey extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -7905552546133249862L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

@@ -7,6 +7,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class VideotexString extends OctetString
 {
+    private static final long serialVersionUID = 96864326161807096L;
+    
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.VIDEOTEXSTRING); }
     
@@ -39,7 +41,20 @@ public final class VideotexString extends OctetString
     // конструктор при раскодировании
     public VideotexString(IEncodable encodable) throws IOException
     {
-        super(encodable); string = new String(content()); 
+        // инициализировать объект
+        super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
+        // раскодировать объект
+        string = new String(content()); 
     }
     // конструктор при закодировании
     public VideotexString(String value) 
@@ -47,5 +62,5 @@ public final class VideotexString extends OctetString
         super(Tag.VIDEOTEXSTRING, value.getBytes()); string = value; 
     }
     // строка символов
-    public final String str() { return string; } private final String string;
+    public final String str() { return string; } private String string;
 }

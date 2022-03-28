@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class TeletexOrganizationalUnitNames extends Sequence<TeletexString>
 {
+    private static final long serialVersionUID = 4826072600004290635L;
+    
 	// конструктор при раскодировании
 	public TeletexOrganizationalUnitNames(IEncodable encodable) throws IOException 
 	{

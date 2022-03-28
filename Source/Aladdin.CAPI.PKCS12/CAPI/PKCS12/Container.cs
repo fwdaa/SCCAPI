@@ -19,7 +19,7 @@ namespace Aladdin.CAPI.PKCS12
             ASN1.ISO.PKCS.PKCS12.PFX pfx) : base(store, stream)
         { 
             // сохранить переданные параметры
-            this.cultureFactory = RefObject.AddRef(cultureFactory); 
+            this.cultureFactory = cultureFactory; 
 
             // сохранить переданные параметры
             container = new PfxAuthenticatedEncryptedContainer(pfx, Provider, rand); 
@@ -28,7 +28,7 @@ namespace Aladdin.CAPI.PKCS12
         protected override void OnDispose()
         {
             // освободить выделенные ресурсы
-            RefObject.Release(container); RefObject.Release(cultureFactory); base.OnDispose();
+            RefObject.Release(container); base.OnDispose();
         }
 	    // содержимое контейнера
 	    public override byte[] Encoded { get { return container.Encoded.Encoded; }}
@@ -745,7 +745,7 @@ namespace Aladdin.CAPI.PKCS12
 			    else if (itemKey == null && itemReq != null)
 			    {
                     // получить тип парольной защиты
-                    PBE.PBECulture culture = cultureFactory.GetCulture(rand.Window, keyOID); 
+                    PBE.PBECulture culture = cultureFactory.GetPBECulture(rand.Window, keyOID); 
                      
                     // проверить поддержку защиты
                     if (culture == null) throw new NotSupportedException(); 
@@ -766,7 +766,7 @@ namespace Aladdin.CAPI.PKCS12
 			    else if (itemKey == null && itemCert != null)
 			    {
                     // получить тип парольной защиты
-                    PBE.PBECulture culture = cultureFactory.GetCulture(rand.Window, keyOID); 
+                    PBE.PBECulture culture = cultureFactory.GetPBECulture(rand.Window, keyOID); 
                      
                     // проверить поддержку защиты
                     if (culture == null) throw new NotSupportedException(); 
@@ -827,7 +827,7 @@ namespace Aladdin.CAPI.PKCS12
                     secretBag, attributes
 			    ); 
                 // получить тип парольной защиты
-                PBE.PBECulture culture = cultureFactory.GetCulture(rand.Window, keyOID); 
+                PBE.PBECulture culture = cultureFactory.GetPBECulture(rand.Window, keyOID); 
                  
                 // проверить поддержку защиты
                 if (culture == null) throw new NotSupportedException(); 

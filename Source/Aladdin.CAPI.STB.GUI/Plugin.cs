@@ -8,7 +8,7 @@ namespace Aladdin.CAPI.STB.GUI
     // Расширение криптографических культур
     ///////////////////////////////////////////////////////////////////////////
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-    public class Plugin : RefObject, ICulturePlugin
+    public class Plugin : RefObject, ICulturePlugin 
     { 
         // параметры шифрования по паролю
         private PBE.PBEParameters pbeParameters; 
@@ -111,7 +111,7 @@ namespace Aladdin.CAPI.STB.GUI
             }
             throw new NotSupportedException(); 
         }
-        public PBE.PBECulture GetCulture(object window, string keyOID)
+        public PBE.PBECulture GetPBECulture(object window, string keyOID)
         { 
             // создать диалог выбора криптографической культуры
             CAPI.GUI.CultureDialog dialog = new CAPI.GUI.CultureDialog(

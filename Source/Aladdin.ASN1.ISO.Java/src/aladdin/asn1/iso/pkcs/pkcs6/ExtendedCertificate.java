@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class ExtendedCertificate extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = 7165282821544588045L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

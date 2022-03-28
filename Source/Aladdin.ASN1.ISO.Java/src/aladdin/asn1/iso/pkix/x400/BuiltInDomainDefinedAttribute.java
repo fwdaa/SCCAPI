@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class BuiltInDomainDefinedAttribute extends Sequence<PrintableString>
 {
+    private static final long serialVersionUID = 6841437510076698972L;
+    
     // информация о структуре
     private static final ObjectInfo[] info = new ObjectInfo[] { 
 

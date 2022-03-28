@@ -69,6 +69,12 @@ public class DSS extends aladdin.capi.Culture
             keyWrapAlgorithm(rand)
         ); 
     }
+    // параметры шифрования по паролю
+    @Override public PBECulture pbe(PBEParameters parameters)
+    {
+        // вернуть параметры шифрования по паролю
+        return new PKCS12(parameters); 
+    }
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////

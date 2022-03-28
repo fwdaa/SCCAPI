@@ -12,6 +12,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class BDSBDHKeyValue extends Sequence<Integer> 
 {
+    private static final long serialVersionUID = -717962434006509785L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
         

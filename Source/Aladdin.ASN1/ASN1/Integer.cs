@@ -42,11 +42,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private Integer(SerializationInfo info, StreamingContext context)
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-		
-		// дополнительные вычисления при сериализации
-        public void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
         {
 			// проверить корректность способа кодирования
 			if (PC != PC.Primitive) throw new InvalidDataException();
@@ -58,7 +55,7 @@ namespace Aladdin.ASN1
 			this.value = new Math.BigInteger(Content);  
         }
 		// конструктор при раскодировании
-		public Integer(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public Integer(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public Integer(Math.BigInteger value) : base(Tag.Integer) { this.value = value; }

@@ -87,65 +87,6 @@ public final class Factory extends aladdin.capi.Factory
         }; 
 	}
 	///////////////////////////////////////////////////////////////////////
-    // Используемые алгоритмы по умолчанию
-	///////////////////////////////////////////////////////////////////////
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        if (keyOID.equals(OID.GOSTR3410_1994)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR1994(
-                OID.ENCRYPTS_A
-            ); 
-        }
-        if (keyOID.equals(OID.GOSTR3410_2001)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR2001(
-                OID.ENCRYPTS_A
-            ); 
-        }
-        if (keyOID.equals(OID.GOSTR3410_2012_256)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR2012_256(); 
-        }
-        if (keyOID.equals(OID.GOSTR3410_2012_512)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR2012_512(); 
-        }
-        return null; 
-    }
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        if (keyOID.equals(OID.GOSTR3410_1994)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR1994.PKCS12(
-                OID.ENCRYPTS_A, parameters
-            ); 
-        }
-        if (keyOID.equals(OID.GOSTR3410_2001)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR2001.PKCS12(
-                OID.ENCRYPTS_A, parameters
-            ); 
-        }
-        if (keyOID.equals(OID.GOSTR3410_2012_256)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR2012_256.PKCS12(parameters); 
-        }
-        if (keyOID.equals(OID.GOSTR3410_2012_512)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.gost.culture.GOSTR2012_512.PKCS12(parameters); 
-        }
-        return null; 
-    }
-	///////////////////////////////////////////////////////////////////////
 	// Cоздать алгоритм генерации ключей
 	///////////////////////////////////////////////////////////////////////
 	@Override protected KeyPairGenerator createGenerator(

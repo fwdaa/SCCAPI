@@ -15,11 +15,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private BitFlags(SerializationInfo info, StreamingContext context) 
 			
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public new void OnDeserialization(object sender)		
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()		
 		{
 			// определить последний ненулевой байт
 			int cb = value.Length; while (cb >= 1 && value[cb - 1] == 0) cb--; 
@@ -28,7 +25,7 @@ namespace Aladdin.ASN1
 			Array.Resize(ref value, cb); numeric = BitString.ToFlags(value, bits); 
 		}
 		// конструктор при раскодировании
-		public BitFlags(IEncodable encodable) : base(encodable) { OnDeserialization(this); }
+		public BitFlags(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
 		public BitFlags(Int64 flags) : base(new byte[8], 64) 

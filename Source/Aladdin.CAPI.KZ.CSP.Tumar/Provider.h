@@ -44,24 +44,6 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 			// поддерживаемые фабрики кодирования ключей
 			return factory.Get()->KeyFactories(); 
 		}
-		// получить алгоритмы по умолчанию
-		public: virtual CAPI::Culture^ GetCulture(SecurityStore^ scope, String^ keyOID) override
-        {
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew KZ::Factory()); 
-
-			// получить алгоритмы по умолчанию
-			return factory.Get()->GetCulture(scope, keyOID); 
-		}
-		// получить алгоритмы по умолчанию
-		public: virtual PBE::PBECulture^ GetCulture(PBE::PBEParameters^ parameters, String^ keyOID) override
-        {
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew KZ::Factory()); 
-
-			// получить алгоритмы по умолчанию
-			return factory.Get()->GetCulture(parameters, keyOID); 
-		}
 		// создать алгоритм генерации ключей
 		public protected: virtual KeyPairGenerator^ CreateGenerator(
 			CAPI::Factory^ outer, SecurityObject^ scope, 

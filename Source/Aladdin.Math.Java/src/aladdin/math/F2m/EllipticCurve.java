@@ -6,6 +6,8 @@ import aladdin.math.*;
 ///////////////////////////////////////////////////////////////////////
 public class EllipticCurve extends aladdin.math.EllipticCurve<Vector, Field>
 {
+    private static final long serialVersionUID = 3198178876729604740L;
+    
     // коэффициенты эллиптической кривой
     private final Field field; private final Vector a; private final Vector b;
 

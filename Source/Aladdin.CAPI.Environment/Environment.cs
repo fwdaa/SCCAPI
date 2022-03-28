@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace Aladdin.CAPI
 	// Криптографическая среда
 	///////////////////////////////////////////////////////////////////////////
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-	public class CryptoEnvironment : ExecutionContext, IParametersFactory
+	public class CryptoEnvironment : ExecutionContext, IParametersFactory, ICultureFactory
 	{
         // фабрики алгоритмов и криптопровайдеры
 		private Factories factories; private List<CryptoProvider> providers; 
@@ -18,14 +19,13 @@ namespace Aladdin.CAPI
         // фабрики генераторов случайных данных
         private List<IRandFactory> randFactories; private bool hardwareRand; 
         
-        // отображаемые имена ключей по идентификатору
-        private Dictionary<String, String> names;
-
-        // имена расширений по идентификатору ключей
-        private Dictionary<String, String> mappings; 
-
-        // расширения криптографических культур по именам 
+        // расширения по именам 
         private Dictionary<String, GuiPlugin> plugins;
+
+        // отображения по идентификаторам ключей
+        private Dictionary<String, String > keyNames;       // имена ключей
+        private Dictionary<String, String > keyPlugins;     // имена расширений
+        private Dictionary<String, Culture> keyCultures;    // параметры алгоритмов
 
         // конструктор
 		public CryptoEnvironment(string file) 
@@ -33,6 +33,12 @@ namespace Aladdin.CAPI
 			// прочитать среду из файла
 			: this(Environment.ConfigSection.FromFile(file)) {} 
 		
+        // конструктор
+		public CryptoEnvironment(Stream stream) 
+
+			// прочитать среду из файла
+			: this(Environment.ConfigSection.FromStream(stream)) {} 
+
         // конструктор
 		public CryptoEnvironment(XmlDocument document) 
 
@@ -43,9 +49,10 @@ namespace Aladdin.CAPI
         public CryptoEnvironment(Environment.ConfigSection section)
 		{
             // инициализировать переменные
-		    names      = new Dictionary<String, String   >();
-            mappings   = new Dictionary<String, String   >();
-            plugins    = new Dictionary<String, GuiPlugin>();
+            plugins     = new Dictionary<String, GuiPlugin>();
+            keyNames    = new Dictionary<String, String   >();
+            keyPlugins  = new Dictionary<String, String   >();
+		    keyCultures = new Dictionary<String, Culture  >();
 
             // получить параметры сборки
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName(); 
@@ -112,12 +119,18 @@ namespace Aladdin.CAPI
             try {
                 // проверить наличие описания семейства
                 if (!plugins.ContainsKey(element.Plugin)) throw new NotFoundException();
-                
-                // добавить отображаемое имя
-                names.Add(element.OID, element.Name); 
 
-                // добавить отображение имени
-                mappings.Add(element.OID, element.Plugin); 
+                // определить класс культуры
+                string className = element.Class + identityString; 
+
+                // добавить культуру в список
+                keyCultures.Add(element.OID, (Culture)LoadObject(className)); 
+
+                // сохранить имя ключа
+                keyNames.Add(element.OID, element.Name); 
+
+                // добавить имя расширения 
+                keyPlugins.Add(element.OID, element.Plugin); 
             }
             // создать список криптопровайдеров
             catch {} providers = new List<CryptoProvider>(); 
@@ -197,32 +210,43 @@ namespace Aladdin.CAPI
         public virtual IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             // проверить наличие расширения 
-            if (!mappings.ContainsKey(keyOID)) throw new NotFoundException();
+            if (!keyPlugins.ContainsKey(keyOID)) throw new NotFoundException();
 
             // отобразить диалог выбора параметров ключа
-            return plugins[mappings[keyOID]].GetParameters(rand, keyOID, keyUsage);
+            return plugins[keyPlugins[keyOID]].GetParameters(rand, keyOID, keyUsage);
         }
         public String GetKeyName(string keyOID)
         {
             // отображаемое имя идентификатора
-            return names.ContainsKey(keyOID) ? names[keyOID] : keyOID;
+            return keyNames.ContainsKey(keyOID) ? keyNames[keyOID] : keyOID;
+        }
+        ///////////////////////////////////////////////////////////////////////
+        // Параметры алгоритмов по умолчанию
+        ///////////////////////////////////////////////////////////////////////
+        public virtual Culture GetCulture(string keyOID)
+        {
+            // проверить наличие расширения 
+            if (!keyCultures.ContainsKey(keyOID)) throw new NotFoundException();
+
+            // вернуть параметры алгоритмов по умолчанию
+            return keyCultures[keyOID]; 
         }
         ///////////////////////////////////////////////////////////////////////
         // Парольная защита для контейнера PKCS12
         ///////////////////////////////////////////////////////////////////////
-        public override PBE.PBECulture GetCulture(object window, string keyOID)
+        public override PBE.PBECulture GetPBECulture(object window, string keyOID)
         {
             // проверить наличие расширения 
-            if (!mappings.ContainsKey(keyOID)) throw new NotFoundException();
+            if (!keyPlugins.ContainsKey(keyOID)) throw new NotFoundException();
 
             // получить соответствующий плагин
-            GuiPlugin plugin = plugins[mappings[keyOID]]; 
+            GuiPlugin plugin = plugins[keyPlugins[keyOID]]; 
 
             // отобразить диалог выбора криптографической культуры
-            if (window != null) return plugin.GetCulture(window, keyOID); 
+            if (window != null) return plugin.GetPBECulture(window, keyOID); 
              
             // вернуть парольную защиту по умолчанию
-            return factories.GetCulture(plugin.PBEParameters, keyOID); 
+            return GetCulture(keyOID).PBE(plugin.PBEParameters); 
         }
         ///////////////////////////////////////////////////////////////////////
         // Cоздать генератор случайных данных

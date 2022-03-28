@@ -9,6 +9,8 @@ import java.io.*;
 
 public final class CertBag extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8442758993113829165L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

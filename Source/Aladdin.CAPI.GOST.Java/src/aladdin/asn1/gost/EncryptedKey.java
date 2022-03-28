@@ -10,6 +10,8 @@ import java.io.*;
 
 public final class EncryptedKey extends Sequence<OctetString>
 {
+    private static final long serialVersionUID = 7690035948344465889L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

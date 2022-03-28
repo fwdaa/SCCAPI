@@ -11,8 +11,10 @@ import java.io.*;
 
 public final class CountryName extends Explicit<IEncodable>
 {
+    private static final long serialVersionUID = -2153097679986556332L;
+    
     // допустимые типы объекта
-    public static boolean IsValidTag(Tag tag) { return tag.equals(Tag.application(1)); }
+    public static boolean isValidTag(Tag tag) { return tag.equals(Tag.application(1)); }
 
     // информация о структуре
     private static final ObjectInfo[] info = new ObjectInfo[] { 

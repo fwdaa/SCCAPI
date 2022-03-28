@@ -371,8 +371,8 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Выполнение криптографических операций
         ///////////////////////////////////////////////////////////////////////
-        public byte[] EncryptData(IRand rand, Certificate certificate, 
-            Certificate[] recipientCertificates, 
+        public byte[] EncryptData(IRand rand, Culture culture, 
+            Certificate certificate, Certificate[] recipientCertificates, 
             CMSData data, ASN1.ISO.Attributes attributes)
         {
     	    // открыть контейнер
@@ -383,7 +383,7 @@ namespace Aladdin.CAPI
                 using (IRand rebindRand = selector.RebindRand(rand))
                 {
                     // зашифровать данные
-                    return container.EncryptData(rebindRand, 
+                    return container.EncryptData(rebindRand, culture, 
                         certificate, recipientCertificates, data, attributes
                     ); 
                 }
@@ -399,7 +399,8 @@ namespace Aladdin.CAPI
                 return container.DecryptData(contentInfo);
             }
         }
-        public byte[] SignData(IRand rand, Certificate certificate, CMSData data, 
+        public byte[] SignData(IRand rand, Culture culture, 
+            Certificate certificate, CMSData data, 
             ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
         {
     	    // открыть контейнер
@@ -410,7 +411,7 @@ namespace Aladdin.CAPI
                 using (IRand rebindRand = selector.RebindRand(rand))
                 {
                     // подписать данные
-                    return container.SignData(rebindRand, 
+                    return container.SignData(rebindRand, culture, 
                         certificate, data, authAttributes, unauthAttributes
                     );
                 }

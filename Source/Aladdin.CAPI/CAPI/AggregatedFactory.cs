@@ -35,28 +35,6 @@ namespace Aladdin.CAPI
         // поддерживаемые ключи
         public override KeyFactory[] KeyFactories() { return outer.KeyFactories(); }
 
-        public override Culture GetCulture(SecurityStore scope, string keyOID) 
-        {
-            // получить алгоритмы по умолчанию
-            Culture culture = factory.GetCulture(scope, keyOID); 
-        
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
-                
-            // создать алгоритмы из внешней фабрики
-            return outer.GetCulture(scope, keyOID); 
-        }
-        public override PBE.PBECulture GetCulture(PBE.PBEParameters parameters, string keyOID) 
-        {
-            // получить алгоритмы по умолчанию
-            PBE.PBECulture culture = factory.GetCulture(parameters, keyOID); 
-        
-            // проверить наличие алгоритмов
-            if (culture != null) return culture; 
-                
-            // создать алгоритмы из внешней фабрики
-            return outer.GetCulture(parameters, keyOID); 
-        }
         public override KeyPairGenerator CreateGenerator(
             SecurityObject scope, IRand rand, string keyOID, IParameters parameters)
         {

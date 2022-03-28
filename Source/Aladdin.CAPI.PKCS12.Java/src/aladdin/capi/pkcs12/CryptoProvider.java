@@ -49,19 +49,13 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
         super(factories, executionContext, "PKCS12", EXTENSIONS); 
         
         // сохранить парольную защиту
-        this.cultureFactory = RefObject.addRef(executionContext); 
+        this.cultureFactory = executionContext; 
     }
 	// конструктор
 	public CryptoProvider(Iterable<Factory> factories, IRandFactory randFactory) 
     { 
         // сохранить переданные параметры
         super(factories, randFactory, "PKCS12", EXTENSIONS); this.cultureFactory = null; 
-    }
-    // освободить выделенные ресурсы
-    @Override protected void onClose() throws IOException   
-    {
-        // освободить выделенные ресурсы
-		RefObject.release(cultureFactory); super.onClose(); 
     }
 	///////////////////////////////////////////////////////////////////////
     // Генерация случайных данных
@@ -99,7 +93,7 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
         if (password == null || cultureFactory == null) throw new IllegalStateException(); 
         
         // выполнить преобразование типа
-        PBECulture culture = cultureFactory.getCulture(rand.window(), keyOID); 
+        PBECulture culture = cultureFactory.getPBECulture(rand.window(), keyOID); 
         
         // проверить поддержку защиты
         if (culture == null) throw new UnsupportedOperationException(); 

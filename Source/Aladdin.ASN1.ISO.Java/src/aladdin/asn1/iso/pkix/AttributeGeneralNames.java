@@ -11,6 +11,8 @@ import java.io.*;
 
 public final class AttributeGeneralNames extends Sequence<IEncodable>
 {
+    private static final long serialVersionUID = -8675581610622444090L;
+    
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 

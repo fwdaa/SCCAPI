@@ -75,6 +75,12 @@ public class RSA extends aladdin.capi.Culture
         // вернуть параметры алгоритма
         return ciphermentAlgorithm(rand); 
     }
+    // параметры шифрования по паролю
+    @Override public PBECulture pbe(PBEParameters parameters)
+    {
+        // вернуть параметры шифрования по паролю
+        return new PKCS12(parameters); 
+    }
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////

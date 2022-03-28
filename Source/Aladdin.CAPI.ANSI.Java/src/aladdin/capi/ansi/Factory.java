@@ -49,69 +49,6 @@ public final class Factory extends aladdin.capi.Factory
         }; 
 	}
 	///////////////////////////////////////////////////////////////////////
-    // Используемые алгоритмы по умолчанию
-	///////////////////////////////////////////////////////////////////////
-    @Override public Culture getCulture(SecurityStore scope, String keyOID) 
-    {
-        if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA))
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.RSA(); 
-        }
-        if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP) || 
-            keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS))
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.RSAOP(); 
-        }
-        if (keyOID.equals(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.DSS(); 
-        }
-        if (keyOID.equals(aladdin.asn1.ansi.OID.X957_DSA)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.DSS(); 
-        }
-        if (keyOID.equals(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.ECDSS_256(); 
-        }
-        return null; 
-    }
-    @Override public PBECulture getCulture(PBEParameters parameters, String keyOID) 
-    {
-        if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA))
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.RSA.PKCS12(parameters); 
-        }
-        if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP) || 
-            keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS))
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.RSAOP.PKCS12(parameters); 
-        }
-        if (keyOID.equals(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.DSS.PKCS12(parameters); 
-        }
-        if (keyOID.equals(aladdin.asn1.ansi.OID.X957_DSA)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.DSS.PKCS12(parameters); 
-        }
-        if (keyOID.equals(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)) 
-        {
-            // вернуть параметры по умолчанию
-            return new aladdin.capi.ansi.culture.ECDSS_256.PKCS12(parameters); 
-        }
-        return null; 
-    }
-	///////////////////////////////////////////////////////////////////////
 	// Cоздать алгоритм генерации ключей
 	///////////////////////////////////////////////////////////////////////
 	@Override protected KeyPairGenerator createGenerator(

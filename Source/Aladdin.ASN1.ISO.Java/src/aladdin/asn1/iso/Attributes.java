@@ -6,6 +6,8 @@ import java.io.*;
 
 public final class Attributes extends Set<Attribute>
 {
+    private static final long serialVersionUID = -4595331842968457284L;
+    
 	// конструктор при раскодировании
 	public Attributes(IEncodable encodable) throws IOException 
 	{ 

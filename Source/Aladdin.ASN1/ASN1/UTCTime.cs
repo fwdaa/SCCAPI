@@ -35,11 +35,8 @@ namespace Aladdin.ASN1
 		// конструктор при сериализации
         private UTCTime(SerializationInfo info, StreamingContext context) 
 
-			// выполнить дополнительные вычисления 
-			: base(info, context) { OnDeserialization(this); }
-
-		// дополнительные вычисления при сериализации
-		public new void OnDeserialization(object sender)
+			// инициализировать объект
+			: base(info, context) { Init(); } private void Init()
 		{
 			string value = base.Value; 
 
@@ -87,7 +84,7 @@ namespace Aladdin.ASN1
 			time = time.AddHours((double)hhz).AddMinutes((double)mmz);		}
 
 		// конструктор при раскодировании
-		public UTCTime(IEncodable encodable) : base(encodable) { OnDeserialization(this); } 
+		public UTCTime(IEncodable encodable) : base(encodable) { Init(); } 
 
 		// конструктор при закодировании
 		public UTCTime(DateTime time) : 

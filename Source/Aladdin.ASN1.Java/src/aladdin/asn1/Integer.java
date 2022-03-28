@@ -7,6 +7,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class Integer extends AsnObject
 {
+    private static final long serialVersionUID = 1841353454133299997L;
+
     // проверить допустимость типа
     public static boolean isValidTag(Tag tag) { return tag.equals(Tag.INTEGER); }
     
@@ -41,25 +43,33 @@ public final class Integer extends AsnObject
     // конструктор при раскодировании
     public Integer(IEncodable encodable) throws IOException
     {
-    	super(encodable);
-
+        // инициализировать объект
+    	super(encodable); init(); 
+    }
+    // сериализация
+    @Override protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        // прочитать объект
+        super.readObject(ois); init(); 
+    }    
+    // инициализировать объект
+    private void init() throws IOException
+    {
         // проверить корректность способа кодирования
-		if (encodable.pc() != PC.PRIMITIVE) throw new IOException();
+		if (pc() != PC.PRIMITIVE) throw new IOException();
 
 		// проверить корректность объекта
-		if (encodable.content().length == 0) throw new IOException();
+		if (content().length == 0) throw new IOException();
 
 		// раскодировать целое число со знаком
-		this.value = new BigInteger(encodable.content());
+		this.value = new BigInteger(content());
     }
     // конструктор при закодировании
-    public Integer(BigInteger value)
-    {
-        super(Tag.INTEGER); this.value = value;
-    }
+    public Integer(BigInteger value) { super(Tag.INTEGER); this.value = value; }
+    
     // конструктор при закодировании
     public Integer(int value) { this(BigInteger.valueOf(value)); }
-
+    
     // способ кодирования для DER-кодировки
     @Override protected final PC derPC() { return PC.PRIMITIVE; }
 
@@ -67,5 +77,7 @@ public final class Integer extends AsnObject
     @Override protected final byte[] derContent() { return value.toByteArray(); }
 
     // целое число со знаком
-    public final BigInteger value() { return value; } private final BigInteger value;
+    public final BigInteger value() { return value; } private BigInteger value;
+    
+    
 }
