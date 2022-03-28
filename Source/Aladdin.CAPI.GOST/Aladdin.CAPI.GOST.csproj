@@ -153,6 +153,8 @@
     <Compile Include="CAPI\GOST\Mode\GOSTR3412\ECB.cs" />
     <Compile Include="CAPI\GOST\Mode\GOSTR3412\OFB.cs" />
     <Compile Include="CAPI\GOST\Rnd\TC026.cs" />
+    <Compile Include="CAPI\GOST\Rnd\TC026_GOSTR3411_2012_256.cs" />
+    <Compile Include="CAPI\GOST\Rnd\TC026_GOSTR3411_2012_512.cs" />
     <Compile Include="CAPI\GOST\Sign\GOSTR3410\DHSignHash.cs" />
     <Compile Include="CAPI\GOST\Sign\GOSTR3410\DHVerifyHash.cs" />
     <Compile Include="CAPI\GOST\Sign\GOSTR3410\ECSignHash.cs" />

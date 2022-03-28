@@ -60,11 +60,8 @@ Aladdin::CAPI::IRand^ Aladdin::CAPI::Rnd::Bio::LegacyRandFactory::CreateRand(Obj
 	// скопировать случайные данные
 	Marshal::Copy(IntPtr(buffer), seed, 0, seed->Length); 
 
-	// создать алгоритм хэширования
-	Using<Hash^> hash(gcnew GOST::Hash::GOSTR3411_2012(512)); 
-
 	// создать генератор случайных данных
-	return gcnew GOST::Rnd::TC026(window, hash.Get(), seed); 
+	return gcnew GOST::Rnd::TC026_GOSTR3411_2012_512(window, seed); 
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -90,9 +87,6 @@ Aladdin::CAPI::IRand^ Aladdin::CAPI::Rnd::Bio::RandFactory::CreateRand(Object^ w
 	// скопировать случайные данные
 	Marshal::Copy(IntPtr(buffer), seed, 0, seed->Length); 
 
-	// создать алгоритм хэширования
-	Using<Hash^> hash(gcnew GOST::Hash::GOSTR3411_2012(512)); 
-
 	// создать генератор случайных данных
-	return gcnew GOST::Rnd::TC026(window, hash.Get(), seed); 
+	return gcnew GOST::Rnd::TC026_GOSTR3411_2012_512(window, seed); 
 }
