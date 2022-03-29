@@ -117,9 +117,6 @@ namespace Aladdin.CAPI
 			// для всех допустимых ключей
 			foreach (Environment.ConfigKey element in section.Keys)
             try {
-                // проверить наличие описания семейства
-                if (!plugins.ContainsKey(element.Plugin)) throw new NotFoundException();
-
                 // определить класс культуры
                 string className = element.Class + identityString; 
 
@@ -207,18 +204,29 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Параметры и отображаемое имя ключа
         ///////////////////////////////////////////////////////////////////////
-        public virtual IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public virtual IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        {
+            // определить имя плагина 
+            string pluginName = GetKeyPlugin(keyOID); 
+
+            // проверить наличие плагина
+            if (!plugins.ContainsKey(pluginName)) throw new NotFoundException();
+
+            // отобразить диалог выбора параметров ключа
+            return plugins[pluginName].GetKeyParameters(rand, keyOID, keyUsage);
+        }
+        public string GetKeyName(string keyOID)
+        {
+            // отображаемое имя идентификатора
+            return keyNames.ContainsKey(keyOID) ? keyNames[keyOID] : keyOID;
+        }
+        public string GetKeyPlugin(string keyOID)
         {
             // проверить наличие расширения 
             if (!keyPlugins.ContainsKey(keyOID)) throw new NotFoundException();
 
-            // отобразить диалог выбора параметров ключа
-            return plugins[keyPlugins[keyOID]].GetParameters(rand, keyOID, keyUsage);
-        }
-        public String GetKeyName(string keyOID)
-        {
-            // отображаемое имя идентификатора
-            return keyNames.ContainsKey(keyOID) ? keyNames[keyOID] : keyOID;
+            // вернуть имя плагина 
+            return keyPlugins[keyOID]; 
         }
         ///////////////////////////////////////////////////////////////////////
         // Параметры алгоритмов по умолчанию
@@ -236,11 +244,14 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         public override PBE.PBECulture GetPBECulture(object window, string keyOID)
         {
-            // проверить наличие расширения 
-            if (!keyPlugins.ContainsKey(keyOID)) throw new NotFoundException();
+            // определить имя плагина 
+            string pluginName = GetKeyPlugin(keyOID); 
+
+            // проверить наличие плагина
+            if (!plugins.ContainsKey(pluginName)) throw new NotFoundException();
 
             // получить соответствующий плагин
-            GuiPlugin plugin = plugins[keyPlugins[keyOID]]; 
+            GuiPlugin plugin = plugins[pluginName]; 
 
             // отобразить диалог выбора криптографической культуры
             if (window != null) return plugin.GetPBECulture(window, keyOID); 

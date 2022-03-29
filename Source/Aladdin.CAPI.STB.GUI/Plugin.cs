@@ -19,7 +19,7 @@ namespace Aladdin.CAPI.STB.GUI
             // сохранить переданные параметры 
             { this.pbeParameters = pbeParameters; } 
 
-        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.STB.OID.stb34101_bign_pubKey)
             {

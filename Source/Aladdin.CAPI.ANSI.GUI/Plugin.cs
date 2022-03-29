@@ -19,7 +19,7 @@ namespace Aladdin.CAPI.ANSI.GUI
             // сохранить переданные параметры 
             { this.pbeParameters = pbeParameters; } 
 
-        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
             {

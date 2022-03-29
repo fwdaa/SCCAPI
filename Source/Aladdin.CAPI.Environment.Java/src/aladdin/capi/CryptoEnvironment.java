@@ -23,9 +23,12 @@ public class CryptoEnvironment extends ExecutionContext implements IParametersFa
     private Map<String, String > keyPlugins;     // имена расширений
     private Map<String, Culture> keyCultures;    // параметры алгоритмов
     
-    // конструктор
-    public CryptoEnvironment(PBEParameters parameters) { this(Config.DEFAULT, parameters); }
-        
+    // криптографическая среда по умолчанию
+    public static CryptoEnvironment getDefault(PBEParameters parameters) 
+    { 
+        // криптографическая среда по умолчанию
+        return new CryptoEnvironment(Config.DEFAULT, parameters); 
+    }
     // конструктор
     public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters)
 	{
@@ -154,22 +157,27 @@ public class CryptoEnvironment extends ExecutionContext implements IParametersFa
     @Override public IParameters getParameters(
         IRand rand, String keyOID, KeyUsage keyUsage) throws IOException
     {
-        // проверить наличие расширения 
-        if (!keyPlugins.containsKey(keyOID)) throw new NoSuchElementException();
-        
-        // получить имя расширения
-        String name = keyPlugins.get(keyOID); 
+        // определить имя плагина 
+        String pluginName = getKeyPlugin(keyOID); 
         
         // проверить наличие расширения 
-        if (!plugins.containsKey(name)) throw new NoSuchElementException();
+        if (!plugins.containsKey(pluginName)) throw new NoSuchElementException();
 
         // отобразить диалог выбора параметров ключа
-        return plugins.get(name).getParameters(rand, keyOID, keyUsage);
+        return plugins.get(pluginName).getParameters(rand, keyOID, keyUsage);
     }
     public final String getKeyName(String keyOID)
     {
         // отображаемое имя идентификатора
         return keyNames.containsKey(keyOID) ? keyNames.get(keyOID) : keyOID;
+    }
+    public final String getKeyPlugin(String keyOID)
+    {
+        // проверить наличие расширения 
+        if (!keyPlugins.containsKey(keyOID)) throw new NoSuchElementException();
+
+        // вернуть имя плагина 
+        return keyPlugins.get(keyOID); 
     }
     ///////////////////////////////////////////////////////////////////////
     // Параметры алгоритмов по умолчанию
@@ -187,17 +195,14 @@ public class CryptoEnvironment extends ExecutionContext implements IParametersFa
     ///////////////////////////////////////////////////////////////////////
     @Override public PBECulture getPBECulture(Object window, String keyOID) throws IOException
     {
-        // проверить наличие расширения 
-        if (!keyPlugins.containsKey(keyOID)) throw new NoSuchElementException();
-
-        // получить имя расширения
-        String name = keyPlugins.get(keyOID); if (window != null) 
+        // определить имя плагина 
+        String pluginName = getKeyPlugin(keyOID); if (window != null) 
         {
             // проверить наличие расширения 
-            if (!plugins.containsKey(name)) throw new NoSuchElementException();
+            if (!plugins.containsKey(pluginName)) throw new NoSuchElementException();
             
             // получить соответствующий плагин
-            GuiPlugin plugin = plugins.get(name); 
+            GuiPlugin plugin = plugins.get(pluginName); 
 
             // отобразить диалог выбора криптографической культуры
             return plugin.getPBECulture(window, keyOID); 
@@ -207,10 +212,10 @@ public class CryptoEnvironment extends ExecutionContext implements IParametersFa
             PBEParameters parameters = pbeParameters; 
             
             // проверить наличие расширения 
-            if (plugins.containsKey(name))
+            if (plugins.containsKey(pluginName))
             {
                 // получить параметры шифрования по паролю
-                parameters = plugins.get(name).pbeParameters(); 
+                parameters = plugins.get(pluginName).pbeParameters(); 
             }
             // проверить наличие прараметров
             if (parameters == null) throw new IllegalStateException(); 

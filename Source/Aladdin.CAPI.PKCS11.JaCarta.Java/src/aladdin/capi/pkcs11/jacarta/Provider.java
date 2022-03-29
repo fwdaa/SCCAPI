@@ -1,7 +1,6 @@
 package aladdin.capi.pkcs11.jacarta;
 import aladdin.asn1.iso.*; 
 import aladdin.capi.*; 
-import aladdin.capi.pbe.*; 
 import aladdin.capi.pkcs11.*;  
 import aladdin.capi.pkcs11.Attribute; 
 import aladdin.pkcs11.*; 

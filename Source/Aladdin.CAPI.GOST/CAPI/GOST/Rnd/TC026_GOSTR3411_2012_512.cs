@@ -50,6 +50,9 @@ namespace Aladdin.CAPI.GOST.Rnd
                 rand = new TC026(null, hashAlgorithm, seed); 
             }
         }
+        // стартовое значение
+        public byte[] Seed { get { return seed; }}
+
 		// сгенерировать случайные данные
 		public void Generate(byte[] data, int dataOff, int dataLen)
         {

@@ -16,6 +16,7 @@ public class Rand extends RefObject implements IRand
     private final Object window; private final IRand rand; 
 
     // создать генератор на основе другого генератора
+    @SuppressWarnings({"rawtypes"}) 
     public static IRand create(IRand rand, Class<? extends IRand> type) throws Throwable
     {
         // получить описание конструктора

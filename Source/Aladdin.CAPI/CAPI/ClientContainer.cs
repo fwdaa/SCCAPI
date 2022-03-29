@@ -235,7 +235,7 @@ namespace Aladdin.CAPI
                 using (IRand rebindRand = selector.RebindRand(rand))
                 { 
                     // выбрать параметры алгоритма
-                    IParameters keyParameters = factory.GetParameters(rebindRand, keyOID, keyUsage); 
+                    IParameters keyParameters = factory.GetKeyParameters(rebindRand, keyOID, keyUsage); 
 
                     // сгенерировать ключи в контейнере
                     using (KeyPair keyPair = container.GenerateKeyPair(

@@ -57,6 +57,9 @@ public final class TC026_GOSTR3411_2012_256 extends RefObject implements IRand, 
             rand = new TC026(null, hashAlgorithm, seed);
         }
     }
+    // стартовое значение
+    public final byte[] seed() { return seed; }
+
     // сгенерировать случайные данные
 	@Override public void generate(byte[] data, int dataOff, int dataLen) throws IOException
     {

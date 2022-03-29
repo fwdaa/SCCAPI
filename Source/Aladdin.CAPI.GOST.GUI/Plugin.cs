@@ -19,7 +19,7 @@ namespace Aladdin.CAPI.GOST.GUI
             // сохранить переданные параметры 
             { this.pbeParameters = pbeParameters; } 
 
-        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.GOST.OID.gostR3410_1994)
             {

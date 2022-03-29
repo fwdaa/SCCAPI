@@ -303,7 +303,7 @@ namespace Aladdin.CAPI
                         else container = (Container)store.CreateObject(rebindRand, info.Name, null, keyOID); 
                         try { 
                             // выбрать параметры алгоритма
-                            IParameters keyParameters = factory.GetParameters(rebindRand, keyOID, keyUsage); 
+                            IParameters keyParameters = factory.GetKeyParameters(rebindRand, keyOID, keyUsage); 
 
                             // сгенерировать ключи в контейнере
 	                        using (KeyPair keyPair = container.GenerateKeyPair(

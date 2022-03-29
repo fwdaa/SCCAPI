@@ -19,7 +19,7 @@ namespace Aladdin.CAPI.KZ.GUI
             // сохранить переданные параметры 
             { this.pbeParameters = pbeParameters; } 
 
-        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1024     || 
                 keyOID == ASN1.KZ.OID.gamma_key_rsa_1536     || 

@@ -6,6 +6,6 @@
     public interface IParametersFactory
     {
         // получить параметры алгоритма
-        IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage); 
+        IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage); 
     }
 }

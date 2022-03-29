@@ -32,7 +32,7 @@ namespace Aladdin.CAPI
         public PBE.PBEParameters PBEParameters { get { return pbeParameters; }} 
 
         // параметры ключа
-        public IParameters GetParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             // проверить наличие имени класса
             if (String.IsNullOrEmpty(className)) throw new NotSupportedException(); 
@@ -41,7 +41,7 @@ namespace Aladdin.CAPI
             using (ICulturePlugin plugin = LoadPlugin(className))
             { 
                 // получить параметры ключа
-                return plugin.GetParameters(rand, keyOID, keyUsage); 
+                return plugin.GetKeyParameters(rand, keyOID, keyUsage); 
             }
         }
         // параметры шифрования по паролю
