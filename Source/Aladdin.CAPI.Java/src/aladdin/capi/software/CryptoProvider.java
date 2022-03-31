@@ -1,8 +1,8 @@
 package aladdin.capi.software;
 import aladdin.OS;
 import aladdin.*;
+import aladdin.io.*;
 import aladdin.capi.*;
-import aladdin.capi.pbe.*;
 import aladdin.asn1.iso.*; 
 import java.io.*; 
 import java.lang.reflect.*;

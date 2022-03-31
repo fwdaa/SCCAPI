@@ -1,5 +1,4 @@
-package aladdin.capi;
-import aladdin.*; 
+package aladdin.io;
 import java.io.*; 
 import java.util.*;
 
@@ -95,6 +94,10 @@ public final class MemoryStream
         // скопировать данные в буфер
         System.arraycopy(buffer, origin, copy, 0, length); return copy; 
     }
+    // потоки ввода/вывода
+    public final InputStream  asInputStream () { return new MemoryInputStream (this); }
+    public final OutputStream asOutputStream() { return new MemoryOutputStream(this); }
+    
     // признак допустимости позиционирования / чтения / записи 
     public final boolean canRead () { return true;     } 
     public final boolean canWrite() { return writable; }  

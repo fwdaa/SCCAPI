@@ -24,7 +24,7 @@ public class MemoryStore extends ContainerStore
     protected ContainerStream createStream(Object name) throws IOException
     {
         // выполнить преобразование типа
-        aladdin.capi.MemoryStream stream = (aladdin.capi.MemoryStream)name; 
+        aladdin.io.MemoryStream stream = (aladdin.io.MemoryStream)name; 
 
         // проверить отсутствие данных
         if (stream.length() != 0) throw new IOException(); 
@@ -35,10 +35,10 @@ public class MemoryStore extends ContainerStore
     @Override
     protected ContainerStream openStream(Object name, String access)
     {
-        if (name instanceof aladdin.capi.MemoryStream)
+        if (name instanceof aladdin.io.MemoryStream)
         {
             // выполнить преобразование типа
-            aladdin.capi.MemoryStream stream = (aladdin.capi.MemoryStream)name; 
+            aladdin.io.MemoryStream stream = (aladdin.io.MemoryStream)name; 
 
             // открыть хранилище
             return new MemoryStream(stream, access.equals("rw")); 
@@ -51,7 +51,7 @@ public class MemoryStore extends ContainerStore
             byte[] content = Base64.getDecoder().decode((String)name); 
                     
             // указать используемый поток
-            aladdin.capi.MemoryStream stream = new aladdin.capi.MemoryStream(content);
+            aladdin.io.MemoryStream stream = new aladdin.io.MemoryStream(content);
 
             // открыть хранилище
             return new MemoryStream(stream, false);
@@ -61,7 +61,7 @@ public class MemoryStore extends ContainerStore
     protected void deleteStream(Object name) throws IOException
     {
         // выполнить преобразование типа
-        aladdin.capi.MemoryStream stream = (aladdin.capi.MemoryStream)name; 
+        aladdin.io.MemoryStream stream = (aladdin.io.MemoryStream)name; 
 
         // удалить содержимое
         stream.position(0); stream.write(new byte[0], 0, 0);
@@ -72,10 +72,10 @@ public class MemoryStore extends ContainerStore
     private static final class MemoryStream extends ContainerStream
     {
 	    // байтовый поток и допустимость записи
-	    private final aladdin.capi.MemoryStream stream; public final boolean canWrite;
+	    private final aladdin.io.MemoryStream stream; public final boolean canWrite;
         
 	    // конструктор
-	    public MemoryStream(aladdin.capi.MemoryStream stream, boolean canWrite)
+	    public MemoryStream(aladdin.io.MemoryStream stream, boolean canWrite)
 	    {
 		    // сохранить переданные параметры
 		    this.stream = stream; this.canWrite = canWrite; 
