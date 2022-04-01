@@ -1,20 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates; 
 using System.IO;
 
 namespace Aladdin.CAPI
 {
 	public static class PKI
 	{
-		///////////////////////////////////////////////////////////////////////
-		// Закодировать отличимое имя
-		///////////////////////////////////////////////////////////////////////
-		public static ASN1.IEncodable EncodeDistinguishedName(string name)
-		{
-			// закодировать отличимое имя
-			return ASN1.Encodable.Decode(new X500DistinguishedName(name).RawData); 
-		}
 		///////////////////////////////////////////////////////////////////////
 		// Объединить расширения
 		///////////////////////////////////////////////////////////////////////

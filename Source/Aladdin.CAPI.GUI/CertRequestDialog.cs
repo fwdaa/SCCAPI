@@ -114,7 +114,7 @@ namespace Aladdin.CAPI.GUI
 				MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error); return;   
 			}
 			// закодировать имя субъекта
-			try { subject = PKI.EncodeDistinguishedName(textBoxSubject.Text); buttonOK.Enabled = true; }
+			try { subject = new ASN1.ISO.PKIX.RelativeDistinguishedNames(textBoxSubject.Text); buttonOK.Enabled = true; }
 			
 			// при возникновении ошибки
 			catch (Exception ex) { e.Cancel = true; buttonOK.Enabled = false;
