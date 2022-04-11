@@ -15,7 +15,7 @@ Aladdin::CAPI::CSP::KeyHandle^ Aladdin::CAPI::KZ::CSP::Tumar::RSA::KeyPairGenera
 	CAPI::CSP::Container^ container, String^ keyOID, DWORD keyType, DWORD keyFlags)  
 {$
 	// определить число битов
-	ALG_ID algID = 0; switch (((ANSI::RSA::IParameters^)Parameters)->KeySize)
+	ALG_ID algID = 0; switch (((IKeyBitsParameters^)Parameters)->KeyBits)
 	{
 	// указать идентификатор ключа
 	case 1024: algID = (keyType == AT_KEYEXCHANGE) ? CALG_RSA_1024_Xch : CALG_RSA_1024; break;

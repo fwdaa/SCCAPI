@@ -1,8 +1,8 @@
 package aladdin.capi;
 import aladdin.*; 
-import aladdin.asn1.iso.*;
-import aladdin.capi.pbe.*;
+import aladdin.asn1.*;
 import java.io.*;
+import java.util.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Агрегированная фабрика алгоритмов
@@ -34,12 +34,12 @@ public final class AggregatedFactory extends Factory
         // освободить используемые ресурсы
         RefObject.release(outer); RefObject.release(factory); super.onClose();
     }
-    @Override public SecretKeyFactory[] secretKeyFactories() 
+    @Override public Map<String, SecretKeyFactory> secretKeyFactories() 
     { 
         // поддерживаемые ключи
         return outer.secretKeyFactories(); 
     }
-    @Override public KeyFactory[] keyFactories() 
+    @Override public Map<String, KeyFactory> keyFactories() 
     { 
         // поддерживаемые ключи
         return outer.keyFactories(); 
@@ -52,20 +52,20 @@ public final class AggregatedFactory extends Factory
         return factory.createGenerator(this, scope, rand, keyOID, parameters);
     }
     @Override public IAlgorithm createAlgorithm(
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
         // для программных алгоритмов
         if (scope == null || scope instanceof aladdin.capi.software.ContainerStore)
         {
             // создать алгоритм из внутренней фабрики
-            IAlgorithm algorithm = factory.createAlgorithm(this, scope, parameters, type);
+            IAlgorithm algorithm = factory.createAlgorithm(this, scope, oid, parameters, type);
                 
             // проверить наличие алгоритма
             if (algorithm != null) return algorithm; 
                 
             // создать алгоритм из внешней фабрики
-            return outer.createAlgorithm(scope, parameters, type); 
+            return outer.createAlgorithm(scope, oid, parameters, type); 
         }
         // для симметричных алгоритмов
         if (!type.equals(SignHash        .class) && !type.equals(SignData           .class) &&
@@ -73,15 +73,15 @@ public final class AggregatedFactory extends Factory
             !type.equals(TransportKeyWrap.class))
         {
             // создать алгоритм из внутренней фабрики
-            IAlgorithm algorithm = factory.createAlgorithm(this, scope, parameters, type);
+            IAlgorithm algorithm = factory.createAlgorithm(this, scope, oid, parameters, type);
                 
             // проверить наличие алгоритма
             if (algorithm != null) return algorithm; 
                 
             // создать алгоритм из внешней фабрики
-            return outer.createAlgorithm(scope, parameters, type); 
+            return outer.createAlgorithm(scope, oid, parameters, type); 
         }
         // создать асимметричный алгоритм из внутренней фабрики
-        else return factory.createAlgorithm(this, scope, parameters, type);
+        else return factory.createAlgorithm(this, scope, oid, parameters, type);
     }
 }

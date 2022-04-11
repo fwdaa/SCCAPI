@@ -1,6 +1,6 @@
 package aladdin.capi;
 import aladdin.*; 
-import aladdin.asn1.iso.*; 
+import aladdin.asn1.*; 
 import java.util.*; 
 import java.io.*; 
 
@@ -89,21 +89,24 @@ public class Factories extends Factory implements Iterable<Factory>
     ///////////////////////////////////////////////////////////////////////
     // Поддерживаемые ключи
     ///////////////////////////////////////////////////////////////////////
-	@Override public SecretKeyFactory[] secretKeyFactories() 
+	@Override public Map<String, SecretKeyFactory> secretKeyFactories() 
     { 
         // создать список поддерживаемых ключей
-        List<SecretKeyFactory> keyFactories = new ArrayList<SecretKeyFactory>(); 
+        Map<String, SecretKeyFactory> keyFactories = new HashMap<String, SecretKeyFactory>(); 
         
         // для всех фабрик алгоритмов
         for (Factory factory : factories)
         {
-            // добавить поддерживаемые ключи
-            keyFactories.addAll(Arrays.asList(factory.secretKeyFactories())); 
+            // для всех поддерживаемых ключей
+            for (Map.Entry<String, SecretKeyFactory> entry : factory.secretKeyFactories().entrySet())
+            {
+                // добавить фабрику в таблицу
+                keyFactories.put(entry.getKey(), entry.getValue()); 
+            }
         }
-        // вернуть список поддерживаемых ключей
-        return keyFactories.toArray(new SecretKeyFactory[keyFactories.size()]); 
+        return keyFactories; 
     }
-	@Override public KeyFactory[] keyFactories() 
+	@Override public Map<String, KeyFactory> keyFactories() 
     { 
         // создать список поддерживаемых ключей
         Map<String, KeyFactory> keyFactories = new HashMap<String, KeyFactory>(); 
@@ -111,22 +114,14 @@ public class Factories extends Factory implements Iterable<Factory>
         // для всех фабрик алгоритмов
         for (Factory factory : factories)
         {
-            // для всех фабрик ключей
-            for (KeyFactory keyFactory : factory.keyFactories())
+            // для всех поддерживаемых ключей
+            for (Map.Entry<String, KeyFactory> entry : factory.keyFactories().entrySet())
             {
-                // при отсутствии фабрики ключей
-                if (!keyFactories.containsKey(keyFactory.keyOID()))
-                {
-                    // добавить фабрику ключей
-                    keyFactories.put(keyFactory.keyOID(), keyFactory); 
-                }
+                // добавить фабрику в таблицу
+                keyFactories.put(entry.getKey(), entry.getValue()); 
             }
         }
-        // получить список фабрик
-        Collection<KeyFactory> collection = keyFactories.values(); 
-        
-        // вернуть список фабрик
-        return collection.toArray(new KeyFactory[collection.size()]); 
+        return keyFactories; 
     }
     ///////////////////////////////////////////////////////////////////////
     // Создать алгоритм генерации ключей
@@ -183,7 +178,7 @@ public class Factories extends Factory implements Iterable<Factory>
     // Создать алгоритм
     ///////////////////////////////////////////////////////////////////////
     @Override public IAlgorithm createAggregatedAlgorithm(Factory outer, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
         if (scope == null) 
@@ -196,7 +191,7 @@ public class Factories extends Factory implements Iterable<Factory>
                 
                 // создать алгоритм
                 IAlgorithm algorithm = factory.createAggregatedAlgorithm(
-                    outer, scope, parameters, type
+                    outer, scope, oid, parameters, type
                 );
                 // проверить наличие алгоритма
                 if (algorithm != null) return algorithm;
@@ -209,7 +204,7 @@ public class Factories extends Factory implements Iterable<Factory>
 
                 // создать алгоритм
                 IAlgorithm algorithm = factory.createAggregatedAlgorithm(
-                    outer, scope, parameters, type
+                    outer, scope, oid, parameters, type
                 );
                 // проверить наличие алгоритма
                 if (algorithm != null) return algorithm;
@@ -223,7 +218,7 @@ public class Factories extends Factory implements Iterable<Factory>
 
             // создать алгоритм
             IAlgorithm algorithm = provider.createAggregatedAlgorithm(
-                outer, scope, parameters, type
+                outer, scope, oid, parameters, type
             );
             // проверить наличие алгоритма
             if (algorithm != null) return algorithm;

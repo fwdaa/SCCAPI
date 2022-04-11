@@ -26,8 +26,6 @@ namespace Aladdin.CAPI.STB.MAC
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return belt.KeyFactory; }} 
-        // размеры ключей
-	    public override int[] KeySizes { get { return belt.KeySizes; }}
     
 	    // размер MAC-значения в байтах
 	    public override int MacSize { get { return 8; }}

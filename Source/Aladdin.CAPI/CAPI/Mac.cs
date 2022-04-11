@@ -12,8 +12,6 @@ namespace Aladdin.CAPI
 	{
         // тип ключа
         public virtual SecretKeyFactory KeyFactory  { get { return SecretKeyFactory.Generic; }}
-        // размер ключей
-        public virtual int[] KeySizes { get { return KeyFactory.KeySizes; }} 
 
 		// размер MAC-значения и размер блока
         public abstract int MacSize   { get; } 
@@ -150,7 +148,7 @@ namespace Aladdin.CAPI
             Mac macAlgorithm, Mac trustAlgorithm, int[] dataSizes) 
         {
             // получить допустимые размеры ключей
-            int[] keySizes = macAlgorithm.KeySizes; 
+            int[] keySizes = macAlgorithm.KeyFactory.KeySizes; 
         
             // при отсутствии ограничений на размер ключа
             if (keySizes == CAPI.KeySizes.Unrestricted || keySizes.Length > 32)

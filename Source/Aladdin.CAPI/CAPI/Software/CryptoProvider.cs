@@ -290,7 +290,17 @@ namespace Aladdin.CAPI.Software
 		///////////////////////////////////////////////////////////////////////
 
         // поддерживаемые ключи
-	    public override KeyFactory[] KeyFactories() { return factories.KeyFactories(); }
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
+        { 
+            // поддерживаемые ключи
+            return factories.SecretKeyFactories(); 
+        }
+        // поддерживаемые ключи
+	    public override Dictionary<String, KeyFactory> KeyFactories() 
+        { 
+            // поддерживаемые ключи
+            return factories.KeyFactories(); 
+        }
 
 		// создать алгоритм генерации ключей
 		protected internal override CAPI.KeyPairGenerator CreateAggregatedGenerator(
@@ -306,13 +316,13 @@ namespace Aladdin.CAPI.Software
 		// cоздать алгоритм для параметров
 		protected internal override IAlgorithm CreateAggregatedAlgorithm(
             Factory outer, SecurityStore scope, 
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            string oid, ASN1.IEncodable parameters, Type type)
 		{
             // проверить тип хранилища
             if (scope != null && !(scope is ContainerStore)) return null; 
 
             // создать алгоритм
-            return factories.CreateAggregatedAlgorithm(outer, null, parameters, type); 
+            return factories.CreateAggregatedAlgorithm(outer, null, oid, parameters, type); 
         }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Управление контейнерами в памяти

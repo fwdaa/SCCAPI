@@ -26,8 +26,6 @@ public class OFB1 extends Cipher
     }
     // тип ключа
 	@Override public final SecretKeyFactory keyFactory() { return engine.keyFactory(); }
-    // используемые размеры ключей
-    @Override public int[] keySizes() { return engine.keySizes(); } 
 
     @Override public Transform createEncryption(ISecretKey key) 
         throws IOException, InvalidKeyException

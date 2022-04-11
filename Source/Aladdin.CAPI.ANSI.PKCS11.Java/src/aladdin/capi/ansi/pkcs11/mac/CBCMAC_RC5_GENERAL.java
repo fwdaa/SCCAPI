@@ -3,7 +3,6 @@ import aladdin.pkcs11.*;
 import aladdin.pkcs11.jni.*; 
 import aladdin.capi.*;
 import aladdin.capi.pkcs11.*; 
-import aladdin.capi.ansi.keys.*; 
 import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,10 +43,11 @@ public class CBCMAC_RC5_GENERAL extends aladdin.capi.pkcs11.Mac
         return new Mechanism(API.CKM_RC5_MAC_GENERAL, rc5Parameters); 
     }
     // тип ключа
-    @Override public final SecretKeyFactory keyFactory() { return RC5.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return keySizes; }
-    
+    @Override public final SecretKeyFactory keyFactory() 
+    { 
+        // вернуть тип ключа
+        return new aladdin.capi.ansi.keys.RC5(keySizes); 
+    } 
 	// размер хэш-значения в байтах
 	@Override public int macSize() { return macSize; } 
 	// размер блока в байтах

@@ -86,8 +86,6 @@ namespace Aladdin.CAPI.PKCS11
             } 
             // тип ключей
             public override SecretKeyFactory KeyFactory { get { return cipher.KeyFactory; }}
-            // размер ключей
-            public override int[] KeySizes { get { return cipher.KeySizes; }}
         }
 	}
 }

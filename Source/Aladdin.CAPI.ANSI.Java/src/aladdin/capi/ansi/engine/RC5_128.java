@@ -11,14 +11,22 @@ public final class RC5_128 extends Cipher
     // способ кодирования чисел
     private static final Endian ENDIAN = Endian.LITTLE_ENDIAN; 
     
-    // конструктор
-    public RC5_128(int rounds) { this.rounds = rounds; } private final int rounds;
+    // число раундов и допустимые размеры ключей
+    private final int rounds; private final int[] keySizes;
         
+    // конструктор
+    public RC5_128(int rounds) { this(rounds, KeySizes.range(1, 256)); }
+    // конструктор
+    public RC5_128(int rounds, int[] keySizes) 
+    { 
+        // сохранить переданные параметры
+        this.rounds = rounds; this.keySizes = keySizes; 
+    } 
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.RC5.INSTANCE; 
+        return new aladdin.capi.ansi.keys.RC5(keySizes); 
     } 
     // размер блока
 	@Override public final int blockSize() { return 16; }
@@ -34,8 +42,11 @@ public final class RC5_128 extends Cipher
 			throw new InvalidKeyException();
 		}
         // проверить размер ключа
-        if (value.length >= 256) throw new InvalidKeyException();
-                
+        if (!KeySizes.contains(keyFactory().keySizes(), value.length))
+        {
+            // при ошибке выбросить исключение
+            throw new InvalidKeyException(); 
+        }
         // вернуть алгоритм зашифрования блока данных
 		return new Encryption(key, rounds); 
 	}
@@ -50,8 +61,11 @@ public final class RC5_128 extends Cipher
 			throw new InvalidKeyException();
 		}
         // проверить размер ключа
-        if (value.length >= 256) throw new InvalidKeyException();
-            
+        if (!KeySizes.contains(keyFactory().keySizes(), value.length))
+        {
+            // при ошибке выбросить исключение
+            throw new InvalidKeyException(); 
+        }
 		// вернуть алгоритм расшифрования блока данных
 		return new Decryption(key, rounds); 
 	}

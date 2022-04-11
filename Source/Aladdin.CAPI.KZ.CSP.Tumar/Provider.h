@@ -12,8 +12,26 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 		protected: Provider(DWORD type, String^ name, bool sspi) 
 			
 			// сохранить переданные параметры
-			: ANSI::CSP::Microsoft::RSA::AESEnhancedProvider(type, name, sspi, false) {}
+			: ANSI::CSP::Microsoft::RSA::AESEnhancedProvider(type, name, sspi, false) 
+		{
+			// заполнить список фабрик кодирования ключей
+			SecretKeyFactories()->Add("RC2"   , gcnew ANSI::Keys::RC2 (KeySizes::Range(5, 16))); 
+			SecretKeyFactories()->Add("RC4"   , gcnew ANSI::Keys::RC4 (KeySizes::Range(5, 16))); 
+			SecretKeyFactories()->Add("DES"   , gcnew ANSI::Keys::DES (                      )); 
+			SecretKeyFactories()->Add("DESede", gcnew ANSI::Keys::TDES(                      )); 
+			SecretKeyFactories()->Add("AES"   , gcnew ANSI::Keys::AES (                      )); 
+			SecretKeyFactories()->Add("GOST"  , gcnew GOST::Keys::GOST(                      ));   
 
+			// указать фабрику алгоритмов
+			Using<CAPI::Factory^> factory(gcnew KZ::Factory()); 
+
+			// для всех фабрик алгоритмов
+			for each (KeyValuePair<String^, CAPI::KeyFactory^> item in factory.Get()->KeyFactories())
+			{
+				// добавить фабрики алгоритмов
+				KeyFactories()->Add(item.Key, item.Value); 
+			}
+		}
 		// имя группы провайдеров
 		public: virtual property String^ Group { String^ get() override { return GT_TUMAR_PROV; }}
 
@@ -35,15 +53,6 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 			// вернуть хранилище контейнеров
 			return gcnew SCardStores(this, scope); 
 		}
-	    // поддерживаемые фабрики кодирования ключей
-		public: virtual array<KeyFactory^>^ KeyFactories() override
-		{
-			// указать фабрику алгоритмов
-			Using<CAPI::Factory^> factory(gcnew KZ::Factory()); 
-
-			// поддерживаемые фабрики кодирования ключей
-			return factory.Get()->KeyFactories(); 
-		}
 		// создать алгоритм генерации ключей
 		public protected: virtual KeyPairGenerator^ CreateGenerator(
 			CAPI::Factory^ outer, SecurityObject^ scope, 
@@ -51,8 +60,8 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			CAPI::Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+			CAPI::Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, System::Type^ type) override;
 
 		// получить тип ключа
 		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(

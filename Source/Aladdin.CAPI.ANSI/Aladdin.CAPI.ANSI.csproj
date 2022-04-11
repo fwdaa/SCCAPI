@@ -100,12 +100,12 @@
     <Compile Include="ASN1\ANSI\X962\SpecifiedMultiple.cs" />
     <Compile Include="ASN1\ANSI\X962\SpecifiedMultiples.cs" />
     <Compile Include="CAPI\ANSI\Cipher\AES.cs" />
+    <Compile Include="CAPI\ANSI\Cipher\BlockCipher.cs" />
     <Compile Include="CAPI\ANSI\Cipher\DES.cs" />
     <Compile Include="CAPI\ANSI\Cipher\DESX.cs" />
     <Compile Include="CAPI\ANSI\Cipher\RC2.cs" />
     <Compile Include="CAPI\ANSI\Cipher\RC4.cs" />
     <Compile Include="CAPI\ANSI\Cipher\RC5.cs" />
-    <Compile Include="CAPI\ANSI\Cipher\Skipjack.cs" />
     <Compile Include="CAPI\ANSI\Cipher\TDES.cs" />
     <Compile Include="CAPI\ANSI\Engine\AES.cs" />
     <Compile Include="CAPI\ANSI\Engine\DES.cs" />

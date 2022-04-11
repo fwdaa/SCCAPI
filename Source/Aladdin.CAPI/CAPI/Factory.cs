@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Aladdin.CAPI
 {
@@ -8,18 +9,34 @@ namespace Aladdin.CAPI
 	public abstract class Factory : RefObject
 	{
 	    // поддерживаемые фабрики кодирования ключей
-	    public virtual KeyFactory[] KeyFactories() { return new KeyFactory[0]; }
-        
+	    public virtual Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
+        { 
+            // поддерживаемые фабрики кодирования ключей
+            return new Dictionary<String, SecretKeyFactory>(); 
+        }
+	    // получить фабрику кодирования ключей
+	    public SecretKeyFactory GetSecretKeyFactory(string algorithm)
+        {
+            // получить поддерживаемые фабрики кодирования ключей
+            Dictionary<String, SecretKeyFactory> keyFactories = SecretKeyFactories(); 
+
+	        // получить фабрику кодирования ключей
+            return keyFactories.ContainsKey(algorithm) ? keyFactories[algorithm] : SecretKeyFactory.Generic; 
+        }
+	    // поддерживаемые фабрики кодирования ключей
+	    public virtual Dictionary<String, KeyFactory> KeyFactories() 
+        { 
+	        // поддерживаемые фабрики кодирования ключей
+            return new Dictionary<String, KeyFactory>(); 
+        }
 	    // получить фабрику кодирования ключей
 	    public KeyFactory GetKeyFactory(string keyOID)
         {
-            // для всех фабрик ключей
-            foreach (KeyFactory keyFactory in KeyFactories())
-            {
-                // проверить наличие ключа
-                if (keyOID == keyFactory.KeyOID) return keyFactory; 
-            }
-            return null; 
+            // получить фабрики кодирования ключей
+            Dictionary<String, KeyFactory> keyFactories = KeyFactories(); 
+
+	        // получить фабрику кодирования ключей
+            return keyFactories.ContainsKey(keyOID) ? keyFactories[keyOID] : null; 
         }
 		// раскодировать открытый ключ
 		public IPublicKey DecodePublicKey(ASN1.ISO.PKIX.SubjectPublicKeyInfo subjectPublicKeyInfo)
@@ -111,48 +128,57 @@ namespace Aladdin.CAPI
                 return generator.Generate(keyID, keyOID, keyUsage, keyFlags);
             }
 	    }
+        // создать блочный алгоритм шифрования 
+	    public IBlockCipher CreateBlockCipher(SecurityStore scope, string name, ASN1.IEncodable parameters)
+        {
+            // создать блочный алгоритм шифрования 
+            return CreateAlgorithm<IBlockCipher>(scope, name, parameters); 
+        }
 		// создать алгоритм для параметров
         public T CreateAlgorithm<T>(SecurityStore scope,
             ASN1.ISO.AlgorithmIdentifier parameters) where T : IAlgorithm
         {
             // создать алгоритм
-            return (T)CreateAlgorithm(scope, parameters, typeof(T)); 
+            return CreateAlgorithm<T>(scope, parameters.Algorithm.Value, parameters.Parameters); 
+        }
+        public T CreateAlgorithm<T>(SecurityStore scope,
+            string oid, ASN1.IEncodable parameters) where T : IAlgorithm
+        {
+            // создать алгоритм
+            return (T)CreateAlgorithm(scope, oid, parameters, typeof(T)); 
         }
 		// создать алгоритм для параметров
         public virtual IAlgorithm CreateAlgorithm(SecurityStore scope,
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            string oid, ASN1.IEncodable parameters, Type type)
         {
             // создать алгоритм
-            return CreateAggregatedAlgorithm(this, scope, parameters, type); 
+            return CreateAggregatedAlgorithm(this, scope, oid, parameters, type); 
         }
         protected internal virtual IAlgorithm CreateAggregatedAlgorithm(
             Factory outer, SecurityStore scope,
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            string oid, ASN1.IEncodable parameters, Type type)
         {
             // создать агрегированную фабрику
             using (Factory factory = AggregatedFactory.Create(outer, this))
             {        
                 // создать алгоритм
-                return CreateAlgorithm(factory, scope, parameters, type); 
+                return CreateAlgorithm(factory, scope, oid, parameters, type); 
             }
         }
 		// создать алгоритм для параметров
         protected internal virtual IAlgorithm CreateAlgorithm(
             Factory factory, SecurityStore scope,
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            string oid, ASN1.IEncodable parameters, Type type)
 		{ 
             // вызвать базовую функцию
-            return Factory.RedirectAlgorithm(factory, scope, parameters, type); 
+            return Factory.RedirectAlgorithm(factory, scope, oid, parameters, type); 
 		}
         ///////////////////////////////////////////////////////////////////////
 		// Перенаправление алгоритмов 
         ///////////////////////////////////////////////////////////////////////
         public static IAlgorithm RedirectAlgorithm(Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type)
 		{ 
-            // указать идентификатор алгоритма
-            string oid = parameters.Algorithm.Value; 
-
 			// для алгоритмов вычисления имитовставки
 			if (type == typeof(Mac))
 			{
@@ -160,7 +186,7 @@ namespace Aladdin.CAPI
 				{
 					// раскодировать параметры алгоритма
 					ASN1.ISO.PKCS.PKCS5.PBMAC1Parameter pbeParameters = 
-						new ASN1.ISO.PKCS.PKCS5.PBMAC1Parameter(parameters.Parameters); 
+						new ASN1.ISO.PKCS.PKCS5.PBMAC1Parameter(parameters); 
 
                     // создать алгоритм вычисления имитовставки
                     using (Mac macAlgorithm = factory.CreateAlgorithm<Mac>(
@@ -189,7 +215,7 @@ namespace Aladdin.CAPI
 				{
 					// раскодировать параметры алгоритма
 					ASN1.ISO.PKCS.PKCS5.PBES2Parameter pbeParameters = 
-						new ASN1.ISO.PKCS.PKCS5.PBES2Parameter(parameters.Parameters); 
+						new ASN1.ISO.PKCS.PKCS5.PBES2Parameter(parameters); 
 
     		        // создать алгоритм шифрования по паролю
 			        return PBE.PBES2.Сreate(factory, scope, pbeParameters); 
@@ -202,7 +228,7 @@ namespace Aladdin.CAPI
 				{
 					// раскодировать параметры алгоритма
 					ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter pbeParameters = 
-						new ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter(parameters.Parameters);
+						new ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter(parameters);
 
 		            // при указании размера ключа
 		            int keySize = -1; if (pbeParameters.KeyLength != null)
@@ -231,7 +257,7 @@ namespace Aladdin.CAPI
 			else if (type == typeof(KeyWrap))
 			{
                 // получить алгоритм шифрования данных
-    		    using (Cipher cipher = factory.CreateAlgorithm<Cipher>(scope, parameters))
+    		    using (Cipher cipher = factory.CreateAlgorithm<Cipher>(scope, oid, parameters))
                 {
                     // вернуть алгоритм шифрования ключа
                     if (cipher == null) return null; 
@@ -244,13 +270,13 @@ namespace Aladdin.CAPI
 		    else if (type == typeof(TransportKeyWrap))
 		    {
     		    // получить алгоритм зашифрования данных
-			    return factory.CreateAlgorithm<Encipherment>(scope, parameters); 
+			    return factory.CreateAlgorithm<Encipherment>(scope, oid, parameters); 
             }
 		    // для алгоритмов передачи ключа
 		    else if (type == typeof(TransportKeyUnwrap))
 		    {
     		    // получить алгоритм расшифрования данных
-			    return factory.CreateAlgorithm<Decipherment>(scope, parameters); 
+			    return factory.CreateAlgorithm<Decipherment>(scope, oid, parameters); 
             }
 			return null; 
 		}

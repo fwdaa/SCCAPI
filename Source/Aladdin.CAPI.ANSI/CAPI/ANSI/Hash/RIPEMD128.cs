@@ -357,7 +357,9 @@ namespace Aladdin.CAPI.ANSI.Hash
         ////////////////////////////////////////////////////////////////////////////
         public static void TestHMAC(Mac algorithm) 
         {
-            if (KeySizes.Contains(algorithm.KeySizes, 16))
+            int[] keySizes = algorithm.KeyFactory.KeySizes; 
+
+            if (KeySizes.Contains(keySizes, 16))
             Mac.KnownTest(algorithm, new byte[] { 
                 (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
                 (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
@@ -369,7 +371,7 @@ namespace Aladdin.CAPI.ANSI.Hash
                 (byte)0x81, (byte)0xc1, (byte)0x72, (byte)0xe8, 
                 (byte)0x4e, (byte)0x07, (byte)0x34, (byte)0xdb
             }); 
-            if (KeySizes.Contains(algorithm.KeySizes, 4))
+            if (KeySizes.Contains(keySizes, 4))
             Mac.KnownTest(algorithm, Encoding.UTF8.GetBytes("Jefe"), 
                 1, "what do ya want for nothing?", new byte[] {
                 (byte)0x87, (byte)0x5f, (byte)0x82, (byte)0x88, 
@@ -377,7 +379,7 @@ namespace Aladdin.CAPI.ANSI.Hash
                 (byte)0xb4, (byte)0x27, (byte)0xc5, (byte)0x5f, 
                 (byte)0x9f, (byte)0x7f, (byte)0xf0, (byte)0x9b
             }); 
-            if (KeySizes.Contains(algorithm.KeySizes, 16))
+            if (KeySizes.Contains(keySizes, 16))
             Mac.KnownTest(algorithm, new byte[] { 
                 (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
                 (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
@@ -389,7 +391,7 @@ namespace Aladdin.CAPI.ANSI.Hash
                 (byte)0xa3, (byte)0x63, (byte)0xcb, (byte)0xec, 
                 (byte)0x8d, (byte)0x62, (byte)0xa3, (byte)0x8d
             }); 
-            if (KeySizes.Contains(algorithm.KeySizes, 25))
+            if (KeySizes.Contains(keySizes, 25))
             Mac.KnownTest(algorithm, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -404,7 +406,7 @@ namespace Aladdin.CAPI.ANSI.Hash
                 (byte)0xa6, (byte)0x0a, (byte)0xf8, (byte)0x15, 
                 (byte)0xbe, (byte)0x4d, (byte)0x22, (byte)0x94
             }); 
-            if (KeySizes.Contains(algorithm.KeySizes, 16))
+            if (KeySizes.Contains(keySizes, 16))
             Mac.KnownTest(algorithm, new byte[] { 
                 (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
                 (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
@@ -416,7 +418,7 @@ namespace Aladdin.CAPI.ANSI.Hash
                 (byte)0x1c, (byte)0x15, (byte)0x5f, (byte)0x0d, 
                 (byte)0x55, (byte)0x1d, (byte)0x9a, (byte)0x3a
             }); 
-            if (KeySizes.Contains(algorithm.KeySizes, 80))
+            if (KeySizes.Contains(keySizes, 80))
             Mac.KnownTest(algorithm, new byte[] { 
                 (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
                 (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
@@ -444,7 +446,7 @@ namespace Aladdin.CAPI.ANSI.Hash
                 (byte)0x1f, (byte)0x59, (byte)0xd3, (byte)0x73, 
                 (byte)0xc1, (byte)0x50, (byte)0xac, (byte)0xbb
             }); 
-            if (KeySizes.Contains(algorithm.KeySizes, 80))
+            if (KeySizes.Contains(keySizes, 80))
             Mac.KnownTest(algorithm, new byte[] { 
                 (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
                 (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 

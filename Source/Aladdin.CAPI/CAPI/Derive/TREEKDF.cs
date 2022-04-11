@@ -33,8 +33,6 @@ namespace Aladdin.CAPI.Derive
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return algorithm.KeyFactory; }} 
-        // размер ключей
-        public override int[] KeySizes { get { return algorithm.KeySizes; }}
 
         // сгенерировать блок данных
 	    public override ISecretKey DeriveKey(ISecretKey key, 

@@ -11,14 +11,22 @@ public final class RC5_64 extends Cipher
     // способ кодирования чисел
     private static final Endian ENDIAN = Endian.LITTLE_ENDIAN; 
     
-    // конструктор
-    public RC5_64(int rounds) { this.rounds = rounds; } private final int rounds;
+    // число раундов и допустимые размеры ключей
+    private final int rounds; private final int[] keySizes;
         
+    // конструктор
+    public RC5_64(int rounds) { this(rounds, KeySizes.range(1, 256)); }
+    // конструктор
+    public RC5_64(int rounds, int[] keySizes) 
+    { 
+        // сохранить переданные параметры
+        this.rounds = rounds; this.keySizes = keySizes; 
+    } 
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.RC5.INSTANCE; 
+        return new aladdin.capi.ansi.keys.RC5(keySizes); 
     } 
     // размер блока
 	@Override public final int blockSize() { return 8; }
@@ -34,8 +42,11 @@ public final class RC5_64 extends Cipher
 			throw new InvalidKeyException();
 		}
         // проверить размер ключа
-        if (value.length >= 256) throw new InvalidKeyException();
-                
+        if (!KeySizes.contains(keyFactory().keySizes(), value.length))
+        {
+            // при ошибке выбросить исключение
+            throw new InvalidKeyException(); 
+        }
         // вернуть алгоритм зашифрования блока данных
         return new Encryption(key, rounds); 
 	}
@@ -50,8 +61,11 @@ public final class RC5_64 extends Cipher
 			throw new InvalidKeyException();
 		}
         // проверить размер ключа
-        if (value.length >= 256) throw new InvalidKeyException();
-            
+        if (!KeySizes.contains(keyFactory().keySizes(), value.length))
+        {
+            // при ошибке выбросить исключение
+            throw new InvalidKeyException(); 
+        }
 		// вернуть алгоритм расшифрования блока данных
 		return new Decryption(key, rounds); 
 	}
@@ -207,6 +221,9 @@ public final class RC5_64 extends Cipher
     ////////////////////////////////////////////////////////////////////////////
     public static void test0(IBlockCipher blockCipher) throws Exception
     {
+        // определить размер ключей
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+            
         // указать требуемый режим
         CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -216,7 +233,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -226,7 +243,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x7a, (byte)0x7b, (byte)0xba, (byte)0x4d, 
                 (byte)0x79, (byte)0x11, (byte)0x1d, (byte)0x1e
             }); 
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -236,7 +253,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x7a, (byte)0x7b, (byte)0xba, (byte)0x4d, 
                 (byte)0x79, (byte)0x11, (byte)0x1d, (byte)0x1f
             }); 
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -256,7 +273,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -276,7 +293,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -290,6 +307,9 @@ public final class RC5_64 extends Cipher
     }
     public static void test1(IBlockCipher blockCipher) throws Exception
     {
+        // определить размер ключей
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+        
         // указать требуемый режим
         CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -299,7 +319,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x11 
             }, new byte[] { 
@@ -313,6 +333,9 @@ public final class RC5_64 extends Cipher
     }
     public static void test2(IBlockCipher blockCipher) throws Exception
     {
+        // определить размер ключей
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+        
         // указать требуемый режим
         CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -322,7 +345,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -333,7 +356,7 @@ public final class RC5_64 extends Cipher
                 (byte)0xf4, (byte)0x0e, (byte)0x07, (byte)0x88
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 4))
+            if (KeySizes.contains(keySizes, 4))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00 
             }, new byte[] { 
@@ -347,6 +370,9 @@ public final class RC5_64 extends Cipher
     }
     public static void test8(IBlockCipher blockCipher) throws Exception
     {
+        // определить размер ключей
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+        
         // указать требуемый режим
         CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -356,7 +382,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -367,7 +393,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x77, (byte)0xec, (byte)0xa5, (byte)0xff
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 4))
+            if (KeySizes.contains(keySizes, 4))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04 
             }, new byte[] { 
@@ -378,7 +404,7 @@ public final class RC5_64 extends Cipher
                 (byte)0xb5, (byte)0xbc, (byte)0x74, (byte)0x02
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -390,7 +416,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x34, (byte)0xf9, (byte)0x48, (byte)0x11
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -402,7 +428,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x73, (byte)0x8c, (byte)0x64, (byte)0x78
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.PKCS5, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -416,7 +442,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x81, (byte)0xc9, (byte)0x96, (byte)0x95
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.PKCS5, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -445,7 +471,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -456,7 +482,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x63, (byte)0x8f, (byte)0x9c, (byte)0xa8
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 8))
+            if (KeySizes.contains(keySizes, 8))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08
@@ -468,7 +494,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x0f, (byte)0x21, (byte)0x7a, (byte)0xc3
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 16))
+            if (KeySizes.contains(keySizes, 16))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -491,7 +517,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -512,7 +538,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -527,6 +553,9 @@ public final class RC5_64 extends Cipher
     }
     public static void test12(IBlockCipher blockCipher) throws Exception
     {
+        // определить размер ключей
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+        
         // указать требуемый режим
         CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -536,7 +565,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 4))
+            if (KeySizes.contains(keySizes, 4))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04 
             }, new byte[] { 
@@ -547,7 +576,7 @@ public final class RC5_64 extends Cipher
                 (byte)0xf7, (byte)0x08, (byte)0x09, (byte)0x34
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 5))
+            if (KeySizes.contains(keySizes, 5))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05 
@@ -559,7 +588,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x37, (byte)0xed, (byte)0x31, (byte)0x7f
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 8))
+            if (KeySizes.contains(keySizes, 8))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08 
@@ -580,7 +609,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -591,7 +620,7 @@ public final class RC5_64 extends Cipher
                 (byte)0xb6, (byte)0x59, (byte)0x4d, (byte)0xa4
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 8))
+            if (KeySizes.contains(keySizes, 8))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08 
@@ -603,7 +632,7 @@ public final class RC5_64 extends Cipher
                 (byte)0x53, (byte)0x73, (byte)0xb4, (byte)0xf7
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 16))
+            if (KeySizes.contains(keySizes, 16))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -620,6 +649,9 @@ public final class RC5_64 extends Cipher
     }
     public static void test16(IBlockCipher blockCipher) throws Exception
     {
+        // определить размер ключей
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+        
         // указать требуемый режим
         CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -629,7 +661,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 4))
+            if (KeySizes.contains(keySizes, 4))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04 
             }, new byte[] { 
@@ -649,7 +681,7 @@ public final class RC5_64 extends Cipher
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         {
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 1))
+            if (KeySizes.contains(keySizes, 1))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x00 
             }, new byte[] { 
@@ -660,7 +692,7 @@ public final class RC5_64 extends Cipher
                 (byte)0xa5, (byte)0xfc, (byte)0x38, (byte)0x36
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 8))
+            if (KeySizes.contains(keySizes, 8))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08 
@@ -672,7 +704,7 @@ public final class RC5_64 extends Cipher
                 (byte)0xbe, (byte)0x7f, (byte)0x5f, (byte)0xad
             }); 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 16))
+            if (KeySizes.contains(keySizes, 16))
             Cipher.knownTest(cipher, PaddingMode.NONE, new byte[] { 
                 (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                 (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 

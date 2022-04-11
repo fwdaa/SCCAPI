@@ -69,10 +69,7 @@ public class Test extends aladdin.capi.Test
             ////////////////////////////////////////////////////////////////////
             for (int i = 0; i < sboxOIDs.length; i++)
             {
-                try (IBlockCipher gost28147 = factory.createGOST28147(scope, sboxOIDs[i]))
-                {
-                    testGOST28147(factory, scope, gost28147, sboxOIDs[i]);                     
-                }
+                testGOST28147(factory, scope, sboxOIDs[i]);                     
             }
             testGOSTR3412(factory, scope); 
             
@@ -402,21 +399,21 @@ public class Test extends aladdin.capi.Test
         println("MAC.GOSTR3412/64");
 
         // создать алгоритм шифрования блока
-        try (IBlockCipher blockCipher = 
-            aladdin.capi.gost.cipher.GOSTR3412.create(factory, scope, 8))
+        try (IBlockCipher blockCipher = factory.createBlockCipher(
+            scope, "GOST3412_2015_M", Null.INSTANCE))
         {
             // выполнить тест
-            aladdin.capi.gost.engine.GOSTR3412.testMAC64(blockCipher);
+            aladdin.capi.gost.engine.GOSTR3412_K.testMAC64(blockCipher);
         }
         println(); 
         println("MAC.GOSTR3412/128");
         
         // создать алгоритм шифрования блока
-        try (IBlockCipher blockCipher = 
-            aladdin.capi.gost.cipher.GOSTR3412.create(factory, scope, 16))
+        try (IBlockCipher blockCipher = factory.createBlockCipher(
+            scope, "GOST3412_2015_K", Null.INSTANCE))
         {
             // выполнить тест
-            aladdin.capi.gost.engine.GOSTR3412.testMAC128(blockCipher);
+            aladdin.capi.gost.engine.GOSTR3412_K.testMAC128(blockCipher);
         }
         println(); 
     }
@@ -434,8 +431,12 @@ public class Test extends aladdin.capi.Test
             // указать генератор случайных данных
             try (IRand rand = new aladdin.capi.Rand(null))
             {
+                // указать параметры алгоритма
+                IEncodable paramSet = new ObjectIdentifier(paramOID); 
+        
                 // получить доверенный алгоритм шифрования
-                try (IBlockCipher trustBlockCipher = trustFactory.createGOST28147(null, paramOID)) 
+                try (IBlockCipher trustBlockCipher = trustFactory.createBlockCipher(
+                    null, "GOST28147", paramSet))
                 {
                     // указать режим ECB
                     CipherMode parameters = new CipherMode.ECB(); 
@@ -510,31 +511,36 @@ public class Test extends aladdin.capi.Test
         }
     }
     public static void testGOST28147(Factory factory, 
-        SecurityStore scope, IBlockCipher blockCipher, String paramOID) throws Exception
+        SecurityStore scope, String paramOID) throws Exception
     {
         println("Cipher.GOST28147/%1$s", paramOID);
         
+        // указать параметры алгоритма
+        IEncodable paramSet = new ObjectIdentifier(paramOID); 
+                
+        // создать блочный алгоритм шифрования
+        try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "GOST28147", paramSet))
+        {
+            // выполнить тесты
+            if (blockCipher != null) testGOST28147(blockCipher, paramOID); 
+        }
         // указать допустимые размеры
         int[] dataSizes = new int[] { 0, 1, 7, 8, 9, 15, 16, 17, 1023, 1024, 1025 }; 
-        
+
         // сгенерировать синхропосылку
         byte[] iv = new byte[8]; generate(iv, 0, iv.length); 
-        
+
         // указать параметры алгоритма
         AlgorithmIdentifier parameters = new AlgorithmIdentifier(
             new ObjectIdentifier(OID.GOST28147_89), new GOST28147CipherParameters(
                 new OctetString(iv), new ObjectIdentifier(paramOID)
             )
         ); 
-        // указать доверенную фабрику
-        try (aladdin.capi.gost.Factory trustFactory = new aladdin.capi.gost.Factory()) 
+        // создать алгоритм шифрования
+        try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class))
         {
-            // выполнить тесты
-            if (blockCipher != null) testGOST28147(blockCipher, paramOID); 
-            
-            // создать алгоритм шифрования
-            try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                scope, parameters, Cipher.class))
+            // указать доверенную фабрику
+            try (aladdin.capi.gost.Factory trustFactory = new aladdin.capi.gost.Factory()) 
             {
                 // выполнить тест
                 cipherTest(cipher, PaddingMode.NONE, trustFactory, null, parameters, dataSizes);
@@ -546,21 +552,21 @@ public class Test extends aladdin.capi.Test
         println("Cipher.GOSTR3412/64");
         
         // создать алгоритм шифрования блока
-        try (IBlockCipher blockCipher = 
-            aladdin.capi.gost.cipher.GOSTR3412.create(factory, scope, 8))
+        try (IBlockCipher blockCipher = factory.createBlockCipher(
+            scope, "GOST3412_2015_M", Null.INSTANCE))
         {
             // протестировать алгоритм
-            aladdin.capi.gost.engine.GOSTR3412.test64(blockCipher);
+            aladdin.capi.gost.engine.GOSTR3412_K.test64(blockCipher);
         }
         println();
         println("Cipher.GOSTR3412/128");
         
         // создать алгоритм шифрования блока
-        try (IBlockCipher blockCipher = 
-            aladdin.capi.gost.cipher.GOSTR3412.create(factory, scope, 16))
+        try (IBlockCipher blockCipher = factory.createBlockCipher(
+            scope, "GOST3412_2015_K", Null.INSTANCE))
         {
             // протестировать алгоритм
-            aladdin.capi.gost.engine.GOSTR3412.test128(blockCipher);
+            aladdin.capi.gost.engine.GOSTR3412_K.test128(blockCipher);
         }
         println();
 

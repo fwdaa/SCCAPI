@@ -11,8 +11,6 @@ namespace Aladdin.CAPI
     {
         // тип ключа
         public virtual SecretKeyFactory KeyFactory  { get { return SecretKeyFactory.Generic; }}
-        // размер ключей
-        public virtual int[] KeySizes { get { return KeyFactory.KeySizes; }} 
 
 		// наследовать ключ
 		public abstract ISecretKey DeriveKey(ISecretKey key, 
@@ -68,10 +66,10 @@ namespace Aladdin.CAPI
             SecretKeyFactory keyFactory = SecretKeyFactory.Generic; 
 
             // получить допустимые размеры ключей
-            int[] keySizes = kdfAlgorithm.KeySizes; 
+            int[] keySizes = kdfAlgorithm.KeyFactory.KeySizes; 
         
             // при отсутствии ограничений на размер ключа
-            if (keySizes == CAPI.KeySizes.Unrestricted || keySizes.Length > 32)
+            if (keySizes == KeySizes.Unrestricted || keySizes.Length > 32)
             {
                 // скорректировать допустимые размеры ключей
                 keySizes = new int[] { 0, 8, 16, 24, 32, 64 }; 
@@ -80,7 +78,7 @@ namespace Aladdin.CAPI
             foreach (int keySize in keySizes)
             { 
                 // проверить поддержку размера ключа
-                if (!CAPI.KeySizes.Contains(kdfAlgorithm.KeySizes, keySize)) continue; 
+                if (!KeySizes.Contains(kdfAlgorithm.KeyFactory.KeySizes, keySize)) continue; 
             
                 // сгенерировать ключ 
                 using (ISecretKey key = kdfAlgorithm.KeyFactory.Generate(rand, keySize))

@@ -38,9 +38,8 @@ namespace Aladdin.CAPI.GOST.PKCS11.Cipher
         // тип ключей
         public SecretKeyFactory KeyFactory { get { return engine.KeyFactory; }}
 
-        // размер ключей и блока
-        public int[] KeySizes  { get { return engine.KeySizes ; }} 
-	    public int   BlockSize { get { return engine.BlockSize; }}
+        // размер блока
+	    public int BlockSize { get { return engine.BlockSize; }}
     
         // создать режим шифрования
         public CAPI.Cipher CreateBlockMode(CipherMode mode) 

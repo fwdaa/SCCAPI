@@ -719,13 +719,9 @@ namespace Aladdin.CAPI.ANSI
         {
             WriteLine("MAC.CMAC_AES");
 
-            // указать параметры шифрования
-            ASN1.ISO.AlgorithmIdentifier cipherParameters = new ASN1.ISO.AlgorithmIdentifier(
-                new ASN1.ObjectIdentifier(ASN1.ANSI.OID.nist_aes128_cbc), 
-                new ASN1.OctetString(new byte[16])
-            ); 
             // создать блочный алгоритм шифрования
-            using (IBlockCipher blockCipher = new Cipher.AES(factory, scope, 16))
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                scope, "AES", ASN1.Null.Instance))
             {
                 // создать алгоритм выработки имитовставки
                 using (Mac algorithm = MAC.OMAC1.Create(blockCipher, new byte[16], 16))
@@ -1066,7 +1062,8 @@ namespace Aladdin.CAPI.ANSI
             WriteLine("KeyWrap.SMIME_DES");
 
             // указать алгоритм шифрования
-            using (IBlockCipher des = new Cipher.DES(factory, scope))
+            using (IBlockCipher des = factory.CreateBlockCipher(
+                scope, "DES", ASN1.Null.Instance))
             {
                 // выполнить тест
                 Engine.DES.TestSMIME(des);
@@ -1077,7 +1074,8 @@ namespace Aladdin.CAPI.ANSI
             WriteLine("KeyWrap.SMIME_TDES");
 
             // указать алгоритм шифрования
-            using (IBlockCipher tdes = new Cipher.TDES(factory, scope, 24))
+            using (IBlockCipher tdes = factory.CreateBlockCipher(
+                scope, "DESede", ASN1.Null.Instance))
             {
                 // выполнить тест
                 Engine.TDES.TestSMIME(tdes);
@@ -1214,9 +1212,8 @@ namespace Aladdin.CAPI.ANSI
                 KeyUsage keyUsage = keyFactory.GetKeyUsage(); 
         
                 // указать параметры ключа
-                IParameters parameters = new RSA.Parameters(
-                    bits, Math.BigInteger.ValueOf(0x10001L)
-                ); 
+                IParameters parameters = new RSA.Parameters(bits); 
+
                 // сгенерировать ключевую пару
                 using (KeyPair keyPair = GenerateKeyPair(
                     factory, scope, rand, trustFactory, null, generate, 

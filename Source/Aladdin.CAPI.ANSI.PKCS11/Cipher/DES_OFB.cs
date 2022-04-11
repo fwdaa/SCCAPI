@@ -36,8 +36,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11.Cipher
         }
         // тип ключей
         public override SecretKeyFactory KeyFactory { get { return Keys.DES.Instance; }}
-		// размер ключа в байтах
-		public override int[] KeySizes { get { return new int[] {8}; }}
 		// размер блока
 		public override int BlockSize { get { return 8; }} 
 

@@ -39,7 +39,7 @@ public class PBES2 extends Cipher
         SecretKeyFactory keyFactory = cipherAlgorithm.keyFactory(); int keySize = -1; 
         
         // определить допустимые размеры ключей
-        int[] keySizes = cipherAlgorithm.keySizes(); 
+        int[] keySizes = cipherAlgorithm.keyFactory().keySizes(); 
         
         // указать рекомендуемый размер ключа
         if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 
@@ -65,7 +65,7 @@ public class PBES2 extends Cipher
         SecretKeyFactory keyFactory = cipherAlgorithm.keyFactory(); int keySize = -1; 
         
         // определить допустимые размеры ключей
-        int[] keySizes = cipherAlgorithm.keySizes(); 
+        int[] keySizes = cipherAlgorithm.keyFactory().keySizes(); 
         
         // указать рекомендуемый размер ключа
         if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 

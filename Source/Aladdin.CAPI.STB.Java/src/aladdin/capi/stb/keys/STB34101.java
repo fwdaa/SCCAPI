@@ -6,12 +6,11 @@ import aladdin.capi.*;
 ///////////////////////////////////////////////////////////////////////////
 public class STB34101 extends SecretKeyFactory
 {
-    // тип ключа
-    public static final SecretKeyFactory INSTANCE = new STB34101(); 
-        
     // конструктор
-    private STB34101() { super("STB34101"); }
+    public STB34101(int[] keySizes) { super(keySizes); }
+    // конструктор
+    public STB34101() { super(new int[] { 16, 24, 32 }); }
     
-	// размер ключей
-	@Override public final int[] keySizes() { return new int[] { 16, 24, 32 }; }
+    // ограничить размер ключей
+    @Override public SecretKeyFactory narrow(int[] keySizes) { return new STB34101(keySizes); }
 }

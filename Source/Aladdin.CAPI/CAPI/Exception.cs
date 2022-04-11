@@ -6,7 +6,7 @@ namespace Aladdin.CAPI
 	// Объект не найден 
 	//////////////////////////////////////////////////////////////////////////////
     [Serializable]
-	public class NotFoundException : System.SystemException
+	public class NotFoundException : SystemException
     {
         // конструктор
         public NotFoundException(string message, Exception exception) : base(message, exception) {} 
@@ -46,20 +46,5 @@ namespace Aladdin.CAPI
         public SignatureException(Exception exception) : base(Resource.InvalidSignature, exception) {} 
         // конструктор
         public SignatureException() : base(Resource.InvalidSignature) {} 
-    }
-	//////////////////////////////////////////////////////////////////////////////
-	// Исключение аутентификации
-	//////////////////////////////////////////////////////////////////////////////
-    [Serializable]
-    public class AuthenticationException : System.Security.Authentication.InvalidCredentialException
-    {
-        // конструктор
-        public AuthenticationException(string message, Exception exception) : base(message, exception) {} 
-        // конструктор
-        public AuthenticationException(string message) : base(message) {} 
-        // конструктор
-        public AuthenticationException(Exception exception) : base(Resource.AuthenticationFailed, exception) {} 
-        // конструктор
-        public AuthenticationException() : base(Resource.AuthenticationFailed) {} 
     }
 }

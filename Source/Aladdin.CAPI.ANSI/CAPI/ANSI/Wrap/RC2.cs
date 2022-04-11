@@ -8,21 +8,23 @@ namespace Aladdin.CAPI.ANSI.Wrap
     ///////////////////////////////////////////////////////////////////////////
     public class RC2 : KeyWrap
     {
-        // блочный алгоритм шифрования и алгоритм хэширования
-        private IBlockCipher blockCipher; private CAPI.Hash sha1; 
+        // блочный алгоритм шифрования 
+        private IBlockCipher blockCipher; 
+        // размер ключа и и алгоритм хэширования
+        private int keyLength; private CAPI.Hash sha1; 
 
         // вектор инициализации
 	    private static readonly byte[] IV = new byte[] { 
             0x4A, 0xDD, 0xA2, 0x2C, 0x79, 0xE8, 0x21, 0x05 
         };
         // конструктор
-        public RC2(IBlockCipher blockCipher, CAPI.Hash sha1) 
+        public RC2(IBlockCipher blockCipher, int keyLength, CAPI.Hash sha1) 
         { 
             // сохранить переданные параметры
             this.blockCipher = RefObject.AddRef(blockCipher); 
             
             // сохранить переданные параметры
-            this.sha1 = RefObject.AddRef(sha1); 
+            this.sha1 = RefObject.AddRef(sha1); this.keyLength = keyLength; 
         }
         // освободить выделенные ресурсы
         protected override void OnDispose()
@@ -31,10 +33,14 @@ namespace Aladdin.CAPI.ANSI.Wrap
             RefObject.Release(sha1); RefObject.Release(blockCipher); base.OnDispose();
         }
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return blockCipher.KeyFactory; }}
-	    // поддерживаемые размеры ключей
-	    public override int[] KeySizes { get { return blockCipher.KeySizes; }}
-
+        public override SecretKeyFactory KeyFactory { get 
+        { 
+            // проверить изменение размера 
+            if (keyLength == 0) return blockCipher.KeyFactory; 
+        
+            // указать используемый размер
+            return blockCipher.KeyFactory.Narrow(new int[] {keyLength}); 
+        }}
 	    // зашифровать ключ
 	    public override byte[] Wrap(IRand rand, ISecretKey key, ISecretKey wrappedKey)
 	    {

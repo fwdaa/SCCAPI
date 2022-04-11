@@ -60,8 +60,6 @@ public class RFC4357 extends aladdin.capi.KeyWrap
     }
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() { return cipher.keyFactory(); } 
-	// размер ключей
-	@Override public final int[] keySizes() { return cipher.keySizes(); }
     
     // зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey wrappedKey) 

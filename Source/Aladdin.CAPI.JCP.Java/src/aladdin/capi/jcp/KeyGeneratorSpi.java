@@ -9,32 +9,34 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
 {
-	// провайдер и фабрика кодирования ключей
-	private final Provider provider; private final SecretKeyFactory keyFactory;
-	
-	// датчик случайных чисел и размер ключа
+	// провайдер и имя алгоритма
+	private final Provider provider; private final String name; 
+	// генератор случайных данных и размер ключа
 	private SecureRandom random; private int keySize; 
 
 	// конструктор
-	public KeyGeneratorSpi(Provider provider, String keyType) 
+	public KeyGeneratorSpi(Provider provider, String name) 
 	{
 		// сохранить переданные параметры
-		this.provider = provider; Factory factory = provider.getFactory(); 
-        
-        // получить фабрику кодирования ключей
-        this.keyFactory = factory.getSecretKeyFactory(keyType); 
+		this.provider = provider; Factory factory = provider.factory(); 
         
         // проверить поддержку ключа
-        if (this.keyFactory == null) throw new UnsupportedOperationException(); 
-        
+        if (factory.getSecretKeyFactory(name) == null) 
+        {
+            // при ошибке выбросить исключение
+            throw new UnsupportedOperationException(); 
+        }
         // инициализировать переменные
-        this.random = null; this.keySize = 0;
+        this.name = name; this.random = null; this.keySize = 0;
 	}
 	@Override
 	protected final void engineInit(int keyBits, SecureRandom random) 
 	{
         // проверить поддержку размера ключа
         if ((keyBits % 8) != 0) throw new InvalidParameterException(); 
+        
+        // получить фабрику кодирования ключей
+        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(name); 
         
         // проверить поддержку размера ключа
         if (!KeySizes.contains(keyFactory.keySizes(), keyBits / 8))
@@ -52,8 +54,8 @@ public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
         this.random = random; this.keySize = 0; 
     }
 	@Override
-	protected final void engineInit(AlgorithmParameterSpec paramSpec, SecureRandom random) 
-		throws InvalidAlgorithmParameterException 
+	protected final void engineInit(AlgorithmParameterSpec paramSpec, 
+        SecureRandom random) throws InvalidAlgorithmParameterException 
 	{
         // проверить указание параметров
         if (paramSpec == null) { engineInit(random); return; }
@@ -64,8 +66,11 @@ public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
 	@Override
 	protected final javax.crypto.SecretKey engineGenerateKey() 
 	{
+        // получить фабрику кодирования ключей
+        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(name); 
+        
         // при отсутствии размера ключа
-        int keyLength = keySize; if (keySize == 0) 
+        int keyLength = keySize; if (keyLength == 0) 
         {
             // получить допустимые размеры ключей
             int[] keySizes = keyFactory.keySizes(); 
@@ -74,28 +79,16 @@ public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
             if (keySizes == KeySizes.UNRESTRICTED) throw new InvalidParameterException();
 
             // указать размер ключа по умолчанию
-            if (keySize == 0) keyLength = keySizes[keySizes.length - 1]; 
+            keyLength = keySizes[keySizes.length - 1]; 
         }
-        // при отсутствии генератора
-        if (random == null)
-        {
-            // создать объект ключа
-            try (ISecretKey secretKey = keyFactory.generate(provider.getRand(), keyLength)) 
-            {
-                // зарегистрировать ключ
-                return provider.registerSecretKey(secretKey); 
-            }
-            // обработать возможное исключение
-            catch (IOException e) { throw new RuntimeException(e); }
-        }
-        // создать объект генератора
-        else try (IRand rand = new Rand(random, null))
+        // создать объект генератора случайных данных
+        try (IRand rand = provider.createRand(random))
         {
             // создать объект ключа
             try (ISecretKey secretKey = keyFactory.generate(rand, keyLength))
             {
                 // зарегистрировать ключ
-                return provider.registerSecretKey(secretKey); 
+                return new SecretKey(provider, name, secretKey); 
             }
         }
         // обработать возможное исключение

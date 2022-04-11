@@ -3,7 +3,6 @@ import aladdin.asn1.*;
 import aladdin.asn1.gost.*;
 import aladdin.asn1.iso.*;
 import aladdin.capi.*;
-import aladdin.capi.keyx.*;
 import java.io.*;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -29,7 +28,7 @@ public class KExp15Agreement extends aladdin.capi.TransportAgreement
         byte[] iv = new byte[blockSize / 2]; 
         
         // создать алгоритм шифрования ключа
-        try (KeyWrap keyWrap = aladdin.capi.gost.wrap.KExp15.create(factory, scope, oid, iv))
+        try (KeyWrap keyWrap = aladdin.capi.gost.wrap.KExp15.create(factory, scope, blockSize, iv))
         {
             // проверить поддержку алгоритма
             if (keyWrap == null) return null;  
@@ -110,7 +109,7 @@ public class KExp15Agreement extends aladdin.capi.TransportAgreement
         byte[] iv = new byte[blockSize / 2]; System.arraycopy(random, 24, iv, 0, iv.length);
         
         // создать алгоритм шифрования ключа
-        KeyWrap keyWrap = aladdin.capi.gost.wrap.KExp15.create(factory, scope, oid, iv); 
+        KeyWrap keyWrap = aladdin.capi.gost.wrap.KExp15.create(factory, scope, blockSize, iv); 
         
         // проверить наличие алгоритма
         if (keyWrap == null) throw new UnsupportedOperationException(); return keyWrap; 

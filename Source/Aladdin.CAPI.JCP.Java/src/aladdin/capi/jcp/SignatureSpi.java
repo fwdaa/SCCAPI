@@ -11,28 +11,34 @@ import java.io.*;
 public final class SignatureSpi extends java.security.SignatureSpi implements Closeable
 {
     // используемый провайдер и номер слота
-	private final Provider provider; private final int slot;
-    
-	// параметры алгоритма и используемый генератор случайных данных
+	private final Provider provider; private final int slot; 
+	// параметры алгоритма и генератор случайных данных
 	private AlgorithmParametersSpi parameters; private SecureRandom random; 
-    
-    // открытый ключ и буфер приема входных данных
-    private IPublicKey publicKey; private final ByteArrayOutputStream stream; 
+    // имя алгоритма, алгоритм и открытый ключ
+    private final String name; private IAlgorithm algorithm; private IPublicKey publicKey; 
+    // буфер приема входных данных
+    private final ByteArrayOutputStream stream; 
 
 	// конструктор
-	public SignatureSpi(Provider provider, int slot, AlgorithmParametersSpi parameters) 
+	public SignatureSpi(Provider provider, String name) 
 	{ 
         // сохранить переданные параметры
-        this.provider = provider; this.slot = slot; stream = new ByteArrayOutputStream();
+        this.provider = provider; this.slot = provider.addObject(this); 
         
         // инициализировать переменные
-        this.parameters = parameters; this.random = null;
+        parameters = new AlgorithmParametersSpi(provider, name); random = null; 
+
+        // инициализировать переменные
+        this.name = name; this.algorithm = null; this.publicKey = null; 
+        
+        // создать буфер приема входных данных
+        this.stream = new ByteArrayOutputStream();
     } 
     // освободить выделенные ресурсы
     @Override public void close() throws IOException
     { 
         // освободить выделенные ресурсы
-        provider.clearObject(slot); stream.close(); 
+        RefObject.release(algorithm); stream.close(); provider.removeObject(slot); 
     }
 	@Deprecated
 	@Override
@@ -53,7 +59,7 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 		throws InvalidAlgorithmParameterException 
 	{
 		// раскодировать параметры
-		try { parameters = AlgorithmParametersSpi.create(provider, paramSpec); } 
+		try { parameters = provider.createParameters(name, paramSpec); } 
 			
         // обработать возможную ошибку
 		catch (InvalidParameterSpecException e) 
@@ -65,9 +71,6 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 	@Override
 	protected final AlgorithmParameters engineGetParameters() 
     { 
-        // проверить наличие параметров
-        if (parameters == null) return null; 
-        
         // вернуть параметры алгоритма
         return new AlgorithmParameters(provider, parameters); 
     }
@@ -83,36 +86,27 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
         java.security.PrivateKey key, SecureRandom random) 
             throws InvalidKeyException 
 	{
-        // проверить наличие параметров
-        if (parameters == null) throw new IllegalStateException(); 
-        
         // сохранить генератор случайных данных
         this.random = random; this.publicKey = null; 
         
-        // указать фабрику ключей
-        KeyFactorySpi keyFactory = new KeyFactorySpi(provider); 
-        
         // преобразовать тип ключа
-        try (IPrivateKey privateKey = keyFactory.translatePrivateKey(key))
+        try (IPrivateKey privateKey = provider.translatePrivateKey(key))
         { 
             // создать алгоритм выработки подписи
             try (SignData signAlgorithm = (SignData)privateKey.factory().createAlgorithm(
-                privateKey.scope(), parameters.getEncodable(), SignData.class)) 
+                privateKey.scope(), name, parameters.getEncodable(), SignData.class)) 
             {
                 // проверить наличие алгоритма
                 if (signAlgorithm == null) throw new InvalidKeyException(); 
                 
-                // инициализировать алгоритм 
-                if (random == null) signAlgorithm.init(privateKey, provider.getRand());
-                    
-                // указать генератор случайных данных
-                else try (IRand rand = new Rand(random, null))
+                // создать объект генератора случайных данных
+                try (IRand rand = provider.createRand(random))
                 {
                     // инициализировать алгоритм 
                     signAlgorithm.init(privateKey, rand); 
                 }
-                // сохранить алгоритм
-                provider.setObject(slot, RefObject.addRef(signAlgorithm));
+                // сохранить алгоритм и личный ключ
+                this.algorithm = RefObject.addRef(signAlgorithm); 
             }
         }
         // обработать возможное исключение
@@ -122,24 +116,15 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 	protected final void engineInitVerify(
         java.security.PublicKey key) throws InvalidKeyException 
 	{
-        // проверить наличие параметров
-        if (parameters == null) throw new IllegalStateException(); 
-        
-        // указать фабрику ключей
-        KeyFactorySpi keyFactory = new KeyFactorySpi(provider); 
-        
         // преобразовать тип ключа
-        publicKey = keyFactory.translatePublicKey(key); stream.reset();
-         
-        // создать алгоритм проверки подписи
-        try (VerifyData verifyAlgorithm = (VerifyData)provider.getFactory().createAlgorithm(
-            parameters.getScope(), parameters.getEncodable(), VerifyData.class)) 
-        {
+        publicKey = provider.translatePublicKey(key); stream.reset();
+        try {
+            // создать алгоритм проверки подписи
+            algorithm = provider.factory().createAlgorithm(
+                parameters.getScope(), name, parameters.getEncodable(), VerifyData.class
+            );  
             // проверить наличие алгоритма
-            if (verifyAlgorithm == null) throw new InvalidKeyException(); 
-            
-            // сохранить алгоритм
-            provider.setObject(slot, RefObject.addRef(verifyAlgorithm));
+            if (algorithm == null) throw new InvalidKeyException(); 
         }
         // обработать возможное исключение
         catch (IOException e) { throw new RuntimeException(e); }  	
@@ -154,17 +139,14 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 	protected final void engineUpdate(byte[] input, int offset, int len) 
 		throws SignatureException
 	{
+        // проверить наличие алгоритма
+        if (algorithm == null) throw new IllegalStateException(); 
+            
 		// записать данные в буфер
         if (publicKey != null) stream.write(input, offset, len); 
         else {
-            // получить алгоритм
-            SignData signAlgorithm = (SignData)provider.getObject(slot); 
-        
-            // проверить наличие алгоритма
-            if (signAlgorithm == null) throw new IllegalStateException(); 
-            
 			// обработать данные
-            try { signAlgorithm.update(input, offset, len); }
+            try { ((SignData)algorithm).update(input, offset, len); }
             
     		// обработать возможное исключение
             catch (IOException e) { throw new RuntimeException(e); }  	
@@ -173,24 +155,17 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 	@Override
 	protected final byte[] engineSign() throws SignatureException 
 	{
+        // проверить наличие алгоритма
+        if (algorithm == null) throw new IllegalStateException(); 
+        
         // проверить допустимость вызова
         if (publicKey != null) throw new IllegalStateException(); 
         
-        // получить алгоритм
-        SignData signAlgorithm = (SignData)provider.getObject(slot); 
-        
-        // проверить наличие алгоритма
-        if (signAlgorithm == null) throw new IllegalStateException(); 
-        try { 
+        // создать объект генератора случайных данных
+        try (IRand rand = provider.createRand(random))
+        {
             // получить подпись данных
-            if (random == null) return signAlgorithm.finish(provider.getRand());
-            
-            // указать генератор случайных данных
-            try (IRand rand = new Rand(random, null))
-            {
-                // получить подпись данных
-                return signAlgorithm.finish(rand);
-            }
+            return ((SignData)algorithm).finish(rand);
         }
 		// обработать возможное исключение
         catch (IOException e) { throw new RuntimeException(e); }  	
@@ -222,25 +197,22 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 		System.arraycopy(signature, 0, buffer, 0, length);
 		
 		// проверить подпись
-		return engineVerify(signature); 
+		return engineVerify(buffer); 
 	}
 	@Override
 	protected final boolean engineVerify(byte[] signature) throws SignatureException 
 	{
+        // проверить наличие алгоритма
+        if (algorithm == null) throw new IllegalStateException(); 
+        
         // проверить допустимость вызова
         if (publicKey == null) throw new IllegalStateException(); 
-
-        // получить алгоритм
-        VerifyData verifyAlgorithm = (VerifyData)provider.getObject(slot); 
-        
-        // проверить наличие алгоритма
-        if (verifyAlgorithm == null) throw new IllegalStateException(); 
         try { 
     		// получить закэшированные данные 
     		byte[] data = stream.toByteArray(); 
 		
 			// проверить подпись данных 
-			verifyAlgorithm.verify(publicKey, data, 0, data.length, signature); 
+			((VerifyData)algorithm).verify(publicKey, data, 0, data.length, signature); 
             
             return true; 
 		}

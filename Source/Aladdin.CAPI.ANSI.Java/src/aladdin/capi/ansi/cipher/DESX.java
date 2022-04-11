@@ -1,40 +1,23 @@
 package aladdin.capi.ansi.cipher;
-import aladdin.*; 
 import aladdin.asn1.*;
-import aladdin.asn1.iso.*;
 import aladdin.asn1.ansi.*;
 import aladdin.capi.*; 
-import aladdin.capi.mode.*;
 import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Алгоритм шифрования DES-X
 ///////////////////////////////////////////////////////////////////////////
-public final class DESX extends RefObject implements IBlockCipher
+public final class DESX extends BlockCipher
 {
-    // фабрика алгоритмов и область видимости
-    private final Factory factory; private final SecurityStore scope; 
-
     // конструктор
-    public DESX(Factory factory, SecurityStore scope) 
-    {
-        // сохранить переданные параметры	
-        this.factory = RefObject.addRef(factory); this.scope = RefObject.addRef(scope);
-    } 
-    // освободить выделенные ресурсы
-    @Override protected void onClose() throws IOException
-    {
-        // освободить выделенные ресурсы
-        RefObject.release(scope); RefObject.release(factory); super.onClose();
-    }
+    public DESX(Factory factory, SecurityStore scope) { super(factory, scope); }
+    
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
         return aladdin.capi.ansi.keys.DESX.INSTANCE; 
     } 
-    // размер ключей
-    @Override public final int[] keySizes () { return new int[] {24}; } 
     // размер блока
     @Override public final int blockSize() { return 8; } 
         
@@ -45,11 +28,11 @@ public final class DESX extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.ECB) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.SSIG_DES_ECB), Null.INSTANCE
-            );
+            IEncodable parameters = Null.INSTANCE; 
+            
             // получить алгоритм шифрования
-            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class)) 
+            try (Cipher engine = (Cipher)factory().createAlgorithm(
+                scope(), OID.SSIG_DES_ECB, parameters, Cipher.class)) 
             {
                 // вернуть алгоритм шифрования
                 if (engine == null) throw new UnsupportedOperationException();
@@ -58,7 +41,7 @@ public final class DESX extends RefObject implements IBlockCipher
                 try (Cipher desX = new aladdin.capi.ansi.engine.DESX(engine))
                 {
                     // вернуть режим алгоритма
-                    return new BlockMode.ConvertPadding(desX, PaddingMode.ANY); 
+                    return new BlockMode.PaddingConverter(desX, PaddingMode.ANY); 
                 }
             }
         }
@@ -66,45 +49,16 @@ public final class DESX extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.CBC) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.RSA_DESX_CBC),
-                new OctetString(((CipherMode.CBC)mode).iv())
-            );
+            IEncodable parameters = new OctetString(((CipherMode.CBC)mode).iv()); 
+            
             // получить алгоритм шифрования
-            try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                scope, parameters, Cipher.class))
-            {
-                // проверить наличие алгоритма
-                if (cipher != null) return cipher; 
-            }
-            // получить алгоритм шифрования
-            try (Cipher engine = createBlockMode(new CipherMode.ECB())) 
-            {
-                // вернуть режим шифрования
-                return new CBC(engine, (CipherMode.CBC)mode, PaddingMode.ANY); 
-            }
+            Cipher cipher = (Cipher)factory().createAlgorithm(
+                scope(), OID.RSA_DESX_CBC, parameters, Cipher.class
+            ); 
+            // проверить наличие алгоритма
+            if (cipher != null) return cipher; 
         }
-        // в зависимости от режима
-        if (mode instanceof CipherMode.OFB) 
-        {
-            // получить алгоритм шифрования
-            try (Cipher engine = createBlockMode(new CipherMode.ECB())) 
-            {
-                // вернуть режим шифрования
-                return new OFB(engine, (CipherMode.OFB)mode); 
-            }
-        }
-        // в зависимости от режима
-        if (mode instanceof CipherMode.CFB) 
-        {
-            // получить алгоритм шифрования
-            try (Cipher engine = createBlockMode(new CipherMode.ECB())) 
-            {
-                // вернуть режим шифрования
-                return new CFB(engine, (CipherMode.CFB)mode); 
-            }
-        }
-        // режим не поддерживается
-        throw new UnsupportedOperationException();
+        // вызвать базовую функцию
+        return createBlockMode(mode, 24); 
 	}
 }

@@ -10,8 +10,8 @@ namespace Aladdin.CAPI.ANSI.Keys
         // тип ключа
         public static readonly SecretKeyFactory Instance = new DES(); 
 
-        // размер ключей
-	    public override int[] KeySizes { get { return new int[] { 8 }; }}
+        // конструктор
+        public DES() : base(new int[] {8}) {}
 
         // создать ключ
         public override ISecretKey Create(byte[] value) 

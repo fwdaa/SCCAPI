@@ -19,31 +19,31 @@ public class KeyFactory extends aladdin.capi.ansi.rsa.KeyFactory
             keyOID.equals(OID.GAMMA_KEY_RSA_1024_XCH))
         {
             // указать параметры ключа
-            parameters = new aladdin.capi.ansi.rsa.Parameters(1024, null); 
+            parameters = new aladdin.capi.ansi.rsa.Parameters(1024); 
         }
         else if (keyOID.equals(OID.GAMMA_KEY_RSA_1536) || 
                  keyOID.equals(OID.GAMMA_KEY_RSA_1536_XCH))
         {
             // указать параметры ключа
-            parameters = new aladdin.capi.ansi.rsa.Parameters(1536, null); 
+            parameters = new aladdin.capi.ansi.rsa.Parameters(1536); 
         }
         else if (keyOID.equals(OID.GAMMA_KEY_RSA_2048) || 
                  keyOID.equals(OID.GAMMA_KEY_RSA_2048_XCH))
         {
             // указать параметры ключа
-            parameters = new aladdin.capi.ansi.rsa.Parameters(2048, null); 
+            parameters = new aladdin.capi.ansi.rsa.Parameters(2048); 
         }
         else if (keyOID.equals(OID.GAMMA_KEY_RSA_3072) || 
                  keyOID.equals(OID.GAMMA_KEY_RSA_3072_XCH))
         {
             // указать параметры ключа
-            parameters = new aladdin.capi.ansi.rsa.Parameters(3072, null); 
+            parameters = new aladdin.capi.ansi.rsa.Parameters(3072); 
         }
         else if (keyOID.equals(OID.GAMMA_KEY_RSA_4096) || 
                  keyOID.equals(OID.GAMMA_KEY_RSA_4096_XCH))
         {
             // указать параметры ключа
-            parameters = new aladdin.capi.ansi.rsa.Parameters(4096, null); 
+            parameters = new aladdin.capi.ansi.rsa.Parameters(4096); 
         }
         // при ошибке выбросить исключение
         else throw new UnsupportedOperationException(); 
@@ -70,6 +70,6 @@ public class KeyFactory extends aladdin.capi.ansi.rsa.KeyFactory
         aladdin.capi.IParameters parameters) { return Null.INSTANCE; }
     
     // параметры алгоритма
-    @Override public final aladdin.capi.ansi.rsa.IParameters 
+    @Override public final aladdin.capi.IParameters 
         decodeParameters(IEncodable encoded) { return parameters; }
 }

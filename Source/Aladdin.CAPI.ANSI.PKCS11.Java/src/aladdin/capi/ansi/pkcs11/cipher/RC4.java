@@ -35,8 +35,6 @@ public class RC4 extends aladdin.capi.pkcs11.Cipher
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.RC4.INSTANCE; 
-    }
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return keySizes; }
+        return new aladdin.capi.ansi.keys.RC4(keySizes); 
+    } 
 } 

@@ -10,11 +10,23 @@ namespace Aladdin.CAPI.ANSI.Engine
         // способ кодирования чисел
         private const Math.Endian Endian = Math.Endian.LittleEndian; 
     
-        // конструктор
-        public RC5_128(int rounds) { this.rounds = rounds; } private int rounds;
+        // число раундов и допустимые размеры ключей
+        private int rounds; private int[] keySizes;
 
+        // конструктор
+        public RC5_128(int rounds) : this(rounds, KeySizes.Range(1, 256)) {}
+        // конструктор
+        public RC5_128(int rounds, int[] keySizes) 
+        { 
+            // сохранить переданные параметры
+            this.rounds = rounds; this.keySizes = keySizes; 
+        } 
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.RC5.Instance; }}
+        public override SecretKeyFactory KeyFactory  
+        { 
+            // тип ключа
+            get { return new Keys.RC5(keySizes); }
+        }
         // размер блока
 		public override int BlockSize { get { return 16; }}
 
@@ -28,8 +40,11 @@ namespace Aladdin.CAPI.ANSI.Engine
 			    throw new InvalidKeyException();
 		    }
             // проверить размер ключа
-            if (value.Length >= 256) throw new InvalidKeyException();
-
+            if (!KeySizes.Contains(KeyFactory.KeySizes, value.Length))
+            {
+                // при ошибке выбросить исключение
+                throw new InvalidKeyException(); 
+            }
             // вернуть алгоритм зашифрования блока данных
 		    return new Encryption(key, rounds); 
 		}
@@ -43,8 +58,11 @@ namespace Aladdin.CAPI.ANSI.Engine
 			    throw new InvalidKeyException();
 		    }
             // проверить размер ключа
-            if (value.Length >= 256) throw new InvalidKeyException();
-
+            if (!KeySizes.Contains(KeyFactory.KeySizes, value.Length))
+            {
+                // при ошибке выбросить исключение
+                throw new InvalidKeyException(); 
+            }
 		    // вернуть алгоритм расшифрования блока данных
 		    return new Decryption(key, rounds); 
 		}

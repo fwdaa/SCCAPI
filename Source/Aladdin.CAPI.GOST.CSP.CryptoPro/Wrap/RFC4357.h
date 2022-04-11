@@ -23,13 +23,7 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 		public: virtual property SecretKeyFactory^ KeyFactory 
 		{ 
 			// тип ключа
-			SecretKeyFactory^ get() override { return Keys::GOST28147::Instance; }
-		}
-		// размер ключа в байтах
-		public: virtual property array<int>^ KeySizes 
-		{ 
-			// размер ключа в байтах
-			array<int>^ get() override { return gcnew array<int> {32}; }
+			SecretKeyFactory^ get() override { return Keys::GOST::Instance; }
 		}
 	    // получить алгоритм диверсификации ключа
         public: virtual KeyDerive^ GetKDFAlgorithm(CAPI::CSP::ContextHandle^ hContext) = 0; 

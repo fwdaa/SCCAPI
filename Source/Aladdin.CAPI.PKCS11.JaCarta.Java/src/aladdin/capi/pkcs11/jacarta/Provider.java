@@ -1,5 +1,5 @@
 package aladdin.capi.pkcs11.jacarta;
-import aladdin.asn1.iso.*; 
+import aladdin.asn1.*; 
 import aladdin.capi.*; 
 import aladdin.capi.pkcs11.*;  
 import aladdin.capi.pkcs11.Attribute; 
@@ -32,33 +32,43 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
     // интерфейс вызова функций
 	@Override public Module module() { return module; } 
     
-    @Override public SecretKeyFactory[] secretKeyFactories() 
+    @Override public Map<String, SecretKeyFactory> secretKeyFactories() 
     {
-        // создать список фабрик кодирования
-        List<SecretKeyFactory> keyFactories = new ArrayList<SecretKeyFactory>(); 
+        // создать список поддерживаемых ключей
+        Map<String, SecretKeyFactory> keyFactories = new HashMap<String, SecretKeyFactory>(); 
         
-        // заполнить список фабрик кодирования
-        keyFactories.addAll(Arrays.asList(gostProvider.secretKeyFactories())); 
-        
-        // вызвать базовую функцию
-        keyFactories.addAll(Arrays.asList(super.secretKeyFactories())); 
-
-        // вернуть список фабрик
-        return keyFactories.toArray(new SecretKeyFactory[keyFactories.size()]); 
+        // для всех поддерживаемых ключей
+        for (Map.Entry<String, SecretKeyFactory> entry : gostProvider.secretKeyFactories().entrySet())
+        {
+            // добавить фабрику в таблицу
+            keyFactories.put(entry.getKey(), entry.getValue()); 
+        }
+        // для всех поддерживаемых ключей
+        for (Map.Entry<String, SecretKeyFactory> entry : super.secretKeyFactories().entrySet())
+        {
+            // добавить фабрику в таблицу
+            keyFactories.put(entry.getKey(), entry.getValue()); 
+        }
+        return keyFactories; 
     }
-    @Override public KeyFactory[] keyFactories() 
+    @Override public Map<String, KeyFactory> keyFactories() 
     {
-        // создать список фабрик кодирования
-        List<KeyFactory> keyFactories = new ArrayList<KeyFactory>(); 
+        // создать список поддерживаемых ключей
+        Map<String, KeyFactory> keyFactories = new HashMap<String, KeyFactory>(); 
         
-        // заполнить список фабрик кодирования
-        keyFactories.addAll(Arrays.asList(gostProvider.keyFactories())); 
-        
-        // вызвать базовую функцию
-        keyFactories.addAll(Arrays.asList(super.keyFactories())); 
-
-        // вернуть список фабрик
-        return keyFactories.toArray(new KeyFactory[keyFactories.size()]); 
+        // для всех поддерживаемых ключей
+        for (Map.Entry<String, KeyFactory> entry : gostProvider.keyFactories().entrySet())
+        {
+            // добавить фабрику в таблицу
+            keyFactories.put(entry.getKey(), entry.getValue()); 
+        }
+        // для всех поддерживаемых ключей
+        for (Map.Entry<String, KeyFactory> entry : super.keyFactories().entrySet())
+        {
+            // добавить фабрику в таблицу
+            keyFactories.put(entry.getKey(), entry.getValue()); 
+        }
+        return keyFactories; 
     }
 	@Override public String[] generatedKeys(SecurityStore scope) 
 	{
@@ -161,11 +171,8 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
 	// создать алгоритм для параметров
     @Override
 	protected IAlgorithm createAlgorithm(Factory factory, SecurityStore scope, 
-		AlgorithmIdentifier parameters, Class<? extends IAlgorithm> type) throws IOException
+		String oid, IEncodable parameters, Class<? extends IAlgorithm> type) throws IOException
     {
-        // определить идентификатор алгоритма
-        String oid = parameters.algorithm().value(); 
-
         // для алгоритмов ассиметричного шифрования
         if (type.equals(aladdin.capi.Encipherment.class))
         {
@@ -195,12 +202,12 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
             if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) return null; 
         }
         // создать алгоритм
-        IAlgorithm algorithm = gostProvider.createAlgorithm(scope, parameters, type); 
+        IAlgorithm algorithm = gostProvider.createAlgorithm(scope, oid, parameters, type); 
         
         // проверить наличие алгоритма
         if (algorithm != null) return algorithm; 
         
         // вызвать базовую функцию
-        return super.createAlgorithm(factory, scope, parameters, type); 
+        return super.createAlgorithm(factory, scope, oid, parameters, type); 
     }
 }

@@ -12,15 +12,27 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
 {
     // используемый провайдер и номер слота
 	private final Provider provider; private final int slot;
+    // имя алгоритма, алгоритм вычисления имитовставки и ключ
+    private final String name; private Mac macAlgorithm; private ISecretKey key;  
 	
 	// конструктор
-	public MacSpi(Provider provider, int slot) 
+	public MacSpi(Provider provider, String name) 
 	{ 
         // сохранить переданные параметры
-        this.provider = provider; this.slot = slot; 
+        this.provider = provider; this.slot = provider.addObject(this); 
+        
+        // инициализировать переменные
+        this.name = name; macAlgorithm = null; key = null; 
 	} 
     // освободить выделенные ресурсы
-    @Override public void close() { provider.clearObject(slot); }
+    @Override public void close() throws IOException
+    { 
+        // освободить выделенные ресурсы
+        RefObject.release(macAlgorithm); 
+        
+        // освободить выделенные ресурсы
+        RefObject.release(key); provider.removeObject(slot); 
+    }
     
     // инициализировать алгоритм
 	@Override protected void engineInit(java.security.Key key, AlgorithmParameterSpec paramSpec) 
@@ -29,31 +41,27 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
         // проверить тип ключа
         if (!(key instanceof javax.crypto.SecretKey)) throw new InvalidKeyException();
         
-        // получить фабрику алгоритмов
-        Factory factory = provider.getFactory(); 
-        
-        // указать фабрику создания ключей
-        SecretKeyFactorySpi keyFactory = new SecretKeyFactorySpi(provider); 
+        // выполнить преобразование типа
+        javax.crypto.SecretKey secretKey = (javax.crypto.SecretKey)key; 
 		try {
 			// раскодировать параметры
-			AlgorithmParametersSpi parameters = 
-                AlgorithmParametersSpi.create(provider, paramSpec);
+			AlgorithmParametersSpi parameters = provider.createParameters(name, paramSpec); 
             
             // создать алгоритм вычисления имитовставки
-            try (Mac macAlgorithm = (Mac)factory.createAlgorithm(
-                parameters.getScope(), parameters.getEncodable(), Mac.class))
+            try (Mac macAlgorithm = (Mac)provider.factory().createAlgorithm(
+                parameters.getScope(), name, parameters.getEncodable(), Mac.class))
             {
                 // проверить наличие алгоритма
                 if (macAlgorithm == null) throw new InvalidAlgorithmParameterException(); 
                     
                 // преобразовать тип ключа
-                try (ISecretKey secretKey = keyFactory.translateKey((javax.crypto.SecretKey)key))
+                try (ISecretKey nativeKey = provider.translateSecretKey(secretKey))
                 {
                     // инициализировать алгоритм
-                    macAlgorithm.init(secretKey); 
+                    macAlgorithm.init(nativeKey); this.key = RefObject.addRef(nativeKey);
                     
-                    // сохранить алгоритм вычисления имитовставки
-                    provider.setObject(slot, new Slot(macAlgorithm, secretKey)); 
+                    // сохранить созданный алгоритм
+                    this.macAlgorithm = RefObject.addRef(macAlgorithm);
                 }
             }
             // обработать возможное исключение
@@ -69,26 +77,20 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
     // определить размер имитовставки
 	@Override protected int engineGetMacLength() 
 	{
-        // получить алгоритм
-        Slot macSlot = (Slot)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
-        if (macSlot == null) throw new IllegalStateException(); 
+        if (macAlgorithm == null) throw new IllegalStateException(); 
         
 		// вернуть размер имитовставки
-		return macSlot.macAlgorithm.macSize(); 
+		return macAlgorithm.macSize(); 
 	}
     // переустановить алгоритм 
 	@Override protected void engineReset() 
 	{ 
-        // получить алгоритм
-        Slot macSlot = (Slot)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
-        if (macSlot == null) throw new IllegalStateException(); 
+        if (macAlgorithm == null) throw new IllegalStateException(); 
         
 		// инициализировать алгоритм
-		try { macSlot.macAlgorithm.init(macSlot.key); }
+		try { macAlgorithm.init(key); }
         
         // обработать возможное исключение
         catch (Exception e) { throw new RuntimeException(e); }
@@ -102,14 +104,11 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
 	// захэшировать данные
 	@Override protected final void engineUpdate(byte[] input, int offset, int len) 
 	{
-        // получить алгоритм
-        Slot macSlot = (Slot)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
-        if (macSlot == null) throw new IllegalStateException(); 
+        if (macAlgorithm == null) throw new IllegalStateException(); 
         
 		// захэшировать данные
-		try { macSlot.macAlgorithm.update(input, offset, len); }
+		try { macAlgorithm.update(input, offset, len); }
         
         // обработать возможное исключение
         catch (IOException e) { throw new RuntimeException(e); }
@@ -117,20 +116,17 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
 	@Override
 	protected byte[] engineDoFinal() 
 	{
-        // получить алгоритм
-        Slot macSlot = (Slot)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
-        if (macSlot == null) throw new IllegalStateException(); 
+        if (macAlgorithm == null) throw new IllegalStateException(); 
         
 		// выделить буфер для имитовставки
-		byte[] digest = new byte[macSlot.macAlgorithm.macSize()];
+		byte[] digest = new byte[macAlgorithm.macSize()];
 		try { 
     		// получить имитовставку
-        	macSlot.macAlgorithm.finish(digest, 0); 
+        	macAlgorithm.finish(digest, 0); 
             
             // переустановить алгоритм
-            macSlot.macAlgorithm.init(macSlot.key); return digest; 
+            macAlgorithm.init(key); return digest; 
         }
         // обработать неожидаемое исключение
         catch (InvalidKeyException e) { throw new RuntimeException(e); }
@@ -138,28 +134,4 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
         // обработать возможное исключение
         catch (IOException e) { throw new RuntimeException(e); }
 	}
-    ///////////////////////////////////////////////////////////////////////////
-    // Алгоритм с используемым ключом
-    ///////////////////////////////////////////////////////////////////////////
-    private static class Slot implements Closeable
-    {
-        // алгоритм вычисления имитовставки и ключ
-        public final Mac macAlgorithm; public final ISecretKey key;  
-        
-        // конструктор
-        public Slot(Mac macAlgorithm, ISecretKey key)
-        {
-            // сохранить переданные параметры
-            this.macAlgorithm = RefObject.addRef(macAlgorithm); 
-            
-            // сохранить переданные параметры
-            this.key = RefObject.addRef(key); 
-        }
-        // деструктор
-        @Override public void close() throws IOException
-        {
-            // освободить выделенные ресурсы
-            RefObject.release(macAlgorithm); RefObject.release(key); 
-        }
-    }
 }

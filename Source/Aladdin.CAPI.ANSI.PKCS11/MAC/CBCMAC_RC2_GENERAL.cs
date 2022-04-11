@@ -37,11 +37,12 @@ namespace Aladdin.CAPI.ANSI.PKCS11.MAC
             // вернуть параметры алгоритма
             return new Mechanism(API.CKM_RC2_MAC_GENERAL, rc2Parameters); 
 	    }
-        // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.RC2.Instance; }}
-	    // размер ключа в байтах
-	    public override int[] KeySizes { get { return keySizes; }}
-    
+        // тип ключей
+        public override SecretKeyFactory KeyFactory 
+		{ 
+			// тип ключей
+			get { return new Keys.RC2(keySizes); }
+		}
 	    // размер хэш-значения в байтах
 	    public override int MacSize { get { return macSize; }}
 		// размер блока в байтах

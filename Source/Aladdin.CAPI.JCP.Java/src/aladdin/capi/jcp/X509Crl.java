@@ -15,7 +15,7 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class X509Crl extends java.security.cert.X509CRL
 {
-	private final Provider        provider;     // криптопровайдер
+	private final Provider     provider;     // криптопровайдер
 	private final CertificateList crl;          // список отозванных сертификатов
 	
 	// конструктор
@@ -254,7 +254,7 @@ public final class X509Crl extends java.security.cert.X509CRL
         byte[] data = crl.tbsCertList().encoded();
 		try { 
 			// создать алгоритм подписи
-			VerifyData verifyAlgorithm = (VerifyData)provider.getFactory().
+			VerifyData verifyAlgorithm = (VerifyData)provider.factory().
                 createAlgorithm(null, signParameters, VerifyData.class);
 			
 			// проверить наличие алгоритма

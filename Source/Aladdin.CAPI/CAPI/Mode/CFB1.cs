@@ -24,8 +24,6 @@ namespace Aladdin.CAPI.Mode
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory  { get { return engine.KeyFactory; }}
-        // размер ключей
-        public override int[] KeySizes { get { return engine.KeySizes; }} 
 
         protected override Transform CreateEncryption(ISecretKey key) 
         {

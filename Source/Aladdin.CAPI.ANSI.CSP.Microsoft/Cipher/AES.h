@@ -3,27 +3,23 @@
 namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace Microsoft { namespace Cipher
 {
 	///////////////////////////////////////////////////////////////////////////
-	// Алгоритм шифрования AES-256
+	// Алгоритм шифрования AES-128
 	///////////////////////////////////////////////////////////////////////////
-	public ref class AES256 : CAPI::CSP::BlockCipher
+	public ref class AES : CAPI::CSP::BlockCipher
 	{
+		private: array<int>^ keySizes; 
+
 		// конструктор
-		public: AES256(CAPI::CSP::Provider^ provider) 
+		public: AES(CAPI::CSP::Provider^ provider, array<int>^ keySizes) 
 
             // сохранить переданные параметры
-			: CAPI::CSP::BlockCipher(provider, provider->Handle) {} 
+			: CAPI::CSP::BlockCipher(provider, provider->Handle) { this->keySizes = keySizes; } 
 
 		// тип ключа
-		public: virtual property SecretKeyFactory^ KeyFactory
+		public: virtual property SecretKeyFactory^ KeyFactory 
 		{ 
 			// тип ключа
-			SecretKeyFactory^ get() override { return Keys::AES::Instance; }
-		}
-		// размер ключа в байтах
-		public: virtual property array<int>^ KeySizes 
-		{ 
-			// размер ключа в байтах
-			array<int>^ get() override { return gcnew array<int> {32}; } 
+			SecretKeyFactory^ get() override { return gcnew Keys::AES(keySizes); }
 		}
 		// размер блока
 		public: virtual property int BlockSize { int get() override { return 16; }}

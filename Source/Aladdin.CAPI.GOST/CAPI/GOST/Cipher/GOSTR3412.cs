@@ -11,93 +11,95 @@ namespace Aladdin.CAPI.GOST.Cipher
         private KeyDerive keyMeshing; private int N; 
 
         // создать алгоритм из фаборики
-        public static IBlockCipher Create(CAPI.Factory factory, SecurityStore scope, int blockSize)
+        public static IBlockCipher Create(
+            CAPI.Factory factory, SecurityStore scope, int blockSize)
         {
             // указать идентификатор алгоритма
             string oid = (blockSize == 8) ? ASN1.GOST.OID.gostR3412_64 : ASN1.GOST.OID.gostR3412_128; 
         
-            // закодировать параметры алгоритма
-            ASN1.ISO.AlgorithmIdentifier cipherParameters = new ASN1.ISO.AlgorithmIdentifier(
-                new ASN1.ObjectIdentifier(oid), ASN1.Null.Instance
-            );
             // получить алгоритм шифрования блока
-            using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, cipherParameters))
+            using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                scope, oid, ASN1.Null.Instance))
             {
                 // вернуть алгоритм шифрования
-                return new GOSTR3412(cipher, PaddingMode.Any); 
+                return (cipher != null) ? new GOSTR3412(cipher) : null; 
             }
         }
-        public static CAPI.Cipher CreateCTR_ACPKM(CAPI.Factory factory, SecurityStore scope, int blockSize, byte[] iv)
+        // создать блочный алгоритм шифрования со сменой ключа ACPKM
+        public static IBlockCipher CreateACPKM(
+            CAPI.Factory factory, SecurityStore scope, int blockSize)
         {
             // указать идентификатор алгоритма
             string oid = (blockSize == 8) ? ASN1.GOST.OID.gostR3412_64 : ASN1.GOST.OID.gostR3412_128; 
-
+        
             // указать размер смены ключа
             int N = (blockSize == 8) ? (8 * 1024) : (256 * 1024); 
         
-            // закодировать параметры алгоритма
-            ASN1.ISO.AlgorithmIdentifier cipherParameters = new ASN1.ISO.AlgorithmIdentifier(
-                new ASN1.ObjectIdentifier(oid), ASN1.Null.Instance
-            );
             // получить алгоритм шифрования блока
-            using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, cipherParameters))
+            using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                scope, oid, ASN1.Null.Instance))
             {
                 // проверить наличие алгоритма шифрования блока
                 if (cipher == null) return null; 
             
-                // создать алгоритм смены ключа для OMAC-ACPKM
+                // создать алгоритм смены ключа ACPKM
                 using (KeyDerive keyMeshing = new Derive.ACPKM(cipher))
                 {
-                    // указать синхропосылку для шифрования
-                    byte[] ivCTR = new byte[iv.Length - 8]; Array.Copy(iv, 0, ivCTR, 0, ivCTR.Length); 
-                        
-                    // указать параметры режима
-                    CipherMode.CTR ctrParameters = new CipherMode.CTR(ivCTR, cipher.BlockSize); 
-                            
-                    // создать режим CTR со специальной сменой ключа
-                    return new Mode.GOSTR3412.CTR(cipher, ctrParameters, keyMeshing, N); 
+                    // вернуть алгоритм шифрования
+                    return new GOSTR3412(cipher, keyMeshing, N); 
                 }
             }
         }
-        public static CAPI.Cipher CreateCTR_ACPKM_OMAC(CAPI.Factory factory, SecurityStore scope, int blockSize, byte[] iv)
+        // создать режим шифрования CTR
+        public static CAPI.Cipher CreateCTR(CAPI.Factory factory, 
+            SecurityStore scope, int blockSize, byte[] iv)
         {
-            // создать блочный алгоритм шифрования
-            using (IBlockCipher blockCipher = Create(factory, scope, blockSize))
+            // указать имя алгоритма
+            string name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
+        
+            // создать блочный алгоритм шифрования 
+            using (IBlockCipher blockCipher = 
+                factory.CreateBlockCipher(scope, name, ASN1.Null.Instance))
             {
-                // создать режим CTR со специальной сменой ключа
-                using (CAPI.Cipher ctrACPKM = CreateCTR_ACPKM(factory, scope, blockSize, iv))
-                {
-                    // указать начальную синхропосылку
-                    byte[] start = new byte[blockSize]; 
-
-                    // создать алгоритм выработки имитовставки
-                    using (Mac omac = CAPI.MAC.OMAC1.Create(blockCipher, start))
-                    {
-                        // закодировать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier hmacParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_HMAC_256), ASN1.Null.Instance
-                        );
-                        // создать алгоритм HMAC
-                        using (Mac hmac = factory.CreateAlgorithm<Mac>(scope, hmacParameters))
-                        {
-                            // проверить наличие алгоритма шифрования блока
-                            if (hmac == null) return null; byte[] seed = new byte[8];
-
-                            // указать синхропосылку для генерации ключей
-                            Array.Copy(iv, iv.Length - 8, seed, 0, seed.Length);
-                        
-                            // обьединить имитовставку с режимом
-                            return new GOSTR3412ACPKM_MAC(ctrACPKM, omac, hmac, seed); 
-                        }
-                    }
-                }
+                // проверить наличие алгоритма
+                if (blockCipher == null) return null; 
+            
+                // создать режим CTR
+                return blockCipher.CreateBlockMode(new CipherMode.CTR(iv, blockSize)); 
+            }
+        }
+        // создать режим шифрования CTR со сменой ключа ACPKM
+        public static CAPI.Cipher CreateCTR_ACPKM(CAPI.Factory factory, 
+            SecurityStore scope, int blockSize, byte[] iv) 
+        {
+            // создать блочный алгоритм шифрования 
+            using (IBlockCipher blockCipher = CreateACPKM(factory, scope, blockSize))
+            {
+                // проверить наличие алгоритма
+                if (blockCipher == null) return null; 
+            
+                // создать режим CTR
+                return blockCipher.CreateBlockMode(new CipherMode.CTR(iv, blockSize)); 
+            }
+        }
+        // создать алгоритм вычисления имитовставки
+        public static Mac CreateOMAC(CAPI.Factory factory, SecurityStore scope, int blockSize)
+        {
+            // указать имя алгоритма
+            String name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
+        
+            // создать блочный алгоритм шифрования
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, name, ASN1.Null.Instance))
+            {
+                // проверить наличие алгоритма
+                if (blockCipher == null) return null; byte[] start = new byte[blockSize]; 
+            
+                // создать алгоритм выработки имитовставки
+                return CAPI.MAC.OMAC1.Create(blockCipher, start); 
             }
         }
         // конструктор
-	    public GOSTR3412(CAPI.Cipher gostr3412, KeyDerive keyMeshing, int N, PaddingMode padding)  
-
-		    // сохранить переданные параметры
-		    : base(gostr3412, padding) 
+	    public GOSTR3412(CAPI.Cipher gostr3412, KeyDerive keyMeshing, int N) : base(gostr3412) 
         {
             // проверить корректность параметров
             if ((N % gostr3412.BlockSize) != 0) throw new ArgumentException(); 
@@ -106,10 +108,10 @@ namespace Aladdin.CAPI.GOST.Cipher
             this.keyMeshing = RefObject.AddRef(keyMeshing); this.N = N; 
         } 
         // конструктор
-	    public GOSTR3412(CAPI.Cipher gostr3412, PaddingMode padding)  
+	    public GOSTR3412(CAPI.Cipher gostr3412)  
 
 		    // сохранить переданные параметры
-		    : base(gostr3412, padding) { this.keyMeshing = null; N = 0; }
+		    : base(gostr3412) { this.keyMeshing = null; N = 0; }
 
         // освободить ресурсы
         protected override void OnDispose() 
@@ -123,12 +125,12 @@ namespace Aladdin.CAPI.GOST.Cipher
             if (mode is CipherMode.ECB) 
             {
                 // вернуть режим шифрования ECB
-                return new Mode.GOSTR3412.ECB(Engine, keyMeshing, N, Padding);  
+                return new Mode.GOSTR3412.ECB(Engine, keyMeshing, N, PaddingMode.Any);  
             }
             if (mode is CipherMode.CBC) 
             {
                 // вернуть режим шифрования CBC
-                return new Mode.GOSTR3412.CBC(Engine, (CipherMode.CBC)mode, keyMeshing, N, Padding);  
+                return new Mode.GOSTR3412.CBC(Engine, (CipherMode.CBC)mode, keyMeshing, N, PaddingMode.Any);  
             }
             if (mode is CipherMode.CFB) 
             {

@@ -3,15 +3,15 @@
 namespace Aladdin.CAPI.GOST.Engine
 {
     ///////////////////////////////////////////////////////////////////////////
-    // Алгоритм шифрования ГОСТ P34.12-2015
+    // Алгоритм шифрования ГОСТ P34.12-2015 (размер блока 16 байт)
     ///////////////////////////////////////////////////////////////////////////
-    public class GOSTR3412 : CAPI.Cipher
+    public class GOSTR3412_K : CAPI.Cipher
     {
         // способ кодирования чисел
         public const Math.Endian Endian = Math.Endian.BigEndian; 
 
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.GOSTR3412.Instance; }}
+        public override SecretKeyFactory KeyFactory { get { return Keys.GOST.Instance; }}
         // размер блока
 		public override int BlockSize { get { return 16; } }
 

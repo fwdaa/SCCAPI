@@ -414,7 +414,9 @@ public class SHA2_512 extends BlockHash
     ////////////////////////////////////////////////////////////////////////////
     public static void testHMAC(Mac algorithm) throws Exception
     {
-        if (KeySizes.contains(algorithm.keySizes(), 20))
+        int[] keySizes = algorithm.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 20))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
             (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
@@ -439,7 +441,7 @@ public class SHA2_512 extends BlockHash
             (byte)0x2e, (byte)0x69, (byte)0x6c, (byte)0x20, 
             (byte)0x3a, (byte)0x12, (byte)0x68, (byte)0x54
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 4))
+        if (KeySizes.contains(keySizes, 4))
         Mac.knownTest(algorithm, "Jefe".getBytes("UTF-8"), 
             1, "what do ya want for nothing?", new byte[] {
             (byte)0x16, (byte)0x4b, (byte)0x7a, (byte)0x7b, 
@@ -459,7 +461,7 @@ public class SHA2_512 extends BlockHash
             (byte)0x63, (byte)0x6e, (byte)0x07, (byte)0x0a, 
             (byte)0x38, (byte)0xbc, (byte)0xe7, (byte)0x37
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 20))
+        if (KeySizes.contains(keySizes, 20))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
             (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
@@ -484,7 +486,7 @@ public class SHA2_512 extends BlockHash
             (byte)0x74, (byte)0x27, (byte)0x88, (byte)0x59, 
             (byte)0xe1, (byte)0x32, (byte)0x92, (byte)0xfb
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 25))
+        if (KeySizes.contains(keySizes, 25))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -511,7 +513,7 @@ public class SHA2_512 extends BlockHash
             (byte)0xe2, (byte)0xad, (byte)0xeb, (byte)0xeb, 
             (byte)0x10, (byte)0xa2, (byte)0x98, (byte)0xdd
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 20))
+        if (KeySizes.contains(keySizes, 20))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
             (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
@@ -524,7 +526,7 @@ public class SHA2_512 extends BlockHash
             (byte)0x1d, (byte)0x41, (byte)0x79, (byte)0xbc, 
             (byte)0x89, (byte)0x1d, (byte)0x87, (byte)0xa6
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 80))
+        if (KeySizes.contains(keySizes, 80))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
@@ -577,7 +579,7 @@ public class SHA2_512 extends BlockHash
             (byte)0x8b, (byte)0x91, (byte)0x5a, (byte)0x98, 
             (byte)0x5d, (byte)0x78, (byte)0x65, (byte)0x98
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 80))
+        if (KeySizes.contains(keySizes, 80))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 

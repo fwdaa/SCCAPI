@@ -6,17 +6,39 @@ using System.Text;
 namespace Aladdin.CAPI.GOST.Cipher
 {
     ///////////////////////////////////////////////////////////////////////////////
-    // Алгоритм ГОСТ R34.12 CTR-ACPKM-OMAC 
+    // Алгоритм ГОСТ R34.12 с добавлением OMAC
     ///////////////////////////////////////////////////////////////////////////////
-    public class GOSTR3412ACPKM_MAC : CAPI.Cipher
+    public class GOSTR3412_OMAC : CAPI.Cipher
     {
+        // создать алгоритм
+        public static CAPI.Cipher Create(CAPI.Factory factory, 
+            SecurityStore scope, int blockSize, CAPI.Cipher mode, byte[] seed) 
+        {
+            // закодировать параметры алгоритма HMAC
+            ASN1.ISO.AlgorithmIdentifier hmacParameters = new ASN1.ISO.AlgorithmIdentifier(
+                new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_HMAC_256), ASN1.Null.Instance
+            );
+            // создать алгоритм HMAC
+            using (Mac hmac = factory.CreateAlgorithm<Mac>(scope, hmacParameters))
+            {
+                // проверить наличие алгоритма шифрования блока
+                if (hmac == null) return null; 
+            
+                // создать алгоритм выработки имитовставки
+                using (Mac omac = GOSTR3412.CreateOMAC(factory, scope, blockSize))
+                {
+                    // обьединить имитовставку с режимом
+                    return new GOSTR3412_OMAC(mode, omac, hmac, seed); 
+                }
+            }
+        }
         // алгоритм шифрования и алгоритм вычисления имитовставки
         private CAPI.Cipher cipher; private Mac macAlgorithm;
         // алгоритм HMAC и синхропосылка
         private Mac hmac_gostr3411_2012_256; private byte[] seed;
         
         // конструктор
-        public GOSTR3412ACPKM_MAC(CAPI.Cipher cipher, 
+        public GOSTR3412_OMAC(CAPI.Cipher cipher, 
             Mac macAlgorithm, Mac hmac_gostr3411_2012_256, byte[] seed)
         {
             // проверить размер синхропосылки

@@ -602,7 +602,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                 (byte)0x21, (byte)0xB3, (byte)0x3D, (byte)0x6D
             }; 
             // создать алгоритм
-            using (KeyWrap algorithm = new CAPI.ANSI.Wrap.SMIME(des, iv))
+            using (KeyWrap algorithm = new CAPI.ANSI.Wrap.SMIME(des, 8, iv))
             {
                 // создать генератор случайных данных
                 using (CAPI.Test.Rand rand = new CAPI.Test.Rand(new byte[] {

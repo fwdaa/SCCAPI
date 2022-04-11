@@ -4,14 +4,11 @@ import aladdin.capi.*;
 ///////////////////////////////////////////////////////////////////////////
 // Ключ ГОСТ 28147-89
 ///////////////////////////////////////////////////////////////////////////
-public class GOST28147 extends SecretKeyFactory
+public class GOST extends SecretKeyFactory
 {
     // тип ключа
-    public static final SecretKeyFactory INSTANCE = new GOST28147(); 
+    public static final SecretKeyFactory INSTANCE = new GOST(); 
         
     // конструктор
-    private GOST28147() { super("GOST28147"); }
-    
-	// размер ключей
-	@Override public final int[] keySizes() { return new int[] { 32 }; }
+    public GOST() { super(new int[] {32}); }
 }

@@ -59,7 +59,7 @@ namespace Aladdin.CAPI.PBE
             SecretKeyFactory keyFactory = cipherAlgorithm.KeyFactory; int keySize = -1; 
 
             // определить допустимые размеры ключей
-            int[] keySizes = cipherAlgorithm.KeySizes; 
+            int[] keySizes = cipherAlgorithm.KeyFactory.KeySizes; 
         
             // указать рекомендуемый размер ключа
             if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 
@@ -84,7 +84,7 @@ namespace Aladdin.CAPI.PBE
             SecretKeyFactory keyFactory = cipherAlgorithm.KeyFactory; int keySize = -1; 
 
             // определить допустимые размеры ключей
-            int[] keySizes = cipherAlgorithm.KeySizes; 
+            int[] keySizes = cipherAlgorithm.KeyFactory.KeySizes; 
         
             // указать рекомендуемый размер ключа
             if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 

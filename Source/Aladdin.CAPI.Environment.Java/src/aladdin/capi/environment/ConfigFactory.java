@@ -1,10 +1,13 @@
 package aladdin.capi.environment;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент описания фабрики классов
 ///////////////////////////////////////////////////////////////////////////
-public class ConfigFactory 
+public class ConfigFactory implements Serializable
 {
+    private static final long serialVersionUID = 8873238961263357395L;
+    
     // имя фабрики и класса фабрики
     private final String name; private final String className; 
     

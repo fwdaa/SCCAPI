@@ -4,9 +4,7 @@
 #include "..\Hash\SHA2_256.h"
 #include "..\Hash\SHA2_384.h"
 #include "..\Hash\SHA2_512.h"
-#include "..\Cipher\AES128.h"
-#include "..\Cipher\AES192.h"
-#include "..\Cipher\AES256.h"
+#include "..\Cipher\AES.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
@@ -23,7 +21,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::GetSecretKeyType(
 	SecretKeyFactory^ keyFactory, DWORD keySize)
 {$
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::AES::Instance))
+	if (dynamic_cast<Keys::AES^>(keyFactory) != nullptr)
 	{
 		// указать идентификатор алгоритма
 		if (keySize == 32) return gcnew SecretKeyType(CALG_AES_256);
@@ -36,11 +34,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::GetSecretKeyType(
 
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов хэширования
 		if (type == CAPI::Hash::typeid)
@@ -59,7 +56,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes128_ecb) 
 			{
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES128(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {16})); 
 
 				// указать режим алгоритма			
 				CipherMode^ mode = gcnew CipherMode::ECB(); 
@@ -70,10 +67,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes128_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES128(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {16})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::CBC(iv->Value); 
@@ -85,13 +82,13 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
 				
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES128(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {16})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::OFB(algParameters->IV->Value, bits / 8); 
@@ -103,13 +100,13 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
 				
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES128(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {16})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::CFB(algParameters->IV->Value, bits / 8); 
@@ -120,7 +117,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes192_ecb) 
 			{
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES192(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {24})); 
 
 				// указать режим алгоритма			
 				CipherMode^ mode = gcnew CipherMode::ECB(); 
@@ -131,10 +128,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes192_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES192(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {24})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::CBC(iv->Value); 
@@ -146,13 +143,13 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
 				
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES192(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {24})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::OFB(algParameters->IV->Value, bits / 8); 
@@ -164,13 +161,13 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
 				
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES192(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {24})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::CFB(algParameters->IV->Value, bits / 8); 
@@ -181,7 +178,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes256_ecb) 
 			{
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES256(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {32})); 
 
 				// указать режим алгоритма			
 				CipherMode^ mode = gcnew CipherMode::ECB(); 
@@ -192,10 +189,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes256_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES256(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {32})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::CBC(iv->Value); 
@@ -207,13 +204,13 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
 				
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES256(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {32})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::OFB(algParameters->IV->Value, bits / 8); 
@@ -225,13 +222,13 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
 				
 				// создать алгоритм шифрования 
-				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES256(this)); 
+				Using<IBlockCipher^> blockCipher(gcnew Cipher::AES(this, gcnew array<int> {32})); 
 
 				// указать режим алгоритма
 				CipherMode^ mode = gcnew CipherMode::CFB(algParameters->IV->Value, bits / 8); 
@@ -242,7 +239,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::AESEnhancedProvider::CreateAlgorithm(
 		}
 	}
     // вызвать базовую функцию
-	return StrongProvider::CreateAlgorithm(factory, scope, parameters, type); 
+	return StrongProvider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }
 
 

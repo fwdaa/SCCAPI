@@ -73,11 +73,11 @@ void Aladdin::CAPI::GOST::CSP::CryptoPro::GOSTR3410::PrivateKey::GetPrivateValue
 	Using<KeyWrap^> keyWrap(provider->CreateExportKeyWrap(hContext, exportID, sboxOID, ukm)); 
 
 	// создать объект ключа
-	CAPI::CSP::SecretKey KEK(provider, Keys::GOST28147::Instance, hKEK.Get()); 
+	CAPI::CSP::SecretKey KEK(provider, Keys::GOST::Instance, hKEK.Get()); 
 
 	// указать тип ключа
 	CAPI::SecretKeyFactory^ typeCEK = (wrappedCEK->Length == 36) ? 
-		Keys::GOST28147::Instance : SecretKeyFactory::Generic; 
+		Keys::GOST::Instance : SecretKeyFactory::Generic; 
 
 	// расшифровать значение ключа
 	Using<ISecretKey^> secret(keyWrap.Get()->Unwrap(%KEK, wrappedCEK, typeCEK));

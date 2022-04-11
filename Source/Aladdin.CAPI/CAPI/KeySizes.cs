@@ -48,5 +48,37 @@ namespace Aladdin.CAPI
             }
             return false; 
         }
+        // выбрать ближайший больший размер
+        public static int Ceil(int[] keySizes, int keySize)
+        {
+            // проверить наличие фиксированных размеров
+            if (keySizes == KeySizes.Unrestricted) return keySize; 
+        
+            // проверить наличие размеров
+            if (keySizes.Length == 0) return 0; int size = keySizes[0]; 
+        
+            // проверить завершение действий
+            if (size == keySize) return keySize; 
+
+            // для всех допустимых размеров
+            for (int i = 1; i < keySizes.Length; i++)
+            {
+                // проверить завершение действий
+                if (keySizes[i] == keySize) return keySize; 
+            
+                // для большего размера
+                if (keySizes[i] > keySize)
+                {
+                    // сохранить больший размер
+                    if (size < keySize) size = keySizes[i]; 
+                
+                    // сохранить ближайший больший размер
+                    else if (keySizes[i] < size) size = keySizes[i]; 
+                }
+                // сохранить ближайший меньший размер
+                else if (size < keySizes[i]) size = keySizes[i]; 
+            }
+            return size; 
+        }
     }
 }

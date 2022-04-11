@@ -9,6 +9,33 @@ namespace Aladdin.CAPI.GOST.Cipher
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class GOST28147 : RefObject, IBlockCipher
     {
+        // создать алгоритм
+        public static IBlockCipher Create(CAPI.Factory factory, SecurityStore scope, string paramOID) 
+        {
+    	    // получить именованные параметры алгоритма
+		    ASN1.GOST.GOST28147ParamSet namedParameters = ASN1.GOST.GOST28147ParamSet.Parameters(paramOID);
+        
+            // указать параметры алгоритма диверсификации
+            ASN1.ISO.AlgorithmIdentifier kdfParameters = new ASN1.ISO.AlgorithmIdentifier(
+                 namedParameters.KeyMeshing.Algorithm, new ASN1.ObjectIdentifier(paramOID)
+            ); 
+            // создать алгоритм диверсификации
+            using (KeyDerive kdfAlgorithm = factory.CreateAlgorithm<KeyDerive>(scope, kdfParameters))
+            {
+                // проверить наличие алгоритма
+                if (kdfAlgorithm == null) return null; 
+                    
+                // раскодировать таблицу подстановок
+                byte[] sbox = ASN1.GOST.GOST28147SBoxReference.DecodeSBox(namedParameters.EUZ); 
+                
+                // создать алгоритм шифрования блока
+                using (CAPI.Cipher engine = new Engine.GOST28147(sbox))
+                {
+                    // создать блочный алгоритм шифрования
+                    return new GOST28147(engine, kdfAlgorithm); 
+                }
+            }
+        }
         // алгоритм шифрования блока и режим смены ключа
         private CAPI.Cipher engine; private KeyDerive keyMeshing;
     
@@ -35,10 +62,8 @@ namespace Aladdin.CAPI.GOST.Cipher
         }
         // тип ключа
         public SecretKeyFactory KeyFactory { get { return engine.KeyFactory; }}
-
-        // размер ключей и блока
-        public int[] KeySizes  { get { return engine.KeySizes ; }} 
-	    public int   BlockSize { get { return engine.BlockSize; }} 
+        // размер блока
+	    public int BlockSize { get { return engine.BlockSize; }} 
     
         // создать режим шифрования
         public CAPI.Cipher CreateBlockMode(CipherMode mode)  

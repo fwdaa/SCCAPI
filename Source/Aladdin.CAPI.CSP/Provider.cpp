@@ -44,6 +44,10 @@ Aladdin::CAPI::CSP::Provider::Provider(DWORD type, String^ name, bool sspi)
 	// открыть описатели провайдера
 	handle   .Attach(gcnew ProviderHandle(type, name, CRYPT_VERIFYCONTEXT | CRYPT_SILENT, sspi)); 
 	handleGUI.Attach(gcnew ProviderHandle(type, name, CRYPT_VERIFYCONTEXT               , sspi)); 
+
+	// создать список фабрик кодирования ключей
+	secretKeyFactories = gcnew Dictionary<String^, SecretKeyFactory^>(); 
+	      keyFactories = gcnew Dictionary<String^,       KeyFactory^>(); 
 }
 
 Aladdin::CAPI::CSP::Provider::~Provider() { $ } 

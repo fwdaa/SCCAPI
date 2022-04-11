@@ -45,7 +45,7 @@
                 <id>jar</id>
             </reference>
             <reference>
-                <foreign-project>Aladdin_CAPI_ANSI</foreign-project>
+                <foreign-project>Aladdin_CAPI_Environment</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
                 <target>jar</target>

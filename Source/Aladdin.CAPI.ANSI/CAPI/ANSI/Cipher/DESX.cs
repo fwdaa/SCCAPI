@@ -1,51 +1,32 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Aladdin.CAPI.ANSI.Cipher
 {
     ///////////////////////////////////////////////////////////////////////////
     // Алгоритм шифрования DES-X
     ///////////////////////////////////////////////////////////////////////////
-    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-    public class DESX : RefObject, IBlockCipher
+    public class DESX : BlockCipher
     {
-        // фабрика алгоритмов и область видимости
-        private CAPI.Factory factory; private SecurityStore scope; 
-
         // конструктор
-        public DESX(CAPI.Factory factory, SecurityStore scope)
-        {
-            // сохранить переданные параметры	
-            this.factory = RefObject.AddRef(factory); 
+        public DESX(CAPI.Factory factory, SecurityStore scope) : base(factory, scope) {}
 
-            // сохранить переданные параметры	
-            this.scope = RefObject.AddRef(scope); 
-        } 
-        // освободить выделенные ресурсы
-        protected override void OnDispose()
-        {
-            // освободить выделенные ресурсы
-            RefObject.Release(scope); RefObject.Release(factory); base.OnDispose();
-        }
         // тип ключа
-        public SecretKeyFactory KeyFactory { get { return Keys.DESX.Instance; }}
-        // размер ключей
-        public int[] KeySizes { get { return new int[] {24}; }} 
+        public override SecretKeyFactory KeyFactory { get { return Keys.DESX.Instance; }}
         // размер блока
-        public int BlockSize { get { return 8; }}
+        public override int BlockSize { get { return 8; }}
 
         // получить режим шифрования
-        public CAPI.Cipher CreateBlockMode(CipherMode mode)
+        public override CAPI.Cipher CreateBlockMode(CipherMode mode)
         {
             // в зависимости от режима
             if (mode is CipherMode.ECB) 
             {
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.ANSI.OID.ssig_des_ecb), ASN1.Null.Instance
-                );
+                ASN1.IEncodable parameters = ASN1.Null.Instance; 
+
                 // получить алгоритм шифрования
-                using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters)) 
+                using (CAPI.Cipher engine = Factory.CreateAlgorithm<CAPI.Cipher>(
+                    Scope, ASN1.ANSI.OID.ssig_des_ecb, parameters)) 
                 {
                     // вернуть алгоритм шифрования
                     if (engine == null) throw new NotSupportedException();
@@ -54,7 +35,7 @@ namespace Aladdin.CAPI.ANSI.Cipher
                     using (CAPI.Cipher desX = new Engine.DESX(engine))
                     {
                         // вернуть режим алгоритма
-                        return new BlockMode.ConvertPadding(desX, PaddingMode.Any); 
+                        return new BlockMode.PaddingConverter(desX, PaddingMode.Any); 
                     }
                 }
             }
@@ -62,46 +43,18 @@ namespace Aladdin.CAPI.ANSI.Cipher
             if (mode is CipherMode.CBC) 
             {
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.ANSI.OID.rsa_desx_cbc), 
-                    new ASN1.OctetString(((CipherMode.CBC)mode).IV)
-                );
+                ASN1.IEncodable parameters = new ASN1.OctetString(((CipherMode.CBC)mode).IV); 
+
                 // получить алгоритм шифрования
-                using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
-                    scope, parameters))
+                using (CAPI.Cipher cipher = Factory.CreateAlgorithm<CAPI.Cipher>(
+                    Scope, ASN1.ANSI.OID.rsa_desx_cbc, parameters))
                 {
                     // проверить наличие алгоритма
                     if (cipher != null) return cipher; 
                 }
-                // получить алгоритм шифрования
-                using (CAPI.Cipher engine = CreateBlockMode(new CipherMode.ECB())) 
-                {
-                    // вернуть режим шифрования
-                    return new Mode.CBC(engine, (CipherMode.CBC)mode, PaddingMode.Any); 
-                }
             }
-            // в зависимости от режима
-            if (mode is CipherMode.OFB) 
-            {
-                // получить алгоритм шифрования
-                using (CAPI.Cipher engine = CreateBlockMode(new CipherMode.ECB())) 
-                {
-                    // вернуть режим шифрования
-                    return new Mode.OFB(engine, (CipherMode.OFB)mode); 
-                }
-            }
-            // в зависимости от режима
-            if (mode is CipherMode.CFB) 
-            {
-                // получить алгоритм шифрования
-                using (CAPI.Cipher engine = CreateBlockMode(new CipherMode.ECB())) 
-                {
-                    // вернуть режим шифрования
-                    return new Mode.CFB(engine, (CipherMode.CFB)mode); 
-                }
-            }
-            // режим не поддерживается
-            throw new NotSupportedException();
+            // вызвать базовую функцию
+            return CreateBlockMode(mode, 24); 
         }
     }
 }

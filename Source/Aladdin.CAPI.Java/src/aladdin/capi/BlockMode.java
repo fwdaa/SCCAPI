@@ -79,13 +79,13 @@ public abstract class BlockMode extends Cipher
     ///////////////////////////////////////////////////////////////////////////
     // Изменение режима дополнения (исходный режим должен быть ANY или NONE)
     ///////////////////////////////////////////////////////////////////////////
-    public static class ConvertPadding extends BlockMode
+    public static class PaddingConverter extends BlockMode
     {
         // режим шифрования 
         private final Cipher cipher; 
         
         // конструктор
-        public ConvertPadding(Cipher cipher, PaddingMode padding)
+        public PaddingConverter(Cipher cipher, PaddingMode padding)
         {
             // сохранить переданные параметры
             super(padding); this.cipher = RefObject.addRef(cipher); 
@@ -99,9 +99,8 @@ public abstract class BlockMode extends Cipher
         // тип ключа
         @Override public SecretKeyFactory keyFactory() { return cipher.keyFactory(); }
         
-        // размер ключа и блока
-        @Override public int[] keySizes () { return cipher.keySizes (); }
-        @Override public int   blockSize() { return cipher.blockSize(); }
+        // размер блока
+        @Override public int blockSize() { return cipher.blockSize(); }
     
         // режим алгоритма
         @Override public CipherMode mode() { return cipher.mode(); } 

@@ -39,7 +39,7 @@ namespace Aladdin.CAPI.PBE
             SecretKeyFactory keyFactory = macAlgorithm.KeyFactory; int keySize = -1; 
 
             // определить допустимые размеры ключей
-            int[] keySizes = macAlgorithm.KeySizes; 
+            int[] keySizes = macAlgorithm.KeyFactory.KeySizes; 
         
             // указать рекомендуемый размер ключа
             if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 

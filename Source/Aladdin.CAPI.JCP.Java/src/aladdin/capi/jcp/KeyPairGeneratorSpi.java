@@ -1,6 +1,5 @@
 package aladdin.capi.jcp;
-import aladdin.*;
-import aladdin.asn1.iso.*; 
+import aladdin.asn1.*; 
 import aladdin.capi.*; 
 import java.io.*;
 import java.security.*;
@@ -12,10 +11,9 @@ import java.security.spec.*;
 public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
 {
     // используемый провайдер и идентификатор ключа
-	private final Provider provider; private String keyOID; 
-    
-	// параметры алгоритма и генератор случайных данных
-	private IParameters parameters; private SecureRandom random;
+	private final Provider provider; private String keyOID; private SecurityStore scope;
+	// генератор случайных данных и параметры алгоритма
+	private SecureRandom random; private IParameters parameters;
     
     // конструктор
 	public KeyPairGeneratorSpi(Provider provider, String keyOID)
@@ -24,66 +22,50 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
         this.provider = provider; this.keyOID = keyOID; 
         
         // получить фабрику кодирования ключей
-        if (keyOID != null && provider.getFactory().getKeyFactory(keyOID) == null)
+        if (provider.factory().getKeyFactory(keyOID) == null)
         {
             // при ошибке выбросить исключение
             throw new UnsupportedOperationException(); 
         }
         // инициализировать переменные
-        this.parameters = null; this.random = null;
+        this.scope = null; this.random = null; this.parameters = null; 
 	}
 	@Override
 	public final void initialize(int keySize, SecureRandom random) 
 	{
-        // проверить идентификатор ключа
-        if (keyOID == null || !keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA)) 
-        {
-            // при ошибке выбросить исключение
-            throw new UnsupportedOperationException();
-        } 
         // указать параметры ключа
-        parameters = new aladdin.capi.ansi.rsa.Parameters(keySize, null); 
+        parameters = new KeyBitsParameters(keySize); this.random = random; 
 	}
 	@Override
 	public final void initialize(AlgorithmParameterSpec paramSpec, SecureRandom random) 
 		throws InvalidAlgorithmParameterException 
 	{
         // сохранить генератор случайных данных
-        Factory factory = provider.getFactory(); this.random = random; 
-		try {
-            // проверить наличие параметров
-			if (paramSpec == null && keyOID == null) throw new InvalidAlgorithmParameterException(); 
+        this.random = random; if (paramSpec == null) { parameters = null; return; } 
+        
+        // в зависимости от типа параметров
+        if (paramSpec instanceof KeyStoreParameterSpec)
+        {
+            // указать область видимости
+            scope = ((KeyStoreParameterSpec)paramSpec).getScope(); 
+
+            // извлечь параметры алгоритма
+            paramSpec = ((KeyStoreParameterSpec)paramSpec).paramSpec();
+        }
+        // проверить наличие параметров
+        if (paramSpec == null) { parameters = null; return; } 
+
+        // указать фабрику кодирования
+        aladdin.capi.KeyFactory keyFactory = provider.factory().getKeyFactory(keyOID); 
+        try {
+            // получить закодированное представление 
+            AlgorithmParametersSpi parameters = provider.createParameters(keyOID, paramSpec); 
             
-            // указать отсутствие параметров
-            if (paramSpec == null) this.parameters = null; 
-            else {
-                // преобразовать тип параметров
-                AlgorithmParametersSpi parameters = AlgorithmParametersSpi.create(provider, paramSpec);
-                
-                // получить закодированное представление 
-                AlgorithmIdentifier encodable = parameters.getEncodable(); 
-                
-                // при указании идентификатора ключа
-                if (keyOID != null && !keyOID.equals(encodable.algorithm().value())) 
-                {
-                    // при ошибке выбросить исключение
-                    throw new InvalidAlgorithmParameterException(); 
-                }
-                // указать идентификатор ключа
-                this.keyOID = encodable.algorithm().value(); 
-                
-                // указать фабрику кодирования
-                aladdin.capi.KeyFactory keyFactory = factory.getKeyFactory(keyOID); 
-                
-                // проверить поддержку ключа
-                if (keyFactory == null) throw new UnsupportedOperationException(); 
-                try {         
-                    // раскодировать параметры алгоритма
-                    this.parameters = keyFactory.decodeParameters(encodable.parameters()); 
-                }
-                // обработать возможное исключение
-                catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
-            } 
+            // получить закодированное представление
+            IEncodable encodable = parameters.getEncodable(); 
+            
+            // раскодировать параметры алгоритма
+            this.parameters = (encodable != null) ? keyFactory.decodeParameters(encodable) : null; 
         }
         // при возникновении ошибки
         catch (InvalidParameterSpecException e)
@@ -91,12 +73,17 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
             // выбросить исключение 
             throw new InvalidAlgorithmParameterException(e.getMessage());
         }
+        // обработать возможное исключение
+        catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
     }
 	@Override
 	public final java.security.KeyPair generateKeyPair() 
     {
+        // проверить идентификатор ключа
+        if (keyOID == null) throw new IllegalStateException();
+        
         // указать фабрику кодирования
-        aladdin.capi.KeyFactory keyFactory = provider.getFactory().getKeyFactory(keyOID); 
+        aladdin.capi.KeyFactory keyFactory = provider.factory().getKeyFactory(keyOID); 
                 
         // проверить поддержку ключа
         if (keyFactory == null) throw new UnsupportedOperationException(); 
@@ -104,36 +91,12 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
         // указать способ использования ключа
         KeyUsage keyUsage = keyFactory.getKeyUsage(); 
         
-        // при отсутствии генератора
-        Factory factory = provider.getFactory(); if (random == null)
+        // создать объект генератора случайных данных
+        try (IRand rand = provider.createRand(random))
         {
             // создать алгоритм генерации ключей
-            try (aladdin.capi.KeyPairGenerator generator = factory.createGenerator(
-                null, provider.getRand(), keyOID, parameters))
-            {
-                // проверить наличие алгоритма
-                if (generator == null) throw new UnsupportedOperationException(); 
-                
-                // сгенерировать ключи
-                try (aladdin.capi.KeyPair keyPair = generator.generate(
-                    null, keyOID, keyUsage, KeyFlags.NONE))
-                {
-                    // зарегистрировать личный ключ
-                    java.security.PrivateKey privateKey = provider.registerPrivateKey(keyPair.privateKey);
-                    
-                    // вернуть пару ключей
-                    return new java.security.KeyPair(keyPair.publicKey, privateKey); 
-                }
-            }
-            // обработать возможное исключение
-            catch (IOException e) { throw new InvalidParameterException(e.getMessage()); } 
-        }
-        // указать генератор случайных данных
-        else try (IRand rand = new Rand(random, null))
-        {
-            // создать алгоритм генерации ключей
-            try (aladdin.capi.KeyPairGenerator generator = factory.createGenerator(
-                null, rand, keyOID, parameters))
+            try (aladdin.capi.KeyPairGenerator generator = provider.factory().
+                createGenerator(scope, rand, keyOID, parameters))
             {
                 // проверить наличие алгоритма
                 if (generator == null) throw new UnsupportedOperationException(); 
@@ -143,7 +106,7 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
                     null, keyOID, keyUsage, KeyFlags.NONE))
                 {
                     // зарегистрировать личный ключ
-                    java.security.PrivateKey privateKey = provider.registerPrivateKey(keyPair.privateKey);
+                    java.security.PrivateKey privateKey = new PrivateKey(provider, keyPair.privateKey);
                     
                     // вернуть пару ключей
                     return new java.security.KeyPair(keyPair.publicKey, privateKey); 

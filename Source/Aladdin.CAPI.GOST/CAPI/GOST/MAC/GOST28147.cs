@@ -58,7 +58,7 @@ namespace Aladdin.CAPI.GOST.MAC
             RefObject.Release(keyMeshing); base.OnDispose();
         }
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.GOST28147.Instance; }} 
+        public override SecretKeyFactory KeyFactory { get { return Keys.GOST.Instance; }} 
 
 	    // размер MAC-значения в байтах
 	    public override int MacSize { get { return 4; }}

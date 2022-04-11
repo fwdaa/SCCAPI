@@ -10,8 +10,5 @@ public class Skipjack extends SecretKeyFactory
     public static final SecretKeyFactory INSTANCE = new Skipjack(); 
         
     // конструктор
-    private Skipjack() { super("Skipjack"); }
-    
-    // размер ключей
-	@Override public final int[] keySizes() { return new int[] { 10 }; }
+    public Skipjack() { super(new int[] {10}); }
 }

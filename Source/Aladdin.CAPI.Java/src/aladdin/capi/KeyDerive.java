@@ -11,8 +11,6 @@ public abstract class KeyDerive extends RefObject implements IAlgorithm
 { 
     // тип ключа
     public SecretKeyFactory keyFactory() { return SecretKeyFactory.GENERIC; }
-    // размер используемого ключа
-    public int[] keySizes() { return keyFactory().keySizes(); } 
     
 	// наследовать ключ
 	public abstract ISecretKey deriveKey(ISecretKey key, 
@@ -70,7 +68,7 @@ public abstract class KeyDerive extends RefObject implements IAlgorithm
         SecretKeyFactory keyFactory = SecretKeyFactory.GENERIC; 
         
         // получить допустимые размеры ключей
-        int[] keySizes = kdfAlgorithm.keySizes(); 
+        int[] keySizes = kdfAlgorithm.keyFactory().keySizes(); 
         
         // при отсутствии ограничений на размер ключа
         if (keySizes == KeySizes.UNRESTRICTED || keySizes.length > 32)
@@ -82,7 +80,7 @@ public abstract class KeyDerive extends RefObject implements IAlgorithm
         for (int keySize : keySizes)
         { 
             // проверить поддержку размера ключа
-            if (!KeySizes.contains(kdfAlgorithm.keySizes(), keySize)) continue; 
+            if (!KeySizes.contains(kdfAlgorithm.keyFactory().keySizes(), keySize)) continue; 
             
             // сгенерировать ключ 
             try (ISecretKey key = kdfAlgorithm.keyFactory().generate(rand, keySize))

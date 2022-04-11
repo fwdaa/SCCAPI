@@ -21,11 +21,10 @@
 ///////////////////////////////////////////////////////////////////////////
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов хэширования
 		if (type == CAPI::Hash::typeid)
@@ -44,10 +43,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 				array<int>^ keySizes = KeySizes::Range(5, 7); 
 
 				// при указании параметров алгоритма
-				int keyBits = 32; if (!ASN1::Encodable::IsNullOrEmpty(parameters->Parameters))
+				int keyBits = 32; if (!ASN1::Encodable::IsNullOrEmpty(parameters))
 				{ 
 					// раскодировать параметры алгоритма
-					ASN1::Integer^ version = gcnew ASN1::Integer(parameters->Parameters);
+					ASN1::Integer^ version = gcnew ASN1::Integer(parameters);
                 
 					// определить число битов
 					keyBits = ASN1::ANSI::RSA::RC2ParameterVersion::GetKeyBits(version); 
@@ -70,11 +69,11 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 				array<int>^ keySizes = KeySizes::Range(5, 7); 
 
 				// проверить наличие параметров
-				if (parameters->Parameters->Tag != ASN1::Tag::Sequence) break; 
+				if (parameters->Tag != ASN1::Tag::Sequence) break; 
 				
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::RSA::RC2CBCParams^ algParameters = 
-					gcnew ASN1::ANSI::RSA::RC2CBCParams(parameters->Parameters);
+					gcnew ASN1::ANSI::RSA::RC2CBCParams(parameters);
             
 				// определить число битов
 				int keyBits = ASN1::ANSI::RSA::RC2ParameterVersion::GetKeyBits(
@@ -107,7 +106,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::ssig_des_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
 				Using<IBlockCipher^> blockCipher(gcnew Cipher::DES(this)); 
@@ -121,7 +120,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::ssig_des_ofb) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters); 
 
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -139,7 +138,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::ssig_des_cfb) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -156,7 +155,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::rsa_desx_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
 				Using<IBlockCipher^> blockCipher(gcnew Cipher::DESX(this)); 
@@ -170,6 +169,6 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::BaseProvider::CreateAlgorithm(
 		}
 	}
     // вызвать базовую функцию
-	return RSA::Provider::CreateAlgorithm(factory, scope, parameters, type); 
+	return RSA::Provider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }
 

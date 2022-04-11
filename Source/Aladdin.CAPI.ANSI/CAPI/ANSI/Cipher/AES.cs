@@ -1,41 +1,24 @@
-﻿using System; 
-using System.Diagnostics.CodeAnalysis;
-
-namespace Aladdin.CAPI.ANSI.Cipher
+﻿namespace Aladdin.CAPI.ANSI.Cipher
 {
     ///////////////////////////////////////////////////////////////////////////
     // Алгоритм шифрования AES
     ///////////////////////////////////////////////////////////////////////////
-    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-    public class AES : RefObject, IBlockCipher
+    public class AES : BlockCipher
     {
-        // фабрика алгоритмов и область видимости
-        private CAPI.Factory factory; private SecurityStore scope; private int keyLength; 
-
         // конструктор
-        public AES(CAPI.Factory factory, SecurityStore scope, int keyLength)
-        {
-            // сохранить переданные параметры	
-            this.factory = RefObject.AddRef(factory); 
-            
-            // сохранить переданные параметры	
-            this.scope = RefObject.AddRef(scope); this.keyLength = keyLength; 
-        } 
-        // освободить выделенные ресурсы
-        protected override void OnDispose()
-        {
-            // освободить выделенные ресурсы
-            RefObject.Release(scope); RefObject.Release(factory); base.OnDispose();
-        }
+        public AES(CAPI.Factory factory, SecurityStore scope) : base(factory, scope) {}
+
         // тип ключа
-        public SecretKeyFactory KeyFactory { get { return Keys.AES.Instance; }}
-        // размер ключей
-        public int[] KeySizes { get { return new int[] {keyLength}; }}
+        public override SecretKeyFactory KeyFactory 
+        { 
+            // тип ключа
+            get { return new Keys.AES(new int[] { 16, 24, 32 }); }
+        }
         // размер блока
-        public int BlockSize { get { return 16; }}
+        public override int BlockSize { get { return 16; }}
 
         // получить режим шифрования
-        public CAPI.Cipher CreateBlockMode(CipherMode mode) 
+        protected override CAPI.Cipher CreateBlockMode(CipherMode mode, int keyLength) 
         {
             // в зависимости от режима
             if (mode is CipherMode.ECB) 
@@ -47,12 +30,12 @@ namespace Aladdin.CAPI.ANSI.Cipher
                 case 16: oid = ASN1.ANSI.OID.nist_aes128_ecb; break; 
                 }
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(oid), ASN1.Null.Instance
-                );
-                // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
+                ASN1.IEncodable parameters = ASN1.Null.Instance; 
 
+                // получить алгоритм шифрования
+                CAPI.Cipher cipher = Factory.CreateAlgorithm<CAPI.Cipher>(
+                    Scope, oid, parameters
+                ); 
                 // вернуть алгоритм шифрования
                 if (cipher != null) return cipher; 
             }
@@ -65,22 +48,14 @@ namespace Aladdin.CAPI.ANSI.Cipher
                 case 16: oid = ASN1.ANSI.OID.nist_aes128_cbc; break; 
                 }
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(oid), 
-                    new ASN1.OctetString(((CipherMode.CBC)mode).IV)
-                );
-                // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
+                ASN1.IEncodable parameters = new ASN1.OctetString(((CipherMode.CBC)mode).IV); 
 
+                // получить алгоритм шифрования
+                CAPI.Cipher cipher = Factory.CreateAlgorithm<CAPI.Cipher>(
+                    Scope, oid, parameters
+                ); 
                 // вернуть алгоритм шифрования
                 if (cipher != null) return cipher; 
-
-                // получить алгоритм шифрования блока
-                using (CAPI.Cipher engine = CreateBlockMode(new CipherMode.ECB()))
-                {
-                    // вернуть режим шифрования
-                    return new Mode.CBC(engine, (CipherMode.CBC)mode, PaddingMode.Any); 
-                }
             }
             if (mode is CipherMode.OFB) 
             {
@@ -91,53 +66,37 @@ namespace Aladdin.CAPI.ANSI.Cipher
                 case 16: oid = ASN1.ANSI.OID.nist_aes128_ofb; break; 
                 }
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(oid), new ASN1.ANSI.FBParameter(
-                        new ASN1.OctetString(((CipherMode.OFB)mode).IV), new ASN1.Integer(64)
-                    )
-                );
+                ASN1.IEncodable parameters = new ASN1.ANSI.FBParameter(
+                    new ASN1.OctetString(((CipherMode.OFB)mode).IV), new ASN1.Integer(64)
+                ); 
                 // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
-
+                CAPI.Cipher cipher = Factory.CreateAlgorithm<CAPI.Cipher>(
+                    Scope, oid, parameters
+                ); 
                 // вернуть алгоритм шифрования
                 if (cipher != null) return cipher; 
-
-                // получить алгоритм шифрования блока
-                using (CAPI.Cipher engine = CreateBlockMode(new CipherMode.ECB()))
-                {
-                    // вернуть режим шифрования
-                    return new Mode.OFB(engine, (CipherMode.OFB)mode); 
-                }
             }
             if (mode is CipherMode.CFB) 
             {
                 // указать идентификатор алгоритма
-                String oid = ASN1.ANSI.OID.nist_aes256_cfb; switch (keyLength)
+                string oid = ASN1.ANSI.OID.nist_aes256_cfb; switch (keyLength)
                 {
                 case 24: oid = ASN1.ANSI.OID.nist_aes192_cfb; break; 
                 case 16: oid = ASN1.ANSI.OID.nist_aes128_cfb; break; 
                 }
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(oid), new ASN1.ANSI.FBParameter(
-                        new ASN1.OctetString(((CipherMode.CFB)mode).IV), new ASN1.Integer(64)
-                    )
-                );
+                ASN1.IEncodable parameters = new ASN1.ANSI.FBParameter(
+                    new ASN1.OctetString(((CipherMode.CFB)mode).IV), new ASN1.Integer(64)
+                ); 
                 // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
-
+                CAPI.Cipher cipher = Factory.CreateAlgorithm<CAPI.Cipher>(
+                    Scope, oid, parameters
+                ); 
                 // вернуть алгоритм шифрования
                 if (cipher != null) return cipher; 
-
-                // получить алгоритм шифрования блока
-                using (CAPI.Cipher engine = CreateBlockMode(new CipherMode.ECB()))
-                {
-                    // вернуть режим шифрования
-                    return new Mode.CFB(engine, (CipherMode.CFB)mode); 
-                }
             }
-            // режим не поддерживается
-            throw new NotSupportedException();
+            // вызвать базовую функцию
+            return base.CreateBlockMode(mode, keyLength); 
         }
     }
 }

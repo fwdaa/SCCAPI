@@ -20,8 +20,6 @@ public class DES_ECB extends aladdin.capi.pkcs11.BlockMode
 	}
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() { return DES.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return new int[] {8}; }
 	// размер блока
 	@Override public final int blockSize() { return 8; } 
 

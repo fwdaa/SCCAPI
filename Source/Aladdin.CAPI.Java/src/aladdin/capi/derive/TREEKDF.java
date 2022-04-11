@@ -38,8 +38,6 @@ public class TREEKDF extends KeyDerive
     
     // тип ключа
     @Override public SecretKeyFactory keyFactory() { return algorithm.keyFactory(); } 
-    // размер ключей
-    @Override public int[] keySizes() { return algorithm.keySizes(); } 
     
 	// сгенерировать блок данных
 	@Override public ISecretKey deriveKey(ISecretKey key, byte[] seed, 

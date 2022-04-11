@@ -62,7 +62,7 @@ namespace Aladdin.CAPI
                     privateKey.Factory, privateKey.Scope, parameters, random)) 
                 {
                     // определить допустимые размеры ключей
-                    int[] keySizes = keyWrap.KeySizes; int keySize = -1; 
+                    int[] keySizes = keyWrap.KeyFactory.KeySizes; int keySize = -1; 
         
                     // указать рекомендуемый размер ключа
                     if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 
@@ -102,7 +102,7 @@ namespace Aladdin.CAPI
                     privateKey.Factory, privateKey.Scope, parameters, random)) 
                 {
                     // определить допустимые размеры ключей
-                    int[] keySizes = keyWrap.KeySizes; int keySize = -1;  
+                    int[] keySizes = keyWrap.KeyFactory.KeySizes; int keySize = -1;  
         
                     // указать рекомендуемый размер ключа
                     if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 

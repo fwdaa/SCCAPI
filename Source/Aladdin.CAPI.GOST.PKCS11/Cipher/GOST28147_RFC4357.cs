@@ -40,9 +40,7 @@ namespace Aladdin.CAPI.GOST.PKCS11.Cipher
 			}; 
 		}
         // тип ключей
-        public override SecretKeyFactory KeyFactory { get { return Keys.GOST28147.Instance; }}
-		// размер ключа в байтах
-		public override int[] KeySizes { get { return new int[] {32}; }}
+        public override SecretKeyFactory KeyFactory { get { return Keys.GOST.Instance; }}
 		// размер блока
 		public override int BlockSize { get { return 8; }} 
 

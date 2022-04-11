@@ -2,8 +2,8 @@ package aladdin.capi.software;
 import aladdin.OS;
 import aladdin.*;
 import aladdin.io.*;
+import aladdin.asn1.*; 
 import aladdin.capi.*;
-import aladdin.asn1.iso.*; 
 import java.io.*; 
 import java.lang.reflect.*;
 import java.util.*; 
@@ -226,13 +226,13 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 	///////////////////////////////////////////////////////////////////////
 
     // поддерживаемые ключи
-	@Override public SecretKeyFactory[] secretKeyFactories() 
+	@Override public Map<String, SecretKeyFactory> secretKeyFactories() 
     {
         // вернуть поддерживаемые ключи
         return factories.secretKeyFactories(); 
     }
     // поддерживаемые ключи
-	@Override public KeyFactory[] keyFactories() 
+	@Override public Map<String, KeyFactory> keyFactories() 
     {
         // вернуть поддерживаемые ключи
         return factories.keyFactories(); 
@@ -250,14 +250,14 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 	}
 	// cоздать алгоритм для параметров
 	@Override protected IAlgorithm createAggregatedAlgorithm(Factory outer, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
 	{
         // проверить тип хранилища
         if (scope != null && !(scope instanceof ContainerStore)) return null; 
         
 		// cоздать программный алгоритм для параметров
-		return factories.createAggregatedAlgorithm(outer, null, parameters, type); 
+		return factories.createAggregatedAlgorithm(outer, null, oid, parameters, type); 
 	}
 	///////////////////////////////////////////////////////////////////////
 	// Управление контейнерами в памяти

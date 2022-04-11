@@ -26,8 +26,6 @@ public class MACPRF extends PRF
     } 
     // тип ключа
     @Override public SecretKeyFactory keyFactory() { return algorithm.keyFactory(); } 
-    // размер ключей
-    @Override public int[] keySizes() { return algorithm.keySizes(); } 
     
     // наследовать ключ
 	@Override public void generate(byte[] keyValue, byte[] random, 

@@ -1,4 +1,5 @@
 using System; 
+using System.Collections.Generic; 
 
 namespace Aladdin.CAPI.KZ
 { 
@@ -7,35 +8,83 @@ namespace Aladdin.CAPI.KZ
     //////////////////////////////////////////////////////////////////////////////
     public class Factory : CAPI.Factory
     {
+        // фабрики кодирования ключей 
+        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
+        private Dictionary<String, KeyFactory      > keyFactories; 
+    
+        // конструктор
+        public Factory()
+        {
+            // создать список фабрик кодирования ключей
+            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
+        
+            // заполнить список фабрик кодирования ключей
+            secretKeyFactories.Add("RC2"   , new ANSI.Keys.RC2 ()); 
+            secretKeyFactories.Add("RC4"   , new ANSI.Keys.RC4 ()); 
+            secretKeyFactories.Add("DES"   , new ANSI.Keys.DES ()); 
+            secretKeyFactories.Add("DESede", new ANSI.Keys.TDES()); 
+            secretKeyFactories.Add("AES"   , new ANSI.Keys.AES ()); 
+            secretKeyFactories.Add("GOST"  , new GOST.Keys.GOST()); 
+        
+            // создать список фабрик кодирования ключей
+            keyFactories = new Dictionary<String, KeyFactory>(); 
+
+            // заполнить список фабрик кодирования ключей
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_1024, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_1024) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_1024_xch, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_1024_xch) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_1536, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_1536) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_1536_xch, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_1536_xch) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_2048, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_2048) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_2048_xch, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_2048_xch) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_3072, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_3072) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_3072_xch, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_3072_xch) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_4096, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_4096) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_4096_xch, 
+                new RSA.KeyFactory (ASN1.KZ.OID.gamma_key_rsa_4096_xch) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_ec256_512_a, 
+                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_a) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_ec256_512_b, 
+                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_b) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_ec256_512_c, 
+                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_c) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_ec256_512_a_xch, 
+                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_a_xch) 
+            ); 
+            keyFactories.Add(ASN1.KZ.OID.gamma_key_ec256_512_b_xch, 
+                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_b_xch) 
+            ); 
+        }
+	    // Поддерживаемые фабрики кодирования ключей
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
+	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+    
 	    ///////////////////////////////////////////////////////////////////////
         // Фиксированные таблицы подстановок
 	    ///////////////////////////////////////////////////////////////////////
         public static readonly byte[] SBoxG = ASN1.KZ.SBoxReference.GammaCipherSBox(); 
 
-	    ///////////////////////////////////////////////////////////////////////
-	    // Поддерживаемые фабрики кодирования ключей
-	    ///////////////////////////////////////////////////////////////////////
-	    public override KeyFactory[] KeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new KeyFactory[] {
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_1024       ), 
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_1536       ), 
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_2048       ),
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_3072       ), 
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_4096       ), 
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_1024_xch   ),
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_1536_xch   ), 
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_2048_xch   ),
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_3072_xch   ), 
-                new RSA      .KeyFactory  (ASN1.KZ.OID.gamma_key_rsa_4096_xch   ), 
-                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_a    ), 
-                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_b    ),
-                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_c    ), 
-                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_a_xch), 
-                new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_b_xch)
-            }; 
-	    }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Cоздать алгоритм генерации ключей
 	    ///////////////////////////////////////////////////////////////////////
@@ -44,18 +93,61 @@ namespace Aladdin.CAPI.KZ
             IRand rand, string keyOID, IParameters parameters)
 	    {
             if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1024     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_4096     || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1024_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048_xch || 
-                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072_xch || 
+                keyOID == ASN1.KZ.OID.gamma_key_rsa_1024_xch) 
+		    {
+                // преобразовать тип параметров
+                ANSI.RSA.IParameters rsaParameters = ANSI.RSA.Parameters.Convert(parameters); 
+
+                // проверить корректность размера
+                if (rsaParameters.KeyBits != 1024) throw new ArgumentException();
+            
+			    // создать алгоритм генерации ключей
+			    return new ANSI.RSA.KeyPairGenerator(factory, scope, rand, rsaParameters); 
+		    }
+            if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1536     || 
+                keyOID == ASN1.KZ.OID.gamma_key_rsa_1536_xch) 
+		    {
+                // преобразовать тип параметров
+                ANSI.RSA.IParameters rsaParameters = ANSI.RSA.Parameters.Convert(parameters); 
+            
+                // проверить корректность размера
+                if (rsaParameters.KeyBits != 1536) throw new ArgumentException();
+            
+			    // создать алгоритм генерации ключей
+			    return new ANSI.RSA.KeyPairGenerator(factory, scope, rand, rsaParameters); 
+		    }
+            if (keyOID == ASN1.KZ.OID.gamma_key_rsa_2048     || 
+                keyOID == ASN1.KZ.OID.gamma_key_rsa_2048_xch) 
+		    {
+                // преобразовать тип параметров
+                ANSI.RSA.IParameters rsaParameters = ANSI.RSA.Parameters.Convert(parameters); 
+            
+                // проверить корректность размера
+                if (rsaParameters.KeyBits != 2048) throw new ArgumentException();
+            
+			    // создать алгоритм генерации ключей
+			    return new ANSI.RSA.KeyPairGenerator(factory, scope, rand, rsaParameters); 
+		    }
+            if (keyOID == ASN1.KZ.OID.gamma_key_rsa_3072     || 
+                keyOID == ASN1.KZ.OID.gamma_key_rsa_3072_xch) 
+		    {
+                // преобразовать тип параметров
+                ANSI.RSA.IParameters rsaParameters = ANSI.RSA.Parameters.Convert(parameters); 
+            
+                // проверить корректность размера
+                if (rsaParameters.KeyBits != 3072) throw new ArgumentException();
+            
+			    // создать алгоритм генерации ключей
+			    return new ANSI.RSA.KeyPairGenerator(factory, scope, rand, rsaParameters); 
+		    }
+            if (keyOID == ASN1.KZ.OID.gamma_key_rsa_4096     || 
                 keyOID == ASN1.KZ.OID.gamma_key_rsa_4096_xch) 
 		    {
                 // преобразовать тип параметров
-                ANSI.RSA.IParameters rsaParameters = (ANSI.RSA.IParameters)parameters; 
+                ANSI.RSA.IParameters rsaParameters = ANSI.RSA.Parameters.Convert(parameters); 
+            
+                // проверить корректность размера
+                if (rsaParameters.KeyBits != 4096) throw new ArgumentException();
             
 			    // создать алгоритм генерации ключей
 			    return new ANSI.RSA.KeyPairGenerator(factory, scope, rand, rsaParameters); 
@@ -78,10 +170,9 @@ namespace Aladdin.CAPI.KZ
 	    // Cоздать алгоритм для параметров
 	    ///////////////////////////////////////////////////////////////////////
 	    protected override IAlgorithm CreateAlgorithm(CAPI.Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type)
 	    {
-		    // определить идентификатор алгоритма
-		    string oid = parameters.Algorithm.Value; for (int i = 0; i < 1; i++)
+		    for (int i = 0; i < 1; i++)
             { 
 		        // для алгоритмов хэширования
 		        if (type == typeof(Hash))
@@ -95,14 +186,14 @@ namespace Aladdin.CAPI.KZ
 			        if (oid == ASN1.GOST.OID.gostR3411_94 ) 
                     {
                         // проверить наличие идентификатора
-                        if (ASN1.Encodable.IsNullOrEmpty(parameters.Parameters))
+                        if (ASN1.Encodable.IsNullOrEmpty(parameters))
                         { 
 			                // установить идентификатор по умолчанию
 			                oid = ASN1.GOST.OID.hashes_cryptopro; 
                         }
                         else {
 				            // раскодировать идентификатор параметров
-				            oid = new ASN1.ObjectIdentifier(parameters.Parameters).Value;
+				            oid = new ASN1.ObjectIdentifier(parameters).Value;
 			            }
                         // для специальных таблиц подстановок
                         if (oid == ASN1.GOST.OID.hashes_cryptopro)
@@ -139,10 +230,10 @@ namespace Aladdin.CAPI.KZ
 			        if (oid == ASN1.ANSI.OID.rsa_rc2_ecb)
                     { 
                         // при указании параметров алгоритма
-                        int keyBits = 32; if (!ASN1.Encodable.IsNullOrEmpty(parameters.Parameters))
+                        int keyBits = 32; if (!ASN1.Encodable.IsNullOrEmpty(parameters))
                         { 
                             // раскодировать параметры алгоритма
-                            ASN1.Integer version = new ASN1.Integer(parameters.Parameters);
+                            ASN1.Integer version = new ASN1.Integer(parameters);
             
                             // определить число битов
                             keyBits = ASN1.ANSI.RSA.RC2ParameterVersion.GetKeyBits(version); 
@@ -151,7 +242,7 @@ namespace Aladdin.CAPI.KZ
                         using (CAPI.Cipher engine = new ANSI.Engine.RC2(keyBits))
                         {
                             // cоздать алгоритм шифрования
-                            return new BlockMode.ConvertPadding(engine, PaddingMode.Any); 
+                            return new BlockMode.PaddingConverter(engine, PaddingMode.Any); 
                         }
                     }
                     if (oid == ASN1.ANSI.OID.rsa_rc4) 
@@ -165,7 +256,7 @@ namespace Aladdin.CAPI.KZ
                         using (CAPI.Cipher engine = new ANSI.Engine.DES())
                         {
                             // cоздать алгоритм шифрования
-                            return new BlockMode.ConvertPadding(engine, PaddingMode.Any); 
+                            return new BlockMode.PaddingConverter(engine, PaddingMode.Any); 
                         }
                     }
                     if (oid == ASN1.ANSI.OID.nist_aes128_ecb) 
@@ -174,7 +265,7 @@ namespace Aladdin.CAPI.KZ
                         using (CAPI.Cipher engine = new ANSI.Engine.AES(new int[] {16}))
                         {
                             // cоздать алгоритм шифрования
-                            return new BlockMode.ConvertPadding(engine, PaddingMode.Any); 
+                            return new BlockMode.PaddingConverter(engine, PaddingMode.Any); 
                         }
                     }
                     if (oid == ASN1.ANSI.OID.nist_aes192_ecb) 
@@ -183,7 +274,7 @@ namespace Aladdin.CAPI.KZ
                         using (CAPI.Cipher engine = new ANSI.Engine.AES(new int[] {24}))
                         {
                             // cоздать алгоритм шифрования
-                            return new BlockMode.ConvertPadding(engine, PaddingMode.Any); 
+                            return new BlockMode.PaddingConverter(engine, PaddingMode.Any); 
                         }
                     }
                     if (oid == ASN1.ANSI.OID.nist_aes256_ecb) 
@@ -192,7 +283,7 @@ namespace Aladdin.CAPI.KZ
                         using (CAPI.Cipher engine = new ANSI.Engine.AES(new int[] {32}))
                         {
                             // cоздать алгоритм шифрования
-                            return new BlockMode.ConvertPadding(engine, PaddingMode.Any); 
+                            return new BlockMode.PaddingConverter(engine, PaddingMode.Any); 
                         }
                     }
 			        if (oid == ASN1.KZ.OID.gamma_cipher_gost_ecb)
@@ -201,7 +292,7 @@ namespace Aladdin.CAPI.KZ
                         using (CAPI.Cipher engine = new GOST.Engine.GOST28147(SBoxG))
                         {
                             // cоздать алгоритм шифрования
-                            return new BlockMode.ConvertPadding(engine, PaddingMode.Any); 
+                            return new BlockMode.PaddingConverter(engine, PaddingMode.Any); 
                         }
 			        }
                 }
@@ -218,7 +309,7 @@ namespace Aladdin.CAPI.KZ
 			        {
 			            // раскодировать параметры
 			            ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams oaepParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters);
    
                         // создать алгоритм хэширования
                         using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
@@ -251,7 +342,7 @@ namespace Aladdin.CAPI.KZ
 			        {
 			            // раскодировать параметры
 			            ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams oaepParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters);
    
                         // создать алгоритм хэширования
                         using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
@@ -284,7 +375,7 @@ namespace Aladdin.CAPI.KZ
 			        {
 			            // раскодировать параметры алгоритма
 			            ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams pssParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters.Parameters); 
+                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters); 
  
                         // проверить вид завершителя
                         if (pssParameters.TrailerField.Value.IntValue != 1) break; 
@@ -325,7 +416,7 @@ namespace Aladdin.CAPI.KZ
 			        {
 			            // раскодировать параметры алгоритма
 			            ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams pssParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters.Parameters); 
+                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters); 
  
                         // проверить вид завершителя
                         if (pssParameters.TrailerField.Value.IntValue != 1) break; 
@@ -395,374 +486,381 @@ namespace Aladdin.CAPI.KZ
                 }
             }
             // вызвать базовую функцию
-            return Factory.RedirectAlgorithm(factory, scope, parameters, type); 
+            return Factory.RedirectAlgorithm(factory, scope, oid, parameters, type); 
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Перенаправление алгоритмов
 	    ///////////////////////////////////////////////////////////////////////
 	    public static new IAlgorithm RedirectAlgorithm(CAPI.Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type) 
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type) 
         {
-		    // определить идентификатор алгоритма
-		    string oid = parameters.Algorithm.Value; for (int i = 0; i < 1; i++)
-            { 
-		        // для алгоритмов хэширования
-		        if (type == typeof(Hash))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3411_94) 
-                    {
-                        // при указании параметров
-                        if (!ASN1.Encodable.IsNullOrEmpty(parameters.Parameters))
-                        {
-                            // раскодировать идентификатор параметров
-                            ASN1.ObjectIdentifier hashOID = new ASN1.ObjectIdentifier(parameters.Parameters); 
-                    
-                            // проверить указание тестовой таблицы подстановок
-                            if (hashOID.Value != ASN1.GOST.OID.hashes_test) break; 
-                            
-                            // указать параметры алгоритма
-                            parameters = new ASN1.ISO.AlgorithmIdentifier(
-                                new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), 
-                                ASN1.Null.Instance
-                            ); 
-                            // создать алгоритм
-                            return factory.CreateAlgorithm<Hash>(scope, parameters); 
-                        }
-                        else {
-                            // указать идентификатор параметров
-                            ASN1.ObjectIdentifier hashOID = new ASN1.ObjectIdentifier(
-                                ASN1.GOST.OID.hashes_cryptopro
-                            );  
-                            // указать параметры алгоритма
-                            parameters = new ASN1.ISO.AlgorithmIdentifier(parameters.Algorithm, hashOID); 
-                    
-                            // создать алгоритм
-                            return factory.CreateAlgorithm<Hash>(scope, parameters); 
-                        }
-                    }
-                }
-		        // для алгоритмов вычисления имитовставки
-                else if (type == typeof(Mac))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3411_94_HMAC) 
-			        {
-				        // указать параметры алгоритма хэширования
-				       ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), parameters.Parameters
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма хэширования
-                            if (hashAlgorithm == null) break; 
-
-                            // создать алгоритм вычисления имитовставки
-                            return new MAC.HMAC(hashAlgorithm); 
-                        }
-			        }
-			        if (oid == ASN1.KZ.OID.gamma_hmac_gost34311_95_t)
-                    {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), 
-                            parameters.Parameters
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма хэширования
-                            if (hashAlgorithm == null) break; 
-
-                            // создать алгоритм вычисления имитовставки
-                            return new MAC.HMAC(hashAlgorithm); 
-                        }
-                    }
-			        if (oid == ASN1.KZ.OID.gamma_hmac_gostR3411_94_cp)
-                    {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма хэширования
-                            if (hashAlgorithm == null) break; 
-
-                            // создать алгоритм вычисления имитовставки
-                            return new MAC.HMAC(hashAlgorithm); 
-                        }
-                    }
-                }
-                // для алгоритмов шифрования
-		        else if (type == typeof(CAPI.Cipher))
+		    // для алгоритмов хэширования
+		    if (type == typeof(Hash))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3411_94) 
                 {
-			        if (oid == ASN1.KZ.OID.gamma_cipher_gost_cbc)
-			        {
-                        // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
-
-                        // указать параметры алгоритма шифрования блока
-                        ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
-                            ASN1.Null.Instance
-                        ); 
-                        // создать алгоритм шифрования блока
-                        using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (engine == null) break; 
-                
-                            // указать используемый режим
-                            CipherMode.CBC mode = new CipherMode.CBC(iv.Value, engine.BlockSize); 
-                
-                            // cоздать алгоритм шифрования
-                            return new CAPI.Mode.CBC(engine, mode, PaddingMode.Any); 
-                        }
-			        }
-			        if (oid == ASN1.KZ.OID.gamma_cipher_gost_cfb || 
-                        oid == ASN1.KZ.OID.gamma_cipher_gost)
-			        {
-                        // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
-                
-                        // указать параметры алгоритма шифрования блока
-                        ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
-                            ASN1.Null.Instance
-                        ); 
-                        // создать алгоритм шифрования блока
-                        using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (engine == null) break; 
-                
-                            // указать используемый режим
-                            CipherMode.CFB mode = new CipherMode.CFB(iv.Value, engine.BlockSize); 
-                
-                            // cоздать алгоритм шифрования
-                            return new CAPI.Mode.CFB(engine, mode); 
-                        }
-			        }
-			        if (oid == ASN1.KZ.OID.gamma_cipher_gost_ofb)
-			        {
-                        // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
-                
-                        // указать параметры алгоритма шифрования блока
-                        ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
-                            ASN1.Null.Instance
-                        ); 
-                        // создать алгоритм шифрования блока
-                        using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (engine == null) break; 
-                
-                            // указать используемый режим
-                            CipherMode.OFB mode = new CipherMode.OFB(iv.Value, engine.BlockSize); 
-                
-                            // cоздать алгоритм шифрования
-                            return new CAPI.Mode.OFB(engine, mode); 
-                        }
-			        }
-			        if (oid == ASN1.KZ.OID.gamma_cipher_gost_cnt)
-			        {
-                        // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
-                
-                        // указать параметры алгоритма шифрования блока
-                        ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
-                            ASN1.Null.Instance
-                        ); 
-                        // создать алгоритм шифрования блока
-                        using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (engine == null) break; 
-                
-                            // указать используемый режим
-                            CipherMode.CTR mode = new CipherMode.CTR(iv.Value, engine.BlockSize); 
-                
-                            // cоздать алгоритм шифрования
-                            return new CAPI.Mode.CTR(engine, mode); 
-                        }
-			        }
-                }
-		        // для алгоритмов подписи хэш-значения
-		        else if (type == typeof(SignData))
-		        {
-			        if (oid == ASN1.KZ.OID.gamma_gost34310_34311_2004_t) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), ASN1.Null.Instance
-				        ); 
-				        // указать параметры алгоритма подписи
-				        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (hash == null) break; 
-
-                            // получить алгоритм подписи
-                            using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
-                                scope, signHashParameters))
-                            {
-                                // проверить поддержку алгоритма
-                                if (signHash == null) break; 
-
-                                // создать алгоритм подписи данных
-                                return new SignHashData(hash, hashParameters, signHash); 
-                            }
-                        }   
-                    }
-			        if (oid == ASN1.KZ.OID.gamma_gostR3410_R3411_2001_cp) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
-				        ); 
-				        // указать параметры алгоритма подписи
-				        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (hash == null) break; 
-
-                            // получить алгоритм подписи
-                            using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
-                                scope, signHashParameters))
-                            {
-                                // проверить поддержку алгоритма
-                                if (signHash == null) break; 
-
-                                // создать алгоритм подписи данных
-                                return new SignHashData(hash, hashParameters, signHash); 
-                            }
-                        }   
-			        }
-		        }
-		        else if (type == typeof(VerifyData))
-		        {
-			        if (oid == ASN1.KZ.OID.gamma_gost34310_34311_2004_t) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), ASN1.Null.Instance
-				        ); 
-				        // указать параметры алгоритма подписи
-				        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (hash == null) break; 
-
-                            // получить алгоритм проверки подписи
-                            using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
-                                scope, verifyHashParameters))
-                            {
-                                // проверить поддержку алгоритма
-                                if (verifyHash == null) break; 
-
-                                // создать алгоритм проверки подписи данных
-                                return new VerifyHashData(hash, hashParameters, verifyHash); 
-                            }
-                        }
-			        }
-			        if (oid == ASN1.KZ.OID.gamma_gostR3410_R3411_2001_cp) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
-				        ); 
-				        // указать параметры алгоритма подписи
-				        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
-				        ); 
-                        // получить алгоритм хэширования
-                        using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (hash == null) break; 
-
-                            // получить алгоритм проверки подписи
-                            using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
-                                scope, verifyHashParameters))
-                            {
-                                // проверить поддержку алгоритма
-                                if (verifyHash == null) break; 
-
-                                // создать алгоритм проверки подписи данных
-                                return new VerifyHashData(hash, hashParameters, verifyHash); 
-                            }
-                        }
-                    }
-                }
-	            // для алгоритмов согласования ключа
-	            else if (type == typeof(IKeyAgreement))
-                {
-                    if (oid == ASN1.KZ.OID.gamma_gost28147)
+                    // при указании параметров
+                    if (!ASN1.Encodable.IsNullOrEmpty(parameters))
                     {
-                        // указать идентификатор алгоритма
-                        oid = ASN1.KZ.OID.gamma_tumar_dh; 
-                    
-                        // указать параметры алгоритма согласования ключа
-                        parameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(oid), parameters.Parameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        return factory.CreateAlgorithm<IKeyAgreement>(scope, parameters); 
+                        // раскодировать идентификатор параметров
+                        ASN1.ObjectIdentifier hashOID = new ASN1.ObjectIdentifier(parameters); 
+                
+                        // проверить указание тестовой таблицы подстановок
+                        if (hashOID.Value != ASN1.GOST.OID.hashes_test) return null; 
+                        
+                        // указать идентификатор и параметры алгоритма
+                        oid = ASN1.KZ.OID.gamma_gost34311_95; parameters = ASN1.Null.Instance; 
+
+                        // создать алгоритм
+                        return factory.CreateAlgorithm<Hash>(scope, oid, parameters); 
                     }
-                }
-	            // для алгоритмов шифрования ключа
-	            else if (type == typeof(ITransportAgreement))
-                {
-                    if (oid == ASN1.KZ.OID.gamma_gost28147)
-                    {
-                        // указать параметры алгоритма шифрования
-                        ASN1.ISO.AlgorithmIdentifier cipherParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_cfb), 
-                            new ASN1.OctetString(new byte[8])
-                        ); 
-                        // создать алгоритм шифрования 
-                        using (CAPI.Cipher cipher = 
-                            factory.CreateAlgorithm<CAPI.Cipher>(scope, cipherParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (cipher == null) break; 
-                        }
-                        // создать алгоритм наследования ключа
-                        using (IKeyAgreement keyAgreеment = 
-                            factory.CreateAlgorithm<IKeyAgreement>(scope, parameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (keyAgreеment == null) break; 
-                        }
-                        // вернуть алгоритм согласования ключа
-                        return new Keyx.Tumar.GOST34310.TransportAgreement(parameters); 
+                    else {
+                        // указать идентификатор параметров
+                        parameters = new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro);  
+
+                        // создать алгоритм
+                        return factory.CreateAlgorithm<Hash>(scope, oid, parameters); 
                     }
                 }
             }
+		    // для алгоритмов вычисления имитовставки
+            else if (type == typeof(Mac))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3411_94_HMAC) 
+			    {
+			        // указать параметры алгоритма хэширования
+			       ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), parameters
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hashAlgorithm == null) return null; 
+
+                        // создать алгоритм вычисления имитовставки
+                        return new MAC.HMAC(hashAlgorithm); 
+                    }
+			    }
+			    if (oid == ASN1.KZ.OID.gamma_hmac_gost34311_95_t)
+                {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), 
+                        parameters
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hashAlgorithm == null) return null; 
+
+                        // создать алгоритм вычисления имитовставки
+                        return new MAC.HMAC(hashAlgorithm); 
+                    }
+                }
+			    if (oid == ASN1.KZ.OID.gamma_hmac_gostR3411_94_cp)
+                {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hashAlgorithm = factory.CreateAlgorithm<Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hashAlgorithm == null) return null; 
+
+                        // создать алгоритм вычисления имитовставки
+                        return new MAC.HMAC(hashAlgorithm); 
+                    }
+                }
+            }
+            // для алгоритмов шифрования
+		    else if (type == typeof(CAPI.Cipher))
+            {
+			    if (oid == ASN1.KZ.OID.gamma_cipher_gost_cbc)
+			    {
+                    // раскодировать параметры алгоритма
+                    ASN1.OctetString iv = new ASN1.OctetString(parameters); 
+
+                    // указать параметры алгоритма шифрования блока
+                    ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
+                        ASN1.Null.Instance
+                    ); 
+                    // создать алгоритм шифрования блока
+                    using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (engine == null) return null; 
+            
+                        // указать используемый режим
+                        CipherMode.CBC mode = new CipherMode.CBC(iv.Value, engine.BlockSize); 
+            
+                        // cоздать алгоритм шифрования
+                        return new CAPI.Mode.CBC(engine, mode, PaddingMode.Any); 
+                    }
+			    }
+			    if (oid == ASN1.KZ.OID.gamma_cipher_gost_cfb || 
+                    oid == ASN1.KZ.OID.gamma_cipher_gost)
+			    {
+                    // раскодировать параметры алгоритма
+                    ASN1.OctetString iv = new ASN1.OctetString(parameters); 
+            
+                    // указать параметры алгоритма шифрования блока
+                    ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
+                        ASN1.Null.Instance
+                    ); 
+                    // создать алгоритм шифрования блока
+                    using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (engine == null) return null; 
+            
+                        // указать используемый режим
+                        CipherMode.CFB mode = new CipherMode.CFB(iv.Value, engine.BlockSize); 
+            
+                        // cоздать алгоритм шифрования
+                        return new CAPI.Mode.CFB(engine, mode); 
+                    }
+			    }
+			    if (oid == ASN1.KZ.OID.gamma_cipher_gost_ofb)
+			    {
+                    // раскодировать параметры алгоритма
+                    ASN1.OctetString iv = new ASN1.OctetString(parameters); 
+            
+                    // указать параметры алгоритма шифрования блока
+                    ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
+                        ASN1.Null.Instance
+                    ); 
+                    // создать алгоритм шифрования блока
+                    using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (engine == null) return null; 
+            
+                        // указать используемый режим
+                        CipherMode.OFB mode = new CipherMode.OFB(iv.Value, engine.BlockSize); 
+            
+                        // cоздать алгоритм шифрования
+                        return new CAPI.Mode.OFB(engine, mode); 
+                    }
+			    }
+			    if (oid == ASN1.KZ.OID.gamma_cipher_gost_cnt)
+			    {
+                    // раскодировать параметры алгоритма
+                    ASN1.OctetString iv = new ASN1.OctetString(parameters); 
+            
+                    // указать параметры алгоритма шифрования блока
+                    ASN1.ISO.AlgorithmIdentifier engineParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_ecb), 
+                        ASN1.Null.Instance
+                    ); 
+                    // создать алгоритм шифрования блока
+                    using (CAPI.Cipher engine = factory.CreateAlgorithm<CAPI.Cipher>(scope, engineParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (engine == null) return null; 
+            
+                        // указать используемый режим
+                        CipherMode.CTR mode = new CipherMode.CTR(iv.Value, engine.BlockSize); 
+            
+                        // cоздать алгоритм шифрования
+                        return new CAPI.Mode.CTR(engine, mode); 
+                    }
+			    }
+            }
+            // для алгоритмов симметричного шифрования
+            else if (type == typeof(IBlockCipher))
+            {
+                if (oid == "GOST28147")
+                {
+                    // получить алгоритм шифрования
+                    using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                        scope, ASN1.KZ.OID.gamma_cipher_gost_ecb, parameters)) 
+                    {
+                        // проверить наличие алгоритма
+                        if (cipher != null) return cipher; 
+                    }
+                    // созать блочный алгоритм шифрования 
+                    return new Cipher.GOST28147(factory, scope); 
+                }
+            }
+		    // для алгоритмов подписи хэш-значения
+		    else if (type == typeof(SignData))
+		    {
+			    if (oid == ASN1.KZ.OID.gamma_gost34310_34311_2004_t) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), ASN1.Null.Instance
+			        ); 
+			        // указать параметры алгоритма подписи
+			        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (hash == null) return null; 
+
+                        // получить алгоритм подписи
+                        using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
+                            scope, signHashParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (signHash == null) return null; 
+
+                            // создать алгоритм подписи данных
+                            return new SignHashData(hash, hashParameters, signHash); 
+                        }
+                    }   
+                }
+			    if (oid == ASN1.KZ.OID.gamma_gostR3410_R3411_2001_cp) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
+			        ); 
+			        // указать параметры алгоритма подписи
+			        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (hash == null) return null; 
+
+                        // получить алгоритм подписи
+                        using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
+                            scope, signHashParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (signHash == null) return null; 
+
+                            // создать алгоритм подписи данных
+                            return new SignHashData(hash, hashParameters, signHash); 
+                        }
+                    }   
+			    }
+		    }
+		    else if (type == typeof(VerifyData))
+		    {
+			    if (oid == ASN1.KZ.OID.gamma_gost34310_34311_2004_t) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34311_95), ASN1.Null.Instance
+			        ); 
+			        // указать параметры алгоритма подписи
+			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (hash == null) return null; 
+
+                        // получить алгоритм проверки подписи
+                        using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
+                            scope, verifyHashParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (verifyHash == null) return null; 
+
+                            // создать алгоритм проверки подписи данных
+                            return new VerifyHashData(hash, hashParameters, verifyHash); 
+                        }
+                    }
+			    }
+			    if (oid == ASN1.KZ.OID.gamma_gostR3410_R3411_2001_cp) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
+			        ); 
+			        // указать параметры алгоритма подписи
+			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_gost34310_2004), ASN1.Null.Instance
+			        ); 
+                    // получить алгоритм хэширования
+                    using (Hash hash = factory.CreateAlgorithm<Hash>(scope, hashParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (hash == null) return null; 
+
+                        // получить алгоритм проверки подписи
+                        using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
+                            scope, verifyHashParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (verifyHash == null) return null; 
+
+                            // создать алгоритм проверки подписи данных
+                            return new VerifyHashData(hash, hashParameters, verifyHash); 
+                        }
+                    }
+                }
+            }
+	        // для алгоритмов согласования ключа
+	        else if (type == typeof(IKeyAgreement))
+            {
+                if (oid == ASN1.KZ.OID.gamma_gost28147)
+                {
+                    // указать идентификатор алгоритма
+                    oid = ASN1.KZ.OID.gamma_tumar_dh; 
+                
+                    // создать алгоритм согласования ключа
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters); 
+                }
+            }
+	        // для алгоритмов шифрования ключа
+	        else if (type == typeof(ITransportAgreement))
+            {
+                if (oid == ASN1.KZ.OID.gamma_gost28147)
+                {
+                    // указать параметры алгоритма шифрования
+                    ASN1.ISO.AlgorithmIdentifier cipherParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.KZ.OID.gamma_cipher_gost_cfb), 
+                        new ASN1.OctetString(new byte[8])
+                    ); 
+                    // создать алгоритм шифрования 
+                    using (CAPI.Cipher cipher = 
+                        factory.CreateAlgorithm<CAPI.Cipher>(scope, cipherParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (cipher == null) return null; 
+                    }
+                    // указать параметры алгоритма согласования
+                    ASN1.ISO.AlgorithmIdentifier agreementParameters =
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм наследования ключа
+                    using (IKeyAgreement keyAgreеment = 
+                        factory.CreateAlgorithm<IKeyAgreement>(scope, agreementParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (keyAgreеment == null) return null; 
+                    }
+                    // вернуть алгоритм согласования ключа
+                    return new Keyx.Tumar.GOST34310.TransportAgreement(agreementParameters); 
+                }
+            }
             // вызвать базовую функцию
-            return ANSI.Factory.RedirectAlgorithm(factory, scope, parameters, type);
+            return ANSI.Factory.RedirectAlgorithm(factory, scope, oid, parameters, type);
         }
     }
 }

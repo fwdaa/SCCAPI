@@ -1251,7 +1251,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (cipher == null) return null; 
                 
                     // создать блочный алгоритм шифрования
-                    using (IBlockCipher blockCipher = new BlockCipher(cipher, PaddingMode.None))
+                    using (IBlockCipher blockCipher = new BlockCipher(cipher))
                     {
                         // создать алгоритм выработки имитовставки
                         return CAPI.MAC.OMAC1.Create(blockCipher, new byte[8], macSize); 
@@ -1288,7 +1288,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (cipher == null) return null; 
                 
                     // создать блочный алгоритм шифрования
-                    using (IBlockCipher blockCipher = new BlockCipher(cipher, PaddingMode.None))
+                    using (IBlockCipher blockCipher = new BlockCipher(cipher))
                     {
                         // создать алгоритм выработки имитовставки
                         return CAPI.MAC.OMAC1.Create(blockCipher, new byte[8]); 
@@ -1382,7 +1382,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (cipher == null) return null; 
                 
                     // создать блочный алгоритм шифрования
-                    using (IBlockCipher blockCipher = new BlockCipher(cipher, PaddingMode.None))
+                    using (IBlockCipher blockCipher = new BlockCipher(cipher))
                     {
                         // создать алгоритм выработки имитовставки
                         return CAPI.MAC.OMAC1.Create(blockCipher, new byte[16], macSize); 
@@ -1419,7 +1419,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (cipher == null) return null; 
                 
                     // создать блочный алгоритм шифрования
-                    using (IBlockCipher blockCipher = new BlockCipher(cipher, PaddingMode.None))
+                    using (IBlockCipher blockCipher = new BlockCipher(cipher))
                     {
                         // создать алгоритм выработки имитовставки
                         return CAPI.MAC.OMAC1.Create(blockCipher, new byte[16]); 

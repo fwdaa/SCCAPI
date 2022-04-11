@@ -265,7 +265,9 @@ public class MD5 extends BlockHash
     ////////////////////////////////////////////////////////////////////////////
     public static void testHMAC(Mac algorithm) throws Exception
     {
-        if (KeySizes.contains(algorithm.keySizes(), 16))
+        int[] keySizes = algorithm.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 16))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
             (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
@@ -277,7 +279,7 @@ public class MD5 extends BlockHash
             (byte)0x13, (byte)0xf4, (byte)0x8e, (byte)0xf8, 
             (byte)0x15, (byte)0x8b, (byte)0xfc, (byte)0x9d
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 4))
+        if (KeySizes.contains(keySizes, 4))
         Mac.knownTest(algorithm, "Jefe".getBytes("UTF-8"), 
             1, "what do ya want for nothing?", new byte[] {
             (byte)0x75, (byte)0x0c, (byte)0x78, (byte)0x3e, 
@@ -285,7 +287,7 @@ public class MD5 extends BlockHash
             (byte)0xea, (byte)0xa8, (byte)0x6e, (byte)0x31, 
             (byte)0x0a, (byte)0x5d, (byte)0xb7, (byte)0x38
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 16))
+        if (KeySizes.contains(keySizes, 16))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
             (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
@@ -297,7 +299,7 @@ public class MD5 extends BlockHash
             (byte)0xdb, (byte)0xb8, (byte)0xc7, (byte)0x33, 
             (byte)0xf0, (byte)0xe8, (byte)0xb3, (byte)0xf6
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 16))
+        if (KeySizes.contains(keySizes, 16))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
             (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
@@ -309,7 +311,7 @@ public class MD5 extends BlockHash
             (byte)0xf9, (byte)0xba, (byte)0xb9, (byte)0x95, 
             (byte)0x69, (byte)0x0e, (byte)0xfd, (byte)0x4c
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 80))
+        if (KeySizes.contains(keySizes, 80))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
@@ -337,7 +339,7 @@ public class MD5 extends BlockHash
             (byte)0x0b, (byte)0x62, (byte)0xe6, (byte)0xce, 
             (byte)0x61, (byte)0xb9, (byte)0xd0, (byte)0xcd        
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 80))
+        if (KeySizes.contains(keySizes, 80))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 

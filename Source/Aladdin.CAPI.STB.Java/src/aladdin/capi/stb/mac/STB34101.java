@@ -28,8 +28,6 @@ public class STB34101 extends BlockMac
     }
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() { return belt.keyFactory(); } 
-    // размеры ключей
-	@Override public final int[] keySizes() { return belt.keySizes(); }
     
 	// размер MAC-значения в байтах
 	@Override public int macSize() { return 8; }

@@ -12,8 +12,6 @@ public abstract class Mac extends RefObject implements IAlgorithm
 {
     // тип ключа
     public SecretKeyFactory keyFactory() { return SecretKeyFactory.GENERIC; }
-	// размер ключа
-	public int[] keySizes() { return keyFactory().keySizes(); } 
     
     // размер MAC-значения
     public abstract int macSize(); 
@@ -158,7 +156,7 @@ public abstract class Mac extends RefObject implements IAlgorithm
         Mac trustAlgorithm, int[] dataSizes) throws Exception
     {
         // получить допустимые размеры ключей
-        int[] keySizes = macAlgorithm.keySizes(); 
+        int[] keySizes = macAlgorithm.keyFactory().keySizes(); 
         
         // при отсутствии ограничений на размер ключа
         if (keySizes == KeySizes.UNRESTRICTED || keySizes.length > 32)
@@ -170,7 +168,7 @@ public abstract class Mac extends RefObject implements IAlgorithm
         for (int keySize : keySizes)
         { 
             // проверить поддержку размера ключа
-            if (!KeySizes.contains(macAlgorithm.keySizes(), keySize)) continue; 
+            if (!KeySizes.contains(macAlgorithm.keyFactory().keySizes(), keySize)) continue; 
             
             // сгенерировать ключ
             try (ISecretKey key = macAlgorithm.keyFactory().generate(rand, keySize)) 

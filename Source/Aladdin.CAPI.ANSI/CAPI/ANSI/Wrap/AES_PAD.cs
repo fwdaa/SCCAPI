@@ -35,8 +35,6 @@ namespace Aladdin.CAPI.ANSI.Wrap
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return aesECB.KeyFactory; }}
-        // размер ключей
-        public override int[] KeySizes { get { return aesECB.KeySizes; }}
 
         // зашифровать ключ
 	    public override byte[] Wrap(IRand rand, ISecretKey KEK, ISecretKey wrappedKey) 
@@ -157,7 +155,9 @@ namespace Aladdin.CAPI.ANSI.Wrap
         ////////////////////////////////////////////////////////////////////////////
         public static void Test(KeyWrap keyWrap) 
         {
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 24))
+            int[] keySizes = keyWrap.KeyFactory.KeySizes; 
+
+            if (CAPI.KeySizes.Contains(keySizes, 24))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x58, (byte)0x40, (byte)0xdf, (byte)0x6e, 
                 (byte)0x29, (byte)0xb0, (byte)0x2a, (byte)0xf1, 
@@ -181,7 +181,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0x5f, (byte)0x54, (byte)0xf3, (byte)0x73, 
                 (byte)0xfa, (byte)0x54, (byte)0x3b, (byte)0x6a
             });  
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 24))
+            if (CAPI.KeySizes.Contains(keySizes, 24))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x58, (byte)0x40, (byte)0xdf, (byte)0x6e, 
                 (byte)0x29, (byte)0xb0, (byte)0x2a, (byte)0xf1, 

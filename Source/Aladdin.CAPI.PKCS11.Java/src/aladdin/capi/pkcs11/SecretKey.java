@@ -59,8 +59,8 @@ public class SecretKey extends RefObject implements ISecretKey
         // вернуть значение атрибута
 		return (attribute != null) ? (byte[])attribute.value() : null; 
     }
-    // тип ключа 
-    @Override public String getAlgorithm() { return keyFactory().names()[0]; }
+    // тип ключа /* TODO */
+    @Override public String getAlgorithm() { return "GENERIC"; }
     // формат закодированного представления
     @Override public String getFormat() { return "RAW"; }
     // закодированное представление

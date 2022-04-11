@@ -1,5 +1,4 @@
 package aladdin.capi.jcp;
-import aladdin.*;
 import aladdin.capi.*; 
 import java.security.*;
 import java.io.*;
@@ -17,37 +16,6 @@ public final class SecretKeyFactorySpi extends javax.crypto.SecretKeyFactorySpi
         // сохранить переданные параметры
         { this.provider = provider; } private final Provider provider;
         
-    // используемый провайдер
-    public final Provider provider() { return provider; } 
-    
-    // преобразовать ключ в "родной" формат
-	public final ISecretKey translateKey(
-		javax.crypto.SecretKey key) throws InvalidKeyException 
-    {
-        // выполнить преобразование типа
-		if (key instanceof SecretKey) { SecretKey secretKey = (SecretKey)key;
-
-            // увеличить счетчик ссылок
-            return RefObject.addRef(secretKey.get()); 
-        }
-		// проверить формат ключа
-		if (!key.getFormat().equals("RAW")) throw new InvalidKeyException();
-			
-        // получить закодированное представление
-        byte[] encoded = key.getEncoded(); 
-        
-        // проверить наличие значения
-        if (encoded == null) throw new InvalidKeyException(); 
-        
-        // получить фабрику алгоритмов
-        Factory factory = provider.getFactory(); 
-        
-        // указать тип ключа
-        SecretKeyFactory keyFactory = factory.getSecretKeyFactory(key.getAlgorithm()); 
-        
-		// создать симметричный ключ
-		return keyFactory.create(encoded); 
-    }
     // преобразовать ключ в "родной" формат
 	@Override protected final javax.crypto.SecretKey engineTranslateKey(
 		javax.crypto.SecretKey key) throws InvalidKeyException 
@@ -56,10 +24,10 @@ public final class SecretKeyFactorySpi extends javax.crypto.SecretKeyFactorySpi
 		if (key instanceof SecretKey) return key; 
 
 		// создать симметричный ключ
-		try (ISecretKey secretKey = translateKey(key)) 
+		try (ISecretKey secretKey = provider.translateSecretKey(key)) 
         {
             // зарегистрировать симметричный ключ
-            return provider.registerSecretKey(secretKey); 
+            return new SecretKey(provider, key.getAlgorithm(), secretKey); 
         }
         // обработать возможное исключение
         catch (IOException e) { throw new InvalidKeyException(e.getMessage()); }  	
@@ -74,22 +42,19 @@ public final class SecretKeyFactorySpi extends javax.crypto.SecretKeyFactorySpi
         SecretKeySpec secretKeySpec = (SecretKeySpec)keySpec; 
         
         // получить закодированное представление
-        byte[] encoded = secretKeySpec.getEncoded(); 
+        byte[] encoded = secretKeySpec.getEncoded(); if (encoded == null) return secretKeySpec; 
         
-        // проверить наличие значения
-        if (encoded == null) return secretKeySpec; 
-        
-        // получить фабрику алгоритмов
-        Factory factory = provider.getFactory(); 
+        // извлечь имя алгоритма
+        String algorithm = secretKeySpec.getAlgorithm();
         
         // получить тип ключа
-        SecretKeyFactory keyFactory = factory.getSecretKeyFactory(secretKeySpec.getAlgorithm());         
+        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(algorithm);         
         
 		// создать симметричный ключ
 		try (ISecretKey secretKey = keyFactory.create(encoded)) 
         {
             // зарегистрировать симметричный ключ
-            return provider.registerSecretKey(secretKey); 
+            return new SecretKey(provider, algorithm, secretKey); 
         }
         // обработать возможное исключение
         catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }  	
@@ -99,27 +64,27 @@ public final class SecretKeyFactorySpi extends javax.crypto.SecretKeyFactorySpi
 	protected final KeySpec engineGetKeySpec(
         javax.crypto.SecretKey key, Class specType) throws InvalidKeySpecException 
 	{
-        // получить закодированное представление
-        byte[] encoded = key.getEncoded(); if (encoded == null)
+        // при допустимом типе ключа
+        if (specType.isAssignableFrom(SecretKeySpec.class))
         {
             // проверить тип ключа
             if (key instanceof SecretKeySpec) return (SecretKeySpec)key; 
-            
+        }
+        // получить закодированное представление
+        byte[] encoded = key.getEncoded(); if (encoded == null)
+        {
             // при ошибке выбросить исключение
             throw new InvalidKeySpecException(); 
         }
         // преобразовать ключ в "родной" формат
-        try (ISecretKey secretKey = translateKey(key)) 
+        try (ISecretKey secretKey = provider.translateSecretKey(key)) 
         {
             // получить данные ключа
-            return secretKey.keyFactory().getSpec(encoded, specType); 
+            return secretKey.keyFactory().getSpec(key.getAlgorithm(), encoded, specType); 
         }
         // обработать возможное исключение
         catch (InvalidKeyException e) 
         { 
-            // проверить тип ключа
-            if (key instanceof SecretKeySpec) return (SecretKeySpec)key; 
-            
             // при ошибке выбросить исключение
             throw new InvalidKeySpecException(e.getMessage()); 
         }

@@ -6,12 +6,11 @@ import aladdin.capi.*;
 ///////////////////////////////////////////////////////////////////////////
 public class RC4 extends SecretKeyFactory
 {
-    // тип ключа
-    public static final SecretKeyFactory INSTANCE = new RC4(); 
-        
     // конструктор
-    private RC4() { super("RC4"); }
+    public RC4(int[] keySizes) { super(keySizes); }
+    // конструктор
+    public RC4() { super(KeySizes.range(1, 256)); }
     
-    // используемые размеры ключей
-    @Override public final int[] keySizes() { return KeySizes.range(1, 256); }
+    // ограничить размер ключей
+    @Override public SecretKeyFactory narrow(int[] keySizes) { return new RC4(keySizes); }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Diagnostics.CodeAnalysis; 
 
 namespace Aladdin.CAPI
@@ -11,21 +12,28 @@ namespace Aladdin.CAPI
 	// Криптографическая среда
 	///////////////////////////////////////////////////////////////////////////
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-	public class CryptoEnvironment : ExecutionContext, IParametersFactory, ICultureFactory
+    [Serializable]
+	public sealed class CryptoEnvironment : ExecutionContext, 
+        IDeserializationCallback, IParametersFactory, ICultureFactory
 	{
+        // секция конфигурации
+        private Environment.ConfigSection section; 
+
         // фабрики алгоритмов и криптопровайдеры
-		private Factories factories; private List<CryptoProvider> providers; 
+		[NonSerialized] private Factories            factories; 
+        [NonSerialized] private List<CryptoProvider> providers; 
         
         // фабрики генераторов случайных данных
-        private List<IRandFactory> randFactories; private bool hardwareRand; 
+        [NonSerialized] private List<IRandFactory> randFactories; 
+        [NonSerialized] private bool hardwareRand; 
         
         // расширения по именам 
-        private Dictionary<String, GuiPlugin> plugins;
+        [NonSerialized] private Dictionary<String, GuiPlugin> plugins;
 
         // отображения по идентификаторам ключей
-        private Dictionary<String, String > keyNames;       // имена ключей
-        private Dictionary<String, String > keyPlugins;     // имена расширений
-        private Dictionary<String, Culture> keyCultures;    // параметры алгоритмов
+        [NonSerialized] private Dictionary<String, String > keyNames;    // имена ключей
+        [NonSerialized] private Dictionary<String, String > keyPlugins;  // имена расширений
+        [NonSerialized] private Dictionary<String, Culture> keyCultures; // параметры алгоритмов
 
         // конструктор
 		public CryptoEnvironment(string file) 
@@ -48,6 +56,12 @@ namespace Aladdin.CAPI
         // конструктор
         public CryptoEnvironment(Environment.ConfigSection section)
 		{
+            // инициализировать данные
+            this.section = section; OnDeserialization(this); 
+        }
+        // инициализировать данные 
+        public void OnDeserialization(object sender)
+        {
             // инициализировать переменные
             plugins     = new Dictionary<String, GuiPlugin>();
             keyNames    = new Dictionary<String, String   >();
@@ -204,7 +218,7 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Параметры и отображаемое имя ключа
         ///////////////////////////////////////////////////////////////////////
-        public virtual IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
+        public IParameters GetKeyParameters(IRand rand, string keyOID, KeyUsage keyUsage)
         {
             // определить имя плагина 
             string pluginName = GetKeyPlugin(keyOID); 
@@ -231,7 +245,7 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Параметры алгоритмов по умолчанию
         ///////////////////////////////////////////////////////////////////////
-        public virtual Culture GetCulture(string keyOID)
+        public Culture GetCulture(string keyOID)
         {
             // проверить наличие расширения 
             if (!keyCultures.ContainsKey(keyOID)) throw new NotFoundException();

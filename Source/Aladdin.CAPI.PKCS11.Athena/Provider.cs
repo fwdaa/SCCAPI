@@ -56,11 +56,8 @@ namespace Aladdin.CAPI.PKCS11.Athena
         }
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(CAPI.Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type)
         {
-            // определить идентификатор алгоритма
-		    string oid = parameters.Algorithm.Value; 
-
             // для алгоритмов согласования общего ключа
             if (type == typeof(IKeyAgreement))
             {
@@ -83,7 +80,7 @@ namespace Aladdin.CAPI.PKCS11.Athena
                 if (oid == ASN1.ANSI.OID.certicom_ecdh_cofactor_sha2_512) return null; 
             }
             // вызвать базовую функцию
-            return base.CreateAlgorithm(factory, scope, parameters, type); 
+            return base.CreateAlgorithm(factory, scope, oid, parameters, type); 
         }
     }
 }

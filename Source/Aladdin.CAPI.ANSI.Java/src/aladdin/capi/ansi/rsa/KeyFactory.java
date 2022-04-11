@@ -38,7 +38,8 @@ public class KeyFactory extends aladdin.capi.KeyFactory
         throw new UnsupportedOperationException(); 
     }
     // раскодировать параметры
-    @Override public IParameters decodeParameters(IEncodable encoded) throws IOException
+    @Override public aladdin.capi.IParameters 
+        decodeParameters(IEncodable encoded) throws IOException
     {
         // параметры отсутствуют 
         throw new UnsupportedOperationException(); 
@@ -181,8 +182,8 @@ public class KeyFactory extends aladdin.capi.KeyFactory
         aladdin.capi.IParameters parameters, 
         Class<? extends AlgorithmParameterSpec> specType) 
     { 
-        // выполнить преобразование типа
-        IParameters rsaParameters = (IParameters)parameters; 
+        // получить параметры алгоритма RSA
+        IParameters rsaParameters = Parameters.convert(parameters); 
         
         // в зависимости от типа данных
         if (specType.isAssignableFrom(RSAKeyGenParameterSpec.class))

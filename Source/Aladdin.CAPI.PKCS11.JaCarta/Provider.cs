@@ -32,19 +32,59 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 		// интерфейс вызова функций
 		public override Module Module { get { return module; }} 
 
-        public override KeyFactory[] KeyFactories() 
-        {
-            // создать список фабрик кодирования
-            List<KeyFactory> keyFactories = new List<KeyFactory>(); 
+        ///////////////////////////////////////////////////////////////////////
+        // Поддерживаемые ключи
+        ///////////////////////////////////////////////////////////////////////
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
+        { 
+            // создать список поддерживаемых ключей
+            Dictionary<String, SecretKeyFactory> keyFactories = 
+                new Dictionary<String, SecretKeyFactory>(); 
         
-            // заполнить список фабрик кодирования
-            keyFactories.AddRange(gostProvider.KeyFactories()); 
+            // для всех поддерживаемых ключей
+            foreach (KeyValuePair<String, SecretKeyFactory> entry in gostProvider.SecretKeyFactories())
+            {
+                // проверить отсутствие элемента
+                if (keyFactories.ContainsKey(entry.Key)) continue; 
 
-            // вызвать базовую функцию
-            keyFactories.AddRange(base.KeyFactories()); 
+                // добавить фабрику в таблицу
+                keyFactories.Add(entry.Key, entry.Value); 
+            }
+            // для всех поддерживаемых ключей
+            foreach (KeyValuePair<String, SecretKeyFactory> entry in base.SecretKeyFactories())
+            {
+                // проверить отсутствие элемента
+                if (keyFactories.ContainsKey(entry.Key)) continue; 
 
-            // вернуть список фабрик
-            return keyFactories.ToArray(); 
+                // добавить фабрику в таблицу
+                keyFactories.Add(entry.Key, entry.Value); 
+            }
+            return keyFactories; 
+        }
+	    public override Dictionary<String, KeyFactory> KeyFactories() 
+        { 
+            // создать список поддерживаемых ключей
+            Dictionary<String, KeyFactory> keyFactories = new Dictionary<String, KeyFactory>(); 
+        
+            // для всех поддерживаемых ключей
+            foreach (KeyValuePair<String, KeyFactory> entry in gostProvider.KeyFactories())
+            {
+                // проверить отсутствие элемента
+                if (keyFactories.ContainsKey(entry.Key)) continue; 
+
+                // добавить фабрику в таблицу
+                keyFactories.Add(entry.Key, entry.Value); 
+            }
+            // для всех поддерживаемых ключей
+            foreach (KeyValuePair<String, KeyFactory> entry in base.KeyFactories())
+            {
+                // проверить отсутствие элемента
+                if (keyFactories.ContainsKey(entry.Key)) continue; 
+
+                // добавить фабрику в таблицу
+                keyFactories.Add(entry.Key, entry.Value); 
+            }
+            return keyFactories; 
         }
 	    public override string[] GeneratedKeys(SecurityStore scope) 
 	    {
@@ -145,11 +185,8 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(
             CAPI.Factory factory, SecurityStore scope, 
-		    ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+		    String oid, ASN1.IEncodable parameters, Type type)
         {
-            // определить идентификатор алгоритма
-            string oid = parameters.Algorithm.Value; 
-
             // для алгоритмов ассиметричного шифрования
             if (type == typeof(CAPI.Encipherment))
             {
@@ -179,13 +216,13 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
                 if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2_512) return null; 
             }
             // создать алгоритм
-            IAlgorithm algorithm = gostProvider.CreateAlgorithm(scope, parameters, type); 
+            IAlgorithm algorithm = gostProvider.CreateAlgorithm(scope, oid, parameters, type); 
 
             // проверить наличие алгоритма
             if (algorithm != null) return algorithm; 
         
             // вызвать базовую функцию
-            return base.CreateAlgorithm(factory, scope, parameters, type); 
+            return base.CreateAlgorithm(factory, scope, oid, parameters, type); 
         }
     }
 }

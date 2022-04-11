@@ -30,9 +30,11 @@ namespace Aladdin.CAPI.ANSI.PKCS11.Cipher
     	    // параметры алгоритма
 		    return new Mechanism(API.CKM_AES_CFB1, iv); 
 	    }
-        // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.AES.Instance; }}
-	    // размер ключа в байтах
-	    public override int[] KeySizes { get { return keySizes; }}
+        // тип ключей
+        public override SecretKeyFactory KeyFactory 
+		{ 
+			// тип ключей
+			get { return new Keys.AES(keySizes); }
+		}
     }
 }

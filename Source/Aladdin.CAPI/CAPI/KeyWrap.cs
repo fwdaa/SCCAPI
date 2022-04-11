@@ -11,8 +11,6 @@ namespace Aladdin.CAPI
 	{
         // тип ключа
         public virtual SecretKeyFactory KeyFactory  { get { return SecretKeyFactory.Generic; }}
-        // размер ключей
-        public virtual int[] KeySizes { get { return KeyFactory.KeySizes; }} 
 
 		// зашифровать ключ
 		public abstract byte[] Wrap(IRand rand, ISecretKey key, ISecretKey CEK);

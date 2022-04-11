@@ -55,7 +55,7 @@ public class PrivateKey extends aladdin.capi.PrivateKey implements IPrivateKey
         }
 	}
     // параметры ключа
-	@Override public final IParameters parameters() 
+	@Override public final aladdin.capi.IParameters parameters() 
     { 
         // параметры ключа
         return new Parameters(getModulus().bitLength(), getPublicExponent()); 

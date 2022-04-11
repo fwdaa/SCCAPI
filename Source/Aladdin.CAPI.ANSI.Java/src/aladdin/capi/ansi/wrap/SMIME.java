@@ -9,20 +9,22 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class SMIME extends KeyWrap
 {
-    // блочный алгоритм шифрования и его CBC-режим
-	private final IBlockCipher blockCipher; private final Cipher modeCBC; 
+    // блочный алгоритм шифрования
+	private final IBlockCipher blockCipher; 
+    // размер ключа и режим CBC
+    private final int keyLength; private final Cipher modeCBC; 
 
 	// конструктор 
-	public SMIME(IBlockCipher blockCipher, byte[] iv) throws IOException
+	public SMIME(IBlockCipher blockCipher, int keyLength, byte[] iv) throws IOException
     {
+        // сохранить переданные параметры
+        this.blockCipher = RefObject.addRef(blockCipher); this.keyLength = keyLength; 
+        
         // указать режим алгоритма
         CipherMode cipherMode = new CipherMode.CBC(iv); 
         
         // создать режим шифрования
         modeCBC = blockCipher.createBlockMode(cipherMode); 
-        
-        // сохранить переданные параметры
-        this.blockCipher = RefObject.addRef(blockCipher); 
     }
     // освободить выделенные ресурсы
     @Override protected void onClose() throws IOException  
@@ -31,10 +33,14 @@ public class SMIME extends KeyWrap
         RefObject.release(modeCBC); RefObject.release(blockCipher); super.onClose();
     }
     // тип ключа
-	@Override public final SecretKeyFactory keyFactory() { return modeCBC.keyFactory(); } 
-    // размер ключей
-	@Override public final int[] keySizes() { return modeCBC.keySizes(); }
-    
+	@Override public final SecretKeyFactory keyFactory() 
+    { 
+        // проверить изменение размера 
+        if (keyLength == 0) return blockCipher.keyFactory(); 
+        
+        // указать используемый размер
+        return blockCipher.keyFactory().narrow(new int[] {keyLength}); 
+    } 
 	// зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey wrappedKey) 
         throws IOException, InvalidKeyException

@@ -81,16 +81,16 @@ public abstract class KeyFactory
         IPublicKey publicKey, Class<? extends KeySpec> specType)
     {
         // получить закодированное представление
-        byte[] encoded = publicKey.getEncoded(); if (encoded == null)
-        {
-            // проверить наличие представления
-            throw new UnsupportedOperationException();
-        }
+        SubjectPublicKeyInfo publicKeyInfo = publicKey.encoded(); 
+        
+        // проверить наличие представления
+        if (publicKeyInfo == null) throw new UnsupportedOperationException();
+        
         // проверить требуемый формат
         if (specType.isAssignableFrom(X509EncodedKeySpec.class))
         {
             // вернуть закодированное представление
-            return new X509EncodedKeySpec(encoded); 
+            return new X509EncodedKeySpec(publicKeyInfo.encoded()); 
         }
         return null; 
     }
@@ -125,16 +125,16 @@ public abstract class KeyFactory
         IPrivateKey privateKey, Class<? extends KeySpec> specType) throws IOException
     {
         // получить закодированное представление
-        byte[] encoded = privateKey.getEncoded(); if (encoded == null)
-        {
-            // проверить наличие представления
-            throw new UnsupportedOperationException();
-        }
+        PrivateKeyInfo privateKeyInfo = encodePrivateKey(privateKey, null); 
+        
+        // проверить наличие представления
+        if (privateKeyInfo == null) throw new UnsupportedOperationException();
+            
         // проверить требуемый формат
         if (specType.isAssignableFrom(PKCS8EncodedKeySpec.class))
         {
             // вернуть закодированное представление
-            return new PKCS8EncodedKeySpec(encoded); 
+            return new PKCS8EncodedKeySpec(privateKeyInfo.encoded()); 
         }
         return null; 
     }

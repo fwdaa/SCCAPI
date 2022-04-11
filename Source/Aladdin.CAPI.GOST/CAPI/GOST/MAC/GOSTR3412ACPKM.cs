@@ -49,7 +49,7 @@ namespace Aladdin.CAPI.GOST.MAC
 
             // создать новый ключ
             using (ISecretKey newKey = masterACPKM.DeriveKey(
-                null, null, Keys.GOSTR3412.Instance, key.Length))
+                null, null, Keys.GOST.Instance, key.Length))
             {
                 // инициализировать алгоритм
                 base.Init(newKey);

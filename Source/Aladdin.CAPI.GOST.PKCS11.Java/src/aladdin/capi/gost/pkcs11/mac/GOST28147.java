@@ -46,11 +46,8 @@ public class GOST28147 extends aladdin.capi.pkcs11.Mac
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return new int[] {32}; }
-    
 	// размер хэш-значения в байтах
 	@Override public final int macSize() { return 4; } 
 	// размер блока в байтах

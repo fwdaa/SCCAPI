@@ -41,9 +41,6 @@ public class CBCMAC1 extends BlockMac
 	
     // тип ключа
 	@Override public SecretKeyFactory keyFactory() { return modeCBC.keyFactory(); }
-	// размеры ключей в байтах
-	@Override public final int[] keySizes() { return modeCBC.keySizes(); } 
-
 	// размер блока в байтах
 	@Override public final int blockSize() { return modeCBC.blockSize(); } 
 

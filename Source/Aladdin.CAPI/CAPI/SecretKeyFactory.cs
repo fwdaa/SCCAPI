@@ -11,10 +11,39 @@ namespace Aladdin.CAPI
         public static readonly SecretKeyFactory Generic = new SecretKeyFactory();
 
         // конструктор
-        protected SecretKeyFactory() {}
-    
+        public SecretKeyFactory() : this(CAPI.KeySizes.Unrestricted) {}
+        
+        // конструктор
+        public SecretKeyFactory(int[] keySizes) 
+        
+            // сохранить переданные параметры
+            { this.keySizes = keySizes; } private int[] keySizes; 
+        
+        // ограничить допустимые ключи
+        public virtual SecretKeyFactory Narrow(int[] keySizes)
+        {
+            // при допустимости только одного размера ключа
+            if (this.keySizes != null && this.keySizes.Length == 1)
+            {
+                // проверить корректность действий
+                if (keySizes == null || keySizes.Length != 1)
+                {
+                    // при ошибке выбросить исключение
+                    throw new ArgumentException(); 
+                }
+                // проверить совпадение размера ключа
+                if (keySizes[0] != this.keySizes[0]) 
+                {
+                    // при ошибке выбросить исключение
+                    throw new ArgumentException(); 
+                }
+                return this; 
+            }
+            // ограничить допустимые ключи
+            return new SecretKeyFactory(keySizes); 
+        }
         // размер ключей
-        public virtual int[] KeySizes { get { return CAPI.KeySizes.Unrestricted; }} 
+        public int[] KeySizes { get { return keySizes; }}
 
         // создать ключ
         public virtual ISecretKey Create(byte[] value) 

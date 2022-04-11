@@ -18,35 +18,35 @@ namespace Aladdin.CAPI.KZ.RSA
                 keyOID == ASN1.KZ.OID.gamma_key_rsa_1024_xch)
             {
                 // указать параметры ключа
-                parameters = new ANSI.RSA.Parameters(1024, null); 
+                parameters = new ANSI.RSA.Parameters(1024); 
             }
             // в зависимости от идентификатора ключа
             else if (keyOID == ASN1.KZ.OID.gamma_key_rsa_1536 || 
                      keyOID == ASN1.KZ.OID.gamma_key_rsa_1536_xch)
             {
                 // вернуть параметры алгоритма
-                parameters = new ANSI.RSA.Parameters(1536, null); 
+                parameters = new ANSI.RSA.Parameters(1536); 
             }
             // в зависимости от идентификатора ключа
             else if (keyOID == ASN1.KZ.OID.gamma_key_rsa_2048 || 
                      keyOID == ASN1.KZ.OID.gamma_key_rsa_2048_xch)
             {
                 // вернуть параметры алгоритма
-                parameters = new ANSI.RSA.Parameters(2048, null); 
+                parameters = new ANSI.RSA.Parameters(2048); 
             }
             // в зависимости от идентификатора ключа
             else if (keyOID == ASN1.KZ.OID.gamma_key_rsa_3072 || 
                      keyOID == ASN1.KZ.OID.gamma_key_rsa_3072_xch)
             {
                 // вернуть параметры алгоритма
-                parameters = new ANSI.RSA.Parameters(3072, null); 
+                parameters = new ANSI.RSA.Parameters(3072); 
             }
             // в зависимости от идентификатора ключа
             else if (keyOID == ASN1.KZ.OID.gamma_key_rsa_4096 || 
                      keyOID == ASN1.KZ.OID.gamma_key_rsa_4096_xch)
             {
                 // вернуть параметры алгоритма
-                parameters = new ANSI.RSA.Parameters(4096, null); 
+                parameters = new ANSI.RSA.Parameters(4096); 
             }
             // при ошибке выбросить исключение
             else throw new NotSupportedException(); 

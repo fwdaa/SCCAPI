@@ -2,6 +2,7 @@
 #include "DSSEnhancedProvider.h"
 #include "..\SecretKeyType.h"
 #include "..\Cipher\RC2.h"
+#include "..\Cipher\RC4.h"
 #include "..\Cipher\TDES.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,14 +20,14 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::GetSecretKeyType(
 	SecretKeyFactory^ keyFactory, DWORD keySize)
 {$
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::TDES::Instance))
+	if (dynamic_cast<Keys::TDES^>(keyFactory) != nullptr)
 	{
 		// указать идентификатор алгоритма
 		if (keySize == 24) return gcnew SecretKeyType(CALG_3DES    );
 		if (keySize == 16) return gcnew SecretKeyType(CALG_3DES_112);
 	}
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::DESX::Instance)) 
+	if (dynamic_cast<Keys::DESX^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_DESX); 
@@ -37,11 +38,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::GetSecretKeyType(
 
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		if (type == CAPI::Cipher::typeid)
 		{
@@ -51,10 +51,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::CreateAlgorithm(
 				array<int>^ keySizes = KeySizes::Range(5, 16); 
 
 				// при указании параметров алгоритма
-				int keyBits = 32; if (!ASN1::Encodable::IsNullOrEmpty(parameters->Parameters))
+				int keyBits = 32; if (!ASN1::Encodable::IsNullOrEmpty(parameters))
 				{ 
 					// раскодировать параметры алгоритма
-					ASN1::Integer^ version = gcnew ASN1::Integer(parameters->Parameters);
+					ASN1::Integer^ version = gcnew ASN1::Integer(parameters);
                 
 					// определить число битов
 					keyBits = ASN1::ANSI::RSA::RC2ParameterVersion::GetKeyBits(version); 
@@ -77,11 +77,11 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::CreateAlgorithm(
 				array<int>^ keySizes = KeySizes::Range(5, 16); 
 
 				// проверить указание параметров
-				if (parameters->Parameters->Tag != ASN1::Tag::Sequence) break; 
+				if (parameters->Tag != ASN1::Tag::Sequence) break; 
 				
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::RSA::RC2CBCParams^ algParameters = 
-					gcnew ASN1::ANSI::RSA::RC2CBCParams(parameters->Parameters);
+					gcnew ASN1::ANSI::RSA::RC2CBCParams(parameters);
             
 				// определить число битов
 				int keyBits = ASN1::ANSI::RSA::RC2ParameterVersion::GetKeyBits(
@@ -99,6 +99,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::CreateAlgorithm(
 				// вернуть режим шифрования
 				return blockCipher.Get()->CreateBlockMode(mode);
 			}
+			if (oid == ASN1::ANSI::OID::rsa_rc4) return gcnew Cipher::RC4(this, KeySizes::Range(5, 16));
 			if (oid == ASN1::ANSI::OID::ssig_tdes_ecb) 
 			{
 				// указать допустимый размер ключей
@@ -116,7 +117,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::rsa_tdes192_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать допустимый размер ключей
 				array<int>^ keySizes = gcnew array<int> {24}; 
@@ -133,5 +134,5 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::EnhancedProvider::CreateAlgorithm(
 		}
 	}
     // вызвать базовую функцию
-	return BaseProvider::CreateAlgorithm(factory, scope, parameters, type); 
+	return BaseProvider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }

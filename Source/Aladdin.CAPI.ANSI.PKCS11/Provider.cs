@@ -12,6 +12,10 @@ namespace Aladdin.CAPI.ANSI.PKCS11
         // возможность импорта ключевой пары в память
         private Module module; private bool canImport; 
     
+        // фабрики кодирования ключей 
+        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
+        private Dictionary<String, KeyFactory      > keyFactories; 
+    
 	    // конструктор
 	    public Provider(string name, bool canImport) : this(null, name, canImport) {}
 
@@ -20,6 +24,40 @@ namespace Aladdin.CAPI.ANSI.PKCS11
         { 
             // сохранить переданне параметры
             this.module = RefObject.AddRef(module); this.canImport = canImport; 
+
+            // создать список фабрик кодирования ключей
+            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
+        
+            // заполнить список фабрик кодирования ключей
+            secretKeyFactories.Add("RC2"   , new Keys.RC2 ()); 
+            secretKeyFactories.Add("RC4"   , new Keys.RC4 ()); 
+            secretKeyFactories.Add("RC5"   , new Keys.RC5 ()); 
+            secretKeyFactories.Add("DES"   , new Keys.DES ()); 
+            secretKeyFactories.Add("DESede", new Keys.TDES()); 
+            secretKeyFactories.Add("AES"   , new Keys.AES ()); 
+        
+            // создать список фабрик кодирования ключей
+            keyFactories = new Dictionary<String, KeyFactory>(); 
+
+            // заполнить список фабрик кодирования ключей
+            keyFactories.Add(ASN1.ISO.PKCS.PKCS1.OID.rsa, 
+                new ANSI.RSA.KeyFactory(ASN1.ISO.PKCS.PKCS1.OID.rsa) 
+            ); 
+            keyFactories.Add(ASN1.ISO.PKCS.PKCS1.OID.rsa_oaep, 
+                new ANSI.RSA.KeyFactory(ASN1.ISO.PKCS.PKCS1.OID.rsa_oaep) 
+            ); 
+            keyFactories.Add(ASN1.ISO.PKCS.PKCS1.OID.rsa_pss, 
+                new ANSI.RSA.KeyFactory(ASN1.ISO.PKCS.PKCS1.OID.rsa_pss) 
+            ); 
+            keyFactories.Add(ASN1.ANSI.OID.x942_dh_public_key, 
+                new ANSI.X942.KeyFactory(ASN1.ANSI.OID.x942_dh_public_key) 
+            ); 
+            keyFactories.Add(ASN1.ANSI.OID.x957_dsa, 
+                new ANSI.X957.KeyFactory(ASN1.ANSI.OID.x957_dsa) 
+            ); 
+            keyFactories.Add(ASN1.ANSI.OID.x962_ec_public_key, 
+                new ANSI.X962.KeyFactory(ASN1.ANSI.OID.x962_ec_public_key)
+            ); 
         }
         // деструктор
         protected override void OnDispose()
@@ -43,16 +81,10 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             // тип структуры передачи параметров механизма PBKDF2
             get { return CAPI.PKCS11.PBE.PBKDF2.ParametersType.Params2; }
         }
-        public override KeyFactory[] KeyFactories() 
-        {
-            // вернуть список фабрик
-            return new KeyFactory[] {  
-                new ANSI.RSA .KeyFactory(ASN1.ISO.PKCS.PKCS1.OID.rsa     ), 
-                new ANSI.X942.KeyFactory(ASN1.ANSI.OID.x942_dh_public_key), 
-                new ANSI.X957.KeyFactory(ASN1.ANSI.OID.x957_dsa          ), 
-                new ANSI.X962.KeyFactory(ASN1.ANSI.OID.x962_ec_public_key) 
-            };
-        }
+	    // поддерживаемые фабрики кодирования ключей
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
+	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+    
 	    public override string[] GeneratedKeys(SecurityStore scope) 
 	    {
             // проверить область видимости
@@ -292,12 +324,12 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             uint type = 0; 
         
             // указать тип ключа
-            if (Object.ReferenceEquals(keyFactory, Keys.RC2 .Instance)) type = API.CKK_RC2; else 
-            if (Object.ReferenceEquals(keyFactory, Keys.RC4 .Instance)) type = API.CKK_RC4; else 
-            if (Object.ReferenceEquals(keyFactory, Keys.RC5 .Instance)) type = API.CKK_RC5; else 
-            if (Object.ReferenceEquals(keyFactory, Keys.DES .Instance)) type = API.CKK_DES; else 
-            if (Object.ReferenceEquals(keyFactory, Keys.AES .Instance)) type = API.CKK_AES; else 
-            if (Object.ReferenceEquals(keyFactory, Keys.TDES.Instance))
+            if (keyFactory is Keys.RC2 ) type = API.CKK_RC2; else 
+            if (keyFactory is Keys.RC4 ) type = API.CKK_RC4; else 
+            if (keyFactory is Keys.RC5 ) type = API.CKK_RC5; else 
+            if (keyFactory is Keys.DES ) type = API.CKK_DES; else 
+            if (keyFactory is Keys.AES ) type = API.CKK_AES; else 
+            if (keyFactory is Keys.TDES)
             {
                 // указать тип ключа
                 type = (keySize == 16) ? API.CKK_DES2 : API.CKK_DES3; 
@@ -317,7 +349,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
             {
                 // преобразовать тип параметров
-                ANSI.RSA.IParameters rsaParameters = (ANSI.RSA.IParameters)parameters;
+                ANSI.RSA.IParameters rsaParameters = ANSI.RSA.Parameters.Convert(parameters);
             
                 // указать идентификатор алгоритма
                 ulong algID = API.CKM_RSA_PKCS_KEY_PAIR_GEN; 
@@ -393,10 +425,9 @@ namespace Aladdin.CAPI.ANSI.PKCS11
         }
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(CAPI.Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type)
         {
-            // определить идентификатор алгоритма
-		    string oid = parameters.Algorithm.Value; for (int i = 0; i < 1; i++)
+		    for (int i = 0; i < 1; i++)
             { 
                 // для алгоритмов хэширования
                 if (type == typeof(CAPI.Hash))
@@ -586,7 +617,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        if (oid == ASN1.ANSI.OID.ssig_des_mac)
                     {
                         // раскодировать размер имитовставки
-                        ASN1.Integer bits = new ASN1.Integer(parameters.Parameters); 
+                        ASN1.Integer bits = new ASN1.Integer(parameters); 
                 
                         // проверить корректность размера
                         if ((bits.Value.IntValue % 8) != 0) break; 
@@ -720,10 +751,10 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     if (oid == ASN1.ANSI.OID.rsa_rc2_ecb)
                     { 
                         // проверить указание параметров алгоритма
-                        int keyBits = 32; if (!ASN1.Encodable.IsNullOrEmpty(parameters.Parameters))
+                        int keyBits = 32; if (!ASN1.Encodable.IsNullOrEmpty(parameters))
                         { 
                             // раскодировать параметры алгоритма
-                            ASN1.Integer version = new ASN1.Integer(parameters.Parameters);
+                            ASN1.Integer version = new ASN1.Integer(parameters);
 
                             // определить число битов
                             keyBits = ASN1.ANSI.RSA.RC2ParameterVersion.GetKeyBits(version); 
@@ -738,7 +769,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) return null; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
                     }
                     if (oid == ASN1.ANSI.OID.rsa_rc4) 
@@ -756,7 +787,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры алгоритма
                         ASN1.ANSI.RSA.RC5CBCParameter cipherParameters = 
-                            new ASN1.ANSI.RSA.RC5CBCParameter(parameters.Parameters);
+                            new ASN1.ANSI.RSA.RC5CBCParameter(parameters);
                 
                         // определить размер блока
                         int blockSize = cipherParameters.BlockSize.Value.IntValue; 
@@ -779,7 +810,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры алгоритма
                         ASN1.ANSI.RSA.RC5CBCParameter cipherParameters = 
-                            new ASN1.ANSI.RSA.RC5CBCParameter(parameters.Parameters);
+                            new ASN1.ANSI.RSA.RC5CBCParameter(parameters);
                 
                         // определить размер блока
                         int blockSize = cipherParameters.BlockSize.Value.IntValue; 
@@ -810,7 +841,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
                     }
                     if (oid == ASN1.ANSI.OID.tt_des_ecb) 
@@ -836,13 +867,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5);
                         }
 			        }
 			        if (oid == ASN1.ANSI.OID.ssig_des_cbc) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+				        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
                 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_DES_CBC, iv.Value); 
@@ -854,13 +885,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
 			        }
 			        if (oid == ASN1.ANSI.OID.tt_des_cbc) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+				        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
                 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_DES_CBC, iv.Value); 
@@ -874,7 +905,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        if (oid == ASN1.ANSI.OID.tt_des_cbc_pad) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+				        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
                 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_DES_CBC_PAD, iv.Value); 
@@ -889,7 +920,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 64)
@@ -923,7 +954,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 64)
@@ -965,7 +996,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
                     }
 			        if (oid == ASN1.ANSI.OID.tt_tdes192_ecb)
@@ -982,7 +1013,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        if (oid == ASN1.ANSI.OID.rsa_tdes192_cbc) 
 			        {
                         // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+                        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_DES3_CBC, iv.Value); 
@@ -994,13 +1025,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
 			        }
 			        if (oid == ASN1.ANSI.OID.tt_tdes192_cbc) 
 			        {
                         // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+                        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_DES3_CBC, iv.Value); 
@@ -1014,7 +1045,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        if (oid == ASN1.ANSI.OID.tt_tdes192_cbc_pad) 
 			        {
                         // раскодировать параметры алгоритма
-                        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+                        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_DES3_CBC_PAD, iv.Value); 
@@ -1037,13 +1068,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
                     }
 			        if (oid == ASN1.ANSI.OID.nist_aes128_cbc) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+				        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_AES_CBC, iv.Value); 
@@ -1055,14 +1086,14 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
 			        }
 			        if (oid == ASN1.ANSI.OID.nist_aes128_cfb) 
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 128)
@@ -1122,7 +1153,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 128)
@@ -1151,13 +1182,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
                     }
 			        if (oid == ASN1.ANSI.OID.nist_aes192_cbc) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+				        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_AES_CBC, iv.Value); 
@@ -1169,14 +1200,14 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
 			        }
 			        if (oid == ASN1.ANSI.OID.nist_aes192_cfb) 
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 128)
@@ -1236,7 +1267,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 128)
@@ -1265,13 +1296,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
                     }
 			        if (oid == ASN1.ANSI.OID.nist_aes256_cbc) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.OctetString iv = new ASN1.OctetString(parameters.Parameters); 
+				        ASN1.OctetString iv = new ASN1.OctetString(parameters); 
 
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_AES_CBC, iv.Value); 
@@ -1283,14 +1314,14 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                             if (cipher == null) break; 
                     
                             // изменить режим дополнения
-                            return new BlockMode.ConvertPadding(cipher, PaddingMode.Any);
+                            return new BlockMode.PaddingConverter(cipher, PaddingMode.Any);
                         }
 			        }
 			        if (oid == ASN1.ANSI.OID.nist_aes256_cfb) 
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 128)
@@ -1350,7 +1381,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ANSI.FBParameter cipherParameters = 
-                            new ASN1.ANSI.FBParameter(parameters.Parameters); 
+                            new ASN1.ANSI.FBParameter(parameters); 
                 
                         // проверить корректность параметров
                         if (cipherParameters.NumberOfBits.Value.IntValue == 128)
@@ -1372,7 +1403,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_MD2_DES_CBC; 
@@ -1404,7 +1435,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_MD5_DES_CBC; 
@@ -1436,7 +1467,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_SHA1_RC4_128; 
@@ -1468,7 +1499,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_SHA1_RC4_40; 
@@ -1500,7 +1531,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_SHA1_RC2_128_CBC; 
@@ -1533,7 +1564,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_SHA1_RC2_40_CBC; 
@@ -1566,7 +1597,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_SHA1_DES3_EDE_CBC; 
@@ -1598,7 +1629,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBEParameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBEParameter(parameters);
                 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_PBE_SHA1_DES2_EDE_CBC; 
@@ -1634,7 +1665,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 				    {
 					    // раскодировать параметры алгоритма
 					    ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter pbeParameters = 
-						    new ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter(parameters.Parameters);
+						    new ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter(parameters);
 
                         // инициализировать переменнные
                         ulong prf = 0; int keySize = -1;
@@ -1774,7 +1805,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams oaepParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters);
                 
                         // извлечь идентификатор алгоритма хэширования
                         string hashOID = oaepParameters.HashAlgorithm.Algorithm.Value; ulong hashAlg = 0;
@@ -1845,7 +1876,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams oaepParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS1.RSAESOAEPParams(parameters);
                 
                         // извлечь идентификатор алгоритма хэширования
                         string hashOID = oaepParameters.HashAlgorithm.Algorithm.Value; ulong hashAlg = 0;
@@ -1915,7 +1946,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры алгоритма
                         ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams pssParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters.Parameters); 
+                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters); 
                 
                         // проверить вид завершителя
                         if (pssParameters.TrailerField.Value.IntValue != 1) break; 
@@ -2010,7 +2041,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры алгоритма
                         ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams pssParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters.Parameters); 
+                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters); 
                 
                         // проверить вид завершителя
                         if (pssParameters.TrailerField.Value.IntValue != 1) break; 
@@ -2237,7 +2268,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
                         // раскодировать параметры алгоритма
                         ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams pssParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters.Parameters); 
+                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters); 
                 
                         // проверить вид завершителя
                         if (pssParameters.TrailerField.Value.IntValue != 1) break; ulong algID = 0; 
@@ -2582,7 +2613,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
 			        {
                         // раскодировать параметры алгоритма
                         ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams pssParameters = 
-                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters.Parameters); 
+                            new ASN1.ISO.PKCS.PKCS1.RSASSAPSSParams(parameters); 
                 
                         // проверить вид завершителя
                         if (pssParameters.TrailerField.Value.IntValue != 1) break; ulong algID = 0; 
@@ -2809,7 +2840,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_X9_42_DH_DERIVE; ulong kdf = API.CKD_SHA1_KDF_ASN1; 
@@ -2823,7 +2854,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_DERIVE; ulong kdf = API.CKD_SHA1_KDF; 
@@ -2837,7 +2868,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_DERIVE; ulong kdf = API.CKD_SHA224_KDF; 
@@ -2851,7 +2882,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_DERIVE; ulong kdf = API.CKD_SHA256_KDF; 
@@ -2865,7 +2896,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_DERIVE; ulong kdf = API.CKD_SHA384_KDF; 
@@ -2879,7 +2910,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_DERIVE; ulong kdf = API.CKD_SHA512_KDF; 
@@ -2893,7 +2924,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_COFACTOR_DERIVE; ulong kdf = API.CKD_SHA1_KDF; 
@@ -2907,7 +2938,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_COFACTOR_DERIVE; ulong kdf = API.CKD_SHA224_KDF; 
@@ -2921,7 +2952,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_COFACTOR_DERIVE; ulong kdf = API.CKD_SHA256_KDF; 
@@ -2935,7 +2966,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_COFACTOR_DERIVE; ulong kdf = API.CKD_SHA384_KDF; 
@@ -2949,7 +2980,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                     {
                         // раскодировать параметры
                         ASN1.ISO.AlgorithmIdentifier wrapParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(parameters.Parameters); 
+                            new ASN1.ISO.AlgorithmIdentifier(parameters); 
 
                         // указать идентификатор алгоритма
                         ulong algID = API.CKM_ECDH1_COFACTOR_DERIVE; ulong kdf = API.CKD_SHA512_KDF; 
@@ -2962,7 +2993,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 }
             }
             // вызвать базовую функцию
-            return ANSI.Factory.RedirectAlgorithm(factory, scope, parameters, type); 
+            return ANSI.Factory.RedirectAlgorithm(factory, scope, oid, parameters, type); 
         }
     }
 }

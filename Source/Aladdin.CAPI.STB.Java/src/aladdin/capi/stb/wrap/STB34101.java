@@ -38,8 +38,6 @@ public class STB34101 extends KeyWrap
     }
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() { return belt.keyFactory(); } 
-    // размер ключа шифрования ключей
-    @Override public final int[] keySizes() { return belt.keySizes(); }
     
     // зашифровать ключ
     @Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey CEK) 

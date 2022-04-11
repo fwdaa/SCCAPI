@@ -13,10 +13,7 @@ public class DESX extends SecretKeyFactory
     public static final SecretKeyFactory INSTANCE = new DESX(); 
         
     // конструктор
-    private DESX() { super("DESX"); }
-        
-	// размер ключей
-	@Override public final int[] keySizes() { return new int[] { 24 }; }
+    public DESX() { super(new int[] {24}); }
     
     // создать ключ
     @Override public ISecretKey create(byte[] value) 

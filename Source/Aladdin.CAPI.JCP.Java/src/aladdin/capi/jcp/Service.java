@@ -6,25 +6,23 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 // Сервис алгоритма криптопровайдера
 ///////////////////////////////////////////////////////////////////////////
-public class Service // extends Provider.Service
+public class Service extends Provider.Service
 {
-/*	// параметры вызова
+	// параметры вызова
     @SuppressWarnings("rawtypes") 
-	private final Class type; private final Object[] args;  
+	private final Class<?> type; private final Object[] args;  
 	
     @SuppressWarnings("rawtypes") 
-	public Service(Provider provider, String kind, String name, String aliase, 
-		Class type, Object... args)
+	public Service(Provider provider, String kind, String name, String oid, Class<?> type, Object... args)
 	{
 		// вызвать базовую функцию
-		super(provider, kind, name, "*", Arrays.asList(new String[] {aliase}), null); 
+		super(provider, kind, name, "*", Arrays.asList(new String[] {"OID." + oid}), null); 
 		
 		// сохранить аргументы 
 		this.type = type; this.args = args;  
 	}
     @SuppressWarnings("rawtypes") 
-	public Service(Provider provider, String kind, String name, 
-		Class type, Object... args)
+	public Service(Provider provider, String kind, String name, Class<?> type, Object... args)
 	{
 		// вызвать базовую функцию
 		super(provider, kind, name, "*", null, null); 
@@ -51,7 +49,7 @@ public class Service // extends Provider.Service
 		catch (Throwable e) { return false; }
 	}
 	@Override
-    @SuppressWarnings({"unchecked"}) 
+    @SuppressWarnings({"rawtypes", "unchecked"}) 
 	public final Object newInstance(Object parameter) throws NoSuchAlgorithmException
 	{
 		// скопировать переданный параметр
@@ -84,18 +82,175 @@ public class Service // extends Provider.Service
 					// проверить соответствие параметра
 					if (!types[i].isAssignableFrom(args[i].getClass())) { find = false; break; }
 				}
-				// проверить нахождение конструктора
-				if (!find) continue; switch (args.length)
-				{
 				// вызвать конструктор
-				case 0: return constructor.newInstance(                         ); 
-				case 1: return constructor.newInstance(args[0]                  );
-				case 2: return constructor.newInstance(args[0], args[1]         );
-				case 3: return constructor.newInstance(args[0], args[1], args[2]);
-				}
+				if (find) return constructor.newInstance((Object[])args);
 			}
+            throw new NoSuchAlgorithmException();
 		}
 		// обработать возможное исключение
-		catch (Throwable e) {} throw new NoSuchAlgorithmException();
+        catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
+        
+		// обработать возможное исключение
+		catch (Throwable e) { throw new RuntimeException(e); } 
 	}
-*/}
+    ///////////////////////////////////////////////////////////////////////////
+    // классы сервисов отдельных типов
+    ///////////////////////////////////////////////////////////////////////////
+	public static class AlgorithmParameters extends Service
+    {
+        // конструктор 
+        public AlgorithmParameters(Provider provider, String name, String keyOID)
+        {
+            // сохранить переданные параметры
+            super(provider, "AlgorithmParameters", 
+                name, keyOID, AlgorithmParameters.class, provider, name
+            ); 
+        }
+        // конструктор 
+        public AlgorithmParameters(Provider provider, String name)
+        {
+            // сохранить переданные параметры
+            super(provider, "AlgorithmParameters", 
+                name, AlgorithmParameters.class, provider, name
+            ); 
+        }
+    }
+	public static class SecretKeyFactory extends Service
+    {
+        // конструктор 
+        public SecretKeyFactory(Provider provider, String name)
+        {
+            // сохранить переданные параметры
+            super(provider, "SecretKeyFactory", 
+                name, SecretKeyFactorySpi.class, provider, name
+            ); 
+        }
+    }
+	public static class KeyFactory extends Service
+    {
+        // конструктор 
+        public KeyFactory(Provider provider, String name, String keyOID)
+        {
+            // сохранить переданные параметры
+            super(provider, "KeyFactory", 
+                name, keyOID, KeyFactorySpi.class, provider, name
+            ); 
+        }
+    }
+	public static class SecureRandom extends Service
+    {
+        // конструктор 
+        public SecureRandom(Provider provider, String name)
+        {
+            // сохранить переданные параметры
+            super(provider, "SecureRandom", 
+                name, SecureRandomSpi.class, provider, name
+            ); 
+        }
+    }
+	public static class KeyGenerator extends Service
+    {
+        // конструктор 
+        public KeyGenerator(Provider provider, String name)
+        {
+            // сохранить переданные параметры
+            super(provider, "KeyGenerator", 
+                name, KeyGeneratorSpi.class, provider, name
+            ); 
+        }
+    }
+	public static class KeyPairGenerator extends Service
+    {
+        // конструктор 
+        public KeyPairGenerator(Provider provider, String name, String keyOID)
+        {
+            // сохранить переданные параметры
+            super(provider, "KeyPairGenerator", 
+                name, keyOID, KeyPairGeneratorSpi.class, provider, keyOID
+            ); 
+        }
+    }
+	public static class MessageDigest extends Service
+    {
+        // конструктор 
+        public MessageDigest(Provider provider, String name, String oid)
+        {
+            // сохранить переданные параметры
+            super(provider, "MessageDigest", 
+                name, oid, MessageDigestSpi.class, provider, name
+            ); 
+        }
+    }
+	public static class Mac extends Service
+    {
+        // конструктор 
+        public Mac(Provider provider, String name, String oid)
+        {
+            // сохранить переданные параметры
+            super(provider, "Mac", name, oid, MacSpi.class, provider, name); 
+        }
+    }
+	public static class Cipher extends Service
+    {
+        // конструктор 
+        public Cipher(Provider provider, String name, String oid)
+        {
+            // сохранить переданные параметры
+            super(provider, "Cipher", name, oid, CipherSpi.class, provider, name); 
+        }
+    }
+	public static class KeyAgreement extends Service
+    {
+        // конструктор 
+        public KeyAgreement(Provider provider, String name, String oid)
+        {
+            // сохранить переданные параметры
+            super(provider, "KeyAgreement", 
+                name, oid, KeyAgreementSpi.class, provider, name
+            ); 
+        }
+    }
+	public static class Signature extends Service
+    {
+        // конструктор 
+        public Signature(Provider provider, String name, String oid)
+        {
+            // сохранить переданные параметры
+            super(provider, "Signature", 
+                name, oid, SignatureSpi.class, provider, name
+            ); 
+        }
+    }
+    // класс сервиса
+	public static class X509CertificateFactory extends Service
+    {
+        // конструктор 
+        public X509CertificateFactory(Provider provider)
+        {
+            // сохранить переданные параметры
+            super(provider, "CertificateFactory", 
+                "X509", X509CertificateFactorySpi.class, provider
+            ); 
+        }
+    }
+	public static class X509CertStore extends Service
+    {
+        // конструктор 
+        public X509CertStore(Provider provider)
+        {
+            // сохранить переданные параметры
+            super(provider, "CertStore", "X509", X509CertStoreSpi.class); 
+        }
+    }
+	public static class KeyStore extends Service
+    {
+        // конструктор 
+        public KeyStore(Provider provider, String keyOID)
+        {
+            // сохранить переданные параметры
+            super(provider, "KeyStore", "PKCS#12", 
+                keyOID, KeyStoreSpi.class, provider, keyOID
+            ); 
+        }
+    }
+}

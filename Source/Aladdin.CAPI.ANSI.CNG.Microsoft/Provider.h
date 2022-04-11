@@ -14,9 +14,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// конструктор/деструктор
 		protected: Provider(String^ name); public: virtual ~Provider(); 
 
-	    // поддерживаемые фабрики кодирования ключей
-		public: virtual array<KeyFactory^>^ KeyFactories() override; 
-
 		///////////////////////////////////////////////////////////////////////
 		// Управление алгоритмами
 		///////////////////////////////////////////////////////////////////////
@@ -40,8 +37,8 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 
 		// cоздать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			CAPI::Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, Type^ type) override; 
+			CAPI::Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, Type^ type) override; 
 
 		///////////////////////////////////////////////////////////////////////
 		// Выполнение операции с открытым/личным ключом контейнера

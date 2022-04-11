@@ -1,5 +1,3 @@
-using System; 
-
 namespace Aladdin.CAPI.ANSI.Engine
 {
     ///////////////////////////////////////////////////////////////////////////
@@ -11,12 +9,17 @@ namespace Aladdin.CAPI.ANSI.Engine
         private const Math.Endian Endian = Math.Endian.LittleEndian; 
 
 		// конструктор
-		public AES(int[] keySizes) { this.keySizes = keySizes; } private int[] keySizes;
+		public AES(int[] keySizes) 
+            
+            // сохранить переданные параметры
+            { this.keySizes = keySizes; } private int[] keySizes;
 
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.AES.Instance; }}
-		// размер ключей
-		public override int[] KeySizes { get { return keySizes; }}
+        public override SecretKeyFactory KeyFactory 
+        { 
+            // тип ключа
+            get { return new Keys.AES(keySizes); }
+        }
         // размер блока
 		public override int BlockSize { get { return 16; }}
 
@@ -1034,9 +1037,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         ////////////////////////////////////////////////////////////////////////////
         public static void Test(CAPI.Cipher engine) 
         {
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 16)) Test128(engine); 
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 24)) Test192(engine); 
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 32)) Test256(engine); 
+            if (CAPI.KeySizes.Contains(engine.KeyFactory.KeySizes, 16)) Test128(engine); 
+            if (CAPI.KeySizes.Contains(engine.KeyFactory.KeySizes, 24)) Test192(engine); 
+            if (CAPI.KeySizes.Contains(engine.KeyFactory.KeySizes, 32)) Test256(engine); 
         }
         public static void Test128(CAPI.Cipher engine) 
         {

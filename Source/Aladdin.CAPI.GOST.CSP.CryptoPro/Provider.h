@@ -10,14 +10,25 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 	public ref class Provider abstract : CAPI::CSP::Provider
 	{
 		// способ кодирования чисел
-		protected: static const Math::Endian Endian = Math::Endian::LittleEndian;
-		   
-		// конструктор
-		public: Provider(DWORD type) : CAPI::CSP::Provider(type, nullptr, false)
-		
-			// сохранить версию провайдера
-			{ version = Version; } private: DWORD version;
+		protected: static const Math::Endian Endian = Math::Endian::LittleEndian; private: DWORD version;
 
+		// конструктор
+		public: Provider(DWORD type) : CAPI::CSP::Provider(type, nullptr, false) { version = Version; 
+		 
+			// добавить фабрику кодирования ключей
+			SecretKeyFactories()->Add("GOST28147", GOST::Keys::GOST::Instance); 
+
+			// добавить фабрику кодирования ключей
+			KeyFactories()->Add(ASN1::GOST::OID::gostR3410_2001, 
+				gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2001)
+			); 
+			if (version >= 0x0400) KeyFactories()->Add(ASN1::GOST::OID::gostR3410_2012_256, 
+				gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2012_256)
+			); 
+			if (version >= 0x0400) KeyFactories()->Add(ASN1::GOST::OID::gostR3410_2012_512, 
+				gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2012_512)
+			); 
+		} 
         // время сборки провайдера
         public: property String^ Timestamp { String^ get()
         {
@@ -63,13 +74,10 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 		// создать алгоритм шифрования ГОСТ 28147-89
 		public: CAPI::CSP::BlockCipher^ CreateGOST28147(String^ paramOID); 
 
-	    // поддерживаемые фабрики кодирования ключей
-		public: virtual array<KeyFactory^>^ KeyFactories() override; 
-
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			CAPI::Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+			CAPI::Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, System::Type^ type) override;
 
 		// получить тип ключа
 		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(

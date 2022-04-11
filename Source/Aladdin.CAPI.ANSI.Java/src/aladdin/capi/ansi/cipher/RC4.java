@@ -12,7 +12,7 @@ public class RC4 extends StreamCipher
 	@Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.RC4.INSTANCE; 
+        return new aladdin.capi.ansi.keys.RC4(KeySizes.range(1, 256)); 
     } 
     @Override protected IRand createPRF(ISecretKey key) throws InvalidKeyException 
     { 
@@ -89,7 +89,9 @@ public class RC4 extends StreamCipher
     ////////////////////////////////////////////////////////////////////////////
     public static void test(Cipher cipher) throws Exception
     {
-        if (KeySizes.contains(cipher.keySizes(), 5))
+        int[] keySizes = cipher.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 5))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05
@@ -202,7 +204,7 @@ public class RC4 extends StreamCipher
             (byte)0xe5, (byte)0x1f, (byte)0xbd, (byte)0xf0,
             (byte)0x8b, (byte)0x34, (byte)0xd8, (byte)0x75
         }));
-        if (KeySizes.contains(cipher.keySizes(), 5))
+        if (KeySizes.contains(keySizes, 5))
         knownTest(cipher, new byte[] { 
             (byte)0x83, (byte)0x32, (byte)0x22, (byte)0x77, 
             (byte)0x2a
@@ -315,7 +317,7 @@ public class RC4 extends StreamCipher
             (byte)0xbf, (byte)0xde, (byte)0x52, (byte)0x49,
             (byte)0x75, (byte)0x76, (byte)0x81, (byte)0x15
         }));
-        if (KeySizes.contains(cipher.keySizes(), 7))
+        if (KeySizes.contains(keySizes, 7))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07
@@ -428,7 +430,7 @@ public class RC4 extends StreamCipher
             (byte)0x7c, (byte)0x0e, (byte)0xc0, (byte)0x8a,
             (byte)0x47, (byte)0xdd, (byte)0xd8, (byte)0xb8
         }));
-        if (KeySizes.contains(cipher.keySizes(), 7))
+        if (KeySizes.contains(keySizes, 7))
         knownTest(cipher, new byte[] { 
             (byte)0x19, (byte)0x10, (byte)0x83, (byte)0x32, 
             (byte)0x22, (byte)0x77, (byte)0x2a
@@ -541,7 +543,7 @@ public class RC4 extends StreamCipher
             (byte)0x26, (byte)0x20, (byte)0x24, (byte)0xa9,
             (byte)0x4f, (byte)0xff, (byte)0x3f, (byte)0x61
         }));
-        if (KeySizes.contains(cipher.keySizes(), 8))
+        if (KeySizes.contains(keySizes, 8))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08
@@ -654,7 +656,7 @@ public class RC4 extends StreamCipher
             (byte)0xdc, (byte)0xe8, (byte)0xcd, (byte)0xcd,
             (byte)0x7d, (byte)0xfc, (byte)0x58, (byte)0x62
         }));
-        if (KeySizes.contains(cipher.keySizes(), 8))
+        if (KeySizes.contains(keySizes, 8))
         knownTest(cipher, new byte[] { 
             (byte)0x64, (byte)0x19, (byte)0x10, (byte)0x83, 
             (byte)0x32, (byte)0x22, (byte)0x77, (byte)0x2a
@@ -767,7 +769,7 @@ public class RC4 extends StreamCipher
             (byte)0x62, (byte)0x1b, (byte)0x93, (byte)0x9d,
             (byte)0xd3, (byte)0x8f, (byte)0xe7, (byte)0xb9
         }));
-        if (KeySizes.contains(cipher.keySizes(), 10))
+        if (KeySizes.contains(keySizes, 10))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -881,7 +883,7 @@ public class RC4 extends StreamCipher
             (byte)0xeb, (byte)0x77, (byte)0x95, (byte)0x3f,
             (byte)0x84, (byte)0xdc, (byte)0x85, (byte)0x53
         }));
-        if (KeySizes.contains(cipher.keySizes(), 10))
+        if (KeySizes.contains(keySizes, 10))
         knownTest(cipher, new byte[] { 
             (byte)0x8b, (byte)0x37, (byte)0x64, (byte)0x19, 
             (byte)0x10, (byte)0x83, (byte)0x32, (byte)0x22, 
@@ -995,7 +997,7 @@ public class RC4 extends StreamCipher
             (byte)0x71, (byte)0x00, (byte)0xf0, (byte)0x86,
             (byte)0x97, (byte)0x93, (byte)0x57, (byte)0xd8
         }));
-        if (KeySizes.contains(cipher.keySizes(), 16))
+        if (KeySizes.contains(keySizes, 16))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -1110,7 +1112,7 @@ public class RC4 extends StreamCipher
             (byte)0x61, (byte)0x0c, (byte)0xcb, (byte)0xc1,
             (byte)0x22, (byte)0x56, (byte)0xca, (byte)0xcc
         }));
-        if (KeySizes.contains(cipher.keySizes(), 16))
+        if (KeySizes.contains(keySizes, 16))
         knownTest(cipher, new byte[] { 
             (byte)0xeb, (byte)0xb4, (byte)0x62, (byte)0x27, 
             (byte)0xc6, (byte)0xcc, (byte)0x8b, (byte)0x37, 
@@ -1225,7 +1227,7 @@ public class RC4 extends StreamCipher
             (byte)0x3f, (byte)0xdb, (byte)0xea, (byte)0x6c,
             (byte)0x6f, (byte)0x75, (byte)0xc2, (byte)0x9b
         }));
-        if (KeySizes.contains(cipher.keySizes(), 24))
+        if (KeySizes.contains(keySizes, 24))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -1342,7 +1344,7 @@ public class RC4 extends StreamCipher
             (byte)0x2a, (byte)0xf9, (byte)0xfe, (byte)0x15,
             (byte)0x44, (byte)0x84, (byte)0xa1, (byte)0x68
         }));
-        if (KeySizes.contains(cipher.keySizes(), 24))
+        if (KeySizes.contains(keySizes, 24))
         knownTest(cipher, new byte[] { 
             (byte)0xc1, (byte)0x09, (byte)0x16, (byte)0x39, 
             (byte)0x08, (byte)0xeb, (byte)0xe5, (byte)0x1d, 
@@ -1459,7 +1461,7 @@ public class RC4 extends StreamCipher
             (byte)0x0b, (byte)0x43, (byte)0x54, (byte)0x54,
             (byte)0x56, (byte)0x74, (byte)0x33, (byte)0x91
         }));
-        if (KeySizes.contains(cipher.keySizes(), 32))
+        if (KeySizes.contains(keySizes, 32))
         knownTest(cipher, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -1578,7 +1580,7 @@ public class RC4 extends StreamCipher
             (byte)0xf7, (byte)0xf0, (byte)0xa7, (byte)0x46,
             (byte)0x18, (byte)0xaf, (byte)0x2b, (byte)0x48
         }));
-        if (KeySizes.contains(cipher.keySizes(), 32))
+        if (KeySizes.contains(keySizes, 32))
         knownTest(cipher, new byte[] { 
             (byte)0x1a, (byte)0xda, (byte)0x31, (byte)0xd5, 
             (byte)0xcf, (byte)0x68, (byte)0x82, (byte)0x21, 

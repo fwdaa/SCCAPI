@@ -18,7 +18,7 @@ public class GOST28147 extends Cipher
     public GOST28147(byte[] sbox) { this(sbox, ENDIAN); }
             
     // конструктор
-    public GOST28147(byte[] sbox, Endian endian) 
+    protected GOST28147(byte[] sbox, Endian endian) 
     { 
         // сохранить переданные параметры
         this.sbox = sbox; this.endian = endian; 
@@ -26,14 +26,8 @@ public class GOST28147 extends Cipher
     // тип ключа
     @Override public SecretKeyFactory keyFactory() 
     { 
-        // в зависимости от способа кодирования
-        if (endian == Endian.BIG_ENDIAN)
-        {
-            // вернуть тип ключа
-            return aladdin.capi.gost.keys.GOSTR3412.INSTANCE; 
-        }
         // вернуть тип ключа
-        else return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
     // размер блока
 	@Override public final int blockSize() { return 8;	}

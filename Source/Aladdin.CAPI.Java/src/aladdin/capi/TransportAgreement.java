@@ -64,7 +64,7 @@ public class TransportAgreement extends RefObject implements ITransportAgreement
                 privateKey.factory(), privateKey.scope(), parameters, random)) 
             {
                 // определить допустимые размеры ключей
-                int[] keySizes = keyWrap.keySizes(); int keySize = -1; 
+                int[] keySizes = keyWrap.keyFactory().keySizes(); int keySize = -1; 
         
                 // указать рекомендуемый размер ключа
                 if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 
@@ -104,7 +104,7 @@ public class TransportAgreement extends RefObject implements ITransportAgreement
                 privateKey.factory(), privateKey.scope(), parameters, random)) 
             {
                 // определить допустимые размеры ключей
-                int[] keySizes = keyWrap.keySizes(); int keySize = -1;  
+                int[] keySizes = keyWrap.keyFactory().keySizes(); int keySize = -1;  
         
                 // указать рекомендуемый размер ключа
                 if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 

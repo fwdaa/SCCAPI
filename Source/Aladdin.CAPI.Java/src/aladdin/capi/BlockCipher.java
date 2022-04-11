@@ -8,18 +8,12 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class BlockCipher extends RefObject implements IBlockCipher
 {
-    // алгоритм шифрования блока и режим дополнения
-    private final Cipher engine; private final PaddingMode padding;
-    
     // конструктор
-    public BlockCipher(Cipher engine) { this(engine, PaddingMode.ANY); }
-        
-    // конструктор
-    public BlockCipher(Cipher engine, PaddingMode padding) 
-    {  
+    public BlockCipher(Cipher engine) 
+      
         // сохранить переданные параметры
-        this.engine = RefObject.addRef(engine); this.padding = padding; 
-    } 
+        { this.engine = RefObject.addRef(engine); } private final Cipher engine;
+    
     // деструктор
     @Override protected void onClose() throws IOException
     { 
@@ -29,25 +23,21 @@ public class BlockCipher extends RefObject implements IBlockCipher
     // тип ключа
 	@Override public SecretKeyFactory keyFactory() { return engine.keyFactory(); } 
     
-    // размер ключей и блока
-    @Override public int[] keySizes () { return engine.keySizes (); } 
-	@Override public int   blockSize() { return engine.blockSize(); } 
+    // размер блока
+	@Override public int blockSize() { return engine.blockSize(); } 
     
     // алгоритм шифрования блока
     protected final Cipher engine() { return engine; }
-    
-    // режим дополнения 
-    protected final PaddingMode padding() { return padding; }
     
     // создать режим шифрования
     @Override public Cipher createBlockMode(CipherMode mode) throws IOException
     {
         // вернуть режим шифрования ECB
-        if (mode instanceof CipherMode.ECB) return new ECB(engine(), padding);  
+        if (mode instanceof CipherMode.ECB) return new ECB(engine(), PaddingMode.ANY);  
         if (mode instanceof CipherMode.CBC) 
         {
             // вернуть режим шифрования CBC
-            return new CBC(engine(), (CipherMode.CBC)mode, padding);  
+            return new CBC(engine(), (CipherMode.CBC)mode, PaddingMode.ANY);  
         }
         if (mode instanceof CipherMode.CFB) 
         {

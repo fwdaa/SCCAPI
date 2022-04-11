@@ -357,7 +357,7 @@ namespace Aladdin.CAPI
 		            if (keyWrap == null) throw new NotSupportedException();  
 
                     // определить допустимые размеры ключей
-                    int[] keySizes = keyWrap.KeySizes; int keySize = -1; 
+                    int[] keySizes = keyWrap.KeyFactory.KeySizes; int keySize = -1; 
         
                     // указать рекомендуемый размер ключа
                     if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 
@@ -411,7 +411,7 @@ namespace Aladdin.CAPI
 		            if (keyWrap == null) throw new NotSupportedException(); 
 
                     // определить допустимые размеры ключей
-                    int[] keySizes = keyWrap.KeySizes; int keySize = -1; 
+                    int[] keySizes = keyWrap.KeyFactory.KeySizes; int keySize = -1; 
         
                     // указать рекомендуемый размер ключа
                     if (keySizes != null && keySizes.Length == 1) keySize = keySizes[0]; 
@@ -448,7 +448,7 @@ namespace Aladdin.CAPI
                 if (cipher == null) throw new NotSupportedException();
 
                 // определить допустимые размеры ключей
-                int[] keySizes = cipher.KeySizes; 
+                int[] keySizes = cipher.KeyFactory.KeySizes; 
                 
                 // проверить наличие фиксированного размера
                 if (keySizes == null || keySizes.Length != 1) 
@@ -1334,7 +1334,10 @@ namespace Aladdin.CAPI
                 if (macAlgorithm == null) throw new NotSupportedException();
             
                 // определить допустимые размеры ключей
-                int[] keySizes = macAlgorithm.KeySizes; if (keySizes == null || keySizes.Length != 1) 
+                int[] keySizes = macAlgorithm.KeyFactory.KeySizes; 
+                
+                // проверить наличие фиксированного размера ключа
+                if (keySizes == null || keySizes.Length != 1) 
                 {
                     // при ошибке выбросить исключение
                     throw new InvalidOperationException();
@@ -1432,7 +1435,10 @@ namespace Aladdin.CAPI
                 if (macAlgorithm == null) throw new NotSupportedException();
             
                 // определить допустимые размеры ключей
-                int[] keySizes = macAlgorithm.KeySizes; if (keySizes == null || keySizes.Length != 1) 
+                int[] keySizes = macAlgorithm.KeyFactory.KeySizes; 
+                
+                // проверить наличие фиксированного размера ключа
+                if (keySizes == null || keySizes.Length != 1) 
                 {
                     // при ошибке выбросить исключение
                     throw new InvalidOperationException();
@@ -1605,7 +1611,10 @@ namespace Aladdin.CAPI
                 if (cipher == null) throw new NotSupportedException();
         
                 // определить допустимые размеры ключей
-                int[] keySizes = cipher.KeySizes; if (keySizes == null || keySizes.Length != 1)
+                int[] keySizes = cipher.KeyFactory.KeySizes; 
+                
+                // проверить наличие фиксированного размера ключа
+                if (keySizes == null || keySizes.Length != 1)
                 {
                     // при ошибке выбросить исключение
                     throw new InvalidOperationException();
@@ -1644,7 +1653,10 @@ namespace Aladdin.CAPI
                 if (cipher == null) throw new NotSupportedException();
 
                 // определить допустимые размеры ключей
-                int[] keySizes = cipher.KeySizes; if (keySizes == null || keySizes.Length != 1)
+                int[] keySizes = cipher.KeyFactory.KeySizes; 
+                
+                // проверить наличие фиксированного размера ключа
+                if (keySizes == null || keySizes.Length != 1)
                 {
                     // при ошибке выбросить исключение
                     throw new InvalidOperationException();

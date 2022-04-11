@@ -345,7 +345,7 @@ public final class CMS
                 if (keyWrap == null) throw new UnsupportedOperationException();
                 
                 // определить допустимые размеры ключей
-                int[] keySizes = keyWrap.keySizes(); int keySize = -1; 
+                int[] keySizes = keyWrap.keyFactory().keySizes(); int keySize = -1; 
         
                 // указать рекомендуемый размер ключа
                 if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 
@@ -399,7 +399,7 @@ public final class CMS
                 if (keyWrap == null) throw new UnsupportedOperationException();
                 
                 // определить допустимые размеры ключей
-                int[] keySizes = keyWrap.keySizes(); int keySize = -1; 
+                int[] keySizes = keyWrap.keyFactory().keySizes(); int keySize = -1; 
         
                 // указать рекомендуемый размер ключа
                 if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 
@@ -435,7 +435,7 @@ public final class CMS
             if (cipher == null) throw new UnsupportedOperationException();
             
             // определить допустимые размеры ключей
-            int[] keySizes = cipher.keySizes(); 
+            int[] keySizes = cipher.keyFactory().keySizes(); 
             
             // проверить наличие фиксированного размера ключа
             if (keySizes == null || keySizes.length != 1) 
@@ -1325,7 +1325,10 @@ public final class CMS
             if (macAlgorithm == null) throw new UnsupportedOperationException();
             
             // определить допустимые размеры ключей
-            int[] keySizes = macAlgorithm.keySizes(); if (keySizes == null || keySizes.length != 1) 
+            int[] keySizes = macAlgorithm.keyFactory().keySizes(); 
+            
+            // проверить наличие только одного размера ключа
+            if (keySizes == null || keySizes.length != 1) 
             {
                 // при ошибке выбросить исключение
                 throw new IllegalStateException();
@@ -1425,7 +1428,10 @@ public final class CMS
             if (macAlgorithm == null) throw new UnsupportedOperationException();
             
             // определить допустимые размеры ключей
-            int[] keySizes = macAlgorithm.keySizes(); if (keySizes == null || keySizes.length != 1) 
+            int[] keySizes = macAlgorithm.keyFactory().keySizes(); 
+            
+            // проверить наличие только одного размера ключа
+            if (keySizes == null || keySizes.length != 1) 
             {
                 // при ошибке выбросить исключение
                 throw new IllegalStateException();
@@ -1603,7 +1609,10 @@ public final class CMS
             if (cipher == null) throw new UnsupportedOperationException();
             
             // определить допустимые размеры ключей
-            int[] keySizes = cipher.keySizes(); if (keySizes == null || keySizes.length != 1) 
+            int[] keySizes = cipher.keyFactory().keySizes(); 
+            
+            // при нефиксированном размере ключа
+            if (keySizes == null || keySizes.length != 1) 
             {
                 // при ошибке выбросить исключение
                 throw new IllegalStateException();
@@ -1642,7 +1651,10 @@ public final class CMS
             if (cipher == null) throw new UnsupportedOperationException();
             
             // определить допустимые размеры ключей
-            int[] keySizes = cipher.keySizes(); if (keySizes == null || keySizes.length != 1) 
+            int[] keySizes = cipher.keyFactory().keySizes(); 
+            
+            // при нефиксированном размере ключа
+            if (keySizes == null || keySizes.length != 1) 
             {    
                 // при ошибке выбросить исключение
                 throw new IllegalStateException();

@@ -40,11 +40,8 @@ public class Test extends aladdin.capi.gost.Test
         {
             for (int i = 0; i < sboxOIDs.length; i++)
             {
-                try (IBlockCipher gost28147 = new GOST28147(applet, sboxOIDs[i]))
-                {
-                    // выполнить тест
-                    testGOST28147(applet.provider(), applet, gost28147, sboxOIDs[i]);                     
-                }
+                // выполнить тест
+                testGOST28147(applet.provider(), applet, sboxOIDs[i]);                     
             }
         }
         // при поддержке алгоритма

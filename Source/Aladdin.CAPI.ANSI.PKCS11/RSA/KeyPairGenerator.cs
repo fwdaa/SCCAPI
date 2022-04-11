@@ -48,7 +48,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11.RSA
             return new CAPI.PKCS11.Attribute[] { 
 
                 // указать размер модуля в битах
-                Applet.Provider.CreateAttribute(API.CKA_MODULUS_BITS, (ulong)parameters.KeySize), 
+                Applet.Provider.CreateAttribute(API.CKA_MODULUS_BITS, (ulong)parameters.KeyBits), 
             
                 // указать размер величину экспоненты
                 Applet.Provider.CreateAttribute(API.CKA_PUBLIC_EXPONENT, publicExponent)    

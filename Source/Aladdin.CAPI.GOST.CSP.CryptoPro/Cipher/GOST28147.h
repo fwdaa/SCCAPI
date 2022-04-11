@@ -25,14 +25,8 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 		public: virtual property SecretKeyFactory^ KeyFactory 
 		{ 
 			// тип ключа
-			SecretKeyFactory^ get() override { return Keys::GOST28147::Instance; }
+			SecretKeyFactory^ get() override { return Keys::GOST::Instance; }
 		}
-		// размер ключей
-		public: virtual property array<int>^ KeySizes 
-		{ 
-			// размер ключей
-			array<int>^ get() override { return gcnew array<int> {32}; }
-		} 
 		// размер блока
 		public: virtual property int BlockSize { int get() override { return 8; }} 
 

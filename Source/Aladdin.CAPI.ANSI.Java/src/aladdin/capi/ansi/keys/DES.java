@@ -14,10 +14,7 @@ public class DES extends SecretKeyFactory
     public static final SecretKeyFactory INSTANCE = new DES(); 
         
     // конструктор
-    private DES() { super("DES"); }
-        
-    // размер ключей
-	@Override public final int[] keySizes() { return new int[] { 8 }; }
+    public DES() { super(new int[] {8}); }
     
     // создать ключ
     @Override public ISecretKey create(byte[] value) 
@@ -63,8 +60,8 @@ public class DES extends SecretKeyFactory
         return new SecretKey(this, value); 
     }
     // извлечь данные ключа
-    @Override public KeySpec getSpec(byte[] value, Class<? extends KeySpec> specType)
-        throws InvalidKeyException
+    @Override public KeySpec getSpec(String algorithm, byte[] value, 
+        Class<? extends KeySpec> specType) throws InvalidKeyException
     {
         // в зависимости от типа
         if (specType.isAssignableFrom(DESKeySpec.class))
@@ -73,7 +70,7 @@ public class DES extends SecretKeyFactory
             return new DESKeySpec(value); 
         }
         // вызвать базовую функцию
-        return super.getSpec(value, specType); 
+        return super.getSpec(algorithm, value, specType); 
     }
     ///////////////////////////////////////////////////////////////////////////
     // нормализация ключа

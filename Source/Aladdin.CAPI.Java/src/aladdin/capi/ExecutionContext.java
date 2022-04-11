@@ -16,7 +16,7 @@ public class ExecutionContext extends RefObject implements IRandFactory, IPBECul
     static { providerCaches = new HashMap<String, CredentialsManager>(); }
     
 	// освободить ресурсы
-	public static void Clear() 
+	public static void clear() 
 	{ 
 		// для каждого провайдера
 		for (String providerName : providerCaches.keySet())

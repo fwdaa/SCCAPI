@@ -1,5 +1,5 @@
 package aladdin.capi.pkcs11.athena;
-import aladdin.asn1.iso.*; 
+import aladdin.asn1.*; 
 import aladdin.asn1.ansi.*; 
 import aladdin.capi.*; 
 import aladdin.capi.pkcs11.*; 
@@ -65,12 +65,9 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
     }
     // создать алгоритм для параметров
     @Override protected IAlgorithm createAlgorithm(Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
-        // определить идентификатор алгоритма
-	    String oid = parameters.algorithm().value(); 
-
         // для алгоритмов согласования общего ключа
         if (type.equals(IKeyAgreement.class))
         {
@@ -93,6 +90,6 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
             if (oid.equals(OID.CERTICOM_ECDH_COFACTOR_SHA2_512)) return null; 
         }
         // вызвать базовую функцию
-        return super.createAlgorithm(factory, scope, parameters, type); 
+        return super.createAlgorithm(factory, scope, oid, parameters, type); 
     }
 }

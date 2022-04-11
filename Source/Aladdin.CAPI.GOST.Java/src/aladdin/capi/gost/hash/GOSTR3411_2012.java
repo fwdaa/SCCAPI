@@ -527,7 +527,7 @@ public class GOSTR3411_2012 extends BlockHash
     public static void testHMAC256(Mac macAlgorithm) throws Exception
     {
         // выполнить тест
-        if (KeySizes.contains(macAlgorithm.keySizes(), 32))
+        if (KeySizes.contains(macAlgorithm.keyFactory().keySizes(), 32))
         Mac.knownTest(macAlgorithm, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -556,7 +556,7 @@ public class GOSTR3411_2012 extends BlockHash
     public static void testHMAC512(Mac macAlgorithm) throws Exception
     {
         // выполнить тест
-        if (KeySizes.contains(macAlgorithm.keySizes(), 32))
+        if (KeySizes.contains(macAlgorithm.keyFactory().keySizes(), 32))
         Mac.knownTest(macAlgorithm, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 

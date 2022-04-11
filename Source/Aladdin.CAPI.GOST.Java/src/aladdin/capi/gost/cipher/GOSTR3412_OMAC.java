@@ -2,6 +2,7 @@ package aladdin.capi.gost.cipher;
 import aladdin.*;
 import aladdin.asn1.*;
 import aladdin.asn1.iso.*;
+import aladdin.asn1.gost.*;
 import aladdin.capi.*; 
 import aladdin.capi.derive.*;
 import aladdin.util.*;
@@ -10,17 +11,39 @@ import java.security.*;
 import java.util.*;
 
 ///////////////////////////////////////////////////////////////////////////////
-// Алгоритм ГОСТ R34.12 CTR-ACPKM-OMAC 
+// Алгоритм ГОСТ R34.12 с добавлением OMAC
 ///////////////////////////////////////////////////////////////////////////////
-public class GOSTR3412ACPKM_MAC extends Cipher
+public class GOSTR3412_OMAC extends Cipher
 {
+    // создать алгоритм
+    public static Cipher create(Factory factory, SecurityStore scope, 
+        int blockSize, Cipher mode, byte[] seed) throws IOException
+    {
+        // закодировать параметры алгоритма HMAC
+        AlgorithmIdentifier hmacParameters = new AlgorithmIdentifier(
+            new ObjectIdentifier(OID.GOSTR3411_2012_HMAC_256), Null.INSTANCE
+        );
+        // создать алгоритм HMAC
+        try (Mac hmac = (Mac)factory.createAlgorithm(scope, hmacParameters, Mac.class))
+        {
+            // проверить наличие алгоритма шифрования блока
+            if (hmac == null) return null; 
+            
+            // создать алгоритм выработки имитовставки
+            try (Mac omac = GOSTR3412.createOMAC(factory, scope, blockSize))
+            {
+                // обьединить имитовставку с режимом
+                return new GOSTR3412_OMAC(mode, omac, hmac, seed); 
+            }
+        }
+    }
     // алгоритм шифрования и алгоритм вычисления имитовставки
     private final Cipher cipher; private final Mac macAlgorithm;
     // алгоритм HMAC и синхропосылка
     private final Mac hmac_gostr3411_2012_256; private final byte[] seed;
         
     // конструктор
-    public GOSTR3412ACPKM_MAC(Cipher cipher, Mac macAlgorithm, Mac hmac_gostr3411_2012_256, byte[] seed)
+    public GOSTR3412_OMAC(Cipher cipher, Mac macAlgorithm, Mac hmac_gostr3411_2012_256, byte[] seed)
     {
         // проверить размер синхропосылки
         if (seed.length != 8) throw new IllegalArgumentException(); this.seed = seed; 

@@ -45,9 +45,11 @@ namespace Aladdin.CAPI.ANSI.PKCS11.Cipher
 		    return new Mechanism(algID, parameters.IV); 
 		}
         // тип ключей
-        public override SecretKeyFactory KeyFactory { get { return Keys.AES.Instance; }}
-		// размер ключа в байтах
-		public override int[] KeySizes { get { return keySizes; }}
+        public override SecretKeyFactory KeyFactory 
+		{ 
+			// тип ключей
+			get { return new Keys.AES(keySizes); }
+		}
 		// размер блока
 		public override int BlockSize { get { return 16; }} 
 

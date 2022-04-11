@@ -13,12 +13,9 @@
 ///////////////////////////////////////////////////////////////////////////
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::SCardProvider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; 
-
 	// для алгоритмов подписи
 	if (type == VerifyHash::typeid)
 	{
@@ -36,7 +33,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::SCardProvider::CreateAlgorithm(
         if (oid == ASN1::ISO::PKCS::PKCS1::OID::rsa) 
 		{
 			// получить алгоритм ассиметричного шифрования
-			return CreateAlgorithm(factory, scope, parameters, Encipherment::typeid); 
+			return CreateAlgorithm(factory, scope, oid, parameters, Encipherment::typeid); 
 		}
     }
 	// для алгоритмов транспортирвки ключа 
@@ -46,10 +43,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::SCardProvider::CreateAlgorithm(
         if (oid == ASN1::ISO::PKCS::PKCS1::OID::rsa) 
 		{
 			// получить алгоритм ассиметричного шифрования
-			return CreateAlgorithm(factory, scope, parameters, Decipherment::typeid); 
+			return CreateAlgorithm(factory, scope, oid, parameters, Decipherment::typeid); 
 		}
     }
 	// вызвать базовую функцию
-	return AESEnhancedProvider::CreateAlgorithm(factory, scope, parameters, type); 
+	return AESEnhancedProvider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }
 

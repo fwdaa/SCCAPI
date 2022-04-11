@@ -55,7 +55,7 @@ public class GOSTR3412ACPKM extends OMAC1
 
         // создать новый ключ
         try (ISecretKey newKey = masterACPKM.deriveKey(
-            null, null, GOSTR3412.INSTANCE, keySize))
+            null, null, GOST.INSTANCE, keySize))
         {
             // инициализировать алгоритм
             super.init(newKey);

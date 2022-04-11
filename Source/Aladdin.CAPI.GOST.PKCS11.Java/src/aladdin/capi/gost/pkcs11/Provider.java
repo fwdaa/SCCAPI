@@ -1,12 +1,11 @@
 package aladdin.capi.gost.pkcs11;
 import aladdin.asn1.*;
-import aladdin.asn1.iso.*;
 import aladdin.asn1.gost.*;
 import aladdin.asn1.gost.OID;
 import aladdin.asn1.iso.pkcs.pkcs5.*;
 import aladdin.pkcs11.*;
 import aladdin.capi.*;
-import aladdin.capi.pbe.*;
+import aladdin.capi.gost.gostr3410.*;
 import aladdin.capi.pkcs11.*;
 import aladdin.capi.pkcs11.Attribute; 
 import java.io.*;
@@ -20,6 +19,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     // возможность импорта ключевой пары в память
     private final Module module; private final boolean canImport; 
     
+    // фабрики кодирования ключей 
+    private final Map<String, SecretKeyFactory> secretKeyFactories; 
+    private final Map<String, KeyFactory      > keyFactories; 
+    
 	// конструктор
 	public Provider(String name, boolean canImport) { this(null, name, canImport); }
     
@@ -28,6 +31,20 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     { 
         // сохранить переданне параметры
         super(name); this.module = module; this.canImport = canImport; 
+        
+        // создать список фабрик кодирования ключей
+        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
+        
+        // заполнить список фабрик кодирования ключей
+        secretKeyFactories.put("GOST28147", aladdin.capi.gost.keys.GOST.INSTANCE); 
+        
+        // создать список фабрик кодирования ключей
+        keyFactories = new HashMap<String, KeyFactory>(); 
+
+        // заполнить список фабрик кодирования ключей
+        keyFactories.put(OID.GOSTR3410_2001    , new ECKeyFactory(OID.GOSTR3410_2001    )); 
+        keyFactories.put(OID.GOSTR3410_2012_256, new ECKeyFactory(OID.GOSTR3410_2012_256)); 
+        keyFactories.put(OID.GOSTR3410_2012_512, new ECKeyFactory(OID.GOSTR3410_2012_512)); 
     }
     // интерфейс вызова функций
     @Override public Module module() { return module; }
@@ -35,22 +52,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     // возможность генерации и импорта ключевой пары в памяти
     @Override public boolean canImportSessionPair(Applet applet) { return canImport; } 
     
-	@Override public SecretKeyFactory[] secretKeyFactories() 
-	{
-        // вернуть список фабрик
-        return new SecretKeyFactory[] {
-            aladdin.capi.gost.keys.GOST28147.INSTANCE 
-        }; 
-    }
-	@Override public KeyFactory[] keyFactories() 
-	{
-        // вернуть список фабрик
-        return new KeyFactory[] {   
-            new aladdin.capi.gost.gostr3410.ECKeyFactory(OID.GOSTR3410_2001    ), 
-            new aladdin.capi.gost.gostr3410.ECKeyFactory(OID.GOSTR3410_2012_256), 
-            new aladdin.capi.gost.gostr3410.ECKeyFactory(OID.GOSTR3410_2012_512)
-        }; 
-	}
+	// Поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
+	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+    
 	@Override public String[] generatedKeys(SecurityStore scope) 
 	{
         // проверить тип области видимости
@@ -183,7 +188,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
 	@Override public Attribute[] secretKeyAttributes(
         SecretKeyFactory keyFactory, int keySize, boolean hasValue) 
     { 
-        if (keyFactory == aladdin.capi.gost.keys.GOST28147.INSTANCE)
+        if (keyFactory == aladdin.capi.gost.keys.GOST.INSTANCE)
         {
             // закодировать идентификатор таблицы подстановок
             byte[] encodedOID = new ObjectIdentifier(OID.ENCRYPTS_A).encoded(); 
@@ -254,11 +259,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     }
 	// создать алгоритм для параметров
 	@Override protected IAlgorithm createAlgorithm(
-        Factory factory, SecurityStore scope, 
-		AlgorithmIdentifier parameters, Class<? extends IAlgorithm> type) throws IOException
+        Factory factory, SecurityStore scope, String oid, 
+        IEncodable parameters, Class<? extends IAlgorithm> type) throws IOException
     {
-        // определить идентификатор алгоритма
-        String oid = parameters.algorithm().value(); for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 1; i++)
         {
             // для алгоритмов хэширования
             if (type.equals(aladdin.capi.Hash.class))
@@ -269,10 +273,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                     ObjectIdentifier sboxOID = new ObjectIdentifier(OID.HASHES_CRYPTOPRO); 
                     
                     // проверить наличие параметров
-                    if (!Encodable.isNullOrEmpty(parameters.parameters())) 
+                    if (!Encodable.isNullOrEmpty(parameters)) 
                     {
                         // раскодировать идентификатор параметров
-                        sboxOID = new ObjectIdentifier(parameters.parameters());
+                        sboxOID = new ObjectIdentifier(parameters);
                     }
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_GOSTR3411, sboxOID.encoded()); 
@@ -315,10 +319,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                     ObjectIdentifier sboxOID = new ObjectIdentifier(OID.HASHES_CRYPTOPRO); 
                     
                     // проверить наличие параметров
-                    if (!Encodable.isNullOrEmpty(parameters.parameters())) 
+                    if (!Encodable.isNullOrEmpty(parameters)) 
                     {
                         // раскодировать идентификатор параметров
-                        sboxOID = new ObjectIdentifier(parameters.parameters());
+                        sboxOID = new ObjectIdentifier(parameters);
                     }
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_GOSTR3411_HMAC, sboxOID.encoded()); 
@@ -355,7 +359,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 {
                     // раскодировать параметры алгоритма
                     aladdin.asn1.gost.GOST28147CipherParameters algParameters = 
-                        new aladdin.asn1.gost.GOST28147CipherParameters(parameters.parameters()); 
+                        new aladdin.asn1.gost.GOST28147CipherParameters(parameters); 
                     
                     // извлечь идентификатор таблицы подстановок
                     ObjectIdentifier sboxOID = algParameters.paramSet(); 
@@ -383,7 +387,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 { 
                     // раскодировать параметры алгоритма
                     aladdin.asn1.gost.GOST28147CipherParameters algParameters = 
-                        new aladdin.asn1.gost.GOST28147CipherParameters(parameters.parameters()); 
+                        new aladdin.asn1.gost.GOST28147CipherParameters(parameters); 
 
                     // определить идентификатор параметров
                     ObjectIdentifier paramsOID = algParameters.paramSet(); 
@@ -404,13 +408,25 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                     if (cipher == null) break; return cipher; 
                 }
             }
+            // для алгоритмов симметричного шифрования
+            else if (type.equals(aladdin.capi.IBlockCipher.class))
+            {
+                if (oid.equals("GOST28147"))
+                { 
+                    // раскодировать параметры алгоритма
+                    ObjectIdentifier cipherParameters = new ObjectIdentifier(parameters); 
+                    
+                    // создать блочный алгоритм шифрования
+                    return Creator.createGOST28147(this, scope, cipherParameters.value()); 
+                }
+            }
             // для алгоритмов наследования ключа
             else if (type.equals(aladdin.capi.KeyDerive.class))
             {
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBKDF2)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBKDF2Parameter pbeParameters = new PBKDF2Parameter(parameters.parameters());
+                    PBKDF2Parameter pbeParameters = new PBKDF2Parameter(parameters);
 
                     // инициализировать переменные
                     long prf; Object prfData; int keySize = -1; 
@@ -437,7 +453,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (Encodable.isNullOrEmpty(hashParameters)) prfData = null; 
                         else {
                             // закодировать значение идентификатора
-                            prfData = parameters.parameters().encoded();
+                            prfData = parameters.encoded();
                         }
                     } 
                     // в зависимости от идентификатора
@@ -466,7 +482,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 else if (oid.equals(OID.KEY_MESHING_CRYPTOPRO)) 
                 {
                     // раскодировать параметры алгоритма
-                    ObjectIdentifier sboxOID = new ObjectIdentifier(parameters.parameters()); 
+                    ObjectIdentifier sboxOID = new ObjectIdentifier(parameters); 
 
                     // создать алгоритм наследования ключа
                     aladdin.capi.KeyDerive keyDerive = Creator.createKeyMeshing(
@@ -483,7 +499,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 {
                     // раскодировать параметры алгоритма
                     aladdin.asn1.gost.KeyWrapParameters wrapParameters = 
-                        new aladdin.asn1.gost.KeyWrapParameters(parameters.parameters()); 
+                        new aladdin.asn1.gost.KeyWrapParameters(parameters); 
                     
                     // проверить наличие UKM
                     if (wrapParameters.ukm() == null) throw new IOException(); 
@@ -501,7 +517,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 else if (oid.equals(OID.KEY_WRAP_CRYPTOPRO)) 
                 {
                     // раскодировать параметры алгоритма
-                    KeyWrapParameters wrapParameters = new KeyWrapParameters(parameters.parameters());
+                    KeyWrapParameters wrapParameters = new KeyWrapParameters(parameters);
 
                     // проверить наличие UKM
                     if (wrapParameters.ukm() == null) throw new IOException(); 
@@ -741,6 +757,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
             }
         }
         // вызвать базовую функцию
-        return aladdin.capi.gost.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+        return aladdin.capi.gost.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 }

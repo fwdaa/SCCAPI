@@ -1,5 +1,9 @@
 package aladdin.capi.gost.cipher;
 import aladdin.*; 
+import aladdin.asn1.ObjectIdentifier;
+import aladdin.asn1.gost.GOST28147ParamSet;
+import aladdin.asn1.gost.GOST28147SBoxReference;
+import aladdin.asn1.iso.AlgorithmIdentifier;
 import aladdin.capi.*; 
 import java.io.*; 
 
@@ -8,6 +12,35 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class GOST28147 extends RefObject implements IBlockCipher
 {
+    // создать алгоритм
+    public static IBlockCipher create(aladdin.capi.Factory factory, 
+        SecurityStore scope, String paramOID) throws IOException
+    {
+        // получить именованные параметры алгоритма
+        GOST28147ParamSet namedParameters = GOST28147ParamSet.parameters(paramOID);
+
+        // указать параметры алгоритма диверсификации
+        AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
+            namedParameters.keyMeshing().algorithm(), new ObjectIdentifier(paramOID)
+        ); 
+        // создать алгоритм диверсификации
+        try (KeyDerive kdfAlgorithm = (KeyDerive)factory.createAlgorithm(
+            scope, kdfParameters, KeyDerive.class))
+        {
+            // проверить наличие алгоритма
+            if (kdfAlgorithm == null) return null; 
+
+            // раскодировать таблицу подстановок
+            byte[] sbox = GOST28147SBoxReference.decodeSBox(namedParameters.euz()); 
+
+            // создать алгоритм шифрования блока
+            try (Cipher engine = new aladdin.capi.gost.engine.GOST28147(sbox))
+            {
+                // создать блочный алгоритм шифрования
+                return new aladdin.capi.gost.cipher.GOST28147(engine, kdfAlgorithm); 
+            }
+        }
+    }
     // алгоритм шифрования блока и режим смены ключа
     private final Cipher engine; private final KeyDerive keyMeshing; 
     
@@ -21,10 +54,10 @@ public class GOST28147 extends RefObject implements IBlockCipher
         this.keyMeshing = RefObject.addRef(keyMeshing); 
 	}
     // конструктор
-	public GOST28147(Cipher engine)  
+    public GOST28147(Cipher engine)  
     {
-		// сохранить переданные параметры
-        this.engine = RefObject.addRef(engine); this.keyMeshing = null;
+	    // сохранить переданные параметры
+        this.engine = RefObject.addRef(engine); keyMeshing = null;
     }
     // освободить ресурсы
     @Override protected void onClose() throws IOException 
@@ -36,10 +69,9 @@ public class GOST28147 extends RefObject implements IBlockCipher
 	@Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
-    // размер ключей и блока
-    @Override public final int[] keySizes() { return engine.keySizes (); } 
+    // размер блока
 	@Override public final int blockSize () { return engine.blockSize(); } 
     
     // режим смены ключа

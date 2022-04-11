@@ -12,16 +12,17 @@ public class STB34101 extends Cipher
     private static final Endian ENDIAN = Endian.LITTLE_ENDIAN; 
     
     // конструктор
-    public STB34101(int[] keySizes) { this.keySizes = keySizes; } private final int[] keySizes; 
+    public STB34101(int[] keySizes) 
+    
+        // сохранить переданные параметры
+        { this.keySizes = keySizes; } private final int[] keySizes; 
         
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.stb.keys.STB34101.INSTANCE; 
+        return new aladdin.capi.stb.keys.STB34101(keySizes); 
     } 
-	// размер ключей
-	@Override public final int[] keySizes() { return keySizes; } 
     // размер блока
 	@Override public final int blockSize() { return 16;	}
 
@@ -319,13 +320,16 @@ public class STB34101 extends Cipher
 	///////////////////////////////////////////////////////////////////////////
     public static void test(IBlockCipher blockCipher) throws Exception
     {
+        // указать размер ключа
+        int[] keySizes = blockCipher.keyFactory().keySizes(); 
+        
         CipherMode mode = new CipherMode.ECB(); 
         
         // создать режим шифрования
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         { 
             // выполнить тест
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                 (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -362,7 +366,7 @@ public class STB34101 extends Cipher
                 (byte)0xDC, (byte)0xB5, (byte)0xE5, (byte)0xD1, 
                 (byte)0x56, (byte)0x9F, (byte)0x9A, (byte)0xB0		
             });
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                 (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -399,7 +403,7 @@ public class STB34101 extends Cipher
                 (byte)0x75, (byte)0x01, (byte)0x7F, (byte)0x73, 
                 (byte)0x80, (byte)0x6D, (byte)0xA9
             }); 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                 (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -436,7 +440,7 @@ public class STB34101 extends Cipher
                 (byte)0xDD, (byte)0x4E, (byte)0xA7, (byte)0x79, 
                 (byte)0x9E, (byte)0xB2, (byte)0x3D, (byte)0x31
             }); 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                 (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -477,7 +481,7 @@ public class STB34101 extends Cipher
         // создать режим шифрования
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         { 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                 (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -514,7 +518,7 @@ public class STB34101 extends Cipher
                 (byte)0x58, (byte)0x38, (byte)0x8B, (byte)0xF8, 
                 (byte)0xA6, (byte)0x8E, (byte)0x33, (byte)0x09
             }); 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                 (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -555,7 +559,7 @@ public class STB34101 extends Cipher
         // создать режим шифрования
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         { 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                 (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -592,7 +596,7 @@ public class STB34101 extends Cipher
                 (byte)0xDD, (byte)0x4E, (byte)0xA7, (byte)0x79, 
                 (byte)0x9E, (byte)0xB2, (byte)0x3D, (byte)0x31
             }); 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                 (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -633,7 +637,7 @@ public class STB34101 extends Cipher
         // создать режим шифрования
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         { 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                 (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -680,7 +684,7 @@ public class STB34101 extends Cipher
         // создать режим шифрования
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         { 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                 (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -727,7 +731,7 @@ public class STB34101 extends Cipher
         // создать режим шифрования
         try (Cipher cipher = blockCipher.createBlockMode(mode))
         { 
-            if (KeySizes.contains(cipher.keySizes(), 32))
+            if (KeySizes.contains(keySizes, 32))
             Cipher.knownTest(cipher, PaddingMode.ANY, new byte[] {
                 (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                 (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 

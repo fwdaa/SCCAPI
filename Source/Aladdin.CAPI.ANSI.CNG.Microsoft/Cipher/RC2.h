@@ -26,13 +26,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		public: virtual property SecretKeyFactory^ KeyFactory 
 		{ 
 			// тип ключа
-			SecretKeyFactory^ get() override { return Keys::RC2::Instance; }
-		}
-		// размер ключа в байтах
-		public: virtual property array<int>^ KeySizes 
-		{ 
-			// размер ключа в байтах
-			array<int>^ get() override { return keySizes; }
+			SecretKeyFactory^ get() override { return gcnew Keys::RC2(keySizes); }
 		}
 		// размер блока и ключа по умолчанию
 		public: virtual property int BlockSize  { int get() override { return 8; }} 

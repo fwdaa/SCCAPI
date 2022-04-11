@@ -31,7 +31,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::GetSecretKeyType(
 	SecretKeyFactory^ keyFactory, DWORD keySize)
 {$
 	// проверить тип ключа
-	if (Object::ReferenceEquals(keyFactory, CAPI::GOST::Keys::GOST28147::Instance)) 
+	if (Object::ReferenceEquals(keyFactory, CAPI::GOST::Keys::GOST::Instance)) 
 	{
 		// вернуть тип ключа
 		return gcnew SecretKeyType(CALG_GOST); 
@@ -191,11 +191,11 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::ImportKeyPair(
 {$
 	ALG_ID algID = 0; 
 
-	// проверить тип параметров
-	if (dynamic_cast<ANSI::RSA::IParameters^>(publicKey->Parameters) != nullptr)
+	// проверить тип ключа
+	if (dynamic_cast<ANSI::RSA::IPublicKey^>(publicKey) != nullptr)
 	{
 		// определить число битов
-		switch (((ANSI::RSA::IParameters^)publicKey->Parameters)->KeySize)
+		switch (((IKeyBitsParameters^)publicKey->Parameters)->KeyBits)
 		{
 		// указать идентификатор ключа
 		case 1024: algID = (keyType == AT_KEYEXCHANGE) ? CALG_RSA_1024_Xch : CALG_RSA_1024; break;
@@ -253,17 +253,48 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateGenerator(
 {$
 	// в зависимости от идентификатора
     if (keyOID == ASN1::KZ::OID::gamma_key_rsa_1024     || 
-        keyOID == ASN1::KZ::OID::gamma_key_rsa_1536     || 
-        keyOID == ASN1::KZ::OID::gamma_key_rsa_2048     ||
-        keyOID == ASN1::KZ::OID::gamma_key_rsa_1024_xch || 
-        keyOID == ASN1::KZ::OID::gamma_key_rsa_1536_xch || 
-        keyOID == ASN1::KZ::OID::gamma_key_rsa_2048_xch )
+        keyOID == ASN1::KZ::OID::gamma_key_rsa_1024_xch)
 	{
 		// преобразовать тип параметров
-		ANSI::RSA::IParameters^ rsaParameters = (ANSI::RSA::IParameters^)parameters;
+		ANSI::RSA::IParameters^ rsaParameters = ANSI::RSA::Parameters::Convert(parameters);
 
 		// проверить значение экспоненты
 		if (rsaParameters->PublicExponent != Math::BigInteger::ValueOf(0x10001L)) return nullptr; 
+
+		// проверить корректность параметров
+		if (rsaParameters->KeyBits != 1024) throw gcnew ArgumentException(); 
+
+		// создать алгоритм генерации ключей
+		return gcnew RSA::KeyPairGenerator(this, scope, rand, rsaParameters);
+	}
+	// в зависимости от идентификатора
+    if (keyOID == ASN1::KZ::OID::gamma_key_rsa_1536     || 
+        keyOID == ASN1::KZ::OID::gamma_key_rsa_1536_xch)
+	{
+		// преобразовать тип параметров
+		ANSI::RSA::IParameters^ rsaParameters = ANSI::RSA::Parameters::Convert(parameters);
+
+		// проверить значение экспоненты
+		if (rsaParameters->PublicExponent != Math::BigInteger::ValueOf(0x10001L)) return nullptr; 
+
+		// проверить корректность параметров
+		if (rsaParameters->KeyBits != 1536) throw gcnew ArgumentException(); 
+
+		// создать алгоритм генерации ключей
+		return gcnew RSA::KeyPairGenerator(this, scope, rand, rsaParameters);
+	}
+	// в зависимости от идентификатора
+    if (keyOID == ASN1::KZ::OID::gamma_key_rsa_2048     || 
+        keyOID == ASN1::KZ::OID::gamma_key_rsa_2048_xch)
+	{
+		// преобразовать тип параметров
+		ANSI::RSA::IParameters^ rsaParameters = ANSI::RSA::Parameters::Convert(parameters);
+
+		// проверить значение экспоненты
+		if (rsaParameters->PublicExponent != Math::BigInteger::ValueOf(0x10001L)) return nullptr; 
+
+		// проверить корректность параметров
+		if (rsaParameters->KeyBits != 2048) throw gcnew ArgumentException(); 
 
 		// создать алгоритм генерации ключей
 		return gcnew RSA::KeyPairGenerator(this, scope, rand, rsaParameters);
@@ -287,10 +318,9 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateGenerator(
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 	CAPI::Factory^ outer, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	String^ oid, ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгооритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов хэширования
 		if (type == CAPI::Hash::typeid)
@@ -304,10 +334,10 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 			if (oid == ASN1::GOST::OID::gostR3411_94) 
 			{
 				// для закодированного идентификатора
-				if (parameters->Parameters->Tag == ASN1::Tag::ObjectIdentifier) 					
+				if (parameters->Tag == ASN1::Tag::ObjectIdentifier) 					
 				{
 					// раскодировать идентификатор параметров
-					oid = ASN1::ObjectIdentifier(parameters->Parameters).Value;
+					oid = ASN1::ObjectIdentifier(parameters).Value;
 				}
 				// установить идентификатор по умолчанию
 				else oid = ASN1::GOST::OID::hashes_cryptopro; 
@@ -345,7 +375,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 				oid == ASN1::ANSI::OID::rsa_hmac_sha2_512)
 			{
 				// вызвать базовую реализацию
-				return ANSI::Factory::RedirectAlgorithm(this, scope, parameters, type); 
+				return ANSI::Factory::RedirectAlgorithm(this, scope, oid, parameters, type); 
 			}
 			if (oid == ASN1::KZ::OID::gamma_hmac_gost34311_95_t)
 			{
@@ -378,7 +408,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 			if (oid == ASN1::KZ::OID::gamma_cipher_gost_cbc)
 			{ 
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать идентификатор таблицы подстановок
 				String^ sboxOID = ASN1::KZ::OID::gamma_gost28147_param_g; 
@@ -396,7 +426,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 				oid == ASN1::KZ::OID::gamma_cipher_gost)
 			{ 
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать идентификатор таблицы подстановок
 				String^ sboxOID = ASN1::KZ::OID::gamma_gost28147_param_g; 
@@ -413,7 +443,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 			if (oid == ASN1::KZ::OID::gamma_cipher_gost_cnt)
 			{ 
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать идентификатор таблицы подстановок
 				String^ sboxOID = ASN1::KZ::OID::gamma_gost28147_param_g; 
@@ -430,7 +460,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 			if (oid == ASN1::KZ::OID::gamma_cipher_gost_ofb)
 			{ 
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать идентификатор таблицы подстановок
 				String^ sboxOID = ASN1::KZ::OID::gamma_gost28147_param_g; 
@@ -531,11 +561,11 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::CreateAlgorithm(
 		}
 	}
 	// вызвать базовую функцию
-	IAlgorithm^ algorithm = AESEnhancedProvider::CreateAlgorithm(outer, scope, parameters, type); 
+	IAlgorithm^ algorithm = AESEnhancedProvider::CreateAlgorithm(outer, scope, oid, parameters, type); 
 
 	// проверить наличие алгоритма
 	if (algorithm != nullptr) return algorithm; 
 
 	// вызвать базовую функцию
-	return KZ::Factory::RedirectAlgorithm(outer, scope, parameters, type); 
+	return KZ::Factory::RedirectAlgorithm(outer, scope, oid, parameters, type); 
 }

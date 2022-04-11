@@ -8,15 +8,21 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 // Криптографическая среда
 ///////////////////////////////////////////////////////////////////////////
-public class CryptoEnvironment extends ExecutionContext implements IParametersFactory, ICultureFactory
+public class CryptoEnvironment extends ExecutionContext 
+    implements Serializable, IParametersFactory, ICultureFactory
 {
+    private static final long serialVersionUID = 7298633164622367214L;
+    
+    // секция конфигурации и параметры шифрования по паролю по умолчанию
+    private ConfigSection section; private PBEParameters pbeParameters; 
+    
     // фабрики алгоритмов и криптопровайдеры
-    private final Factories factories; private final List<CryptoProvider> providers;  
+    private Factories factories; private List<CryptoProvider> providers;  
     // фабрики генераторов случайных данных
-    private final List<IRandFactory> randFactories; private boolean hardwareRand; 
+    private List<IRandFactory> randFactories; private boolean hardwareRand; 
         
     // расширения криптографических культур
-    private final Map<String, GuiPlugin> plugins; private final PBEParameters pbeParameters; 
+    private Map<String, GuiPlugin> plugins; 
     
     // отображения по идентификаторам ключей
     private Map<String, String > keyNames;       // имена ключей
@@ -33,7 +39,10 @@ public class CryptoEnvironment extends ExecutionContext implements IParametersFa
     public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters)
 	{
         // сохранить переданные параметры
-        this.pbeParameters = pbeParameters; hardwareRand = false; 
+        this.section = section; this.pbeParameters = pbeParameters; init(); 
+    }
+    // конструктор
+    private void init() { hardwareRand = false; 
         
         // указать загрузчик классов
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
@@ -135,6 +144,26 @@ public class CryptoEnvironment extends ExecutionContext implements IParametersFa
         // освободить выделенные ресурсы
         providers.get(0).release(); factories.release(); super.onClose(); 
     }
+    /////////////////////////////////////////////////////////////////////////////
+    // Сериализация
+    /////////////////////////////////////////////////////////////////////////////
+    protected void writeObject(ObjectOutputStream oos) throws IOException 
+    {
+        // записать секцию конфигурации и параметры шифрования
+        oos.writeObject(section); oos.writeObject(pbeParameters); 
+    }
+    protected void readObject(ObjectInputStream ois) throws IOException 
+    {
+        try { 
+            // прочитать секцию конфигурации
+            section = (ConfigSection)ois.readObject(); 
+            
+            // прочитать параметры шифрования по паролю
+            pbeParameters = (PBEParameters)ois.readObject(); init(); 
+        }
+        // обработать возможную ошибку
+        catch (ClassNotFoundException e) { throw new IOException(e); }
+    }    
     ///////////////////////////////////////////////////////////////////////
     // Фабрики алгоритмов
     ///////////////////////////////////////////////////////////////////////

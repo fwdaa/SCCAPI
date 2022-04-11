@@ -12,18 +12,17 @@ public abstract class PBESP12 extends aladdin.capi.Cipher
 {
     // физическое устройство и идентификатор алгоритма
     private final Applet applet; private final long algID; 
-    
     // алгоритм наследования ключа
-    private final aladdin.capi.KeyDerive keyDerive; private final SecretKeyFactory keyFactory; 
+    private final aladdin.capi.KeyDerive keyDerive; 
     
 	// конструктор
-	protected PBESP12(Applet applet, long algID, byte[] salt, int iterations, SecretKeyFactory keyFactory)
+	protected PBESP12(Applet applet, long algID, byte[] salt, int iterations)
     { 
 		// сохранить переданные параметры
 		this.applet = RefObject.addRef(applet); this.algID = algID; 
         
         // создать алгоритм наследования ключа
-        this.keyDerive = new PBKDFP12(this, salt, iterations); this.keyFactory = keyFactory; 
+        this.keyDerive = new PBKDFP12(this, salt, iterations); 
     }
     // деструктор
     @Override protected void onClose() throws IOException   
@@ -37,25 +36,21 @@ public abstract class PBESP12 extends aladdin.capi.Cipher
     // идентификатор алгоритма
     public final long algID() { return algID; }
     
-    // размер блока алгоритма
-    @Override public int blockSize() { return ivLength(); }
-
 	// создать алгоритм шифрования
 	protected abstract aladdin.capi.Cipher createCipher(byte[] iv) throws IOException; 
-	// размер ключа
-	protected abstract int keyLength();  
-	// размер синхропосылки
-    protected abstract int ivLength();
+	// фабрика ключа
+	protected abstract SecretKeyFactory deriveKeyFactory();  
     
 	// алгоритм зашифрования данных
 	@Override 
     protected Transform createEncryption(ISecretKey password) throws IOException
 	{
         // выделить память для синхропосылки
-        byte[] iv = new byte[ivLength()];  
+        byte[] iv = new byte[8]; SecretKeyFactory deriveKeyFactory = deriveKeyFactory(); 
         
 		// наследовать ключ и вектор инициализации по паролю
-        try (ISecretKey key = keyDerive.deriveKey(password, iv, keyFactory, keyLength())) 
+        try (ISecretKey key = keyDerive.deriveKey(
+            password, iv, deriveKeyFactory, deriveKeyFactory.keySizes()[0])) 
         {
             // создать алгоритм шифрования
             try (aladdin.capi.Cipher cipher = createCipher(iv))
@@ -72,10 +67,11 @@ public abstract class PBESP12 extends aladdin.capi.Cipher
     protected Transform createDecryption(ISecretKey password) throws IOException
 	{
         // выделить память для синхропосылки
-        byte[] iv = new byte[ivLength()];  
+        byte[] iv = new byte[8]; SecretKeyFactory deriveKeyFactory = deriveKeyFactory();  
         
 		// наследовать ключ и вектор инициализации по паролю
-        try (ISecretKey key = keyDerive.deriveKey(password, iv, keyFactory, keyLength())) 
+        try (ISecretKey key = keyDerive.deriveKey(
+            password, iv, deriveKeyFactory, deriveKeyFactory.keySizes()[0])) 
         {
             // создать алгоритм шифрования
             try (aladdin.capi.Cipher cipher = createCipher(iv))
@@ -90,7 +86,12 @@ public abstract class PBESP12 extends aladdin.capi.Cipher
 	// атрибуты ключа
 	public Attribute[] getKeyAttributes() 
     { 
+        // указать фабрику ключа
+        SecretKeyFactory deriveKeyFactory = deriveKeyFactory();  
+        
         // атрибуты ключа
-        return applet.provider().secretKeyAttributes(keyFactory, keyLength(), false); 
+        return applet.provider().secretKeyAttributes(
+            deriveKeyFactory, deriveKeyFactory.keySizes()[0], false
+        ); 
     } 
 }

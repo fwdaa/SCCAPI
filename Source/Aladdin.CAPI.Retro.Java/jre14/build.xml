@@ -505,7 +505,7 @@
       </jar>
       <retrotranslator14 target="1.4" destjar="dist/Aladdin.CAPI.JCP.jar"
             smart="true" verify="true" failonwarning="true" embed="aladdin.capi.jcp.embed">
-        <fileset dir="../../Aladdin.CAPI.JCP.Java/build/classes" includes="**/*.class" />
+        <fileset dir="../../Aladdin.CAPI.JCP.Java/build/classes" includes="**/*.class" excludes="**/Service*.class" />
 	    <classpath>
             <fileset dir="${platforms.JDK14.home}/jre/lib" includes="**/*.jar"/>
             <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
@@ -514,7 +514,7 @@
       </retrotranslator14>
       <jar jarfile="dist/Aladdin.CAPI.JCP.jar" update = "true" compress="yes">
         <manifest>
-          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar Aladdin.CAPI.ANSI.jar"/>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar Aladdin.CAPI.Environment.jar "/>
         </manifest>
       </jar>
    </target>

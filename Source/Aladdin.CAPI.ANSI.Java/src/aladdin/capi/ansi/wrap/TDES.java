@@ -11,8 +11,10 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class TDES extends KeyWrap
 {
-    // блочный алгоритм шифрования и алгоритм хэширования
-    private final IBlockCipher blockCipher; private final Hash sha1;
+    // блочный алгоритм шифрования
+    private final IBlockCipher blockCipher; 
+    // размер ключа и алгоритм хэширования
+    private final int keyLength; private final Hash sha1;
     
 	// вектор инициализации
 	private static final byte[] IV = new byte[] { 
@@ -20,11 +22,11 @@ public class TDES extends KeyWrap
         (byte)0x79, (byte)0xE8, (byte)0x21, (byte)0x05 
     };
     // конструктор
-    public TDES(IBlockCipher blockCipher, Hash sha1) 
+    public TDES(IBlockCipher blockCipher, int keyLength, Hash sha1) 
     { 
         // сохранить переданные параметры
         this.blockCipher = RefObject.addRef(blockCipher);
-        this.sha1        = RefObject.addRef(sha1       ); 
+        this.sha1        = RefObject.addRef(sha1       ); this.keyLength = keyLength; 
     }
     // освободить ресурсы 
     @Override protected void onClose() throws IOException 
@@ -33,10 +35,14 @@ public class TDES extends KeyWrap
         RefObject.release(sha1); RefObject.release(blockCipher); super.onClose();
     }
     // тип ключа
-	@Override public final SecretKeyFactory keyFactory() { return blockCipher.keyFactory(); } 
-	// поддерживаемые размеры ключей
-	@Override public final int[] keySizes() { return blockCipher.keySizes(); }
-
+	@Override public final SecretKeyFactory keyFactory() 
+    { 
+        // проверить изменение размера 
+        if (keyLength == 0) return blockCipher.keyFactory(); 
+        
+        // указать используемый размер
+        return blockCipher.keyFactory().narrow(new int[] {keyLength}); 
+    } 
 	// зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey wrappedKey) 
         throws IOException, InvalidKeyException

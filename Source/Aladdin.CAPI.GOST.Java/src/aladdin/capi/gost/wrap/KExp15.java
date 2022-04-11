@@ -1,8 +1,7 @@
 package aladdin.capi.gost.wrap;
+import aladdin.capi.gost.cipher.*;
 import aladdin.*;
 import aladdin.capi.*; 
-import aladdin.asn1.gost.*;
-import aladdin.capi.gost.cipher.*; 
 import java.io.*;
 import java.security.*;
 import java.util.*;
@@ -17,39 +16,22 @@ public class KExp15 extends KeyWrap
     
     // создать алгоритм шифрования ключа
     public static KExp15 create(Factory factory, 
-        SecurityStore scope, String oid, byte[] iv) throws IOException
+        SecurityStore scope, int blockSize, byte[] iv) throws IOException
     {
-        int blockSize = 0; 
-        
-        // указать идентификатор алгоритма шифрования
-        if (oid.equals(OID.GOSTR3412_64_WRAP_KEXP15 )) blockSize =  8; else 
-        if (oid.equals(OID.GOSTR3412_128_WRAP_KEXP15)) blockSize = 16; else return null; 
-        
-        // создать блочный алгоритм шифрования
-        try (IBlockCipher blockCipher = GOSTR3412.create(factory, scope, blockSize))
+        // создать режим шифрования CTR
+        try (Cipher cipher = GOSTR3412.createCTR(factory, scope, blockSize, iv))
         {
             // проверить наличие алгоритма
-            if (blockCipher == null) return null; 
-
-            // указать параметры режима
-            CipherMode.CTR ctrParameters = new CipherMode.CTR(iv, blockSize); 
-
-            // создать режим CTR
-            try (Cipher cipher = blockCipher.createBlockMode(ctrParameters))
+            if (cipher == null) return null; 
+            
+            // создать имитовставку OMAC
+            try (Mac macAlgorithm = GOSTR3412.createOMAC(factory, scope, blockSize))
             {
-                // указать начальную синхропосылку
-                byte[] start = new byte[blockSize]; 
-                
-                // создать алгоритм вычисления имитовставки
-                try (Mac macAlgorithm = aladdin.capi.mac.OMAC1.create(
-                    blockCipher, start, blockSize))
-                {
-                    // проверить наличие алгоритма
-                    if (macAlgorithm == null) return null; 
-                    
-                    // вернуть алгоритм шифрования ключа
-                    return new KExp15(cipher, macAlgorithm, iv); 
-                }
+                // проверить наличие алгоритма
+                if (macAlgorithm == null) return null; 
+            
+                // вернуть алгоритм шифрования ключа
+                return new KExp15(cipher, macAlgorithm, iv); 
             }
         }
     }
@@ -74,9 +56,12 @@ public class KExp15 extends KeyWrap
         // освободить выделенные ресурсы
         RefObject.release(cipher); super.onClose();         
     } 
-    // размер используемого ключа
-    @Override public int[] keySizes() { return new int[] { 64 }; } 
-    
+    // тип ключа
+    @Override public final SecretKeyFactory keyFactory() 
+    { 
+        // тип ключа
+        return new SecretKeyFactory(new int[] { 64 }); 
+    } 
 	// зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey CEK) 
         throws IOException, InvalidKeyException
@@ -218,9 +203,7 @@ public class KExp15 extends KeyWrap
             Test.dump("IV", iv);
             
             try (KeyWrap keyWrap = create(factory, scope, 
-                OID.GOSTR3412_64_WRAP_KEXP15, new byte[] { 
-                    (byte)0x67, (byte)0xBE, (byte)0xD6, (byte)0x54 
-                }
+                8, new byte[] { (byte)0x67, (byte)0xBE, (byte)0xD6, (byte)0x54 }
             )){
                 knownTest(null, keyWrap, KEK, CEK, new byte[] {
                     (byte)0xCF, (byte)0xD5, (byte)0xA1, (byte)0x2D, 
@@ -246,7 +229,7 @@ public class KExp15 extends KeyWrap
             Test.dump("IV", iv);
             
             try (KeyWrap keyWrap = create(factory, scope, 
-                OID.GOSTR3412_128_WRAP_KEXP15, new byte[] { 
+                16, new byte[] { 
                     (byte)0x09, (byte)0x09, (byte)0x47, (byte)0x2D, 
                     (byte)0xD9, (byte)0xF2, (byte)0x6B, (byte)0xE8, 
                 }

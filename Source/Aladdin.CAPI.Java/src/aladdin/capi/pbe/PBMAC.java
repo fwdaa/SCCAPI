@@ -20,7 +20,7 @@ public class PBMAC extends Mac
 	public PBMAC(Hash hashAlgorithm, Mac macAlgorithm, byte[] salt, int iterations) 
 	{
         // получить допустимые размеры ключей
-        int[] keySizes = macAlgorithm.keySizes(); 
+        int[] keySizes = macAlgorithm.keyFactory().keySizes(); 
         
         // проверить наличие ключей фиксированного размера
         if (keySizes == null || keySizes.length != 1) 

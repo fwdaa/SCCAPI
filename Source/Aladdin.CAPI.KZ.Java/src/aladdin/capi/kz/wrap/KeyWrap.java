@@ -28,8 +28,6 @@ public class KeyWrap extends aladdin.capi.KeyWrap
     }
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() { return gost28147.keyFactory(); } 
-    // размер ключа алгоритма
-    @Override public final int[] keySizes() { return gost28147.keySizes(); }
     
 	// зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey CEK) 

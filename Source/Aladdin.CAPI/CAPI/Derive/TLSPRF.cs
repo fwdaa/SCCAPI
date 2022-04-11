@@ -24,8 +24,6 @@ namespace Aladdin.CAPI.Derive
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return macAlgorithm.KeyFactory; }} 
-        // размеры ключей
-        public override int[] KeySizes { get { return macAlgorithm.KeySizes; }} 
     
 	    // сгенерировать блок данных
 	    public override void Generate(byte[] keyValue, byte[] seed, byte[] buffer, int offset, int deriveSize)

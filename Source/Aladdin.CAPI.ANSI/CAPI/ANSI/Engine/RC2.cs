@@ -10,14 +10,23 @@ namespace Aladdin.CAPI.ANSI.Engine
         // способ кодирования чисел
         private const Math.Endian Endian = Math.Endian.LittleEndian; 
 
-        // конструктор
-        public RC2(int effectiveKeyBits) 
-        
-            // сохранить переданные параметры
-            { this.effectiveKeyBits = effectiveKeyBits; }  private int effectiveKeyBits;
+        // эффективное число битов и допустимые размеры ключей
+        private int effectiveKeyBits; private int[] keySizes;
 
+        // конструктор
+        public RC2(int effectiveKeyBits) : this(effectiveKeyBits, KeySizes.Range(1, 128)) {}
+        // конструктор
+        public RC2(int effectiveKeyBits, int[] keySizes) 
+        { 
+            // сохранить переданные параметры
+            this.effectiveKeyBits = effectiveKeyBits; this.keySizes = keySizes; 
+        } 
         // тип ключа
-        public override SecretKeyFactory KeyFactory  { get { return Keys.RC2.Instance; }}
+        public override SecretKeyFactory KeyFactory  
+        { 
+            // тип ключа
+            get { return new Keys.RC2(keySizes); }
+        }
         // размер блока
 		public override int BlockSize { get { return 8;	}}
 
@@ -31,7 +40,7 @@ namespace Aladdin.CAPI.ANSI.Engine
 			    throw new InvalidKeyException();
 		    }
             // проверить размер ключа
-            if (value.Length < 1 || value.Length > 128)
+            if (!KeySizes.Contains(KeyFactory.KeySizes, value.Length))
             {
                 // при ошибке выбросить исключение
                 throw new InvalidKeyException(); 
@@ -49,7 +58,7 @@ namespace Aladdin.CAPI.ANSI.Engine
 			    throw new InvalidKeyException();
 		    }
             // проверить размер ключа
-            if (value.Length < 1 || value.Length > 128)
+            if (!KeySizes.Contains(KeyFactory.KeySizes, value.Length))
             {
                 // при ошибке выбросить исключение
                 throw new InvalidKeyException(); 
@@ -288,7 +297,7 @@ namespace Aladdin.CAPI.ANSI.Engine
         ////////////////////////////////////////////////////////////////////////////
         public static void Test63(CAPI.Cipher engine) 
         {
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 8))
+            if (CAPI.KeySizes.Contains(engine.KeyFactory.KeySizes, 8))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
@@ -302,7 +311,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test64(CAPI.Cipher engine) 
         {
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 8))
+            int[] keySizes = engine.KeyFactory.KeySizes; 
+
+            if (CAPI.KeySizes.Contains(keySizes, 8))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff,
                 (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff
@@ -313,7 +324,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                 (byte)0x27, (byte)0x8b, (byte)0x27, (byte)0xe4, 
                 (byte)0x2e, (byte)0x2f, (byte)0x0d, (byte)0x49
             }); 
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 8))
+            if (CAPI.KeySizes.Contains(keySizes, 8))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x30, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
@@ -324,7 +335,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                 (byte)0x30, (byte)0x64, (byte)0x9e, (byte)0xdf, 
                 (byte)0x9b, (byte)0xe7, (byte)0xd2, (byte)0xc2
             }); 
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 1))
+            if (CAPI.KeySizes.Contains(keySizes, 1))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x88
             }, new byte[] {
@@ -334,7 +345,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                 (byte)0x61, (byte)0xa8, (byte)0xa2, (byte)0x44, 
                 (byte)0xad, (byte)0xac, (byte)0xcc, (byte)0xf0
             }); 
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 7))
+            if (CAPI.KeySizes.Contains(keySizes, 7))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
                 (byte)0x90, (byte)0x87, (byte)0x5a
@@ -345,7 +356,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                 (byte)0x6c, (byte)0xcf, (byte)0x43, (byte)0x08, 
                 (byte)0x97, (byte)0x4c, (byte)0x26, (byte)0x7f
             }); 
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 16))
+            if (CAPI.KeySizes.Contains(keySizes, 16))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
                 (byte)0x90, (byte)0x87, (byte)0x5a, (byte)0x7f, 
@@ -361,7 +372,7 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test128(CAPI.Cipher engine) 
         {
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 16))
+            if (CAPI.KeySizes.Contains(engine.KeyFactory.KeySizes, 16))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
                 (byte)0x90, (byte)0x87, (byte)0x5a, (byte)0x7f, 
@@ -377,7 +388,7 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test129(CAPI.Cipher engine) 
         {
-            if (CAPI.KeySizes.Contains(engine.KeySizes, 33))
+            if (CAPI.KeySizes.Contains(engine.KeyFactory.KeySizes, 33))
             CAPI.Cipher.KnownTest(engine, PaddingMode.None, new byte[] {
                 (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
                 (byte)0x90, (byte)0x87, (byte)0x5a, (byte)0x7f, 

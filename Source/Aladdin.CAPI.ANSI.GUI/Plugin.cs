@@ -24,7 +24,7 @@ namespace Aladdin.CAPI.ANSI.GUI
             if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
             {
                 // проверить возможность диалога
-                if (rand.Window == null) return new RSA.Parameters(1024, null);
+                if (rand.Window == null) return new RSA.Parameters(1024);
                 else { 
                     // создать диалог выбора параметров ключа
                     CAPI.GUI.ParametersDialog dialog = new CAPI.GUI.ParametersDialog(new RSAControl()); 

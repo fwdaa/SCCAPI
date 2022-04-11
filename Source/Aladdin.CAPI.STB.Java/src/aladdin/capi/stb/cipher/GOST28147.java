@@ -1,7 +1,6 @@
 package aladdin.capi.stb.cipher;
 import aladdin.*; 
 import aladdin.asn1.*;
-import aladdin.asn1.iso.*;
 import aladdin.asn1.stb.*;
 import aladdin.capi.*;
 import java.io.*;
@@ -11,17 +10,19 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class GOST28147 extends RefObject implements IBlockCipher
 {
-    // фабрика алгоритмов, область видимости и идентификатор таблицы подстановок
-    private final Factory factory; private final SecurityStore scope; private final String sboxOID;
+    // фабрика алгоритмов и область видимости 
+    private final Factory factory; private final SecurityStore scope; 
+    // таблицы подстановок
+    private final GOSTSBlock sbox;
 
     // конструктор
-    public GOST28147(Factory factory, SecurityStore scope, String sboxOID) throws IOException
+    public GOST28147(Factory factory, SecurityStore scope, GOSTSBlock sbox) throws IOException
     {
         // сохранить переданные параметры	
         this.factory = RefObject.addRef(factory); 
 
         // сохранить переданные параметры	
-        this.scope = RefObject.addRef(scope); this.sboxOID = sboxOID; 
+        this.scope = RefObject.addRef(scope); this.sbox = sbox; 
     } 
     // освободить выделенные ресурсы
     @Override protected void onClose() throws IOException 
@@ -33,10 +34,8 @@ public final class GOST28147 extends RefObject implements IBlockCipher
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
-    // размер ключей
-    @Override public final int[] keySizes () { return new int[] {32}; } 
     // размер блока
     @Override public final int blockSize() { return 8; } 
         
@@ -46,29 +45,23 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         // вернуть режим шифрования ECB
         if (mode instanceof CipherMode.ECB) 
         {
-            // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GOST28147_ECB), 
-                new GOSTSBlock(new ObjectIdentifier(sboxOID))
-            );
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-                
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GOST28147_ECB, sbox, Cipher.class
+            ); 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
         }
         if (mode instanceof CipherMode.CFB) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GOST28147_CFB), 
-                new GOSTParams(new OctetString(((CipherMode.CFB)mode).iv()), 
-                    new GOSTSBlock(new ObjectIdentifier(sboxOID))
-                )
-            );
+            IEncodable parameters = new GOSTParams(
+                new OctetString(((CipherMode.CFB)mode).iv()), sbox
+            ); 
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-                
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GOST28147_CFB, parameters, Cipher.class
+            ); 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
             
@@ -82,15 +75,13 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.CTR) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GOST28147_CTR), 
-                new GOSTParams(new OctetString(((CipherMode.CTR)mode).iv()), 
-                    new GOSTSBlock(new ObjectIdentifier(sboxOID))
-                )
+            IEncodable parameters = new GOSTParams(
+                new OctetString(((CipherMode.CTR)mode).iv()), sbox
             );
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-                
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GOST28147_CTR, parameters, Cipher.class
+            ); 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
 

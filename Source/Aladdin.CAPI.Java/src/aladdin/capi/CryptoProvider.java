@@ -73,18 +73,11 @@ public abstract class CryptoProvider extends Factory implements IProvider, IRand
     public String[] generatedKeys(SecurityStore store) 
     { 
         // получить поддерживаемые ключи
-        KeyFactory[] keyFactories = keyFactories(); 
-
-        // создать список ключей
-        String[] keyOIDs = new String[keyFactories.length]; 
-
-        // для всех подеерживаемых ключей
-        for (int i = 0; i < keyFactories.length; i++)
-        {
-            // добавить ключ в список
-            keyOIDs[i] = keyFactories[i].keyOID(); 
-        }
-        return keyOIDs;  
+        @SuppressWarnings({"rawtypes", "unchecked"}) 
+        List<String> keyOIDs = new ArrayList(keyFactories().values()); 
+        
+        // вернуть поддерживаемые ключи
+        return keyOIDs.toArray(new String[keyOIDs.size()]); 
     } 
     ///////////////////////////////////////////////////////////////////////
 	// Иерархическое перечисление объектов

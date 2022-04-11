@@ -36,8 +36,6 @@ namespace Aladdin.CAPI.MAC
 	
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return modeCBC.KeyFactory; }} 
-	    // размер ключей
-	    public override int[] KeySizes { get { return modeCBC.KeySizes; }}
 	    // размер блока в байтах
 	    public override int BlockSize { get { return modeCBC.BlockSize; }}
 

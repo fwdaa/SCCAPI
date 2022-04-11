@@ -67,8 +67,6 @@ namespace Aladdin { namespace CAPI { namespace CSP
 
 		// тип ключа
 		public: virtual property SecretKeyFactory^ KeyFactory { SecretKeyFactory^ get() = 0; }
-		// размер ключа в байтах
-		public: virtual property array<int>^ KeySizes { array<int>^ get() = 0; }
 		// размер блока
 		public: virtual property int BlockSize { int get()  = 0; }
 
@@ -113,12 +111,6 @@ namespace Aladdin { namespace CAPI { namespace CSP
 		{ 
 			// тип ключа
 			SecretKeyFactory^ get() override { return blockCipher->KeyFactory; } 
-		}
-		// размер ключа в байтах
-		public: virtual property array<int>^ KeySizes 
-		{ 
-			// размер ключа в байтах
-			array<int>^ get() override { return blockCipher->KeySizes; }
 		}
 		// размер блока
 		public: virtual property int BlockSize 

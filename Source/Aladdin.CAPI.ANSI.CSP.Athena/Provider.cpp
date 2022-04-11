@@ -13,12 +13,9 @@
 ///////////////////////////////////////////////////////////////////////////
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Athena::Provider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; 
-
 	// для алгоритмов подписи
 	if (type == SignData::typeid)
 	{
@@ -34,5 +31,5 @@ Aladdin::CAPI::ANSI::CSP::Athena::Provider::CreateAlgorithm(
 		if (oid == ASN1::ANSI::OID::ssig_rsa_md4) return nullptr;
 	}
 	// вызвать базовую функцию
-	return AESEnhancedProvider::CreateAlgorithm(factory, scope, parameters, type); 
+	return AESEnhancedProvider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }

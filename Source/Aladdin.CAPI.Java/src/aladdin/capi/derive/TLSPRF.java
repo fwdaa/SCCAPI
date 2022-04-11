@@ -28,8 +28,6 @@ public class TLSPRF extends PRF
     }
     // тип ключа
     @Override public SecretKeyFactory keyFactory() { return macAlgorithm.keyFactory(); } 
-    // размеры ключей
-    @Override public int[] keySizes() { return macAlgorithm.keySizes(); } 
     
     // сгенерировать блок данных
     @Override

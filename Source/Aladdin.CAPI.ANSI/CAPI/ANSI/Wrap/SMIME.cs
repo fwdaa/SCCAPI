@@ -8,20 +8,22 @@ namespace Aladdin.CAPI.ANSI.Wrap
     ///////////////////////////////////////////////////////////////////////////
     public class SMIME : KeyWrap
     {
-        // блочный алгоритм шифрования и его CBC-режим
-	    private IBlockCipher blockCipher; private CAPI.Cipher modeCBC; 
+        // блочный алгоритм шифрования
+	    private IBlockCipher blockCipher; 
+		// размер ключа и режим CBC
+		private int keyLength; private CAPI.Cipher modeCBC; 
  
 	    // конструктор 
-	    public SMIME(IBlockCipher blockCipher, byte[] iv) 
+	    public SMIME(IBlockCipher blockCipher, int keyLength, byte[] iv) 
         {
+            // сохранить переданные параметры
+            this.blockCipher = RefObject.AddRef(blockCipher); this.keyLength = keyLength; 
+
             // указать режим алгоритма
             CipherMode cipherMode = new CipherMode.CBC(iv); 
         
             // создать режим шифрования
             modeCBC = blockCipher.CreateBlockMode(cipherMode); 
-
-            // сохранить переданные параметры
-            this.blockCipher = RefObject.AddRef(blockCipher); 
         }
         // освободить выделенные ресурсы
         protected override void OnDispose()
@@ -30,10 +32,14 @@ namespace Aladdin.CAPI.ANSI.Wrap
             RefObject.Release(modeCBC); RefObject.Release(blockCipher); base.OnDispose();
         }
         // тип ключа
-        public override SecretKeyFactory KeyFactory  { get { return modeCBC.KeyFactory; }}
-        // размер ключей
-	    public override int[] KeySizes { get { return modeCBC.KeySizes; }}
-
+        public override SecretKeyFactory KeyFactory  { get 
+		{ 
+            // проверить изменение размера 
+            if (keyLength == 0) return blockCipher.KeyFactory; 
+        
+            // указать используемый размер
+            return blockCipher.KeyFactory.Narrow(new int[] {keyLength}); 
+		}}
 	    // зашифровать ключ
 	    public override byte[] Wrap(IRand rand, ISecretKey key, ISecretKey wrappedKey)
 	    {

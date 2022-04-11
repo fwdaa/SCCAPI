@@ -13,21 +13,20 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		protected: static const Math::Endian Endian = Math::Endian::LittleEndian; 
 
 		// конструктор
-		public: Provider(DWORD type, String^ name, bool sspi) : Microsoft::Provider(type, name, sspi) {}
-
+		public: Provider(DWORD type, String^ name, bool sspi) : Microsoft::Provider(type, name, sspi) 
+		{
+			// заполнить список фабрик кодирования ключей
+			KeyFactories()->Add(ASN1::ANSI::OID::x942_dh_public_key, 
+				gcnew ANSI::X942::KeyFactory(ASN1::ANSI::OID::x942_dh_public_key) 
+			); 
+			KeyFactories()->Add(ASN1::ANSI::OID::x957_dsa, 
+				gcnew ANSI::X957::KeyFactory(ASN1::ANSI::OID::x957_dsa)
+			); 
+		}
 		// вернуть тип ключа
 		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(
 			SecretKeyFactory^ keyFactory, DWORD keySize) override;
 
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<KeyFactory^>^ KeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<KeyFactory^> { 
-				gcnew ANSI::X942::KeyFactory(ASN1::ANSI::OID::x942_dh_public_key), 
-				gcnew ANSI::X957::KeyFactory(ASN1::ANSI::OID::x957_dsa          )
-			}; 
-		}
 		// перечислить хранилища контейнеров
 		public: virtual array<String^>^ EnumerateStores(Scope scope) override
 		{
@@ -62,8 +61,8 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+			Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, System::Type^ type) override;
 
 		// импортировать пару ключей
 		public protected: virtual CAPI::CSP::KeyHandle^ ImportKeyPair(

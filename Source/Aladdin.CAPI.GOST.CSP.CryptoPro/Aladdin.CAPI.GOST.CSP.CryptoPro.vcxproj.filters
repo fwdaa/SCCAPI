@@ -34,9 +34,6 @@
     <Filter Include="Source Files\Hash">
       <UniqueIdentifier>{18be5a32-e574-4216-9cd5-73c59664eeb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\MAC">
-      <UniqueIdentifier>{3b1d3ba3-1a7a-4ed6-9474-c42e9eea0fb1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Wrap">
       <UniqueIdentifier>{bb37385e-9d33-4476-ac57-77a32d01b787}</UniqueIdentifier>
     </Filter>
@@ -67,6 +64,9 @@
     <Filter Include="Source Files\Keyx\GOSTR3410">
       <UniqueIdentifier>{8115a092-26e7-41a8-9fbb-f123679181bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Keyx\MAC">
+      <UniqueIdentifier>{3b1d3ba3-1a7a-4ed6-9474-c42e9eea0fb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Container.cpp">
@@ -91,10 +91,10 @@
       <Filter>Source Files\Hash</Filter>
     </ClCompile>
     <ClCompile Include="MAC\HMAC_GOSTR3411_1994.cpp">
-      <Filter>Source Files\MAC</Filter>
+      <Filter>Source Files\Keyx\MAC</Filter>
     </ClCompile>
     <ClCompile Include="MAC\HMAC_GOSTR3411_2012.cpp">
-      <Filter>Source Files\MAC</Filter>
+      <Filter>Source Files\Keyx\MAC</Filter>
     </ClCompile>
     <ClCompile Include="Wrap\RFC4357.cpp">
       <Filter>Source Files\Wrap</Filter>
@@ -127,7 +127,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MAC\MAC_GOST28147.cpp">
-      <Filter>Source Files\MAC</Filter>
+      <Filter>Source Files\Keyx\MAC</Filter>
     </ClCompile>
     <ClCompile Include="Sign\GOSTR3410\GOSTR3410SignHash.cpp">
       <Filter>Source Files\Sign\GOSTR3410</Filter>

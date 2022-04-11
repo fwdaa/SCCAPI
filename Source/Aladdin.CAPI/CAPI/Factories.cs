@@ -96,7 +96,28 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Поддерживаемые ключи
         ///////////////////////////////////////////////////////////////////////
-	    public override KeyFactory[] KeyFactories() 
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
+        { 
+            // создать список поддерживаемых ключей
+            Dictionary<String, SecretKeyFactory> keyFactories = 
+                new Dictionary<String, SecretKeyFactory>(); 
+        
+            // для всех фабрик алгоритмов
+            foreach (Factory factory in factories)
+            {
+                // для всех поддерживаемых ключей
+                foreach (KeyValuePair<String, SecretKeyFactory> entry in factory.SecretKeyFactories())
+                {
+                    // проверить отсутствие элемента
+                    if (keyFactories.ContainsKey(entry.Key)) continue; 
+
+                    // добавить фабрику в таблицу
+                    keyFactories.Add(entry.Key, entry.Value); 
+                }
+            }
+            return keyFactories; 
+        }
+	    public override Dictionary<String, KeyFactory> KeyFactories() 
         { 
             // создать список поддерживаемых ключей
             Dictionary<String, KeyFactory> keyFactories = new Dictionary<String, KeyFactory>(); 
@@ -104,19 +125,17 @@ namespace Aladdin.CAPI
             // для всех фабрик алгоритмов
             foreach (Factory factory in factories)
             {
-                // для всех фабрик ключей
-                foreach (KeyFactory keyFactory in factory.KeyFactories())
+                // для всех поддерживаемых ключей
+                foreach (KeyValuePair<String, KeyFactory> entry in factory.KeyFactories())
                 {
-                    // при отсутствии фабрики ключей
-                    if (!keyFactories.ContainsKey(keyFactory.KeyOID))
-                    {
-                        // добавить фабрику ключей
-                        keyFactories.Add(keyFactory.KeyOID, keyFactory); 
-                    }
+                    // проверить отсутствие элемента
+                    if (keyFactories.ContainsKey(entry.Key)) continue; 
+
+                    // добавить фабрику в таблицу
+                    keyFactories.Add(entry.Key, entry.Value); 
                 }
             }
-            // создать список фабрик
-            return new List<KeyFactory>(keyFactories.Values).ToArray(); 
+            return keyFactories; 
         }
         ///////////////////////////////////////////////////////////////////////
         // Создать алгоритм генерации ключей
@@ -174,7 +193,7 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         protected internal override IAlgorithm CreateAggregatedAlgorithm(
             Factory outer, SecurityStore scope, 
-            ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+            string oid, ASN1.IEncodable parameters, Type type)
         {
             if (scope == null) 
             {
@@ -186,7 +205,7 @@ namespace Aladdin.CAPI
                 
                     // создать алгоритм
                     IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
-                        outer, scope, parameters, type
+                        outer, scope, oid, parameters, type
                     );
                     // проверить наличие алгоритма
                     if (algorithm != null) return algorithm;
@@ -199,7 +218,7 @@ namespace Aladdin.CAPI
 
                     // создать алгоритм
                     IAlgorithm algorithm = factory.CreateAggregatedAlgorithm(
-                        outer, scope, parameters, type
+                        outer, scope, oid, parameters, type
                     );
                     // проверить наличие алгоритма
                     if (algorithm != null) return algorithm;
@@ -213,7 +232,7 @@ namespace Aladdin.CAPI
 
                 // создать алгоритм
                 IAlgorithm algorithm = provider.CreateAggregatedAlgorithm(
-                    outer, scope, parameters, type
+                    outer, scope, oid, parameters, type
                 );
                 // проверить наличие алгоритма
                 if (algorithm != null) return algorithm;

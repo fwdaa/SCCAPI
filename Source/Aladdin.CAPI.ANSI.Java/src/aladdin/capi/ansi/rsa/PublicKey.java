@@ -19,7 +19,7 @@ public class PublicKey extends aladdin.capi.PublicKey implements IPublicKey
 		super(keyFactory); this.modulus = modulus; this.publicExponent = publicExponent;
 	}
     // параметры ключа
-	@Override public final IParameters parameters() 
+	@Override public final aladdin.capi.IParameters parameters() 
     { 
         // параметры ключа
         return new Parameters(modulus.bitLength(), publicExponent); 

@@ -1,10 +1,13 @@
 package aladdin.capi.environment;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры приложения
 ///////////////////////////////////////////////////////////////////////////
-public class ConfigSection 
+public class ConfigSection implements Serializable 
 {
+    private static final long serialVersionUID = -8927604509474079208L;
+    
 	// фабрики алгоритмов и генераторы случайных данных
     private final ConfigFactory[] factories; private final ConfigRandFactory[] rands; 
 	// расширения криптографических культур

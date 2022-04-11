@@ -11,8 +11,6 @@ public abstract class KeyWrap extends RefObject implements IAlgorithm
 { 
     // тип ключа
     public SecretKeyFactory keyFactory() { return SecretKeyFactory.GENERIC; }
-    // размер используемого ключа
-    public int[] keySizes() { return keyFactory().keySizes(); } 
     
 	// зашифровать ключ
 	public abstract byte[] wrap(IRand rand, ISecretKey key, ISecretKey CEK) 

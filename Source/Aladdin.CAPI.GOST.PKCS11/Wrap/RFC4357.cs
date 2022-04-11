@@ -69,9 +69,7 @@ namespace Aladdin.CAPI.GOST.PKCS11.Wrap
 			}; 
 		}
         // тип ключей
-        public override SecretKeyFactory KeyFactory { get { return Keys.GOST28147.Instance; }}
-		// размер ключа в байтах
-		public override int[] KeySizes { get { return new int[] {32}; }}
+        public override SecretKeyFactory KeyFactory { get { return Keys.GOST.Instance; }}
 
 	    public override byte[] Wrap(IRand rand, ISecretKey KEK, ISecretKey CEK) 
         {

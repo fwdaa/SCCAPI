@@ -40,11 +40,8 @@ namespace Aladdin.CAPI.GOST.PKCS11
             {
                 for (int i = 0; i < sboxOIDs.Length; i++)
                 {
-                    using (IBlockCipher gost28147 = new Cipher.GOST28147(applet, sboxOIDs[i]))
-                    {
-                        // выполнить тест
-                        TestGOST28147(applet.Provider, applet, gost28147, sboxOIDs[i]);                     
-                    }
+                    // выполнить тест
+                    TestGOST28147(applet.Provider, applet, sboxOIDs[i]);                     
                 }
             }
             // при поддержке алгоритма

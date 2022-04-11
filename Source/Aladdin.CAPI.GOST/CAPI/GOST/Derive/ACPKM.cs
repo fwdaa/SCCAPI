@@ -24,8 +24,6 @@ namespace Aladdin.CAPI.GOST.Derive
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return cipher.KeyFactory; }} 
-        // размер используемых ключей
-        public override int[] KeySizes { get { return cipher.KeySizes; }}
 
 	    // наследовать ключ
 	    public override ISecretKey DeriveKey(ISecretKey key, 

@@ -30,8 +30,6 @@ public class RFC4357 extends KeyDerive
     }
     // тип ключа
     @Override public SecretKeyFactory keyFactory() { return gost28147.keyFactory(); } 
-    // размер используемых ключей
-    @Override public final int[] keySizes() { return gost28147.keySizes(); }
 
 	// наследовать ключ
 	@Override public ISecretKey deriveKey(ISecretKey key, 

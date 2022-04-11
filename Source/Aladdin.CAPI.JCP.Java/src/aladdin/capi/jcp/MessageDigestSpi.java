@@ -1,4 +1,5 @@
 package aladdin.capi.jcp;
+import aladdin.*;
 import aladdin.capi.*; 
 import java.security.*; 
 import java.security.spec.*;
@@ -9,41 +10,43 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class MessageDigestSpi extends java.security.MessageDigestSpi implements Closeable
 {
-    // используемый провайдер и номер слота
-	private final Provider provider; private final int slot;
+    // используемый провайдер и номер слота 
+	private final Provider provider; private final int slot; 
+    // имя алгоритма и алгоритм хэширования
+    private final String name; private Hash hashAlgorithm; 
 	
 	// конструктор
-	public MessageDigestSpi(Provider provider, int slot) 
+	public MessageDigestSpi(Provider provider, String name) 
 	{ 
         // сохранить переданные параметры
-        this.provider = provider; this.slot = slot; 
+        this.provider = provider; this.slot = provider.addObject(this); 
+        
+        // сохранить переданные параметры
+        this.name = name; hashAlgorithm = null; 
 	} 
     // освободить выделенные ресурсы
-    @Override public void close() { provider.clearObject(slot); }
-    
+    @Override public void close() throws IOException
+    { 
+        // освободить выделенные ресурсы
+        RefObject.release(hashAlgorithm); provider.removeObject(slot); 
+    }
     // инициализировать алгоритм
 	protected void engineInit(AlgorithmParameterSpec paramSpec) 
 		throws InvalidAlgorithmParameterException 
 	{
-        // получить фабрику алгоритмов
-        Factory factory = provider.getFactory(); 
         try {
             // создать параметры алгоритма
-            AlgorithmParametersSpi parameters = 
-                AlgorithmParametersSpi.create(provider, paramSpec); 
+            AlgorithmParametersSpi parameters = provider.createParameters(name, paramSpec); 
             
             // создать алгоритм хэширования
-            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                parameters.getScope(), parameters.getEncodable(), Hash.class))
+            try (Hash hashAlgorithm = (Hash)provider.factory().createAlgorithm(
+                parameters.getScope(), name, parameters.getEncodable(), Hash.class))
             {
                 // проверить наличие алгоритма
                 if (hashAlgorithm == null) throw new InvalidAlgorithmParameterException(); 
                 
                 // инициализировать алгоритм
-                hashAlgorithm.init(); hashAlgorithm.addRef();
-                
-                // сохранить алгоритм хэширования
-                provider.setObject(slot, hashAlgorithm); 
+                hashAlgorithm.init(); this.hashAlgorithm = RefObject.addRef(hashAlgorithm);
             }
         }
         // обработать возможную ошибку
@@ -54,16 +57,10 @@ public final class MessageDigestSpi extends java.security.MessageDigestSpi imple
         }
         // обработать возможную ошибку
         catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
-
-		// проверить наличие алгоритма
-		engineReset(); 
     }
     // определить размер хэш-значения
 	@Override protected final int engineGetDigestLength() 
     { 
-        // получить алгоритм
-        Hash hashAlgorithm = (Hash)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
         if (hashAlgorithm == null) throw new IllegalStateException(); 
         
@@ -73,9 +70,6 @@ public final class MessageDigestSpi extends java.security.MessageDigestSpi imple
     // переустановить алгоритм 
 	@Override protected final void engineReset() 
     { 
-        // получить алгоритм
-        Hash hashAlgorithm = (Hash)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
         if (hashAlgorithm == null) throw new IllegalStateException(); 
         
@@ -94,9 +88,6 @@ public final class MessageDigestSpi extends java.security.MessageDigestSpi imple
     // захэшировать данные
 	@Override protected final void engineUpdate(byte[] input, int offset, int len) 
 	{
-        // получить алгоритм
-        Hash hashAlgorithm = (Hash)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
         if (hashAlgorithm == null) throw new IllegalStateException(); 
         
@@ -109,9 +100,6 @@ public final class MessageDigestSpi extends java.security.MessageDigestSpi imple
     // получить хэш-значение
 	@Override protected final byte[] engineDigest() 
 	{
-        // получить алгоритм
-        Hash hashAlgorithm = (Hash)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
         if (hashAlgorithm == null) throw new IllegalStateException(); 
         

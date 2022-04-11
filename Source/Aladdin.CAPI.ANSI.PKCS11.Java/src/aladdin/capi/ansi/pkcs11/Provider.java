@@ -7,7 +7,6 @@ import aladdin.asn1.iso.pkcs.pkcs5.*;
 import aladdin.asn1.ansi.*;
 import aladdin.asn1.ansi.rsa.*;
 import aladdin.capi.*;
-import aladdin.capi.pbe.*;
 import aladdin.capi.pkcs11.*;
 import aladdin.capi.pkcs11.Attribute;
 import aladdin.pkcs11.*;
@@ -23,6 +22,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     // возможность импорта ключевой пары в память
     private final Module module; private final boolean canImport; 
     
+    // фабрики кодирования ключей 
+    private final Map<String, SecretKeyFactory> secretKeyFactories; 
+    private final Map<String, KeyFactory      > keyFactories; 
+    
 	// конструктор
 	public Provider(String name, boolean canImport) { this(null, name, canImport); }
         
@@ -31,6 +34,40 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     { 
         // сохранить переданне параметры
         super(name); this.module = module; this.canImport = canImport;
+        
+        // создать список фабрик кодирования ключей
+        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
+        
+        // заполнить список фабрик кодирования ключей
+        secretKeyFactories.put("RC2"   , new aladdin.capi.ansi.keys.RC2 ()); 
+        secretKeyFactories.put("RC4"   , new aladdin.capi.ansi.keys.RC4 ()); 
+        secretKeyFactories.put("RC5"   , new aladdin.capi.ansi.keys.RC5 ()); 
+        secretKeyFactories.put("DES"   , new aladdin.capi.ansi.keys.DES ()); 
+        secretKeyFactories.put("DESede", new aladdin.capi.ansi.keys.TDES()); 
+        secretKeyFactories.put("AES"   , new aladdin.capi.ansi.keys.AES ()); 
+        
+        // создать список фабрик кодирования ключей
+        keyFactories = new HashMap<String, KeyFactory>(); 
+
+        // заполнить список фабрик кодирования ключей
+        keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA, 
+            new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA)
+        ); 
+        keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP, 
+            new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP)
+        ); 
+        keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS, 
+            new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)
+        ); 
+        keyFactories.put(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY, 
+            new aladdin.capi.ansi.x942.KeyFactory(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY)
+        ); 
+        keyFactories.put(aladdin.asn1.ansi.OID.X957_DSA, 
+            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X957_DSA)
+        ); 
+        keyFactories.put(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY, 
+            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)
+        ); 
     }
     // интерфейс вызова функций
     @Override public Module module() { return module; }
@@ -48,28 +85,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         // тип структуры передачи параметров механизма PBKDF2
         return aladdin.capi.pkcs11.pbe.PBKDF2.ParametersType.PARAMS2; 
     }
-	@Override public SecretKeyFactory[] secretKeyFactories() 
-	{
-        // вернуть список фабрик
-        return new SecretKeyFactory[] {
-            aladdin.capi.ansi.keys.AES .INSTANCE, 
-            aladdin.capi.ansi.keys.TDES.INSTANCE, 
-            aladdin.capi.ansi.keys.DES .INSTANCE, 
-            aladdin.capi.ansi.keys.RC2 .INSTANCE, 
-            aladdin.capi.ansi.keys.RC4 .INSTANCE, 
-            aladdin.capi.ansi.keys.RC5 .INSTANCE 
-        }; 
-	}
-    @Override public KeyFactory[] keyFactories() 
-    {
-        // вернуть список фабрик
-        return new KeyFactory[] {
-            new aladdin.capi.ansi.rsa .KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA     ), 
-            new aladdin.capi.ansi.x942.KeyFactory(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY),
-            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X957_DSA          ),
-            new aladdin.capi.ansi.x962.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)
-        }; 
-    }
+	// Поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
+	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+    
 	@Override public String[] generatedKeys(SecurityStore scope) 
 	{
         // проверить область видимости
@@ -314,12 +333,12 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         long type = 0; 
         
         // указать тип ключа
-        if (keyFactory == aladdin.capi.ansi.keys.RC2 .INSTANCE) type = API.CKK_RC2; else 
-        if (keyFactory == aladdin.capi.ansi.keys.RC4 .INSTANCE) type = API.CKK_RC4; else 
-        if (keyFactory == aladdin.capi.ansi.keys.RC5 .INSTANCE) type = API.CKK_RC5; else 
-        if (keyFactory == aladdin.capi.ansi.keys.DES .INSTANCE) type = API.CKK_DES; else 
-        if (keyFactory == aladdin.capi.ansi.keys.AES .INSTANCE) type = API.CKK_AES; else 
-        if (keyFactory == aladdin.capi.ansi.keys.TDES.INSTANCE)
+        if (keyFactory instanceof aladdin.capi.ansi.keys.RC2 ) type = API.CKK_RC2; else 
+        if (keyFactory instanceof aladdin.capi.ansi.keys.RC4 ) type = API.CKK_RC4; else 
+        if (keyFactory instanceof aladdin.capi.ansi.keys.RC5 ) type = API.CKK_RC5; else 
+        if (keyFactory instanceof aladdin.capi.ansi.keys.DES ) type = API.CKK_DES; else 
+        if (keyFactory instanceof aladdin.capi.ansi.keys.AES ) type = API.CKK_AES; else 
+        if (keyFactory instanceof aladdin.capi.ansi.keys.TDES)
         {
             // указать тип ключа
             type = (keySize == 16) ? API.CKK_DES2 : API.CKK_DES3; 
@@ -338,9 +357,9 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         // проверить тип параметров
         if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA))
         {
-            // преобразовать тип параметров
+            // получить параметры алгоритма RSA
             aladdin.capi.ansi.rsa.IParameters rsaParameters = 
-                (aladdin.capi.ansi.rsa.IParameters)parameters;
+                aladdin.capi.ansi.rsa.Parameters.convert(parameters); 
             
             // указать идентификатор алгоритма
             long algID = API.CKM_RSA_PKCS_KEY_PAIR_GEN; 
@@ -434,11 +453,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     }
 	// создать алгоритм для параметров
 	@Override protected IAlgorithm createAlgorithm(Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
-        // определить идентификатор алгоритма
-		String oid = parameters.algorithm().value(); for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 1; i++)
         {
             // для алгоритмов хэширования
             if (type.equals(aladdin.capi.Hash.class))
@@ -628,7 +646,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_MAC))
                 {
                     // раскодировать размер имитовставки
-                    Integer bits = new Integer(parameters.parameters()); 
+                    Integer bits = new Integer(parameters); 
 
                     // проверить корректность размера
                     if ((bits.value().intValue() % 8) != 0) break; 
@@ -762,10 +780,10 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_ECB))
                 { 
                     // проверить указание параметров алгоритма
-                    int keyBits = 32; if (Encodable.isNullOrEmpty(parameters.parameters()))
+                    int keyBits = 32; if (Encodable.isNullOrEmpty(parameters))
                     {
                         // раскодировать параметры алгоритма
-                        aladdin.asn1.Integer version = new aladdin.asn1.Integer(parameters.parameters());
+                        aladdin.asn1.Integer version = new aladdin.asn1.Integer(parameters);
 
                         // определить число битов
                         keyBits = RC2ParameterVersion.getKeyBits(version); 
@@ -780,7 +798,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) return null; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC4)) 
@@ -797,8 +815,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC))
                 {
                     // раскодировать параметры алгоритма
-                    RC5CBCParameter cipherParameters = 
-                        new RC5CBCParameter(parameters.parameters());
+                    RC5CBCParameter cipherParameters = new RC5CBCParameter(parameters);
                     
                     // определить размер блока
                     int blockSize = cipherParameters.blockSize().value().intValue(); 
@@ -820,8 +837,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC_PAD))
                 {
                     // раскодировать параметры алгоритма
-                    RC5CBCParameter cipherParameters = 
-                        new RC5CBCParameter(parameters.parameters());
+                    RC5CBCParameter cipherParameters = new RC5CBCParameter(parameters);
 
                     // определить размер блока
                     int blockSize = cipherParameters.blockSize().value().intValue(); 
@@ -852,7 +868,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_ECB)) 
@@ -878,13 +894,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
                     
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_DES_CBC, iv.value()); 
@@ -896,13 +912,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
 
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_DES_CBC, iv.value()); 
@@ -916,7 +932,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_CBC_PAD)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
 
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_DES_CBC_PAD, iv.value()); 
@@ -930,7 +946,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_OFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter cipherParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter cipherParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (cipherParameters.numberOfBits().value().intValue() == 64) 
@@ -962,7 +978,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_CFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter algParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter algParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (algParameters.numberOfBits().value().intValue() == 64) 
@@ -1004,7 +1020,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                         
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_ECB))
@@ -1021,7 +1037,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_TDES192_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
                     
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_DES3_CBC, iv.value()); 
@@ -1033,13 +1049,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
                     
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_DES3_CBC, iv.value()); 
@@ -1053,7 +1069,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_CBC_PAD)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
                     
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_DES3_CBC_PAD, iv.value()); 
@@ -1076,13 +1092,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
 
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_AES_CBC, iv.value()); 
@@ -1094,13 +1110,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_CFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter cipherParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter cipherParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (cipherParameters.numberOfBits().value().intValue() == 128)
@@ -1159,7 +1175,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_OFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter cipherParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter cipherParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (cipherParameters.numberOfBits().value().intValue() == 128) 
@@ -1188,13 +1204,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
 
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_AES_CBC, iv.value()); 
@@ -1206,13 +1222,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_CFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter cipherParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter cipherParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (cipherParameters.numberOfBits().value().intValue() == 128)
@@ -1271,7 +1287,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_OFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter algParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter algParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (algParameters.numberOfBits().value().intValue() == 128) 
@@ -1300,13 +1316,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    OctetString iv = new OctetString(parameters.parameters()); 
+                    OctetString iv = new OctetString(parameters); 
 
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_AES_CBC, iv.value()); 
@@ -1318,13 +1334,13 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                         if (cipher == null) break; 
                     
                         // изменить режим дополнения
-                        return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_CFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter cipherParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter cipherParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (cipherParameters.numberOfBits().value().intValue() == 128)
@@ -1383,7 +1399,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_OFB)) 
                 {
                     // раскодировать параметры алгоритма
-                    FBParameter cipherParameters = new FBParameter(parameters.parameters()); 
+                    FBParameter cipherParameters = new FBParameter(parameters); 
 
                     // проверить корректность параметров
                     if (cipherParameters.numberOfBits().value().intValue() == 128) 
@@ -1404,7 +1420,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_DES_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
                     
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_MD2_DES_CBC; 
@@ -1436,7 +1452,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_DES_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_MD5_DES_CBC; 
@@ -1467,7 +1483,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_128)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_SHA1_RC4_128; 
@@ -1498,7 +1514,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_40)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_SHA1_RC4_40; 
@@ -1529,7 +1545,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_128_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_SHA1_RC2_128_CBC; 
@@ -1561,7 +1577,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_40_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_SHA1_RC2_40_CBC; 
@@ -1593,7 +1609,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_192_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_SHA1_DES3_EDE_CBC; 
@@ -1624,7 +1640,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_128_CBC)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                    PBEParameter pbeParameters = new PBEParameter(parameters);
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_PBE_SHA1_DES2_EDE_CBC; 
@@ -1659,7 +1675,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBKDF2)) 
                 {
                     // раскодировать параметры алгоритма
-                    PBKDF2Parameter pbeParameters = new PBKDF2Parameter(parameters.parameters());
+                    PBKDF2Parameter pbeParameters = new PBKDF2Parameter(parameters);
 
                     // при указании размерап ключа
                     long prf; int keySize = -1; if (pbeParameters.keyLength() != null)
@@ -1796,7 +1812,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP))
                 {
                     // раскодировать параметры
-                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters.parameters());
+                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters);
 
                     // извлечь идентификатор алгоритма хэширования
                     String hashOID = oaepParameters.hashAlgorithm().algorithm().value(); long hashAlg;
@@ -1867,7 +1883,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP)) 
                 {
                     // раскодировать параметры
-                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters.parameters());
+                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters);
                     
                     // извлечь идентификатор алгоритма хэширования
                     String hashOID = oaepParameters.hashAlgorithm().algorithm().value(); long hashAlg;
@@ -1936,7 +1952,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
                 {
                     // раскодировать параметры алгоритма
-                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
 
                     // проверить вид завершителя
                     if (pssParameters.trailerField().value().intValue() != 1) break; 
@@ -2030,7 +2046,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
                 {
                     // раскодировать параметры алгоритма
-                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
 
                     // проверить вид завершителя
                     if (pssParameters.trailerField().value().intValue() != 1) break; 
@@ -2256,7 +2272,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
                 {
                     // раскодировать параметры алгоритма
-                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
 
                     // проверить вид завершителя
                     if (pssParameters.trailerField().value().intValue() != 1) break; long algID; 
@@ -2600,7 +2616,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
                 {
                     // раскодировать параметры алгоритма
-                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
 
                     // проверить вид завершителя
                     if (pssParameters.trailerField().value().intValue() != 1) break; long algID;
@@ -2826,8 +2842,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                     oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
                     
                     // указать идентификатор алгоритма
                     long algID = API.CKM_X9_42_DH_DERIVE; long kdf = API.CKD_SHA1_KDF_ASN1; 
@@ -2840,8 +2855,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.X963_ECDH_STD_SHA1))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
                     
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_DERIVE; long kdf = API.CKD_SHA1_KDF; 
@@ -2854,8 +2868,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_224))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
                     
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_DERIVE; long kdf = API.CKD_SHA224_KDF; 
@@ -2868,8 +2881,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_256))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_DERIVE; long kdf = API.CKD_SHA256_KDF; 
@@ -2882,8 +2894,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_384))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_DERIVE; long kdf = API.CKD_SHA384_KDF; 
@@ -2896,8 +2907,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_512))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_DERIVE; long kdf = API.CKD_SHA512_KDF; 
@@ -2910,8 +2920,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.X963_ECDH_COFACTOR_SHA1))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_COFACTOR_DERIVE; long kdf = API.CKD_SHA1_KDF; 
@@ -2924,8 +2933,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_224))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_COFACTOR_DERIVE; long kdf = API.CKD_SHA224_KDF; 
@@ -2938,8 +2946,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_256))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_COFACTOR_DERIVE; long kdf = API.CKD_SHA256_KDF; 
@@ -2952,8 +2959,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_384))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_COFACTOR_DERIVE; long kdf = API.CKD_SHA384_KDF; 
@@ -2966,8 +2972,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_512))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать идентификатор алгоритма
                     long algID = API.CKM_ECDH1_COFACTOR_DERIVE; long kdf = API.CKD_SHA512_KDF; 
@@ -2980,6 +2985,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
             }
         }
         // вызвать базовую функцию
-        return aladdin.capi.ansi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+        return aladdin.capi.ansi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 }

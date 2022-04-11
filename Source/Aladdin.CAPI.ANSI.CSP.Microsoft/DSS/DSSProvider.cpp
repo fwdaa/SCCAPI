@@ -23,19 +23,19 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::GetSecretKeyType(
 	SecretKeyFactory^ keyFactory, DWORD keySize)
 {$
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::DES ::Instance)) 
+	if (dynamic_cast<Keys::DES^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_DES); 
 	}
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::RC4::Instance)) 
+	if (dynamic_cast<Keys::RC4^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_RC4);
 	}
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::RC2::Instance)) 
+	if (dynamic_cast<Keys::RC2^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_RC2);
@@ -440,11 +440,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::CreateGenerator(
 
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов подписи
 		if (type == SignHash::typeid)
@@ -472,7 +471,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -495,6 +494,6 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::CreateAlgorithm(
 		}
 	}
 	// вызвать базовую функцию
-	return Microsoft::Provider::CreateAlgorithm(factory, scope, parameters, type); 
+	return Microsoft::Provider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }
 

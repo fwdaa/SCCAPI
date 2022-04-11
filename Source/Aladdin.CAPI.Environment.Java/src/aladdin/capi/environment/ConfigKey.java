@@ -1,10 +1,13 @@
 package aladdin.capi.environment;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент описания идентификатора ключа
 ///////////////////////////////////////////////////////////////////////////
-public class ConfigKey 
+public class ConfigKey implements Serializable
 {
+    private static final long serialVersionUID = 3054550240494822911L;
+    
     // идентификатор ключа, отображаемое имя
     private final String oid; private final String name; 
     // имя расширения и класс культуры 

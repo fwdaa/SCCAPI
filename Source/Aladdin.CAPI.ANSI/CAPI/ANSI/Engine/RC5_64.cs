@@ -10,11 +10,23 @@ namespace Aladdin.CAPI.ANSI.Engine
         // способ кодирования чисел
         private const Math.Endian Endian = Math.Endian.LittleEndian; 
     
-        // конструктор
-        public RC5_64(int rounds) { this.rounds = rounds; } private int rounds;
+        // число раундов и допустимые размеры ключей
+        private int rounds; private int[] keySizes;
 
+        // конструктор
+        public RC5_64(int rounds) : this(rounds, KeySizes.Range(1, 256)) {}
+        // конструктор
+        public RC5_64(int rounds, int[] keySizes) 
+        { 
+            // сохранить переданные параметры
+            this.rounds = rounds; this.keySizes = keySizes; 
+        } 
         // тип ключа
-        public override SecretKeyFactory KeyFactory  { get { return Keys.RC5.Instance; }}
+        public override SecretKeyFactory KeyFactory  
+        { 
+            // тип ключа
+            get { return new Keys.RC5(keySizes); }
+        }
         // размер блока
 		public override int BlockSize { get { return 8; }}
 
@@ -28,8 +40,11 @@ namespace Aladdin.CAPI.ANSI.Engine
 			    throw new InvalidKeyException();
 		    }
             // проверить размер ключа
-            if (value.Length >= 256) throw new InvalidKeyException();
-
+            if (!KeySizes.Contains(KeyFactory.KeySizes, value.Length))
+            {
+                // при ошибке выбросить исключение
+                throw new InvalidKeyException(); 
+            }
             // вернуть алгоритм зашифрования блока данных
 		    return new Encryption(key, rounds); 
 		}
@@ -43,8 +58,11 @@ namespace Aladdin.CAPI.ANSI.Engine
 			    throw new InvalidKeyException();
 		    }
             // проверить размер ключа
-            if (value.Length >= 256) throw new InvalidKeyException();
-
+            if (!KeySizes.Contains(KeyFactory.KeySizes, value.Length))
+            {
+                // при ошибке выбросить исключение
+                throw new InvalidKeyException(); 
+            }
 		    // вернуть алгоритм расшифрования блока данных
 		    return new Decryption(key, rounds); 
 		}
@@ -196,6 +214,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         ////////////////////////////////////////////////////////////////////////////
         public static void Test0(IBlockCipher blockCipher) 
         {
+            // определить допустимые размеры ключей
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             // указать требуемый режим
             CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -205,7 +226,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -215,7 +236,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x7a, (byte)0x7b, (byte)0xba, (byte)0x4d, 
                     (byte)0x79, (byte)0x11, (byte)0x1d, (byte)0x1e
                 }); 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -225,7 +246,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x7a, (byte)0x7b, (byte)0xba, (byte)0x4d, 
                     (byte)0x79, (byte)0x11, (byte)0x1d, (byte)0x1f
                 }); 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -245,7 +266,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -265,7 +286,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -279,6 +300,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test1(IBlockCipher blockCipher) 
         {
+            // определить допустимые размеры ключей
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             // указать требуемый режим
             CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -288,7 +312,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x11 
                 }, new byte[] { 
@@ -302,6 +326,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test2(IBlockCipher blockCipher) 
         {
+            // определить допустимые размеры ключей
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             // указать требуемый режим
             CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -311,7 +338,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -322,7 +349,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0xf4, (byte)0x0e, (byte)0x07, (byte)0x88
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 4))
+                if (CAPI.KeySizes.Contains(keySizes, 4))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00 
                 }, new byte[] { 
@@ -336,6 +363,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test8(IBlockCipher blockCipher) 
         {
+            // определить допустимые размеры ключей
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             // указать требуемый режим
             CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -345,7 +375,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -356,7 +386,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x77, (byte)0xec, (byte)0xa5, (byte)0xff
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 4))
+                if (CAPI.KeySizes.Contains(keySizes, 4))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04 
                 }, new byte[] { 
@@ -367,7 +397,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0xb5, (byte)0xbc, (byte)0x74, (byte)0x02
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -379,7 +409,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x34, (byte)0xf9, (byte)0x48, (byte)0x11
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -391,7 +421,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x73, (byte)0x8c, (byte)0x64, (byte)0x78
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.PKCS5, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -405,7 +435,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x81, (byte)0xc9, (byte)0x96, (byte)0x95
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.PKCS5, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -434,7 +464,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -445,7 +475,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x63, (byte)0x8f, (byte)0x9c, (byte)0xa8
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 8))
+                if (CAPI.KeySizes.Contains(keySizes, 8))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08
@@ -457,7 +487,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x0f, (byte)0x21, (byte)0x7a, (byte)0xc3
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 16))
+                if (CAPI.KeySizes.Contains(keySizes, 16))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -480,7 +510,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -501,7 +531,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -516,6 +546,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test12(IBlockCipher blockCipher)
         {
+            // определить допустимые размеры ключей
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             // указать требуемый режим
             CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -525,7 +558,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 4))
+                if (CAPI.KeySizes.Contains(keySizes, 4))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04 
                 }, new byte[] { 
@@ -536,7 +569,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0xf7, (byte)0x08, (byte)0x09, (byte)0x34
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 5))
+                if (CAPI.KeySizes.Contains(keySizes, 5))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05 
@@ -548,7 +581,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x37, (byte)0xed, (byte)0x31, (byte)0x7f
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 8))
+                if (CAPI.KeySizes.Contains(keySizes, 8))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08 
@@ -569,7 +602,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -580,7 +613,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0xb6, (byte)0x59, (byte)0x4d, (byte)0xa4
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 8))
+                if (CAPI.KeySizes.Contains(keySizes, 8))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08 
@@ -592,7 +625,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0x53, (byte)0x73, (byte)0xb4, (byte)0xf7
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 16))
+                if (CAPI.KeySizes.Contains(keySizes, 16))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -609,6 +642,9 @@ namespace Aladdin.CAPI.ANSI.Engine
         }
         public static void Test16(IBlockCipher blockCipher) 
         {
+            // определить допустимые размеры ключей
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             // указать требуемый режим
             CipherMode.CBC mode = new CipherMode.CBC(new byte[] { 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -618,7 +654,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 4))
+                if (CAPI.KeySizes.Contains(keySizes, 4))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04 
                 }, new byte[] { 
@@ -638,7 +674,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             {
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 1))
+                if (CAPI.KeySizes.Contains(keySizes, 1))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x00 
                 }, new byte[] { 
@@ -649,7 +685,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0xa5, (byte)0xfc, (byte)0x38, (byte)0x36
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 8))
+                if (CAPI.KeySizes.Contains(keySizes, 8))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08 
@@ -661,7 +697,7 @@ namespace Aladdin.CAPI.ANSI.Engine
                     (byte)0xbe, (byte)0x7f, (byte)0x5f, (byte)0xad
                 }); 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 16))
+                if (CAPI.KeySizes.Contains(keySizes, 16))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.None, new byte[] { 
                     (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
                     (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 

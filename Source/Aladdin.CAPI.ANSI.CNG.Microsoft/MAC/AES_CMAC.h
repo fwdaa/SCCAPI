@@ -18,13 +18,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		public: virtual property SecretKeyFactory^ KeyFactory 
 		{ 
 			// тип ключа
-			SecretKeyFactory^ get() override { return Keys::AES::Instance; }
-		}
-		// размер допустимых ключей
-		public: virtual property array<int>^ KeySizes 
-		{ 
-			// размер допустимых ключей
-			array<int>^ get() override { return keySizes; }
+			SecretKeyFactory^ get() override { return gcnew Keys::AES(keySizes); }
 		}
 		// размер блока в байтах
 		public:	virtual property int BlockSize { int get() override { return 16; } }

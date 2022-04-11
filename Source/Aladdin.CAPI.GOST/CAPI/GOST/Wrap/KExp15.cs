@@ -12,38 +12,22 @@ namespace Aladdin.CAPI.GOST.Wrap
         private CAPI.Cipher cipher; private Mac macAlgorithm; private byte[] iv; 
     
         // создать алгоритм шифрования ключа
-        public static KExp15 Create(CAPI.Factory factory, SecurityStore scope, string oid, byte[] iv)
+        public static KExp15 Create(CAPI.Factory factory, SecurityStore scope, int blockSize, byte[] iv)
         {
-            int blockSize = 0; 
-        
-            // указать идентификатор алгоритма шифрования
-            if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15 ) blockSize =  8; else 
-            if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15) blockSize = 16; else return null; 
-        
-            // создать блочный алгоритм шифрования
-            using (IBlockCipher blockCipher = Cipher.GOSTR3412.Create(factory, scope, blockSize))
+            // создать режим шифрования CTR
+            using (CAPI.Cipher cipher = Cipher.GOSTR3412.CreateCTR(factory, scope, blockSize, iv))
             {
                 // проверить наличие алгоритма
-                if (blockCipher == null) return null; 
-
-                // указать параметры режима
-                CipherMode.CTR ctrParameters = new CipherMode.CTR(iv, blockSize); 
-
-                // создать режим CTR
-                using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(ctrParameters))
+                if (cipher == null) return null; 
+            
+                // создать имитовставку OMAC
+                using (Mac macAlgorithm = Cipher.GOSTR3412.CreateOMAC(factory, scope, blockSize))
                 {
-                    // указать начальную синхропосылку
-                    byte[] start = new byte[blockSize]; 
-                
-                    // создать алгоритм вычисления имитовставки
-                    using (Mac macAlgorithm = CAPI.MAC.OMAC1.Create(blockCipher, start, blockSize))
-                    {
-                        // проверить наличие алгоритма
-                        if (macAlgorithm == null) return null; 
-                    
-                        // вернуть алгоритм шифрования ключа
-                        return new KExp15(cipher, macAlgorithm, iv); 
-                    }
+                    // проверить наличие алгоритма
+                    if (macAlgorithm == null) return null; 
+            
+                    // вернуть алгоритм шифрования ключа
+                    return new KExp15(cipher, macAlgorithm, iv); 
                 }
             }
         }
@@ -68,9 +52,12 @@ namespace Aladdin.CAPI.GOST.Wrap
             // освободить выделенные ресурсы
             RefObject.Release(cipher); base.OnDispose();         
         } 
-        // размер используемого ключа
-        public override int[] KeySizes { get { return new int[] { 64 }; } }
-    
+        // тип ключа
+        public override SecretKeyFactory KeyFactory 
+        { 
+            // тип ключа
+            get { return new SecretKeyFactory(new int[] { 64 }); } 
+        }
 	    // зашифровать ключ
 	    public override byte[] Wrap(IRand rand, ISecretKey key, ISecretKey CEK) 
         {

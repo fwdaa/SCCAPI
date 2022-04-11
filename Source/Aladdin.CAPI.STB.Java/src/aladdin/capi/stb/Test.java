@@ -141,7 +141,7 @@ public final class Test extends aladdin.capi.Test
         println("Cipher.STB34101");
         
         // создать алгоритм шифрования
-        try (IBlockCipher blockCipher = new aladdin.capi.stb.cipher.STB34101(factory, scope, 32))
+        try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "STB34101", Null.INSTANCE))
         {
             // выполнить тест
             aladdin.capi.stb.engine.STB34101.test(blockCipher);

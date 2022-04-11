@@ -3,7 +3,6 @@ import aladdin.io.*;
 import aladdin.asn1.*; 
 import aladdin.asn1.iso.pkix.*; 
 import aladdin.capi.*; 
-import aladdin.capi.Scope; 
 import aladdin.util.*; 
 import java.io.*;
 import java.security.*;
@@ -16,23 +15,26 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Closeable
 {
-	// криптографический провайдер
-	private final Provider provider; 
+	// криптографический провайдер и слот
+	private final Provider provider; private final int slot; 
+    // криптографический контейнер
+    private aladdin.capi.software.Container container; private String keyOID; 
     
-    // провайдер контейнеров PKCS12
-    private final aladdin.capi.pkcs12.CryptoProvider pkcs12; 
-
-	// криптографический контейнер
-	private aladdin.capi.software.Container container;
-	
 	// конструктор
-	public KeyStoreSpi(Provider provider) 
+	public KeyStoreSpi(Provider provider, String keyOID) 
 	{ 
 		// сохранить переданные параметры
-		this.provider = provider; pkcs12 = provider.pkcs12(); this.container = null;
+		this.provider = provider; slot = provider.addObject(this); 
+        
+        // сохранить переданные параметры
+        this.keyOID = keyOID; container = null;
 	} 
-    @Override public void close() throws IOException { container.close(); }
-    
+    // освободить выделенные ресурсы
+    @Override public void close() throws IOException
+    { 
+        // закрыть контейнер 
+        if (container != null) container.close(); provider.removeObject(slot); 
+    }
 	@Override
 	public final Date engineGetCreationDate(String name) 
 	{
@@ -51,20 +53,8 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
         // при отсутствии данных 
         if (stream == null) { MemoryStream memoryStream = new MemoryStream();
         
-            // указать информацию о контейнере
-            SecurityInfo info = new SecurityInfo(Scope.SYSTEM, "MEMORY", memoryStream);
-
-            // открыть хранилище объектов
-            try (SecurityStore store = pkcs12.openStore(info.scope, info.store))
-            { 
-                // указать генератор случайных данных
-                try (IRand rand = pkcs12.createRand(null))
-                {
-                    // открыть контейнер
-                    container = (aladdin.capi.software.Container)
-                        store.createObject(rand, info.name, new String(password));
-                }
-            }
+            // создать контейнер PKCS12
+            container = provider.createMemoryContainer(memoryStream, new String(password), keyOID); 
         }
         else {
             // выделить динамический буфер
@@ -84,19 +74,9 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
 
             // указать используемый поток
             MemoryStream memoryStream = new MemoryStream(encoded);
-
-            // указать информацию о контейнере
-            SecurityInfo info = new SecurityInfo(Scope.SYSTEM, "MEMORY", memoryStream);
-
-            // открыть хранилище объектов
-            try (SecurityStore store = pkcs12.openStore(info.scope, info.store))
-            { 
-                // открыть контейнер
-                container = (aladdin.capi.software.Container)store.openObject(info.name, "rw"); 
-                
-                // установить пароль
-                container.setPassword(new String(password));
-            }
+            
+            // открыть контейнер PKCS12
+            container = provider.openMemoryContainer(memoryStream, "rw", new String(password)); 
         }
 	}
 	@Override

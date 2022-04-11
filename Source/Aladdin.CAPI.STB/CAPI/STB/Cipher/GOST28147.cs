@@ -9,17 +9,19 @@ namespace Aladdin.CAPI.STB.Cipher
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class GOST28147 : RefObject, IBlockCipher
     {
-        // фабрика алгоритмов, область видимости и идентификатор таблицы подстановок
-        private CAPI.Factory factory; private SecurityStore scope; private string sboxOID;
+        // фабрика алгоритмов и область видимости 
+        private CAPI.Factory factory; private SecurityStore scope; 
+        // таблица подстановок
+        private ASN1.STB.GOSTSBlock sbox;
 
         // конструктор
-        public GOST28147(CAPI.Factory factory, SecurityStore scope, String sboxOID)
+        public GOST28147(CAPI.Factory factory, SecurityStore scope, ASN1.STB.GOSTSBlock sbox)
         {
             // сохранить переданные параметры	
             this.factory = RefObject.AddRef(factory); 
 
             // сохранить переданные параметры	
-            this.scope = RefObject.AddRef(scope); this.sboxOID = sboxOID; 
+            this.scope = RefObject.AddRef(scope); this.sbox = sbox; 
         } 
         // освободить выделенные ресурсы
         protected override void OnDispose()
@@ -28,9 +30,7 @@ namespace Aladdin.CAPI.STB.Cipher
             RefObject.Release(scope); RefObject.Release(factory); base.OnDispose();
         }
         // тип ключа
-        public SecretKeyFactory KeyFactory { get { return GOST.Keys.GOST28147.Instance; }}
-        // размер ключей
-        public int[] KeySizes { get { return new int[] {32}; }}
+        public SecretKeyFactory KeyFactory { get { return GOST.Keys.GOST.Instance; }}
         // размер блока
         public int BlockSize { get { return 8; }}
     
@@ -40,29 +40,23 @@ namespace Aladdin.CAPI.STB.Cipher
             // вернуть режим шифрования ECB
             if (mode is CipherMode.ECB) 
             {
-                // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.STB.OID.gost28147_ecb), 
-                    new ASN1.STB.GOSTSBlock(new ASN1.ObjectIdentifier(sboxOID))
-                );
                 // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
-            
+                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                    scope, ASN1.STB.OID.gost28147_ecb, sbox
+                ); 
                 // проверить наличие алгоритма
                 if (cipher != null) return cipher; 
             }
             if (mode is CipherMode.CFB) 
             {
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.STB.OID.gost28147_cfb), 
-                    new ASN1.STB.GOSTParams(new ASN1.OctetString(((CipherMode.CFB)mode).IV), 
-                        new ASN1.STB.GOSTSBlock(new ASN1.ObjectIdentifier(sboxOID))
-                    )
-                );
+                ASN1.IEncodable parameters = new ASN1.STB.GOSTParams(
+                    new ASN1.OctetString(((CipherMode.CFB)mode).IV), sbox
+                ); 
                 // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
-            
+                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                    scope, ASN1.STB.OID.gost28147_cfb, parameters
+                ); 
                 // проверить наличие алгоритма
                 if (cipher != null) return cipher; 
 
@@ -76,15 +70,13 @@ namespace Aladdin.CAPI.STB.Cipher
             if (mode is CipherMode.CTR) 
             {
                 // закодировать параметры алгоритма
-                ASN1.ISO.AlgorithmIdentifier parameters = new ASN1.ISO.AlgorithmIdentifier(
-                    new ASN1.ObjectIdentifier(ASN1.STB.OID.gost28147_ctr), 
-                    new ASN1.STB.GOSTParams(new ASN1.OctetString(((CipherMode.CTR)mode).IV), 
-                        new ASN1.STB.GOSTSBlock(new ASN1.ObjectIdentifier(sboxOID))
-                    )
+                ASN1.IEncodable parameters = new ASN1.STB.GOSTParams(
+                    new ASN1.OctetString(((CipherMode.CTR)mode).IV), sbox
                 );
                 // получить алгоритм шифрования
-                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters); 
-            
+                CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                    scope, ASN1.STB.OID.gost28147_ctr, parameters
+                ); 
                 // проверить наличие алгоритма
                 if (cipher != null) return cipher; 
 

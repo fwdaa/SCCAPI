@@ -80,9 +80,7 @@ public class RFC4357 extends aladdin.capi.pkcs11.KeyWrap
         }; 
 	}
     // тип ключа
-    @Override public final SecretKeyFactory keyFactory() { return GOST28147.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return new int[] {32}; }
+    @Override public final SecretKeyFactory keyFactory() { return GOST.INSTANCE; } 
     
     @Override
 	public byte[] wrap(IRand rand, ISecretKey KEK, ISecretKey CEK) 

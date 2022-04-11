@@ -1,46 +1,29 @@
 package aladdin.capi.ansi.cipher;
-import aladdin.*; 
 import aladdin.asn1.*;
-import aladdin.asn1.iso.*;
 import aladdin.asn1.ansi.*;
 import aladdin.capi.*; 
-import aladdin.capi.mode.*;
 import java.io.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Алгоритм шифрования AES
 ///////////////////////////////////////////////////////////////////////////
-public final class AES extends RefObject implements IBlockCipher
+public final class AES extends BlockCipher
 {
-    // фабрика алгоритмов, область видимости и размер ключа 
-    private final Factory factory; private final SecurityStore scope; private final int keyLength;
-
     // конструктор
-    public AES(Factory factory, SecurityStore scope, int keyLength)
-    {
-        // сохранить переданные параметры	
-        this.factory = RefObject.addRef(factory); 
-        this.scope   = RefObject.addRef(scope  ); this.keyLength = keyLength; 
-    } 
-    // освободить выделенные ресурсы
-    @Override protected void onClose() throws IOException
-    {
-        // освободить выделенные ресурсы
-        RefObject.release(scope); RefObject.release(factory); super.onClose();
-    }
+    public AES(Factory factory, SecurityStore scope) { super(factory, scope); }
+    
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.AES.INSTANCE; 
+        return new aladdin.capi.ansi.keys.AES(new int[] {16, 24, 32}); 
     } 
-    // размер ключей
-    @Override public final int[] keySizes () { return new int[] {keyLength}; } 
     // размер блока
     @Override public final int blockSize() { return 16; } 
         
     // получить режим шифрования
-    @Override public Cipher createBlockMode(CipherMode mode) throws IOException
+    @Override protected Cipher createBlockMode(
+        CipherMode mode, int keyLength) throws IOException
     {
         // в зависимости от режима
         if (mode instanceof CipherMode.ECB) 
@@ -52,12 +35,12 @@ public final class AES extends RefObject implements IBlockCipher
             case 16: oid = OID.NIST_AES128_ECB; break; 
             }
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(oid), Null.INSTANCE
-            );
+            IEncodable parameters = Null.INSTANCE; 
+            
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-
+            Cipher cipher = (Cipher)factory().createAlgorithm(
+                scope(), oid, parameters, Cipher.class
+            ); 
             // вернуть алгоритм шифрования
             if (cipher != null) return cipher; 
         }
@@ -70,22 +53,14 @@ public final class AES extends RefObject implements IBlockCipher
             case 16: oid = OID.NIST_AES128_CBC; break; 
             }
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(oid), 
-                new OctetString(((CipherMode.CBC)mode).iv())
-            );
-            // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-
-            // вернуть алгоритм шифрования
-            if (cipher != null) return cipher; 
+            IEncodable parameters = new OctetString(((CipherMode.CBC)mode).iv()); 
             
             // получить алгоритм шифрования
-            try (Cipher engine = createBlockMode(new CipherMode.ECB())) 
-            {
-                // вернуть режим шифрования
-                return new CBC(engine, (CipherMode.CBC)mode, PaddingMode.ANY); 
-            }
+            Cipher cipher = (Cipher)factory().createAlgorithm(
+                scope(), oid, parameters, Cipher.class
+            ); 
+            // вернуть алгоритм шифрования
+            if (cipher != null) return cipher; 
         }
         if (mode instanceof CipherMode.OFB) 
         {
@@ -96,23 +71,16 @@ public final class AES extends RefObject implements IBlockCipher
             case 16: oid = OID.NIST_AES128_OFB; break; 
             }
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(oid), new FBParameter(
-                    new OctetString(((CipherMode.OFB)mode).iv()), new aladdin.asn1.Integer(64)
-                )
-            );
+            IEncodable parameters = new FBParameter(
+                new OctetString(((CipherMode.OFB)mode).iv()), 
+                new aladdin.asn1.Integer(64)
+            ); 
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-
+            Cipher cipher = (Cipher)factory().createAlgorithm(
+                scope(), oid, parameters, Cipher.class
+            ); 
             // вернуть алгоритм шифрования
             if (cipher != null) return cipher; 
-            
-            // получить алгоритм шифрования
-            try (Cipher engine = createBlockMode(new CipherMode.ECB())) 
-            {
-                // вернуть режим шифрования
-                return new OFB(engine, (CipherMode.OFB)mode); 
-            }
         }
         if (mode instanceof CipherMode.CFB) 
         {
@@ -123,25 +91,18 @@ public final class AES extends RefObject implements IBlockCipher
             case 16: oid = OID.NIST_AES128_CFB; break; 
             }
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(oid), new FBParameter(
-                    new OctetString(((CipherMode.CFB)mode).iv()), new aladdin.asn1.Integer(64)
-                )
-            );
+            IEncodable parameters = new FBParameter(
+                new OctetString(((CipherMode.CFB)mode).iv()), 
+                new aladdin.asn1.Integer(64)
+            ); 
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-
+            Cipher cipher = (Cipher)factory().createAlgorithm(
+                scope(), oid, parameters, Cipher.class
+            ); 
             // вернуть алгоритм шифрования
             if (cipher != null) return cipher; 
-
-            // получить алгоритм шифрования
-            try (Cipher engine = createBlockMode(new CipherMode.ECB())) 
-            {
-                // вернуть режим шифрования
-                return new CFB(engine, (CipherMode.CFB)mode); 
-            }
         }
-        // режим не поддерживается
-        throw new UnsupportedOperationException();
-    }
+        // вызвать базовую функцию
+        return super.createBlockMode(mode, keyLength); 
+    }     
 }

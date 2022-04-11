@@ -11,8 +11,6 @@ namespace Aladdin.CAPI
 	{
         // тип ключа
         public virtual SecretKeyFactory KeyFactory  { get { return SecretKeyFactory.Generic; }}
-        // размер ключей
-        public virtual int[] KeySizes { get { return KeyFactory.KeySizes; }} 
 	    // размер блока
 	    public virtual int BlockSize { get { return 1; }} 
         
@@ -107,8 +105,6 @@ namespace Aladdin.CAPI
             }
 		    // тип ключа
 		    public override SecretKeyFactory KeyFactory { get { return cipher.KeyFactory; }} 
-		    // размеры ключей
-		    public override int[] KeySizes { get { return cipher.KeySizes; }} 
 
 		    // зашифровать ключ
 		    public override byte[] Wrap(IRand rand, ISecretKey key, ISecretKey CEK)
@@ -176,10 +172,10 @@ namespace Aladdin.CAPI
             Cipher trustAlgorithm, PaddingMode padding, int[] dataSizes) 
         {
             // получить допустимые размеры ключей
-            int[] keySizes = cipherAlgorithm.KeySizes; 
+            int[] keySizes = cipherAlgorithm.KeyFactory.KeySizes; 
         
             // при отсутствии ограничений на размер ключа
-            if (keySizes == CAPI.KeySizes.Unrestricted || keySizes.Length > 32)
+            if (keySizes == KeySizes.Unrestricted || keySizes.Length > 32)
             {
                 // скорректировать допустимые размеры ключей
                 keySizes = new int[] { 0, 8, 16, 24, 32, 64 }; 
@@ -188,7 +184,7 @@ namespace Aladdin.CAPI
             foreach (int keySize in keySizes)
             { 
                 // проверить поддержку размера ключа
-                if (!CAPI.KeySizes.Contains(cipherAlgorithm.KeySizes, keySize)) continue; 
+                if (!KeySizes.Contains(cipherAlgorithm.KeyFactory.KeySizes, keySize)) continue; 
 
                 // сгенерировать ключ 
                 using (ISecretKey key = cipherAlgorithm.KeyFactory.Generate(rand, keySize)) 

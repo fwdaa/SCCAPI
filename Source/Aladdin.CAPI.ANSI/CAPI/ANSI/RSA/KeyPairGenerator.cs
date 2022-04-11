@@ -26,7 +26,7 @@ namespace Aladdin.CAPI.ANSI.RSA
 			Math.BigInteger E = parameters.PublicExponent;
 
             // определить размер модуля в битах
-			int bits = parameters.KeySize; int lenP = bits / 2; int lenQ = bits - lenP;
+			int bits = parameters.KeyBits; int lenP = bits / 2; int lenQ = bits - lenP;
             
 			// инициализировать переменные
 			Math.BigInteger N = null; Math.BigInteger P = null; Math.BigInteger Q = null; 

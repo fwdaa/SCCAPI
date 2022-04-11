@@ -34,8 +34,6 @@ namespace Aladdin.CAPI.STB.Wrap
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return belt.KeyFactory; }}
-        // размер ключа шифрования ключей
-        public override int[] KeySizes { get { return belt.KeySizes; }}
     
         // зашифровать ключ
         public override byte[] Wrap(IRand rand, ISecretKey key, ISecretKey CEK) 

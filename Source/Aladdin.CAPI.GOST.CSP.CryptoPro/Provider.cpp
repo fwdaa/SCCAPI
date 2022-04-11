@@ -134,25 +134,6 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::GetSecretKeyType(
 	throw gcnew NotSupportedException(); 
 }
 
-array<Aladdin::CAPI::KeyFactory^>^ 
-Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::KeyFactories() 
-{$
-    // создать список поддерживаемых фабрик
-    List<KeyFactory^>^ keyFactories = gcnew List<KeyFactory^>(); 
-
-	// добавить фабрику кодирования ключей
-	keyFactories->Add(gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2001)); 
-
-    if (version >= 0x0400)
-    {
-	    // добавить фабрику кодирования ключей
-	    keyFactories->Add(gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2012_256)); 
-	    keyFactories->Add(gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2012_512)); 
-    }
-    // вернуть фабрики кодирования ключей
-    return keyFactories->ToArray(); 
-}
-
 String^ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::ConvertKeyOID(ALG_ID keyOID) 
 {$
     if (keyOID == CALG_GR3410EL   ) return ASN1::GOST::OID::gostR3410_2001; 
@@ -279,7 +260,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::ImportKeyPair(
 		Handle->GenerateKey(CALG_G28147, CRYPT_EXPORTABLE)
 	); 
 	// создать объект ключа
-	CAPI::CSP::SecretKey KEK(this, Keys::GOST28147::Instance, hKEK.Get()); 
+	CAPI::CSP::SecretKey KEK(this, Keys::GOST::Instance, hKEK.Get()); 
 
 	// получить идентификатор таблицы подстановок
 	String^ sboxOID = hKEK.Get()->GetString(KP_CIPHEROID, 0);
@@ -297,7 +278,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::ImportKeyPair(
 	); 
 	// указать тип ключа
 	SecretKeyFactory^ typeCEK = (valueCEK->Length == 32) ? 
-		Keys::GOST28147::Instance : SecretKeyFactory::Generic; 
+		Keys::GOST::Instance : SecretKeyFactory::Generic; 
 
 	// указать объект ключа
 	Using<ISecretKey^> CEK(typeCEK->Create(valueCEK)); 
@@ -505,10 +486,9 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::GetPrivateKey(
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 	CAPI::Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) 
+	String^ oid, ASN1::IEncodable^ parameters, System::Type^ type) 
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов хэширования
 		if (type == CAPI::Hash::typeid)
@@ -516,10 +496,10 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 			if (oid == ASN1::GOST::OID::gostR3411_94) 
 			{
 				// для закодированного идентификатора
-				if (parameters->Parameters->Tag == ASN1::Tag::ObjectIdentifier) 					
+				if (parameters->Tag == ASN1::Tag::ObjectIdentifier) 					
 				{
 					// раскодировать идентификатор параметров
-					oid = ASN1::ObjectIdentifier(parameters->Parameters).Value;
+					oid = ASN1::ObjectIdentifier(parameters).Value;
 				}
 				// установить идентификатор по умолчанию
 				else oid = ASN1::GOST::OID::hashes_cryptopro; 
@@ -545,7 +525,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::GOST::GOST28147CipherParameters^ algParameters = 
-					gcnew ASN1::GOST::GOST28147CipherParameters(parameters->Parameters); 
+					gcnew ASN1::GOST::GOST28147CipherParameters(parameters); 
 
 				// определить идентификатор таблицы подстановок
 				String^ sboxOID = algParameters->ParamSet->Value; 
@@ -562,10 +542,10 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 			if (oid == ASN1::GOST::OID::gostR3411_94_HMAC) 
 			{
 				// для закодированного идентификатора
-				if (parameters->Parameters->Tag == ASN1::Tag::ObjectIdentifier) 					
+				if (parameters->Tag == ASN1::Tag::ObjectIdentifier) 					
 				{
 					// раскодировать идентификатор параметров
-					oid = ASN1::ObjectIdentifier(parameters->Parameters).Value;
+					oid = ASN1::ObjectIdentifier(parameters).Value;
 				}
 				// установить идентификатор по умолчанию
 				else oid = ASN1::GOST::OID::hashes_cryptopro; 
@@ -594,21 +574,21 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 
 				// раскодировать параметры алгоритма
 				ASN1::GOST::GOST28147CipherParameters^ algParameters = 
-					gcnew ASN1::GOST::GOST28147CipherParameters(parameters->Parameters); 
+					gcnew ASN1::GOST::GOST28147CipherParameters(parameters); 
 
 				// определить идентификатор параметров
-				String^ paramsOID = algParameters->ParamSet->Value; 
-
-				// получить именованные параметры алгоритма
-				ASN1::GOST::GOST28147ParamSet^ namedParameters = 
-					ASN1::GOST::GOST28147ParamSet::Parameters(paramsOID);
+				ASN1::ObjectIdentifier^ paramSet = algParameters->ParamSet; 
 
 				// создать алгоритм шифрования
-				Using<CAPI::CSP::BlockCipher^> blockCipher(CreateGOST28147(paramsOID)); 
+				Using<IBlockCipher^> blockCipher(CreateBlockCipher(scope, "GOST28147", paramSet)); 
 
 				// извлечь синхропосылку
 				array<BYTE>^ iv = algParameters->IV->Value; 
 		 
+				// получить именованные параметры алгоритма
+				ASN1::GOST::GOST28147ParamSet^ namedParameters = 
+					ASN1::GOST::GOST28147ParamSet::Parameters(paramSet->Value);
+
 				// в зависимости от режима 
 				switch (namedParameters->Mode->Value->IntValue)
 				{
@@ -618,7 +598,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 				case 2: mode = gcnew CAPI::CipherMode::CBC(iv, 8); padding = PaddingMode::PKCS5; break;
 				}
 				// вернуть режим шифрования
-				return gcnew Cipher::GOST28147::BlockMode(blockCipher.Get(), mode, padding);
+				return gcnew Cipher::GOST28147::BlockMode((CAPI::CSP::BlockCipher^)blockCipher.Get(), mode, padding);
 			}
 		}
 		// для алгоритмов наследования ключа
@@ -627,7 +607,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 			if (oid == ASN1::GOST::OID::keyMeshing_cryptopro) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::ObjectIdentifier^ paramSet = gcnew ASN1::ObjectIdentifier(parameters->Parameters); 
+				ASN1::ObjectIdentifier^ paramSet = gcnew ASN1::ObjectIdentifier(parameters); 
 
 				// создать алгоритм шифрования
 				Using<CAPI::CSP::BlockCipher^> blockCipher(gcnew Cipher::GOST28147(
@@ -650,7 +630,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::GOST::KeyWrapParameters^ algParameters = 
-					gcnew ASN1::GOST::KeyWrapParameters(parameters->Parameters); 
+					gcnew ASN1::GOST::KeyWrapParameters(parameters); 
 
 				// определить идентификатор таблицы подстановок
 				String^ sboxOID = algParameters->ParamSet->Value; 
@@ -665,7 +645,7 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::GOST::KeyWrapParameters^ algParameters = 
-					gcnew ASN1::GOST::KeyWrapParameters(parameters->Parameters); 
+					gcnew ASN1::GOST::KeyWrapParameters(parameters); 
 
 				// определить идентификатор таблицы подстановок
 				String^ sboxOID = algParameters->ParamSet->Value; 
@@ -760,6 +740,6 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 		}
 	}
     // вызвать базовую функцию
-	return CAPI::GOST::Factory::RedirectAlgorithm(factory, scope, parameters, type);
+	return CAPI::GOST::Factory::RedirectAlgorithm(factory, scope, oid, parameters, type);
 }
 

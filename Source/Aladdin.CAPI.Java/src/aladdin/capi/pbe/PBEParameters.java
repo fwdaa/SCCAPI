@@ -1,10 +1,13 @@
 package aladdin.capi.pbe;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры шифрования по паролю
 ///////////////////////////////////////////////////////////////////////////
-public class PBEParameters
+public class PBEParameters implements Serializable
 {
+    private static final long serialVersionUID = 4352538037666737952L;
+    
     // размер salt-значения и число итераций
     private final int pbmSaltLength; private final int pbmIterations; 
     private final int pbeSaltLength; private final int pbeIterations; 

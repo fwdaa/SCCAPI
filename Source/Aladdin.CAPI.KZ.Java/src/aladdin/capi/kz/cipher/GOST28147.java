@@ -1,7 +1,6 @@
 package aladdin.capi.kz.cipher;
 import aladdin.*; 
 import aladdin.asn1.*;
-import aladdin.asn1.iso.*;
 import aladdin.asn1.kz.*;
 import aladdin.capi.*;
 import aladdin.capi.mode.*;
@@ -34,10 +33,8 @@ public final class GOST28147 extends RefObject implements IBlockCipher
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
-    // размер ключей
-    @Override public final int[] keySizes () { return new int[] {32}; } 
     // размер блока
     @Override public final int blockSize() { return 8; } 
         
@@ -48,11 +45,11 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.ECB) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GAMMA_CIPHER_GOST_ECB), Null.INSTANCE
-            );
+            IEncodable parameters = Null.INSTANCE; 
+            
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GAMMA_CIPHER_GOST_ECB, parameters, Cipher.class); 
                 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
@@ -60,12 +57,11 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.CBC) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GAMMA_CIPHER_GOST_CBC), 
-                new OctetString(((CipherMode.CBC)mode).iv())
-            );
+            IEncodable parameters = new OctetString(((CipherMode.CBC)mode).iv()); 
+            
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GAMMA_CIPHER_GOST_CBC, parameters, Cipher.class); 
                 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
@@ -80,12 +76,11 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.CFB) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GAMMA_CIPHER_GOST_CFB), 
-                new OctetString(((CipherMode.CFB)mode).iv())
-            );
+            IEncodable parameters = new OctetString(((CipherMode.CFB)mode).iv()); 
+            
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GAMMA_CIPHER_GOST_CFB, parameters, Cipher.class); 
                 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
@@ -100,13 +95,12 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.OFB) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GAMMA_CIPHER_GOST_OFB), 
-                new OctetString(((CipherMode.OFB)mode).iv())
-            );
+            IEncodable parameters = new OctetString(((CipherMode.OFB)mode).iv()); 
+            
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-                
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GAMMA_CIPHER_GOST_OFB, parameters, Cipher.class
+            ); 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
 
@@ -120,13 +114,12 @@ public final class GOST28147 extends RefObject implements IBlockCipher
         if (mode instanceof CipherMode.CTR) 
         {
             // закодировать параметры алгоритма
-            AlgorithmIdentifier parameters = new AlgorithmIdentifier(
-                new ObjectIdentifier(OID.GAMMA_CIPHER_GOST_CNT), 
-                new OctetString(((CipherMode.CTR)mode).iv())
-            );
+            IEncodable parameters = new OctetString(((CipherMode.CTR)mode).iv()); 
+            
             // получить алгоритм шифрования
-            Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, Cipher.class); 
-                
+            Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, OID.GAMMA_CIPHER_GOST_CNT, parameters, Cipher.class
+            ); 
             // проверить наличие алгоритма
             if (cipher != null) return cipher; 
 

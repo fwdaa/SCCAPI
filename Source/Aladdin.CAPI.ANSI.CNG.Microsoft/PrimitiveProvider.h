@@ -7,20 +7,54 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 	///////////////////////////////////////////////////////////////////////////
 	public ref class PrimitiveProvider : CAPI::Factory, IRandFactory
 	{
+		// фабрики кодирования ключей 
+		private: Dictionary<String^, SecretKeyFactory^>^ secretKeyFactories; 
+		private: Dictionary<String^,       KeyFactory^>^       keyFactories; 
+
+		// конструктор
+		public: PrimitiveProvider()
+		{
+			// создать список фабрик кодирования ключей
+			secretKeyFactories = gcnew Dictionary<String^, SecretKeyFactory^>(); 
+
+			// заполнить список фабрик кодирования ключей
+			secretKeyFactories->Add("RC2"   , gcnew Keys::RC2 (KeySizes::Range(1, 16))); 
+			secretKeyFactories->Add("RC4"   , gcnew Keys::RC4 (KeySizes::Range(1, 16))); 
+			secretKeyFactories->Add("DES"   , gcnew Keys::DES (                      )); 
+			secretKeyFactories->Add("DESX"  , gcnew Keys::DESX(                      )); 
+			secretKeyFactories->Add("DESede", gcnew Keys::TDES(                      )); 
+			secretKeyFactories->Add("AES"   , gcnew Keys::AES (                      )); 
+
+			// создать список фабрик кодирования ключей
+			keyFactories = gcnew Dictionary<String^, KeyFactory^>(); 
+
+			// заполнить список фабрик кодирования ключей
+			KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa, 
+				gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa)
+			); 
+			KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa_oaep, 
+				gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa_oaep)
+			); 
+			KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa_pss, 
+				gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa_pss)
+			); 
+			KeyFactories()->Add(ASN1::ANSI::OID::x942_dh_public_key, 
+				gcnew ANSI::X942::KeyFactory(ASN1::ANSI::OID::x942_dh_public_key) 
+			); 
+			KeyFactories()->Add(ASN1::ANSI::OID::x957_dsa, 
+				gcnew ANSI::X957::KeyFactory(ASN1::ANSI::OID::x957_dsa)
+			); 
+			KeyFactories()->Add(ASN1::ANSI::OID::x962_ec_public_key, 
+				gcnew ANSI::X962::KeyFactory(ASN1::ANSI::OID::x962_ec_public_key)
+			); 
+		} 
 		// имя провайдера
 		public: property String^ Provider { String^ get() { return "Microsoft Primitive Provider"; }}
 
 		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<KeyFactory^>^ KeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<KeyFactory^> { 
-				gcnew ANSI::RSA ::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa   ), 
-				gcnew ANSI::X942::KeyFactory(ASN1::ANSI::OID::x942_dh_public_key), 
-				gcnew ANSI::X957::KeyFactory(ASN1::ANSI::OID::x957_dsa          ), 
-				gcnew ANSI::X962::KeyFactory(ASN1::ANSI::OID::x962_ec_public_key) 
-			}; 
-		}
+		public: virtual Dictionary<String^, SecretKeyFactory^>^ SecretKeyFactories() override { return secretKeyFactories; }
+		public: virtual Dictionary<String^,       KeyFactory^>^       KeyFactories() override { return       keyFactories; }
+
 		// создать генератор случайных данных
 		public: virtual IRand^ CreateRand(Object^ window) 
 		{
@@ -49,7 +83,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			CAPI::Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, Type^ type) override;
+			CAPI::Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, Type^ type) override;
 	};
 }}}}}

@@ -71,19 +71,8 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         public virtual string[] GeneratedKeys(SecurityStore store) 
         { 
-            // получить поддерживаемые ключи
-            KeyFactory[] keyFactories = KeyFactories(); 
-
-            // создать список ключей
-            string[] keyOIDs = new string[keyFactories.Length]; 
-
-            // для всех подеерживаемых ключей
-            for (int i = 0; i < keyFactories.Length; i++)
-            {
-                // добавить ключ в список
-                keyOIDs[i] = keyFactories[i].KeyOID; 
-            }
-            return keyOIDs;  
+            // список генерируемых ключей
+            return new List<String>(KeyFactories().Keys).ToArray(); 
         } 
         ///////////////////////////////////////////////////////////////////////
 		// Иерархическое перечисление объектов

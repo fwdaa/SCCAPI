@@ -15,7 +15,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11.PBE
 	    public PBESP12_RC4(CAPI.PKCS11.Applet applet, ulong algID, byte[] salt, int iterations)
 	    
             // сохранить переданные параметры
-            : base(applet, algID, salt, iterations, Keys.RC4.Instance) 
+            : base(applet, algID, salt, iterations) 
         {
             // определить эффективное число битов ключа
             if (algID == API.CKM_PBE_SHA1_RC4_128) keyLength = 16; else 
@@ -24,9 +24,12 @@ namespace Aladdin.CAPI.ANSI.PKCS11.PBE
             // при ошибке выбросить исключение
             else throw new NotSupportedException(); 
         } 
-	    // размер ключа
-	    protected override int KeyLength { get { return keyLength; }}  
-
+	    // фабрика ключа
+	    protected override SecretKeyFactory DeriveKeyFactory
+        {
+            // фабрика ключа
+            get { return new Keys.RC4(new int[] {keyLength}); }
+        }
 	    // создать алгоритм шифрования
 	    protected override CAPI.Cipher CreateCipher(byte[] iv) 
         {

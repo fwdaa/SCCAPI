@@ -8,9 +8,9 @@ import aladdin.capi.gost.mode.gostr3412.*;
 import java.security.*; 
 
 ///////////////////////////////////////////////////////////////////////////
-// Алгоритм шифрования ГОСТ P34.12-2015
+// Алгоритм шифрования ГОСТ P34.12-2015 (размер блока 16 байт)
 ///////////////////////////////////////////////////////////////////////////
-public final class GOSTR3412 extends Cipher
+public final class GOSTR3412_K extends Cipher
 {
     // способ кодирования чисел
     public static final Endian ENDIAN = Endian.BIG_ENDIAN;
@@ -19,7 +19,7 @@ public final class GOSTR3412 extends Cipher
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOSTR3412.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
     // размер блока
 	@Override public int blockSize() { return 16; }

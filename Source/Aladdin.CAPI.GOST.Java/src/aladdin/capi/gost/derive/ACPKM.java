@@ -26,8 +26,6 @@ public class ACPKM extends KeyDerive
     }
     // тип ключа
     @Override public SecretKeyFactory keyFactory() { return cipher.keyFactory(); } 
-    // размер используемых ключей
-    @Override public int[] keySizes() { return cipher.keySizes(); }
 
     // наследовать ключ
 	@Override public ISecretKey deriveKey(ISecretKey key, 

@@ -18,6 +18,10 @@ Aladdin::CAPI::CNG::NProvider::NProvider(String^ name)
 {$
 	// сохранить переданные параметры
 	hProvider = gcnew NProviderHandle(name, 0); this->name = name; 
+
+	// создать список фабрик кодирования ключей
+	secretKeyFactories = gcnew Dictionary<String^, SecretKeyFactory^>(); 
+	      keyFactories = gcnew Dictionary<String^,       KeyFactory^>(); 
 }
 
 Aladdin::CAPI::CNG::NProvider::~NProvider() 

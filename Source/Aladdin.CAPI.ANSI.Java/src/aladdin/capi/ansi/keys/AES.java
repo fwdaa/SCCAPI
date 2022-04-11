@@ -6,12 +6,11 @@ import aladdin.capi.*;
 ///////////////////////////////////////////////////////////////////////////
 public class AES extends SecretKeyFactory
 {
-    // тип ключа
-    public static final SecretKeyFactory INSTANCE = new AES(); 
-        
     // конструктор
-    private AES() { super("AES"); }
+    public AES(int[] keySizes) { super(keySizes); }
+    // конструктор
+    public AES() { super(new int[] { 16, 24, 32 }); }
     
-	// размер ключей
-	@Override public final int[] keySizes() { return new int[] { 16, 24, 32 }; }
+    // ограничить размер ключей
+    @Override public SecretKeyFactory narrow(int[] keySizes) { return new AES(keySizes); }
 }

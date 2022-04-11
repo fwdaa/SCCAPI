@@ -359,9 +359,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CertificateStore.h" />
-    <ClInclude Include="Cipher\AES128.h" />
-    <ClInclude Include="Cipher\AES192.h" />
-    <ClInclude Include="Cipher\AES256.h" />
+    <ClInclude Include="Cipher\AES.h" />
     <ClInclude Include="Cipher\DES.h" />
     <ClInclude Include="Cipher\DESX.h" />
     <ClInclude Include="Cipher\RC2.h" />

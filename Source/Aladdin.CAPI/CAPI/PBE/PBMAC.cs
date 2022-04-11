@@ -18,7 +18,7 @@ namespace Aladdin.CAPI.PBE
 		public PBMAC(Hash hashAlgorithm, Mac macAlgorithm, byte[] salt, int iterations)
 		{
             // получить допустимые размеры ключей
-            int[] keySizes = macAlgorithm.KeySizes; 
+            int[] keySizes = macAlgorithm.KeyFactory.KeySizes; 
         
             // проверить наличие ключей фиксированного размера
             if (keySizes == null || keySizes.Length != 1) 

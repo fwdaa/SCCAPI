@@ -25,8 +25,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11.MAC
 	    }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return Keys.DES.Instance; }}
-	    // размер ключа в байтах
-	    public override int[] KeySizes { get { return new int[]{8}; }}
     
 	    // размер хэш-значения в байтах
 	    public override int MacSize { get { return macSize; }}

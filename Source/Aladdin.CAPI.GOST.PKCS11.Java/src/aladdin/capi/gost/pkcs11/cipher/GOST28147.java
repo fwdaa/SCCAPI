@@ -9,10 +9,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class GOST28147 extends RefObject implements IBlockCipher
 {
-    // используемый апплет и таблица подстановок
-    private final Applet applet; private final String sboxOID; 
-    // алгоритм шифрования блока
-    private final aladdin.capi.Cipher engine; 
+    // используемый апплет и алгоритм шифрования блока
+    private final Applet applet; private final aladdin.capi.Cipher engine; 
     // алгоритм смены ключа
     private final aladdin.capi.KeyDerive keyMeshing;
     
@@ -26,7 +24,7 @@ public class GOST28147 extends RefObject implements IBlockCipher
         keyMeshing = new aladdin.capi.gost.derive.KeyMeshing(engine); 
         
         // сохранить переданные параметры
-        this.applet = RefObject.addRef(applet); this.sboxOID = sboxOID; 
+        this.applet = RefObject.addRef(applet); 
     } 
     // деструктор
     @Override protected void onClose() throws IOException 
@@ -39,10 +37,8 @@ public class GOST28147 extends RefObject implements IBlockCipher
     } 
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() { return engine.keyFactory(); } 
-    
-    // размер ключей и блока
-    @Override public final int[] keySizes () { return engine.keySizes (); } 
-	@Override public final int   blockSize() { return engine.blockSize(); } 
+    // размер блока
+	@Override public final int blockSize() { return engine.blockSize(); } 
 
     // создать режим шифрования
     @Override public aladdin.capi.Cipher createBlockMode(CipherMode mode) throws IOException

@@ -462,7 +462,7 @@ namespace Aladdin.CAPI.GOST.Hash
         public static void TestHMAC256(Mac macAlgorithm) 
         {
             // выполнить тест
-            if (KeySizes.Contains(macAlgorithm.KeySizes, 32))
+            if (KeySizes.Contains(macAlgorithm.KeyFactory.KeySizes, 32))
             Mac.KnownTest(macAlgorithm, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -491,7 +491,7 @@ namespace Aladdin.CAPI.GOST.Hash
         public static void TestHMAC512(Mac macAlgorithm) 
         {
             // выполнить тест
-            if (KeySizes.Contains(macAlgorithm.KeySizes, 32))
+            if (KeySizes.Contains(macAlgorithm.KeyFactory.KeySizes, 32))
             Mac.KnownTest(macAlgorithm, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 

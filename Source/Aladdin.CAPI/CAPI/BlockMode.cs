@@ -78,13 +78,13 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////////
         // Изменение режима дополнения (исходный режим должен быть Any или None)
         ///////////////////////////////////////////////////////////////////////////
-        public class ConvertPadding : BlockMode
+        public class PaddingConverter : BlockMode
         {
             // режим шифрования 
             private Cipher cipher; 
         
             // конструктор
-            public ConvertPadding(Cipher cipher, PaddingMode padding) : base(padding)
+            public PaddingConverter(Cipher cipher, PaddingMode padding) : base(padding)
             {
                 // сохранить переданные параметры
                 this.cipher = RefObject.AddRef(cipher); 
@@ -98,9 +98,8 @@ namespace Aladdin.CAPI
             // тип ключа
             public override SecretKeyFactory KeyFactory  { get { return cipher.KeyFactory; }}
 
-            // размер ключа и блока
-            public override int[] KeySizes  { get { return cipher.KeySizes;  }}
-            public override int   BlockSize { get { return cipher.BlockSize; }}
+            // размер блока
+            public override int BlockSize { get { return cipher.BlockSize; }}
     
             // режим алгоритма
             public override CipherMode Mode { get { return cipher.Mode; }}

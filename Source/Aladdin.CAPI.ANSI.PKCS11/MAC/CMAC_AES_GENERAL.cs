@@ -30,11 +30,12 @@ namespace Aladdin.CAPI.ANSI.PKCS11.MAC
             // вернуть параметры алгоритма
             return new Mechanism(API.CKM_AES_CMAC_GENERAL, macSize); 
 	    }
-        // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.AES.Instance; }}
-	    // размер ключа в байтах
-	    public override int[] KeySizes { get { return keySizes; }}
-    
+        // тип ключей
+        public override SecretKeyFactory KeyFactory 
+		{ 
+			// тип ключей
+			get { return new Keys.AES(keySizes); }
+		}
 	    // размер хэш-значения в байтах
 	    public override int MacSize { get { return macSize; }}
 		// размер блока в байтах

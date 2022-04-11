@@ -7,12 +7,17 @@ namespace Aladdin.CAPI.ANSI.Keys
     ///////////////////////////////////////////////////////////////////////////
     public class TDES : SecretKeyFactory
     {
-        // тип ключа
-        public static readonly SecretKeyFactory Instance = new TDES(); 
-
-        // размер ключей
-	    public override int[] KeySizes { get { return new int[] { 16, 24 }; }}
-
+        // конструктор
+        public TDES(int[] keySizes) : base(keySizes) {}
+        // конструктор
+        public TDES() : base(new int[] { 16, 24 }) {}
+    
+        // ограничить размер ключей
+        public override SecretKeyFactory Narrow(int[] keySizes) 
+        { 
+            // ограничить размер ключей
+            return new TDES(keySizes); 
+        }
         // создать ключ
         public override ISecretKey Create(byte[] value) 
         { 

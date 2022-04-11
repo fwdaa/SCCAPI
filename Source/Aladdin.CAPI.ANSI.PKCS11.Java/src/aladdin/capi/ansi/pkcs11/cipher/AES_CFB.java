@@ -49,9 +49,7 @@ public class AES_CFB extends aladdin.capi.pkcs11.BlockMode
         return new Mechanism(algID, parameters.iv()); 
 	}
     // тип ключа
-    @Override public final SecretKeyFactory keyFactory() { return AES.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return keySizes; }
+    @Override public final SecretKeyFactory keyFactory() { return new AES(keySizes); } 
 	// размер блока
 	@Override public final int blockSize() { return 16; } 
 

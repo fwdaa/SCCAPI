@@ -25,7 +25,7 @@ namespace Aladdin.CAPI.GOST.Keyx.GOSTR3412
             byte[] iv = new byte[blockSize / 2]; 
         
             // создать алгоритм шифрования ключа
-            using (KeyWrap keyWrap = GOST.Wrap.KExp15.Create(factory, scope, oid, iv))
+            using (KeyWrap keyWrap = GOST.Wrap.KExp15.Create(factory, scope, blockSize, iv))
             {
                 // проверить поддержку алгоритма
                 if (keyWrap == null) return null;  
@@ -104,7 +104,7 @@ namespace Aladdin.CAPI.GOST.Keyx.GOSTR3412
             byte[] iv = new byte[blockSize / 2]; Array.Copy(random, 24, iv, 0, iv.Length);
         
             // создать алгоритм шифрования ключа
-            KeyWrap keyWrap = GOST.Wrap.KExp15.Create(factory, scope, oid, iv); 
+            KeyWrap keyWrap = GOST.Wrap.KExp15.Create(factory, scope, blockSize, iv); 
         
             // проверить наличие алгоритма
             if (keyWrap == null) throw new NotSupportedException(); return keyWrap; 

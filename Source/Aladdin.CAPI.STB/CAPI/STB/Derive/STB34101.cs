@@ -27,8 +27,6 @@ namespace Aladdin.CAPI.STB.Derive
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return belt.KeyFactory; }} 
-        // размер используемых ключей
-        public override int[] KeySizes { get { return belt.KeySizes; }}
 
         public override ISecretKey DeriveKey(ISecretKey key, 
             byte[] random, SecretKeyFactory keyFactory, int deriveSize) 

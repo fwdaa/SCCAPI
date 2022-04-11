@@ -1,4 +1,5 @@
 package aladdin.capi.ansi.pkcs11.pbe;
+import aladdin.capi.*;
 import aladdin.capi.ansi.pkcs11.*;
 import aladdin.capi.pkcs11.*;
 import aladdin.capi.pkcs11.Attribute;
@@ -16,15 +17,16 @@ public class PBESP12_TDES192_CBC extends PBESP12
 	public PBESP12_TDES192_CBC(Applet applet, long algID, byte[] salt, int iterations)
 	{
         // сохранить переданные параметры
-        super(applet, algID, salt, iterations, TDES.INSTANCE); 
+        super(applet, algID, salt, iterations); 
 	}
     // размер блока алгоритма
 	@Override public final int blockSize() { return 8; } 
-	// размер ключа
-	@Override protected int keyLength() { return 24; }  
-	// размер синхропосылки
-	@Override protected int ivLength() { return 8; }  
-    
+	// фабрика ключа
+	@Override protected SecretKeyFactory deriveKeyFactory()
+    {
+        // фабрика ключа
+        return new TDES(new int[] {24}); 
+    }
 	// создать алгоритм шифрования
 	@Override protected aladdin.capi.Cipher createCipher(byte[] iv) throws IOException
     {
@@ -33,7 +35,7 @@ public class PBESP12_TDES192_CBC extends PBESP12
 
         // создать алгоритм шифрования
         aladdin.capi.Cipher cipher = Creator.createCipher(
-            applet().provider(), applet(), mechanism, keyLength()
+            applet().provider(), applet(), mechanism, 24
         ); 
         // проверить наличие алгоритма
         if (cipher == null) throw new UnsupportedOperationException(); return cipher; 

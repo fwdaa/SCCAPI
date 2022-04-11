@@ -11,26 +11,38 @@ import java.io.*;
 public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implements Closeable
 {
     // используемый провайдер и номер слота
-	private final Provider provider; private final int slot;
-    
-	// параметры алгоритма
-	private AlgorithmParametersSpi parameters; 
-    
-    // открытый ключ и генератор случайных данных
-    private IPublicKey publicKey; private SecureRandom random; 
+	private final Provider provider; private final int slot; 
+	// параметры алгоритма и генератор случайных данных 
+	private SecureRandom random; private AlgorithmParametersSpi parameters; 
+    // имя алгоритма и алгоритм согласования 
+    private final String name; private IKeyAgreement keyAgreement; 
+    // пара ключей алгоритма
+    private IPublicKey publicKey; private IPrivateKey privateKey;  
 	
 	// конструктор
-	public KeyAgreementSpi(Provider provider, int slot, AlgorithmParametersSpi parameters) 
+	public KeyAgreementSpi(Provider provider, String name) 
 	{ 
         // сохранить переданные параметры
-        this.provider = provider; this.slot = slot; 
+        this.provider = provider; this.slot = provider.addObject(this); 
         
         // инициализировать переменные
-        this.parameters = parameters; this.publicKey = null; this.random = null;
+        parameters = new AlgorithmParametersSpi(provider, name); random = null; 
+        
+        // инициализировать переменные
+        this.name = name; this.keyAgreement = null; 
+        
+        // инициализировать переменные
+        this.publicKey = null; this.privateKey = null;
 	}  
     // освободить выделенные ресурсы
-    @Override public void close() { provider.clearObject(slot); }
-    
+    @Override public void close() throws IOException
+    { 
+        // освободить выделенные ресурсы
+        RefObject.release(privateKey);
+        
+        // освободить выделенные ресурсы
+        RefObject.release(keyAgreement); provider.removeObject(slot); 
+    }
 	@Override
 	protected final void engineInit(java.security.Key key, SecureRandom rand) 
 		throws InvalidKeyException 
@@ -49,14 +61,9 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
 	protected final void engineInit(java.security.Key key, AlgorithmParameterSpec paramSpec, 
 		SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException 
 	{
-        // указать фабрику создания ключей
-        KeyFactorySpi keyFactory = new KeyFactorySpi(provider); this.random = random; 
 		try {
 			// преобразовать тип параметров
-			if (paramSpec != null) parameters = AlgorithmParametersSpi.create(provider, paramSpec); 
-            
-            // проверить наличие параметров
-            if (parameters == null) throw new IllegalStateException(); 
+			parameters = provider.createParameters(name, paramSpec); this.random = random;
         }
 		// обработать возможное исключение
 		catch (InvalidParameterSpecException e) 
@@ -66,20 +73,20 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
         }  
         // проверить тип ключа
         if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
-                
+        
         // преобразовать тип ключа
-        try (IPrivateKey privateKey = keyFactory.translatePrivateKey((java.security.PrivateKey)key))  
+        try (IPrivateKey privateKey = provider.translatePrivateKey((java.security.PrivateKey)key))  
         {
             // создать алгоритм асимметричного шифрования
-            try (IKeyAgreement algorithm = (IKeyAgreement)privateKey.factory().createAlgorithm(
-                privateKey.scope(), parameters.getEncodable(), IKeyAgreement.class))
-            {
-                // проверить наличие алгоритма
-                if (algorithm == null) throw new InvalidAlgorithmParameterException(); 
+            IKeyAgreement keyAgreement = (IKeyAgreement)privateKey.factory().createAlgorithm(
+                privateKey.scope(), name, parameters.getEncodable(), IKeyAgreement.class
+            ); 
+            // проверить наличие алгоритма
+            if (keyAgreement == null) throw new InvalidAlgorithmParameterException(); 
 
-                // сохранить созданный алгоритм
-                provider.setObject(slot, new Slot(algorithm, privateKey));
-            }
+            // сохранить личный ключ и алгоритм
+            this.privateKey   = RefObject.addRef(privateKey  ); 
+            this.keyAgreement = RefObject.addRef(keyAgreement); 
         }
         // обработать возможное исключение
         catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); } 
@@ -88,17 +95,17 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
 	protected final java.security.Key engineDoPhase(java.security.Key key, boolean last) 
 		throws InvalidKeyException 
 	{
-        // получить алгоритм
-        Slot algorithmSlot = (Slot)provider.getObject(slot); 
-        
         // проверить наличие алгоритма
-        if (algorithmSlot == null || !last) throw new IllegalStateException(); 
+        if (keyAgreement == null || !last) throw new IllegalStateException(); 
         
-        // указать фабрику ключей
-        KeyFactorySpi keyFactory = new KeyFactorySpi(provider); 
+        // проверить тип ключа
+        if (!(key instanceof java.security.PublicKey)) throw new InvalidKeyException(); 
+        
+        // выполнить преобразование типа
+        java.security.PublicKey publicKey = (java.security.PublicKey)key; 
         
 		// преобразовать тип ключа
-		publicKey = (IPublicKey)keyFactory.engineTranslateKey(key); return null; 
+		this.publicKey = provider.translatePublicKey(publicKey); return null; 
 	}
 	@Override
 	protected final int engineGenerateSecret(byte[] key, int offset) 
@@ -130,20 +137,14 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
 		catch (InvalidKeyException e) {} throw new RuntimeException(); 
 	}
 	@Override
-	protected final javax.crypto.SecretKey engineGenerateSecret(String name) 
+	protected final javax.crypto.SecretKey engineGenerateSecret(String algorithm) 
 		throws InvalidKeyException 
 	{
         // проверить допустимость вызова
-        if (publicKey == null) throw new IllegalStateException(); 
-        
-        // получить алгоритм
-        Slot algorithmSlot = (Slot)provider.getObject(slot); 
-        
-        // проверить наличие алгоритма
-        if (algorithmSlot == null) throw new IllegalStateException(); 
+        if (keyAgreement == null || publicKey == null) throw new IllegalStateException(); 
         
         // получить фабрику кодирования ключей
-        aladdin.capi.SecretKeyFactory keyFactory = provider.getFactory().getSecretKeyFactory(name); 
+        aladdin.capi.SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(algorithm); 
         
         // проверить поддержку ключа
         if (keyFactory == null) throw new UnsupportedOperationException(); 
@@ -157,12 +158,12 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
         // указать размер ключа по умолчанию
         int keySize = keySizes[keySizes.length - 1]; 
         
-        // при отсутствии генератора
-        if (random == null)
+        // создать объект генератора случайных данных
+        try (IRand rand = provider.createRand(random))
         {
             // согласовать ключ
-            try (DeriveData kdfData = algorithmSlot.algorithm.deriveKey(
-                algorithmSlot.privateKey, publicKey, provider.getRand(), keyFactory, keySize))
+            try (DeriveData kdfData = keyAgreement.deriveKey(
+                privateKey, publicKey, rand, keyFactory, keySize))
             {
                 // проверить допустимость вызова
                 if (kdfData.random != null && kdfData.random.length != 0) 
@@ -171,54 +172,10 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
                     throw new IllegalStateException(); 
                 }
                 // вернуть созданный секретный ключ
-                return provider.registerSecretKey(kdfData.key); 
-            }
-            // обработать возможное исключение
-            catch (IOException e) { throw new RuntimeException(e); }
-        }
-        // указать генератор случайных данных
-        else try (IRand rand = new Rand(random, null))
-        {
-            // согласовать ключ
-            try (DeriveData kdfData = algorithmSlot.algorithm.deriveKey(
-                algorithmSlot.privateKey, publicKey, rand, keyFactory, keySize))
-            {
-                // проверить допустимость вызова
-                if (kdfData.random != null && kdfData.random.length != 0) 
-                {
-                    // при ошибке выбросить исключение
-                    throw new IllegalStateException(); 
-                }
-                // вернуть созданный секретный ключ
-                return provider.registerSecretKey(kdfData.key); 
+                return new SecretKey(provider, algorithm, kdfData.key); 
             }
         }
         // обработать возможное исключение
         catch (IOException e) { throw new RuntimeException(e); }
 	}
-    ///////////////////////////////////////////////////////////////////////////
-    // Алгоритм с используемым ключом
-    ///////////////////////////////////////////////////////////////////////////
-    private static class Slot implements Closeable
-    {
-        // алгоритм вычисления имитовставки и ключ
-        public final IKeyAgreement algorithm; public final IPrivateKey privateKey;  
-        
-        // конструктор
-        public Slot(IKeyAgreement algorithm, IPrivateKey privateKey)
-        {
-            // сохранить переданные параметры
-            this.algorithm = RefObject.addRef(algorithm); 
-            
-            // сохранить переданные параметры
-            this.privateKey = RefObject.addRef(privateKey); 
-        }
-        // деструктор
-        @Override public void close() throws IOException
-        {
-            // освободить выделенные ресурсы
-            RefObject.release(algorithm); RefObject.release(privateKey); 
-        }
-    }
-    
 }

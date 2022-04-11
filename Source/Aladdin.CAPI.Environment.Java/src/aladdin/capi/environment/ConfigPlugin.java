@@ -1,10 +1,13 @@
 package aladdin.capi.environment;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент расширения
 ///////////////////////////////////////////////////////////////////////////
-public class ConfigPlugin 
+public class ConfigPlugin implements Serializable 
 {
+    private static final long serialVersionUID = -3801426149739278004L;
+    
     // имя плагина и класса плагина
     private final String name; private final String className; 
     // размер salt-значения и число итераций

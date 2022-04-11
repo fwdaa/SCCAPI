@@ -17,23 +17,13 @@ namespace Aladdin.CAPI.GOST.Engine
         public GOST28147(byte[] sbox) : this(sbox, Endian) {}
 
         // конструктор
-        public GOST28147(byte[] sbox, Math.Endian endian) 
+        protected GOST28147(byte[] sbox, Math.Endian endian) 
         { 
             // сохранить переданные параметры
             this.sbox = sbox; this.endian = endian; 
         } 
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get 
-        { 
-            // в зависимости от способа кодирования
-            if (endian == Math.Endian.BigEndian)
-            {
-                // вернуть тип ключа
-                return Keys.GOSTR3412.Instance; 
-            }
-            // вернуть тип ключа
-            else return Keys.GOST28147.Instance; 
-        }}
+        public override SecretKeyFactory KeyFactory { get { return Keys.GOST.Instance; }}
         // размер блока
 		public override int BlockSize { get { return 8; } }
 

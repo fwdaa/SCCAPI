@@ -10,16 +10,16 @@ namespace Aladdin.CAPI.STB.Cipher
     public class STB34101 : RefObject, IBlockCipher
     {
         // фабрика алгоритмов, область видимости и размер ключа
-        private CAPI.Factory factory; private SecurityStore scope; private int keyLength;
+        private CAPI.Factory factory; private SecurityStore scope; 
 
         // конструктор
-        public STB34101(CAPI.Factory factory, SecurityStore scope, int keyLength)
+        public STB34101(CAPI.Factory factory, SecurityStore scope)
         {
             // сохранить переданные параметры	
             this.factory = RefObject.AddRef(factory); 
 
             // сохранить переданные параметры	
-            this.scope = RefObject.AddRef(scope); this.keyLength = keyLength; 
+            this.scope = RefObject.AddRef(scope); 
         } 
         // освободить выделенные ресурсы
         protected override void OnDispose()
@@ -28,14 +28,27 @@ namespace Aladdin.CAPI.STB.Cipher
             RefObject.Release(scope); RefObject.Release(factory); base.OnDispose();
         }
         // тип ключа
-        public SecretKeyFactory KeyFactory { get { return Keys.STB34101.Instance; }}
-        // размер ключей
-        public int[] KeySizes { get { return new int[] {keyLength}; }} 
+        public SecretKeyFactory KeyFactory 
+        { 
+            get { return new Keys.STB34101(new int[] { 16, 24, 32 }); }
+        }
         // размер блока
         public int BlockSize { get { return 16; }} 
         
         // получить режим шифрования
         public CAPI.Cipher CreateBlockMode(CipherMode mode)
+        {
+            // в зависимости от режима
+            if (mode is CipherMode.ECB) return new BlockMode(this, mode); 
+            if (mode is CipherMode.CBC) return new BlockMode(this, mode); 
+            if (mode is CipherMode.CFB) return new BlockMode(this, mode); 
+            if (mode is CipherMode.CTR) return new BlockMode(this, mode); 
+            
+            // режим не поддерживается
+            throw new NotSupportedException();
+        }
+        // получить режим шифрования
+        public CAPI.Cipher CreateBlockMode(CipherMode mode, int keyLength)
         {
             // вернуть режим шифрования ECB
             if (mode is CipherMode.ECB) 
@@ -111,6 +124,55 @@ namespace Aladdin.CAPI.STB.Cipher
             }
             // режим не поддерживается
             throw new NotSupportedException(); 
+        }
+        ///////////////////////////////////////////////////////////////////////////
+        // Алгоритм шифрования с неизвестным заранее размером ключа
+        ///////////////////////////////////////////////////////////////////////////
+        private class BlockMode : CAPI.Cipher
+        {
+            // блочный алгоритм шифрования и режим
+            private STB34101 blockCipher; private CipherMode mode; 
+        
+            // конструктор
+            public BlockMode(STB34101 blockCipher, CipherMode mode)
+            {
+                // сохранить переданные параметры
+                this.blockCipher = RefObject.AddRef(blockCipher); this.mode = mode; 
+            }
+            // освободить выделенные ресурсы
+            protected override void OnDispose()
+            {
+                // освободить выделенные ресурсы
+                RefObject.Release(blockCipher); base.OnDispose();
+            }
+            // тип ключа
+            public override SecretKeyFactory KeyFactory { get { return blockCipher.KeyFactory; }}
+            // размер блока
+            public override int BlockSize { get { return blockCipher.BlockSize; }}
+        
+            // режим алгоритма
+            public override CipherMode Mode { get { return mode; }} 
+    
+            // алгоритм зашифрования данных
+            public override Transform CreateEncryption(ISecretKey key, PaddingMode padding) 
+            {
+                // создать блочный алгоритм шифрования
+                using (CAPI.Cipher blockMode = blockCipher.CreateBlockMode(mode, key.Length))
+                {
+                    // создать преобразование зашифрования
+                    return blockMode.CreateEncryption(key, padding); 
+                }
+            }
+            // алгоритм расшифрования данных
+            public override Transform CreateDecryption(ISecretKey key, PaddingMode padding) 
+            {
+                // создать блочный алгоритм шифрования
+                using (CAPI.Cipher blockMode = blockCipher.CreateBlockMode(mode, key.Length))
+                {
+                    // создать преобразование расшифрования
+                    return blockMode.CreateDecryption(key, padding); 
+                }
+            }
         }
     }
 }

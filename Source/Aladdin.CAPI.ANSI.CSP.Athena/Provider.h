@@ -35,7 +35,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		}
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+			Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, System::Type^ type) override;
 	};
 }}}}}

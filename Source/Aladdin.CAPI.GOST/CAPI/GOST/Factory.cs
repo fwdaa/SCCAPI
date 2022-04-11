@@ -1,5 +1,6 @@
 using System; 
 using System.IO; 
+using System.Collections.Generic; 
 
 //////////////////////////////////////////////////////////////////////////////
 // Фабрика создания алгоритмов
@@ -8,6 +9,34 @@ namespace Aladdin.CAPI.GOST
 {
     public class Factory : CAPI.Factory
     {
+        // фабрики кодирования ключей 
+        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
+        private Dictionary<String, KeyFactory      > keyFactories; 
+    
+        // конструктор
+        public Factory()
+        {
+            // создать список фабрик кодирования ключей
+            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
+        
+            // заполнить список фабрик кодирования ключей
+            secretKeyFactories.Add("GOST28147"      , Keys.GOST.Instance); 
+            secretKeyFactories.Add("GOST3412_2015_M", Keys.GOST.Instance); 
+            secretKeyFactories.Add("GOST3412_2015_K", Keys.GOST.Instance); 
+        
+            // создать список фабрик кодирования ключей
+            keyFactories = new Dictionary<String, KeyFactory>(); 
+
+            // заполнить список фабрик кодирования ключей
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_1994    , new GOSTR3410.DHKeyFactory(ASN1.GOST.OID.gostR3410_1994    )); 
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_2001    , new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2001    )); 
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_2012_256, new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_256)); 
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_2012_512, new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_512)); 
+        }
+	    // Поддерживаемые фабрики кодирования ключей
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
+	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+    
 	    ///////////////////////////////////////////////////////////////////////
         // Фиксированные таблицы подстановок
 	    ///////////////////////////////////////////////////////////////////////
@@ -26,48 +55,6 @@ namespace Aladdin.CAPI.GOST
         public static readonly byte[] SBoxZ = ASN1.GOST.GOST28147SBoxReference.DecodeSBox(
             ASN1.GOST.GOST28147SBoxReference.Parameters(ASN1.GOST.OID.encrypts_tc26_z)
         ); 
-	    ///////////////////////////////////////////////////////////////////////
-        // ГОСТ 28147-89
-	    ///////////////////////////////////////////////////////////////////////
-        public IBlockCipher CreateGOST28147(SecurityStore scope, String paramOID) 
-        {
-    	    // получить именованные параметры алгоритма
-		    ASN1.GOST.GOST28147ParamSet namedParameters = ASN1.GOST.GOST28147ParamSet.Parameters(paramOID);
-        
-            // указать параметры алгоритма диверсификации
-            ASN1.ISO.AlgorithmIdentifier kdfParameters = new ASN1.ISO.AlgorithmIdentifier(
-                 namedParameters.KeyMeshing.Algorithm, new ASN1.ObjectIdentifier(paramOID)
-            ); 
-            // создать алгоритм диверсификации
-            using (KeyDerive kdfAlgorithm = CreateAlgorithm<KeyDerive>(scope, kdfParameters))
-            {
-                // проверить наличие алгоритма
-                if (kdfAlgorithm == null) return null; 
-                    
-                // раскодировать таблицу подстановок
-                byte[] sbox = ASN1.GOST.GOST28147SBoxReference.DecodeSBox(namedParameters.EUZ); 
-                
-                // создать алгоритм шифрования блока
-                using (CAPI.Cipher engine = new Engine.GOST28147(sbox))
-                {
-                    // создать блочный алгоритм шифрования
-                    return new Cipher.GOST28147(engine, kdfAlgorithm); 
-                }
-            }
-        }
-	    ///////////////////////////////////////////////////////////////////////
-	    // Поддерживаемые фабрики кодирования ключей
-	    ///////////////////////////////////////////////////////////////////////
-	    public override KeyFactory[] KeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new KeyFactory[] {
-                new GOSTR3410.DHKeyFactory(ASN1.GOST.OID.gostR3410_1994    ), 
-                new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2001    ), 
-                new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_256), 
-                new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_512) 
-            }; 
-	    }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Cоздать алгоритм генерации ключей
 	    ///////////////////////////////////////////////////////////////////////
@@ -107,10 +94,9 @@ namespace Aladdin.CAPI.GOST
 	    // Cоздать алгоритм для параметров
 	    ///////////////////////////////////////////////////////////////////////
 	    protected override IAlgorithm CreateAlgorithm(CAPI.Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type) 
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type) 
 	    {
-		    // определить идентификатор алгоритма
-		    String oid = parameters.Algorithm.Value; for (int i = 0; i < 1; i++)
+		    for (int i = 0; i < 1; i++)
             { 
 		        // для алгоритмов хэширования
 		        if (type == typeof(CAPI.Hash))
@@ -118,14 +104,14 @@ namespace Aladdin.CAPI.GOST
 			        if (oid == ASN1.GOST.OID.gostR3411_94) 
 			        {
                         // проверить наличие идентификатора
-                        if (ASN1.Encodable.IsNullOrEmpty(parameters.Parameters))
+                        if (ASN1.Encodable.IsNullOrEmpty(parameters))
                         { 
 			                // установить идентификатор по умолчанию
 			                oid = ASN1.GOST.OID.hashes_cryptopro; 
                         }
                         else {
 				            // раскодировать идентификатор параметров
-				            oid = new ASN1.ObjectIdentifier(parameters.Parameters).Value;
+				            oid = new ASN1.ObjectIdentifier(parameters).Value;
 			            }
 		                // получить именованные параметры алгоритма
 		                ASN1.GOST.GOSTR3411ParamSet1994 namedParameters = 
@@ -150,7 +136,7 @@ namespace Aladdin.CAPI.GOST
 			        {
 			            // раскодировать параметры алгоритма
 			            ASN1.GOST.GOST28147CipherParameters algParameters = 
-                            new ASN1.GOST.GOST28147CipherParameters(parameters.Parameters); 
+                            new ASN1.GOST.GOST28147CipherParameters(parameters); 
 
 			            // получить именованные параметры алгоритма
 			            ASN1.GOST.GOST28147ParamSet namedParameters = 
@@ -182,18 +168,18 @@ namespace Aladdin.CAPI.GOST
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.GOST.GOST28147CipherParameters cipherParameters = 
-                            new ASN1.GOST.GOST28147CipherParameters(parameters.Parameters); 
+                            new ASN1.GOST.GOST28147CipherParameters(parameters); 
                 
                         // извлечь идентификатор набора параметров
-                        string paramOID = cipherParameters.ParamSet.Value; 
-                
-				        // получить именованные параметры алгоритма
-				        ASN1.GOST.GOST28147ParamSet namedParameters = 
-                            ASN1.GOST.GOST28147ParamSet.Parameters(paramOID);
+                        ASN1.ObjectIdentifier paramSet = cipherParameters.ParamSet; 
                 
                         // создать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = CreateGOST28147(scope, paramOID))
+                        using (IBlockCipher blockCipher = CreateBlockCipher(scope, "GOST28147", paramSet))
                         {
+				            // получить именованные параметры алгоритма
+				            ASN1.GOST.GOST28147ParamSet namedParameters = 
+                                ASN1.GOST.GOST28147ParamSet.Parameters(paramSet.Value);
+                
                             // указать синхропосылку
                             byte[] iv = cipherParameters.IV.Value;
                     
@@ -227,7 +213,7 @@ namespace Aladdin.CAPI.GOST
 			        if (oid == ASN1.GOST.OID.gostR3412_64)
 			        {
                         // создать алгоритм шифрования блока
-                        using (CAPI.Cipher engine = new Engine.GOST28147(SBoxZ, Math.Endian.BigEndian)) 
+                        using (CAPI.Cipher engine = new Engine.GOSTR3412_M(SBoxZ)) 
                         {
                             // создать режим шифрования
                             return new Mode.GOSTR3412.ECB(engine, PaddingMode.Any); 
@@ -237,11 +223,23 @@ namespace Aladdin.CAPI.GOST
 			        if (oid == ASN1.GOST.OID.gostR3412_128)
 			        {
                         // создать алгоритм шифрования блока
-                        using (CAPI.Cipher engine = new Engine.GOSTR3412())
+                        using (CAPI.Cipher engine = new Engine.GOSTR3412_K())
                         {
                             // создать режим шифрования
                             return new Mode.GOSTR3412.ECB(engine, PaddingMode.Any); 
                         }
+                    }
+                }
+                // для алгоритма шифрования
+                else if (type == typeof(IBlockCipher))
+                {
+                    if (oid == "GOST28147")
+                    {
+                        // раскодировать параметры алгоритма
+                        ASN1.ObjectIdentifier cipherParameters = new ASN1.ObjectIdentifier(parameters); 
+                    
+                        // создать блочный алгоритм шифрования
+                        return Cipher.GOST28147.Create(factory, scope, cipherParameters.Value); 
                     }
                 }
 		        // для алгоритмов наследования ключа
@@ -250,7 +248,7 @@ namespace Aladdin.CAPI.GOST
 			        if (oid == ASN1.GOST.OID.keyMeshing_cryptopro) 
 			        {
 				        // раскодировать параметры алгоритма
-				        ASN1.ObjectIdentifier paramSet = new ASN1.ObjectIdentifier(parameters.Parameters); 
+				        ASN1.ObjectIdentifier paramSet = new ASN1.ObjectIdentifier(parameters); 
                 
 				        // получить именованные параметры алгоритма
 				        ASN1.GOST.GOST28147ParamSet namedParameters = 
@@ -274,13 +272,13 @@ namespace Aladdin.CAPI.GOST
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.GOST.KeyWrapParameters wrapParameters = 
-                            new ASN1.GOST.KeyWrapParameters(parameters.Parameters);
+                            new ASN1.GOST.KeyWrapParameters(parameters);
                 
                         // проверить указание UKM
                         if (wrapParameters.Ukm == null) throw new InvalidDataException(); 
 
                         // извлечь идентификатор набора параметров
-                        string sboxOID = wrapParameters.ParamSet.Value; byte[] start = new byte[8]; 
+                        ASN1.ObjectIdentifier paramSet = wrapParameters.ParamSet; byte[] start = new byte[8]; 
                     
                         // извлечь из UKM стартовое хэш-значение
                         Array.Copy(wrapParameters.Ukm.Value, 0, start, 0, start.Length); 
@@ -288,13 +286,13 @@ namespace Aladdin.CAPI.GOST
                         // указать параметры алгоритма вычисления имитовставки
                         ASN1.ISO.AlgorithmIdentifier macParameters = new ASN1.ISO.AlgorithmIdentifier(
                             new ASN1.ObjectIdentifier(ASN1.GOST.OID.gost28147_89_MAC), 
-                            new ASN1.GOST.GOST28147CipherParameters(new ASN1.OctetString(start), wrapParameters.ParamSet)
+                            new ASN1.GOST.GOST28147CipherParameters(new ASN1.OctetString(start), paramSet)
                         ); 
                         // создать алгоритм вычисления имитовставки
                         using (Mac macAlgorithm = factory.CreateAlgorithm<Mac>(scope, macParameters))
                         {
                             // создать блочный алгоритм шифрования
-                            using (IBlockCipher blockCipher = CreateGOST28147(scope, sboxOID))
+                            using (IBlockCipher blockCipher = CreateBlockCipher(scope, "GOST28147", paramSet))
                             {
                                 // получить режим простой замены
                                 using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(new CipherMode.ECB()))
@@ -309,13 +307,13 @@ namespace Aladdin.CAPI.GOST
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.GOST.KeyWrapParameters wrapParameters = 
-                            new ASN1.GOST.KeyWrapParameters(parameters.Parameters);
+                            new ASN1.GOST.KeyWrapParameters(parameters);
                 
                         // проверить указание UKM
                         if (wrapParameters.Ukm == null) throw new InvalidDataException(); 
 
                         // извлечь идентификатор набора параметров
-                        string sboxOID = wrapParameters.ParamSet.Value; byte[] start = new byte[8]; 
+                        ASN1.ObjectIdentifier paramSet = wrapParameters.ParamSet; byte[] start = new byte[8]; 
                     
                         // извлечь из UKM стартовое хэш-значение
                         Array.Copy(wrapParameters.Ukm.Value, 0, start, 0, start.Length); 
@@ -323,13 +321,13 @@ namespace Aladdin.CAPI.GOST
                         // указать параметры алгоритма вычисления имитовставки
                         ASN1.ISO.AlgorithmIdentifier macParameters = new ASN1.ISO.AlgorithmIdentifier(
                             new ASN1.ObjectIdentifier(ASN1.GOST.OID.gost28147_89_MAC), 
-                            new ASN1.GOST.GOST28147CipherParameters(new ASN1.OctetString(start), wrapParameters.ParamSet)
+                            new ASN1.GOST.GOST28147CipherParameters(new ASN1.OctetString(start), paramSet)
                         ); 
                         // создать алгоритм вычисления имитовставки
                         using (Mac macAlgorithm = factory.CreateAlgorithm<Mac>(scope, macParameters))
                         {
                             // создать блочный алгоритм шифрования
-                            using (IBlockCipher blockCipher = CreateGOST28147(scope, sboxOID))
+                            using (IBlockCipher blockCipher = CreateBlockCipher(scope, "GOST28147", paramSet))
                             {
                                 // получить режим простой замены
                                 using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(new CipherMode.ECB()))
@@ -389,633 +387,714 @@ namespace Aladdin.CAPI.GOST
                 }
             }
             // вызвать базовую функцию
-            return Factory.RedirectAlgorithm(factory, scope, parameters, type); 
+            return Factory.RedirectAlgorithm(factory, scope, oid, parameters, type); 
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Перкнаправление алгоритмов
 	    ///////////////////////////////////////////////////////////////////////
 	    public static new IAlgorithm RedirectAlgorithm(CAPI.Factory factory, 
-            SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type) 
+            SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type) 
         {
-		    // определить идентификатор алгоритма
-		    String oid = parameters.Algorithm.Value; for (int i = 0; i < 1; i++)
-            { 
-		        // для алгоритмов хэширования
-		        if (type == typeof(CAPI.Hash))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3411_94) 
+		    // для алгоритмов хэширования
+		    if (type == typeof(CAPI.Hash))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3411_94) 
+			    {
+			        // при отсутствии параметров алгоритма
+			        if (ASN1.Encodable.IsNullOrEmpty(parameters)) 
 			        {
-				        // при отсутствии параметров алгоритма
-				        if (ASN1.Encodable.IsNullOrEmpty(parameters.Parameters)) 
-				        {
-                            // указать параметры по умолчанию
-                            parameters = new ASN1.ISO.AlgorithmIdentifier(parameters.Algorithm, 
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro)
-                            ); 
-                            // создать алгоритм
-                            return factory.CreateAlgorithm<CAPI.Hash>(scope, parameters); 
-				        }
+                        // указать параметры по умолчанию
+                        parameters = new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro);
+                         
+                        // создать алгоритм
+                        return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
 			        }
-                }
-		        // для алгоритмов вычисления имитовставки
-		        else if (type == typeof(Mac))
-		        {
-			        // создать алгоритм вычисления имитовставки
-			        if (oid == ASN1.GOST.OID.gostR3411_94_HMAC) 
-			        {
-				        // указать параметры алгоритма хэширования
-				       ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), parameters.Parameters
-				        ); 
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма хэширования
-                            if (hashAlgorithm == null) break; 
-
-                            // создать алгоритм вычисления имитовставки
-                            return new CAPI.MAC.HMAC(hashAlgorithm); 
-                        }
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3411_2012_HMAC_256) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_256), parameters.Parameters
-				        ); 
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма хэширования
-                            if (hashAlgorithm == null) break; 
-
-                            // создать алгоритм вычисления имитовставки
-                            return new CAPI.MAC.HMAC(hashAlgorithm); 
-                        }
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3411_2012_HMAC_512) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_512), parameters.Parameters
-				        ); 
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма хэширования
-                            if (hashAlgorithm == null) break; 
-
-                            // создать алгоритм вычисления имитовставки
-                            return new CAPI.MAC.HMAC(hashAlgorithm); 
-                        }
-			        }
-                }
-                // для алгоритма шифрования
-		        else if (type == typeof(CAPI.Cipher))
-                {
-                    if (oid == ASN1.GOST.OID.gostR3412_64_ctr_acpkm)
-                    {
-				        // раскодировать параметры алгоритма
-				        ASN1.GOST.GOSTR3412EncryptionParameters algParameters = 
-                            new ASN1.GOST.GOSTR3412EncryptionParameters(parameters.Parameters); 
-
-                        // создать режим CTR со специальной сменой ключа
-                        return Cipher.GOSTR3412.CreateCTR_ACPKM(
-                            factory, scope, 8, algParameters.Ukm.Value
-                        ); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_128_ctr_acpkm)
-                    {
-				        // раскодировать параметры алгоритма
-				        ASN1.GOST.GOSTR3412EncryptionParameters algParameters = 
-                            new ASN1.GOST.GOSTR3412EncryptionParameters(parameters.Parameters); 
-
-                        // создать режим CTR со специальной сменой ключа
-                        return Cipher.GOSTR3412.CreateCTR_ACPKM(
-                            factory, scope, 16, algParameters.Ukm.Value
-                        ); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_64_ctr_acpkm_omac)
-                    {
-				        // раскодировать параметры алгоритма
-				        ASN1.GOST.GOSTR3412EncryptionParameters algParameters = 
-                            new ASN1.GOST.GOSTR3412EncryptionParameters(parameters.Parameters); 
-                    
-                        // создать режим CTR со специальной сменой ключа и имитовставкой
-                        return Cipher.GOSTR3412.CreateCTR_ACPKM_OMAC(
-                            factory, scope, 8, algParameters.Ukm.Value
-                        ); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_128_ctr_acpkm_omac)
-                    {
-				        // раскодировать параметры алгоритма
-				        ASN1.GOST.GOSTR3412EncryptionParameters algParameters = 
-                            new ASN1.GOST.GOSTR3412EncryptionParameters(parameters.Parameters); 
-                    
-                        // создать режим CTR со специальной сменой ключа и имитовставкой
-                        return Cipher.GOSTR3412.CreateCTR_ACPKM_OMAC(
-                            factory, scope, 16, algParameters.Ukm.Value
-                        ); 
-                    }
-                }
-		        // для алгоритмов наследования ключа
-		        else if (type == typeof(KeyDerive))
-                {
-			        if (oid == ASN1.GOST.OID.keyMeshing_none) 
-                    {
-                        // создать алгоритм наследования ключа
-                        return new CAPI.Derive.NOKDF(Engine.GOST28147.Endian); 
-                    }
-                }
-		        // для алгоритмов подписи хэш-значения
-		        else if (type == typeof(SignData))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3411_94_R3410_1994) 
-			        {
-                        // указать параметры алгоритма подписи
-                        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994), ASN1.Null.Instance
-                        ); 
-                        // получить алгоритм подписи
-                        using (SignHash signAlgorithm = factory.CreateAlgorithm<SignHash>(
-                            scope, signHashParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (signAlgorithm == null) break; 
-                    
-                            // создать алгоритм
-                            return new Sign.GOSTR3410.SignData1994(signAlgorithm); 
-                        }
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3411_94_R3410_2001) 
-			        {
-                        // указать параметры алгоритма подписи
-                        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001), ASN1.Null.Instance
-                        ); 
-                        // получить алгоритм подписи
-                        using (SignHash signAlgorithm = factory.CreateAlgorithm<SignHash>(
-                            scope, signHashParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (signAlgorithm == null) break; 
-                    
-                            // создать алгоритм
-                            return new Sign.GOSTR3410.SignData2001(signAlgorithm); 
-                        }
-                    }
-			        if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_256) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_256), ASN1.Null.Instance
-				        ); 
-				        // указать параметры алгоритма подписи
-				        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_256), ASN1.Null.Instance
-				        );
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (hash == null) break; 
-                    
-                            // получить алгоритм подписи
-                            using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
-                                scope, signHashParameters))
-                            {
-                                // проверить наличие алгоритма
-                                if (signHash == null) break; 
-                    
-                                // создать алгоритм
-                                return new CAPI.SignHashData(hash, hashParameters, signHash);
-                            }
-                        }
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_512) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_512), ASN1.Null.Instance
-				        ); 
-				        // указать параметры алгоритма подписи
-				        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_512), ASN1.Null.Instance
-				        );
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (hash == null) break; 
-                    
-                            // получить алгоритм подписи
-                            using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
-                                scope, signHashParameters))
-                            {
-                                // проверить наличие алгоритма
-                                if (signHash == null) break; 
-                    
-                                // создать алгоритм
-                                return new CAPI.SignHashData(hash, hashParameters, signHash);
-                            }
-                        }
-                    }
-		        }
-		        else if (type == typeof(VerifyData))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3411_94_R3410_1994) 
-			        {
-                        // указать параметры алгоритма проверки подписи
-                        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994), ASN1.Null.Instance
-                        ); 
-                        // получить алгоритм подписи
-                        using (VerifyHash verifyAlgorithm = factory.CreateAlgorithm<VerifyHash>(
-                            scope, verifyHashParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (verifyAlgorithm == null) break; 
-                    
-                            // создать алгоритм
-                            return new Sign.GOSTR3410.VerifyData1994(verifyAlgorithm); 
-                        }
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3411_94_R3410_2001) 
-			        {
-                        // указать параметры алгоритма проверки подписи
-                        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001), ASN1.Null.Instance
-                        ); 
-                        // получить алгоритм подписи
-                        using (VerifyHash verifyAlgorithm = factory.CreateAlgorithm<VerifyHash>(
-                            scope, verifyHashParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (verifyAlgorithm == null) break; 
-                    
-                            // создать алгоритм
-                            return new Sign.GOSTR3410.VerifyData2001(verifyAlgorithm); 
-                        }
-                    }
-			        if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_256) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_256), ASN1.Null.Instance
-				        ); 
-				        // указать параметры алгоритма проверки подписи
-				        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_256), ASN1.Null.Instance
-				        );
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (hash == null) break; 
-
-                            // получить алгоритм проверки подписи
-                            using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
-                                scope, verifyHashParameters))
-                            {
-                                // проверить поддержку алгоритма
-                                if (verifyHash == null) break; 
-
-                                // создать алгоритм проверки подписи данных
-                                return new VerifyHashData(hash, hashParameters, verifyHash); 
-                            }
-                        }
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_512) 
-			        {
-				        // указать параметры алгоритма хэширования
-				        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_512), ASN1.Null.Instance
-				        ); 
-				        // указать параметры алгоритма проверки подписи
-				        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-					        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_512), ASN1.Null.Instance
-				        );
-                        // получить алгоритм хэширования
-                        using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
-                            scope, hashParameters))
-                        {
-                            // проверить поддержку алгоритма
-                            if (hash == null) break; 
-
-                            // получить алгоритм проверки подписи
-                            using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
-                                scope, verifyHashParameters))
-                            {
-                                // проверить поддержку алгоритма
-                                if (verifyHash == null) break; 
-
-                                // создать алгоритм проверки подписи данных
-                                return new VerifyHashData(hash, hashParameters, verifyHash); 
-                            }
-                        }
-                    }
-		        }
-		        // для алгоритмов согласования общего ключа
-		        else if (type == typeof(ITransportAgreement))
-                {
-                    if (oid == ASN1.GOST.OID.gostR3410_1994_SSDH)
-                    {
-                        // создать алгоритм согласования ключа
-                        return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
-                            factory, scope, parameters
-                        ); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3410_1994_ESDH)
-                    {
-                        // указать параметры алгоритма SSDH
-                        ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994_SSDH), 
-                                parameters.Parameters
-                        ); 
-                        // создать алгоритм SSDH
-                        using (ITransportAgreement transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, ssdhParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break;
-
-                            // вернуть алгоритм ESDH
-                            return new CAPI.Keyx.ESDH(factory, transportAgreement); 
-                        }
-                    }
-			        if (oid == ASN1.GOST.OID.gostR3410_2001_SSDH)
-                    {
-                        // создать алгоритм согласования ключа
-                        return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
-                            factory, scope, parameters
-                        ); 
-                    }
-			        if (oid == ASN1.GOST.OID.gostR3410_2001_ESDH)
-                    {
-                        // указать параметры алгоритма SSDH
-                        ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
-                            new ASN1.ISO.AlgorithmIdentifier(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001_SSDH), 
-                                parameters.Parameters
-                        ); 
-                        // создать алгоритм SSDH
-                        using (ITransportAgreement transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, ssdhParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break;
-
-                            // вернуть алгоритм ESDH
-                            return new CAPI.Keyx.ESDH(factory, transportAgreement); 
-                        }
-                    }
-			        if (oid == ASN1.GOST.OID.gostR3410_2012_DH_256)
-                    {
-                        // создать алгоритм согласования ключа
-                        return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
-                            factory, scope, parameters
-                        ); 
-                    }
-			        if (oid == ASN1.GOST.OID.gostR3410_2012_DH_512)
-                    {
-                        // создать алгоритм согласования ключа
-                        return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
-                            factory, scope, parameters
-                        ); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15)
-                    {
-                        // создать алгоритм согласования ключа
-                        return Keyx.GOSTR3412.KExp15Agreement.CreateSSDH(
-                            factory, scope, parameters
-                        ); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15)
-                    {
-                        // создать алгоритм согласования ключа
-                        return Keyx.GOSTR3412.KExp15Agreement.CreateSSDH(
-                            factory, scope, parameters
-                        ); 
-                    }
-                }
-		        // для алгоритмов согласования общего ключа
-		        else if (type == typeof(TransportKeyWrap))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3410_1994) 
-			        {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994_ESDH), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-				        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyWrap(
-                            factory, scope, transportParameters.Algorithm.Value);
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3410_2001) 
-			        {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001_ESDH), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-				        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyWrap(
-                            factory, scope, transportParameters.Algorithm.Value);
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3410_2012_256)
-                    {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_256), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-				        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyWrap(
-                            factory, scope, transportParameters.Algorithm.Value);
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3410_2012_512) 
-                    {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_512), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-				        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyWrap(
-                            factory, scope, transportParameters.Algorithm.Value);
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15)
-                    {
-                        // создать алгоритм согласования ключа
-                        return new Keyx.GOSTR3412.KExp15KeyWrap(factory, scope, parameters); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15)
-                    {
-                        // создать алгоритм согласования ключа
-                        return new Keyx.GOSTR3412.KExp15KeyWrap(factory, scope, parameters); 
-                    }
-		        }
-		        // для алгоритмов согласования общего ключа
-		        else if (type == typeof(TransportKeyUnwrap))
-		        {
-			        if (oid == ASN1.GOST.OID.gostR3410_1994) 
-			        {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994_ESDH), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-                        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3410_2001) 
-			        {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001_ESDH), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-                        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
-			        }
-			        if (oid == ASN1.GOST.OID.gostR3410_2012_256)
-                    {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_256), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-                        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3410_2012_512) 
-                    {
-                        // указать параметры алгоритма
-                        ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
-                            new ASN1.GOST.KeyWrapParameters(
-                                new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
-                        );
-                        // указать идентификатор алгоритма
-                        ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
-                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_512), wrapParameters
-                        ); 
-                        // создать алгоритм согласования ключа
-                        using (IAlgorithm transportAgreement = 
-                            factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
-                        {
-                            // проверить наличие алгоритма
-                            if (transportAgreement == null) break; 
-                        }
-                        // создать алгоритм согласования общего ключа
-				        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15)
-                    {
-                        // создать алгоритм согласования ключа
-                        return new Keyx.GOSTR3412.KExp15KeyUnwrap(parameters); 
-                    }
-                    if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15)
-                    {
-                        // создать алгоритм согласования ключа
-                        return new Keyx.GOSTR3412.KExp15KeyUnwrap(parameters); 
-                    }
-		        }
+			    }
             }
+		    // для алгоритмов вычисления имитовставки
+		    else if (type == typeof(Mac))
+		    {
+			    // создать алгоритм вычисления имитовставки
+			    if (oid == ASN1.GOST.OID.gostR3411_94_HMAC) 
+			    {
+			        // указать параметры алгоритма хэширования
+			       ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), parameters
+			        ); 
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hashAlgorithm == null) return null; 
+
+                        // создать алгоритм вычисления имитовставки
+                        return new CAPI.MAC.HMAC(hashAlgorithm); 
+                    }
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3411_2012_HMAC_256) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_256), parameters
+			        ); 
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hashAlgorithm == null) return null; 
+
+                        // создать алгоритм вычисления имитовставки
+                        return new CAPI.MAC.HMAC(hashAlgorithm); 
+                    }
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3411_2012_HMAC_512) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_512), parameters
+			        ); 
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hashAlgorithm == null) return null; 
+
+                        // создать алгоритм вычисления имитовставки
+                        return new CAPI.MAC.HMAC(hashAlgorithm); 
+                    }
+			    }
+            }
+            // для алгоритма шифрования
+		    else if (type == typeof(CAPI.Cipher))
+            {
+                if (oid == ASN1.GOST.OID.gostR3412_64_ctr_acpkm)
+                {
+                    // извлечь синхропосылку из параметров
+                    byte[] iv = new ASN1.GOST.GOSTR3412EncryptionParameters(parameters).Ukm.Value; 
+                
+                    // указать синхропосылку для шифрования
+                    Array.Resize(ref iv, iv.Length - 8); 
+
+                    // создать режим CTR со специальной сменой ключа
+                    return Cipher.GOSTR3412.CreateCTR_ACPKM(factory, scope, 8, iv); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_128_ctr_acpkm)
+                {
+                    // извлечь синхропосылку из параметров
+                    byte[] iv = new ASN1.GOST.GOSTR3412EncryptionParameters(parameters).Ukm.Value; 
+                
+                    // указать синхропосылку для шифрования
+                    Array.Resize(ref iv, iv.Length - 8); 
+
+                    // создать режим CTR со специальной сменой ключа
+                    return Cipher.GOSTR3412.CreateCTR_ACPKM(factory, scope, 16, iv); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_64_ctr_acpkm_omac)
+                {
+                    // извлечь синхропосылку из параметров
+                    byte[] iv = new ASN1.GOST.GOSTR3412EncryptionParameters(parameters).Ukm.Value; 
+
+                    // указать идентификатор алгоритма
+                    oid = ASN1.GOST.OID.gostR3412_64_ctr_acpkm; 
+                
+                    // создать режим CTR со специальной сменой ключа
+                    using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                        scope, oid, parameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (cipher == null) return null; byte[] seed = new byte[8]; 
+                    
+                        // указать синхропосылку для генерации ключей
+                        Array.Copy(iv, iv.Length - 8, seed, 0, seed.Length);        
+                
+                        // добавить вычисление OMAC
+                        return Cipher.GOSTR3412_OMAC.Create(factory, scope, 8, cipher, seed); 
+                    }
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_128_ctr_acpkm_omac)
+                {
+                    // извлечь синхропосылку из параметров
+                    byte[] iv = new ASN1.GOST.GOSTR3412EncryptionParameters(parameters).Ukm.Value; 
+
+                    // указать идентификатор алгоритма
+                    oid = ASN1.GOST.OID.gostR3412_128_ctr_acpkm; 
+                
+                    // создать режим CTR со специальной сменой ключа
+                    using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(
+                        scope, oid, parameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (cipher == null) return null; byte[] seed = new byte[8]; 
+                    
+                        // указать синхропосылку для генерации ключей
+                        Array.Copy(iv, iv.Length - 8, seed, 0, seed.Length);        
+                
+                        // добавить вычисление OMAC
+                        return Cipher.GOSTR3412_OMAC.Create(factory, scope, 16, cipher, seed); 
+                    }
+                }
+            }
+            // для алгоритма шифрования
+            else if (type == typeof(IBlockCipher))
+            {
+                if (oid == "GOST3412_2015_M") 
+                { 
+                    // создать блочный алгоритм шифрования
+                    return Cipher.GOSTR3412.Create(factory, scope, 8); 
+                }
+                if (oid == "GOST3412_2015_K") 
+                { 
+                    // создать блочный алгоритм шифрования
+                    return Cipher.GOSTR3412.Create(factory, scope, 16); 
+                }
+            }
+		    // для алгоритмов наследования ключа
+		    else if (type == typeof(KeyDerive))
+            {
+			    if (oid == ASN1.GOST.OID.keyMeshing_none) 
+                {
+                    // создать алгоритм наследования ключа
+                    return new CAPI.Derive.NOKDF(Engine.GOST28147.Endian); 
+                }
+            }
+		    // для алгоритмов подписи хэш-значения
+		    else if (type == typeof(SignData))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3411_94_R3410_1994) 
+			    {
+                    // указать параметры алгоритма подписи
+                    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994), ASN1.Null.Instance
+                    ); 
+                    // получить алгоритм подписи
+                    using (SignHash signAlgorithm = factory.CreateAlgorithm<SignHash>(
+                        scope, signHashParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (signAlgorithm == null) return null; 
+                
+                        // создать алгоритм
+                        return new Sign.GOSTR3410.SignData1994(signAlgorithm); 
+                    }
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3411_94_R3410_2001) 
+			    {
+                    // указать параметры алгоритма подписи
+                    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001), ASN1.Null.Instance
+                    ); 
+                    // получить алгоритм подписи
+                    using (SignHash signAlgorithm = factory.CreateAlgorithm<SignHash>(
+                        scope, signHashParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (signAlgorithm == null) return null; 
+                
+                        // создать алгоритм
+                        return new Sign.GOSTR3410.SignData2001(signAlgorithm); 
+                    }
+                }
+			    if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_256) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_256), ASN1.Null.Instance
+			        ); 
+			        // указать параметры алгоритма подписи
+			        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_256), ASN1.Null.Instance
+			        );
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (hash == null) return null; 
+                
+                        // получить алгоритм подписи
+                        using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
+                            scope, signHashParameters))
+                        {
+                            // проверить наличие алгоритма
+                            if (signHash == null) return null; 
+                
+                            // создать алгоритм
+                            return new CAPI.SignHashData(hash, hashParameters, signHash);
+                        }
+                    }
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_512) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_512), ASN1.Null.Instance
+			        ); 
+			        // указать параметры алгоритма подписи
+			        ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_512), ASN1.Null.Instance
+			        );
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (hash == null) return null; 
+                
+                        // получить алгоритм подписи
+                        using (SignHash signHash = factory.CreateAlgorithm<SignHash>(
+                            scope, signHashParameters))
+                        {
+                            // проверить наличие алгоритма
+                            if (signHash == null) return null; 
+                
+                            // создать алгоритм
+                            return new CAPI.SignHashData(hash, hashParameters, signHash);
+                        }
+                    }
+                }
+		    }
+		    else if (type == typeof(VerifyData))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3411_94_R3410_1994) 
+			    {
+                    // указать параметры алгоритма проверки подписи
+                    ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994), ASN1.Null.Instance
+                    ); 
+                    // получить алгоритм подписи
+                    using (VerifyHash verifyAlgorithm = factory.CreateAlgorithm<VerifyHash>(
+                        scope, verifyHashParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (verifyAlgorithm == null) return null; 
+                
+                        // создать алгоритм
+                        return new Sign.GOSTR3410.VerifyData1994(verifyAlgorithm); 
+                    }
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3411_94_R3410_2001) 
+			    {
+                    // указать параметры алгоритма проверки подписи
+                    ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001), ASN1.Null.Instance
+                    ); 
+                    // получить алгоритм подписи
+                    using (VerifyHash verifyAlgorithm = factory.CreateAlgorithm<VerifyHash>(
+                        scope, verifyHashParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (verifyAlgorithm == null) return null; 
+                
+                        // создать алгоритм
+                        return new Sign.GOSTR3410.VerifyData2001(verifyAlgorithm); 
+                    }
+                }
+			    if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_256) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_256), ASN1.Null.Instance
+			        ); 
+			        // указать параметры алгоритма проверки подписи
+			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_256), ASN1.Null.Instance
+			        );
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (hash == null) return null; 
+
+                        // получить алгоритм проверки подписи
+                        using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
+                            scope, verifyHashParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (verifyHash == null) return null; 
+
+                            // создать алгоритм проверки подписи данных
+                            return new VerifyHashData(hash, hashParameters, verifyHash); 
+                        }
+                    }
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3411_2012_R3410_2012_512) 
+			    {
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_2012_512), ASN1.Null.Instance
+			        ); 
+			        // указать параметры алгоритма проверки подписи
+			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_512), ASN1.Null.Instance
+			        );
+                    // получить алгоритм хэширования
+                    using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(
+                        scope, hashParameters))
+                    {
+                        // проверить поддержку алгоритма
+                        if (hash == null) return null; 
+
+                        // получить алгоритм проверки подписи
+                        using (VerifyHash verifyHash = factory.CreateAlgorithm<VerifyHash>(
+                            scope, verifyHashParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (verifyHash == null) return null; 
+
+                            // создать алгоритм проверки подписи данных
+                            return new VerifyHashData(hash, hashParameters, verifyHash); 
+                        }
+                    }
+                }
+		    }
+		    // для алгоритмов согласования общего ключа
+		    else if (type == typeof(ITransportAgreement))
+            {
+                if (oid == ASN1.GOST.OID.gostR3410_1994_SSDH)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
+                        factory, scope, ssdhParameters
+                    ); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3410_1994_ESDH)
+                {
+                    // указать параметры алгоритма SSDH
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994_SSDH), 
+                            parameters
+                    ); 
+                    // создать алгоритм SSDH
+                    using (ITransportAgreement transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, ssdhParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null;
+
+                        // вернуть алгоритм ESDH
+                        return new CAPI.Keyx.ESDH(factory, transportAgreement); 
+                    }
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2001_SSDH)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
+                        factory, scope, ssdhParameters
+                    ); 
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2001_ESDH)
+                {
+                    // указать параметры алгоритма SSDH
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001_SSDH), 
+                            parameters
+                    ); 
+                    // создать алгоритм SSDH
+                    using (ITransportAgreement transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, ssdhParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null;
+
+                        // вернуть алгоритм ESDH
+                        return new CAPI.Keyx.ESDH(factory, transportAgreement); 
+                    }
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2012_DH_256)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
+                        factory, scope, ssdhParameters
+                    ); 
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2012_DH_512)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return Keyx.GOSTR3410.TransportAgreement.CreateSSDH(
+                        factory, scope, ssdhParameters
+                    ); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return Keyx.GOSTR3412.KExp15Agreement.CreateSSDH(
+                        factory, scope, ssdhParameters
+                    ); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier ssdhParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return Keyx.GOSTR3412.KExp15Agreement.CreateSSDH(
+                        factory, scope, ssdhParameters
+                    ); 
+                }
+            }
+		    // для алгоритмов согласования общего ключа
+		    else if (type == typeof(TransportKeyWrap))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3410_1994) 
+			    {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994_ESDH), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+			        // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyWrap(
+                        factory, scope, transportParameters.Algorithm.Value);
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3410_2001) 
+			    {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001_ESDH), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+			        // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyWrap(
+                        factory, scope, transportParameters.Algorithm.Value);
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3410_2012_256)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_256), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+			        // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyWrap(
+                        factory, scope, transportParameters.Algorithm.Value);
+                }
+                if (oid == ASN1.GOST.OID.gostR3410_2012_512) 
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_512), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+			        // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyWrap(
+                        factory, scope, transportParameters.Algorithm.Value);
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier algParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return new Keyx.GOSTR3412.KExp15KeyWrap(factory, scope, algParameters); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier algParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return new Keyx.GOSTR3412.KExp15KeyWrap(factory, scope, algParameters); 
+                }
+		    }
+		    // для алгоритмов согласования общего ключа
+		    else if (type == typeof(TransportKeyUnwrap))
+		    {
+			    if (oid == ASN1.GOST.OID.gostR3410_1994) 
+			    {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_1994_ESDH), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+                    // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3410_2001) 
+			    {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2001_ESDH), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+                    // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
+			    }
+			    if (oid == ASN1.GOST.OID.gostR3410_2012_256)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_256), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+                    // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
+                }
+                if (oid == ASN1.GOST.OID.gostR3410_2012_512) 
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier wrapParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.keyWrap_cryptopro), 
+                        new ASN1.GOST.KeyWrapParameters(
+                            new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A), null)
+                    );
+                    // указать идентификатор алгоритма
+                    ASN1.ISO.AlgorithmIdentifier transportParameters = new ASN1.ISO.AlgorithmIdentifier(
+                        new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3410_2012_DH_512), wrapParameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    using (IAlgorithm transportAgreement = 
+                        factory.CreateAlgorithm<ITransportAgreement>(scope, transportParameters))
+                    {
+                        // проверить наличие алгоритма
+                        if (transportAgreement == null) return null; 
+                    }
+                    // создать алгоритм согласования общего ключа
+			        return new Keyx.GOSTR3410.TransportKeyUnwrap(transportParameters.Algorithm.Value);
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_64_wrap_kexp15)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier algParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return new Keyx.GOSTR3412.KExp15KeyUnwrap(algParameters); 
+                }
+                if (oid == ASN1.GOST.OID.gostR3412_128_wrap_kexp15)
+                {
+                    // указать параметры алгоритма
+                    ASN1.ISO.AlgorithmIdentifier algParameters = 
+                        new ASN1.ISO.AlgorithmIdentifier(
+                            new ASN1.ObjectIdentifier(oid), parameters
+                    ); 
+                    // создать алгоритм согласования ключа
+                    return new Keyx.GOSTR3412.KExp15KeyUnwrap(algParameters); 
+                }
+		    }
             // вызвать базовую функцию
-            return CAPI.Factory.RedirectAlgorithm(factory, scope, parameters, type);
+            return CAPI.Factory.RedirectAlgorithm(factory, scope, oid, parameters, type);
         }
     }
 }

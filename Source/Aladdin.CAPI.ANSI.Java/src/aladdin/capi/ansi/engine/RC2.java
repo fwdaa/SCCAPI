@@ -11,20 +11,22 @@ public final class RC2 extends Cipher
     // способ кодирования чисел
     private static final Endian ENDIAN = Endian.LITTLE_ENDIAN; 
     
-    // эффективное число битов
-    private final int effectiveKeyBits;
+    // эффективное число битов и допустимые размеры ключей
+    private final int effectiveKeyBits; private final int[] keySizes;
         
     // конструктор
-    public RC2(int effectiveKeyBits) 
+    public RC2(int effectiveKeyBits) { this(effectiveKeyBits, KeySizes.range(1, 128)); }
+    // конструктор
+    public RC2(int effectiveKeyBits, int[] keySizes) 
     {  
         // сохранить переданные параметры
-        this.effectiveKeyBits = effectiveKeyBits; 
+        this.effectiveKeyBits = effectiveKeyBits; this.keySizes = keySizes; 
     } 
     // тип ключа
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.RC2.INSTANCE; 
+        return new aladdin.capi.ansi.keys.RC2(keySizes); 
     } 
     // размер блока
 	@Override public final int blockSize() { return 8;	}
@@ -40,7 +42,7 @@ public final class RC2 extends Cipher
 			throw new InvalidKeyException();
 		}
         // проверить размер ключа
-        if (value.length < 1 || value.length > 128)
+        if (!KeySizes.contains(keyFactory().keySizes(), value.length))
         {
             // при ошибке выбросить исключение
             throw new InvalidKeyException(); 
@@ -59,7 +61,7 @@ public final class RC2 extends Cipher
 			throw new InvalidKeyException();
 		}
         // проверить размер ключа
-        if (value.length < 1 || value.length > 128)
+        if (!KeySizes.contains(keyFactory().keySizes(), value.length))
         {
             // при ошибке выбросить исключение
             throw new InvalidKeyException(); 
@@ -302,7 +304,7 @@ public final class RC2 extends Cipher
     ////////////////////////////////////////////////////////////////////////////
     public static void test63(Cipher engine) throws Exception
     {
-        if (KeySizes.contains(engine.keySizes(), 8))
+        if (KeySizes.contains(engine.keyFactory().keySizes(), 8))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
@@ -316,7 +318,9 @@ public final class RC2 extends Cipher
     }
     public static void test64(Cipher engine) throws Exception
     {
-        if (KeySizes.contains(engine.keySizes(), 8))
+        int[] keySizes = engine.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 8))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff,
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff
@@ -327,7 +331,7 @@ public final class RC2 extends Cipher
             (byte)0x27, (byte)0x8b, (byte)0x27, (byte)0xe4, 
             (byte)0x2e, (byte)0x2f, (byte)0x0d, (byte)0x49
         }); 
-        if (KeySizes.contains(engine.keySizes(), 8))
+        if (KeySizes.contains(keySizes, 8))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x30, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
@@ -338,7 +342,7 @@ public final class RC2 extends Cipher
             (byte)0x30, (byte)0x64, (byte)0x9e, (byte)0xdf, 
             (byte)0x9b, (byte)0xe7, (byte)0xd2, (byte)0xc2
         }); 
-        if (KeySizes.contains(engine.keySizes(), 1))
+        if (KeySizes.contains(keySizes, 1))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x88
         }, new byte[] {
@@ -348,7 +352,7 @@ public final class RC2 extends Cipher
             (byte)0x61, (byte)0xa8, (byte)0xa2, (byte)0x44, 
             (byte)0xad, (byte)0xac, (byte)0xcc, (byte)0xf0
         }); 
-        if (KeySizes.contains(engine.keySizes(), 7))
+        if (KeySizes.contains(keySizes, 7))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
             (byte)0x90, (byte)0x87, (byte)0x5a
@@ -359,7 +363,7 @@ public final class RC2 extends Cipher
             (byte)0x6c, (byte)0xcf, (byte)0x43, (byte)0x08, 
             (byte)0x97, (byte)0x4c, (byte)0x26, (byte)0x7f
         }); 
-        if (KeySizes.contains(engine.keySizes(), 16))
+        if (KeySizes.contains(keySizes, 16))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
             (byte)0x90, (byte)0x87, (byte)0x5a, (byte)0x7f, 
@@ -375,7 +379,7 @@ public final class RC2 extends Cipher
     }
     public static void test128(Cipher engine) throws Exception
     {
-        if (KeySizes.contains(engine.keySizes(), 16))
+        if (KeySizes.contains(engine.keyFactory().keySizes(), 16))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
             (byte)0x90, (byte)0x87, (byte)0x5a, (byte)0x7f, 
@@ -391,7 +395,7 @@ public final class RC2 extends Cipher
     }
     public static void test129(Cipher engine) throws Exception
     {
-        if (KeySizes.contains(engine.keySizes(), 33))
+        if (KeySizes.contains(engine.keyFactory().keySizes(), 33))
         Cipher.knownTest(engine, PaddingMode.NONE, new byte[] {
             (byte)0x88, (byte)0xbc, (byte)0xa9, (byte)0x0e, 
             (byte)0x90, (byte)0x87, (byte)0x5a, (byte)0x7f, 

@@ -30,8 +30,6 @@ namespace Aladdin.CAPI.Mode
 
         // тип ключа
         public override SecretKeyFactory KeyFactory  { get { return engine.KeyFactory; }}
-        // размер ключей
-	    public override int[] KeySizes { get { return engine.KeySizes; }}
         // размер режима алгоритма
 	    public override int BlockSize { get { 
 

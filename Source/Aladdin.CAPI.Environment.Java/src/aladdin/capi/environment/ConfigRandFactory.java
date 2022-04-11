@@ -1,10 +1,13 @@
 package aladdin.capi.environment;
+import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент описания генератора случайных данных
 ///////////////////////////////////////////////////////////////////////////
-public class ConfigRandFactory 
+public class ConfigRandFactory implements Serializable 
 {
+    private static final long serialVersionUID = -8013470775358919482L;
+    
     // имя элемента и признак наличия GUI
     private final String name; private final boolean gui; 
     // имя класса фабрики

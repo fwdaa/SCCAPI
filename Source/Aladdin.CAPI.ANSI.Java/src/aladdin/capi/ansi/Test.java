@@ -5,7 +5,6 @@ import aladdin.asn1.iso.*;
 import aladdin.asn1.ansi.*;
 import aladdin.capi.*;
 import aladdin.capi.Factory;
-import java.math.*;
 
 public class Test extends aladdin.capi.Test
 {
@@ -728,7 +727,7 @@ public class Test extends aladdin.capi.Test
         println("MAC.CMAC_AES");
 
         // создать блочный алгоритм шифрования
-        try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.AES(factory, scope, 16))
+        try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
         {
             // создать алгоритм выработки имитовставки
             try (Mac algorithm = aladdin.capi.mac.OMAC1.create(blockCipher, new byte[16], 16))
@@ -1072,7 +1071,7 @@ public class Test extends aladdin.capi.Test
         println("KeyWrap.SMIME_DES");
 
         // указать алгоритм шифрования
-        try (IBlockCipher des = new aladdin.capi.ansi.cipher.DES(factory, scope))
+        try (IBlockCipher des = factory.createBlockCipher(scope, "DES", Null.INSTANCE))
         {
             // выполнить тест
             aladdin.capi.ansi.engine.DES.testSMIME(des);
@@ -1083,7 +1082,7 @@ public class Test extends aladdin.capi.Test
         println("KeyWrap.SMIME_TDES");
 
         // указать алгоритм шифрования
-        try (IBlockCipher tdes = new aladdin.capi.ansi.cipher.TDES(factory, scope, 24))
+        try (IBlockCipher tdes = factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
         {
             // выполнить тест
             aladdin.capi.ansi.engine.TDES.testSMIME(tdes);
@@ -1229,9 +1228,8 @@ public class Test extends aladdin.capi.Test
             KeyUsage keyUsage = keyFactory.getKeyUsage(); 
         
             // указать параметры ключа
-            IParameters parameters = new aladdin.capi.ansi.rsa.Parameters(
-                bits, BigInteger.valueOf(0x10001L)
-            ); 
+            IParameters parameters = new aladdin.capi.ansi.rsa.Parameters(bits); 
+            
             // сгенерировать ключевую пару
             try (KeyPair keyPair = generateKeyPair(
                 factory, scope, rand, trustFactory, null, generate, 

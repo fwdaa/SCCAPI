@@ -58,37 +58,37 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::Provider(String^ name)
 	algs[NCRYPT_SIGNATURE_OPERATION] = gcnew List<String^>(
 		Handle->EnumerateAlgorithms(NCRYPT_SIGNATURE_OPERATION, NCRYPT_SILENT_FLAG)
 	);  
-} 
-
-Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::~Provider() 
-{$ 
-	// освободить выделенные ресурсы
-	delete primitiveFactory; 
-}
-
-array<Aladdin::CAPI::KeyFactory^>^ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::KeyFactories()
-{$
-	// создать список фабрик ключей
-	List<KeyFactory^>^ keyFactories = gcnew List<KeyFactory^>(); 
 
 	// проверить поддержку алгоритма
 	if (algs[NCRYPT_ASYMMETRIC_ENCRYPTION_OPERATION]->Contains(NCRYPT_RSA_ALGORITHM) || 
 		algs[NCRYPT_SIGNATURE_OPERATION            ]->Contains(NCRYPT_RSA_ALGORITHM))
 	{
-		// добавить фабрику ключей
-		keyFactories->Add(gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa)); 
+		// заполнить список фабрик кодирования ключей
+		KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa, 
+			gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa)
+		); 
+		KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa_oaep, 
+			gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa_oaep)
+		); 
+		KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa_pss, 
+			gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa_pss)
+		); 
 	}
 	// проверить поддержку алгоритма
 	if (algs[NCRYPT_SECRET_AGREEMENT_OPERATION]->Contains(NCRYPT_DH_ALGORITHM))
 	{
-		// добавить фабрику ключей
-		keyFactories->Add(gcnew ANSI::X942::KeyFactory(ASN1::ANSI::OID::x942_dh_public_key)); 
+		// заполнить список фабрик кодирования ключей
+		KeyFactories()->Add(ASN1::ANSI::OID::x942_dh_public_key, 
+			gcnew ANSI::X942::KeyFactory(ASN1::ANSI::OID::x942_dh_public_key) 
+		); 
 	}
 	// проверить поддержку алгоритма
 	if (algs[NCRYPT_SIGNATURE_OPERATION]->Contains(NCRYPT_DSA_ALGORITHM))
 	{
-		// добавить фабрику ключей
-		keyFactories->Add(gcnew ANSI::X957::KeyFactory(ASN1::ANSI::OID::x957_dsa)); 
+		// заполнить список фабрик кодирования ключей
+		KeyFactories()->Add(ASN1::ANSI::OID::x957_dsa, 
+			gcnew ANSI::X957::KeyFactory(ASN1::ANSI::OID::x957_dsa)
+		); 
 	}
 	// проверить поддержку алгоритма
 	if (algs[NCRYPT_SIGNATURE_OPERATION       ]->Contains(NCRYPT_ECDSA_P256_ALGORITHM) || 
@@ -98,11 +98,17 @@ array<Aladdin::CAPI::KeyFactory^>^ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider
 		algs[NCRYPT_SECRET_AGREEMENT_OPERATION]->Contains(NCRYPT_ECDH_P384_ALGORITHM ) || 
 		algs[NCRYPT_SECRET_AGREEMENT_OPERATION]->Contains(NCRYPT_ECDH_P521_ALGORITHM ))
 	{
-		// добавить фабрику ключей
-		keyFactories->Add(gcnew ANSI::X962::KeyFactory(ASN1::ANSI::OID::x962_ec_public_key)); 
+		// заполнить список фабрик кодирования ключей
+		KeyFactories()->Add(ASN1::ANSI::OID::x962_ec_public_key, 
+			gcnew ANSI::X962::KeyFactory(ASN1::ANSI::OID::x962_ec_public_key)
+		); 
 	}
-	// вернуть список фабрик
-	return keyFactories->ToArray(); 
+} 
+
+Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::~Provider() 
+{$ 
+	// освободить выделенные ресурсы
+	delete primitiveFactory; 
 }
 
 Aladdin::CAPI::CNG::NPrivateKey^ 
@@ -349,7 +355,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateGenerator(
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)
 	{
 		// преобразовать тип параметров
-		ANSI::RSA::IParameters^ rsaParameters = (ANSI::RSA::IParameters^)parameters;
+		ANSI::RSA::IParameters^ rsaParameters = ANSI::RSA::Parameters::Convert(parameters);
 
 		// проверить значение экспоненты
 		if (rsaParameters->PublicExponent != Math::BigInteger::ValueOf(0x10001L)) return nullptr;
@@ -411,31 +417,37 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateGenerator(
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 	CAPI::Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, Type^ type)
+	String^ oid, ASN1::IEncodable^ parameters, Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов хэширования
 		if (type == CAPI::Hash::typeid)
 		{
 			// создать алгоритм для параметров
 			if (IAlgorithm^ algorithm = ((Factory^)primitiveFactory)->
-				CreateAlgorithm<CAPI::Hash^>(scope, parameters)) return algorithm; 
+				CreateAlgorithm<CAPI::Hash^>(scope, oid, parameters)) return algorithm; 
 		}
 		// для алгоритмов вычисления имитовставки
 		else if (type == Mac::typeid)
 		{
 			// создать алгоритм для параметров
 			if (IAlgorithm^ algorithm = ((Factory^)primitiveFactory)->
-				CreateAlgorithm<Mac^>(scope, parameters)) return algorithm; 
+				CreateAlgorithm<Mac^>(scope, oid, parameters)) return algorithm; 
 		}
 		// для алгоритмов шифрования
 		else if (type == CAPI::Cipher::typeid)
 		{
 			// создать алгоритм для параметров
 			if (IAlgorithm^ algorithm = ((Factory^)primitiveFactory)->
-				CreateAlgorithm<CAPI::Cipher^>(scope, parameters)) return algorithm; 
+				CreateAlgorithm<CAPI::Cipher^>(scope, oid, parameters)) return algorithm; 
+		}
+		// для алгоритмов шифрования
+		else if (type == CAPI::IBlockCipher::typeid)
+		{
+			// создать алгоритм для параметров
+			if (IAlgorithm^ algorithm = ((Factory^)primitiveFactory)->
+				CreateAlgorithm<CAPI::IBlockCipher^>(scope, oid, parameters)) return algorithm; 
 		}
 		// для алгоритмов асимметричного шифрования
 		else if (type == Encipherment::typeid)
@@ -453,7 +465,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 				{
 					// раскодировать параметры
 					ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams^ algParameters = 
-						gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters->Parameters);
+						gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters);
 
 					// получить алгоритм хэширования
 					Using<CAPI::Hash^> hashAlgorithm(
@@ -502,7 +514,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 				{
 					// раскодировать параметры
 					ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams^ algParameters = 
-						gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters->Parameters);
+						gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters);
 
 					// получить алгоритм хэширования
 					Using<CAPI::Hash^> hashAlgorithm(
@@ -551,7 +563,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 				{
 					// раскодировать параметры алгоритма
 					ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams^ algParameters = 
-						gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters->Parameters); 
+						gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters); 
  
 					// проверить поддержку параметров
 					if (algParameters->TrailerField->Value->IntValue != 0x01) break; 
@@ -617,7 +629,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 				{
 					// раскодировать параметры алгоритма
 					ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams^ algParameters = 
-						gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters->Parameters); 
+						gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters); 
  
 					// проверить поддержку параметров
 					if (algParameters->TrailerField->Value->IntValue != 0x01) break; 
@@ -691,7 +703,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -712,7 +724,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -733,7 +745,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -754,7 +766,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -775,7 +787,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -796,7 +808,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -816,5 +828,5 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::Provider::CreateAlgorithm(
 		}
 	}
 	// вызвать базовую функцию
-	return ANSI::Factory::RedirectAlgorithm(factory, scope, parameters, type); 
+	return ANSI::Factory::RedirectAlgorithm(factory, scope, oid, parameters, type); 
 }

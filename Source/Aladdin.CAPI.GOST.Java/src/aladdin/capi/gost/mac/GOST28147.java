@@ -63,7 +63,7 @@ public class GOST28147 extends BlockMac
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
 	// размер MAC-значения в байтах
 	@Override public final int macSize() { return 4; }

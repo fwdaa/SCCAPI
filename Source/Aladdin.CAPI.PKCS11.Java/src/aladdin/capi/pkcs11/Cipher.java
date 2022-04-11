@@ -88,7 +88,5 @@ public abstract class Cipher extends aladdin.capi.Cipher
         }
         // тип ключа
         @Override public final SecretKeyFactory keyFactory() { return cipher.keyFactory(); } 
-        // размер ключей
-        @Override public final int[] keySizes() { return cipher.keySizes(); } 
     }
 };

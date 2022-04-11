@@ -14,11 +14,13 @@ namespace Aladdin.CAPI.STB.Engine
         public STB34101(int[] keySizes) { this.keySizes = keySizes; } private int[] keySizes; 
         
         // тип ключа
-        public override SecretKeyFactory KeyFactory { get { return Keys.STB34101.Instance; }}
-		// размер ключей
-		public override int[] KeySizes { get { return keySizes; }}
+        public override SecretKeyFactory KeyFactory 
+        { 
+            // тип ключа
+            get { return new Keys.STB34101(keySizes); }
+        }
         // размер блока
-		public override int BlockSize { get { return 16;	}}
+		public override int BlockSize { get { return 16; }}
 
 		// алгоритм зашифрования блока данных
 		protected override Transform CreateEncryption(ISecretKey key) 
@@ -312,13 +314,16 @@ namespace Aladdin.CAPI.STB.Engine
 	    ///////////////////////////////////////////////////////////////////////////
         public static void Test(IBlockCipher blockCipher) 
         {
+            // определить допустимые разммеры ключа
+            int[] keySizes = blockCipher.KeyFactory.KeySizes; 
+
             CipherMode mode = new CipherMode.ECB(); 
         
             // создать режим шифрования
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             { 
                 // выполнить тест
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                     (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -355,7 +360,7 @@ namespace Aladdin.CAPI.STB.Engine
                     (byte)0xDC, (byte)0xB5, (byte)0xE5, (byte)0xD1, 
                     (byte)0x56, (byte)0x9F, (byte)0x9A, (byte)0xB0		
                 });
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                     (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -392,7 +397,7 @@ namespace Aladdin.CAPI.STB.Engine
                     (byte)0x75, (byte)0x01, (byte)0x7F, (byte)0x73, 
                     (byte)0x80, (byte)0x6D, (byte)0xA9
                 }); 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                     (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -429,7 +434,7 @@ namespace Aladdin.CAPI.STB.Engine
                     (byte)0xDD, (byte)0x4E, (byte)0xA7, (byte)0x79, 
                     (byte)0x9E, (byte)0xB2, (byte)0x3D, (byte)0x31
                 }); 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                     (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -470,7 +475,7 @@ namespace Aladdin.CAPI.STB.Engine
             // создать режим шифрования
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             { 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                     (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -507,7 +512,7 @@ namespace Aladdin.CAPI.STB.Engine
                     (byte)0x58, (byte)0x38, (byte)0x8B, (byte)0xF8, 
                     (byte)0xA6, (byte)0x8E, (byte)0x33, (byte)0x09
                 }); 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                     (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -548,7 +553,7 @@ namespace Aladdin.CAPI.STB.Engine
             // создать режим шифрования
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             { 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                     (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -585,7 +590,7 @@ namespace Aladdin.CAPI.STB.Engine
                     (byte)0xDD, (byte)0x4E, (byte)0xA7, (byte)0x79, 
                     (byte)0x9E, (byte)0xB2, (byte)0x3D, (byte)0x31
                 }); 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                     (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -626,7 +631,7 @@ namespace Aladdin.CAPI.STB.Engine
             // создать режим шифрования
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             { 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                     (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 
@@ -673,7 +678,7 @@ namespace Aladdin.CAPI.STB.Engine
             // создать режим шифрования
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             { 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0x92, (byte)0xBD, (byte)0x9B, (byte)0x1C, 
                     (byte)0xE5, (byte)0xD1, (byte)0x41, (byte)0x01, 
@@ -720,7 +725,7 @@ namespace Aladdin.CAPI.STB.Engine
             // создать режим шифрования
             using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(mode))
             { 
-                if (CAPI.KeySizes.Contains(cipher.KeySizes, 32))
+                if (CAPI.KeySizes.Contains(keySizes, 32))
                 CAPI.Cipher.KnownTest(cipher, PaddingMode.Any, new byte[] {
                     (byte)0xE9, (byte)0xDE, (byte)0xE7, (byte)0x2C, 
                     (byte)0x8F, (byte)0x0C, (byte)0x0F, (byte)0xA6, 

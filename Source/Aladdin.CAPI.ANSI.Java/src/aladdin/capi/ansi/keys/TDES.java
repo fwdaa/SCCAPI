@@ -10,14 +10,13 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class TDES extends SecretKeyFactory
 {
-    // тип ключа
-    public static final SecretKeyFactory INSTANCE = new TDES(); 
-        
     // конструктор
-    private TDES() { super("DESede", "TripleDES"); }
-        
-	// размер ключей
-	@Override public final int[] keySizes() { return new int[] { 16, 24 }; }
+    public TDES(int[] keySizes) { super(keySizes); }
+    // конструктор
+    public TDES() { super(new int[] { 16, 24 }); }
+    
+    // ограничить размер ключей
+    @Override public SecretKeyFactory narrow(int[] keySizes) { return new TDES(keySizes); }
     
     // создать ключ
     @Override public ISecretKey create(byte[] value) 
@@ -67,8 +66,8 @@ public class TDES extends SecretKeyFactory
         return new SecretKey(this, value); 
     }
     // извлечь данные ключа
-    @Override public KeySpec getSpec(byte[] value, Class<? extends KeySpec> specType)
-        throws InvalidKeyException
+    @Override public KeySpec getSpec(String algorithm, byte[] value, 
+        Class<? extends KeySpec> specType) throws InvalidKeyException
     {
         // в зависимости от типа
         if (specType.isAssignableFrom(DESedeKeySpec.class))
@@ -77,6 +76,6 @@ public class TDES extends SecretKeyFactory
             return new DESedeKeySpec(value); 
         }
         // вызвать базовую функцию
-        return super.getSpec(value, specType); 
+        return super.getSpec(algorithm, value, specType); 
     }
 }

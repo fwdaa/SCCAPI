@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Security.Authentication; 
 
 namespace Aladdin.CAPI.PKCS12
 {
@@ -164,7 +165,7 @@ namespace Aladdin.CAPI.PKCS12
                             }
                         }
                         // проверить совпадение имитовставок
-                        if (!Arrays.Equals(check, mac)) throw new AuthenticationException();
+                        if (!Arrays.Equals(check, mac)) throw new InvalidCredentialException();
                     }
                 }
             }

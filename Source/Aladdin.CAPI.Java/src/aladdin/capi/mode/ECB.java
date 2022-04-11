@@ -29,8 +29,6 @@ public class ECB extends BlockMode
     
     // тип ключа
 	@Override public final SecretKeyFactory keyFactory() { return engine.keyFactory(); }
-    // размер ключа
-	@Override public final int[] keySizes() { return engine.keySizes(); }
     // размер блока
 	@Override public final int blockSize() { return engine.blockSize(); }
     

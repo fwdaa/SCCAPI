@@ -8,7 +8,7 @@ import java.io.*;
 public final class SecureRandomSpi extends java.security.SecureRandomSpi
 {
     // номер версии при сериализации
-    private static final long serialVersionUID = 1801128706881733860L;
+    private static final long serialVersionUID = 9086654708472650368L;
     
     // конструктор
     public SecureRandomSpi(Provider provider) 
@@ -29,7 +29,7 @@ public final class SecureRandomSpi extends java.security.SecureRandomSpi
 	@Override protected final void engineNextBytes(byte[] bytes) 
 	{
         // получить генератор случайных данных
-        try (IRand rand = provider.getRand())
+        try (IRand rand = provider.createRand(null))
         {
             // сгенерировать случайные данные
             rand.generate(bytes, 0, bytes.length);  

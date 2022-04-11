@@ -21,11 +21,8 @@ public final class AES extends Cipher
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.ansi.keys.AES.INSTANCE; 
+        return new aladdin.capi.ansi.keys.AES(keySizes); 
     } 
-	// размер ключей
-	@Override public final int[] keySizes() { return keySizes; } 
-        
     // размер блока
 	@Override public final int blockSize() { return 16;	}
 
@@ -1040,9 +1037,9 @@ public final class AES extends Cipher
     ////////////////////////////////////////////////////////////////////////////
     public static void test(Cipher engine) throws Exception
     {
-        if (KeySizes.contains(engine.keySizes(), 16)) test128(engine); 
-        if (KeySizes.contains(engine.keySizes(), 24)) test192(engine); 
-        if (KeySizes.contains(engine.keySizes(), 32)) test256(engine); 
+        if (KeySizes.contains(engine.keyFactory().keySizes(), 16)) test128(engine); 
+        if (KeySizes.contains(engine.keyFactory().keySizes(), 24)) test192(engine); 
+        if (KeySizes.contains(engine.keyFactory().keySizes(), 32)) test256(engine); 
     }
     public static void test128(Cipher engine) throws Exception
     {

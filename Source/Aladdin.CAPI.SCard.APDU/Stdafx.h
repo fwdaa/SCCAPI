@@ -38,6 +38,7 @@ using namespace System::IO;
 using namespace System::Collections::Generic; 
 using namespace System::Reflection;
 using namespace System::Security::Permissions;
+using namespace System::Security::Authentication;
 using namespace System::Runtime::InteropServices; 
 using namespace System::Runtime::CompilerServices;
 

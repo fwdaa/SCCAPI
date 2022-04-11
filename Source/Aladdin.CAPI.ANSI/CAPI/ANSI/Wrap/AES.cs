@@ -35,8 +35,6 @@ namespace Aladdin.CAPI.ANSI.Wrap
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return aesECB.KeyFactory; }}
-        // размер ключей
-	    public override int[] KeySizes { get { return aesECB.KeySizes; }}
 
         // зашифровать ключ
 	    public override byte[] Wrap(IRand rand, ISecretKey KEK, ISecretKey wrappedKey) 
@@ -151,7 +149,9 @@ namespace Aladdin.CAPI.ANSI.Wrap
         ////////////////////////////////////////////////////////////////////////////
         public static void Test(KeyWrap keyWrap) 
         {
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 16))
+            int[] keySizes = keyWrap.KeyFactory.KeySizes;
+
+            if (CAPI.KeySizes.Contains(keySizes, 16))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -170,7 +170,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0x9D, (byte)0x3E, (byte)0x86, (byte)0x23, 
                 (byte)0x71, (byte)0xD2, (byte)0xCF, (byte)0xE5
             }); 
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 24))
+            if (CAPI.KeySizes.Contains(keySizes, 24))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -191,7 +191,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0x46, (byte)0x8A, (byte)0xB8, (byte)0xA1, 
                 (byte)0x7A, (byte)0xD8, (byte)0x4E, (byte)0x5D
             }); 
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 32))
+            if (CAPI.KeySizes.Contains(keySizes, 32))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -214,7 +214,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0x93, (byte)0xC8, (byte)0x19, (byte)0x1E, 
                 (byte)0x7D, (byte)0x6E, (byte)0x8A, (byte)0xE7
             }); 
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 24))
+            if (CAPI.KeySizes.Contains(keySizes, 24))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -239,7 +239,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0x6B, (byte)0xA8, (byte)0x14, (byte)0x91, 
                 (byte)0x5C, (byte)0x67, (byte)0x62, (byte)0xD2
             }); 
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 32))
+            if (CAPI.KeySizes.Contains(keySizes, 32))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -266,7 +266,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0x8C, (byte)0xD5, (byte)0xD1, (byte)0x7D, 
                 (byte)0x6B, (byte)0x25, (byte)0x4D, (byte)0xA1
             }); 
-            if (CAPI.KeySizes.Contains(keyWrap.KeySizes, 32))
+            if (CAPI.KeySizes.Contains(keySizes, 32))
             KnownTest(null, keyWrap, new byte[] {
                 (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
                 (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 

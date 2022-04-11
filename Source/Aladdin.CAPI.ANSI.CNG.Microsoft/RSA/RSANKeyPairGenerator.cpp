@@ -41,7 +41,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::RSA::NKeyPairGenerator::Generate(
 	CAPI::CNG::Container^ container, String^ keyOID, DWORD keyType, BOOL exportable) 
 {$
 	// извлечь требуемое число битов
-	int bits = ((ANSI::RSA::IParameters^)Parameters)->KeySize;
+	int bits = ((IKeyBitsParameters^)Parameters)->KeyBits;
 
 	// создать функцию установки парамтеров
 	SetParametersAction^ paramAction = gcnew SetParametersAction(bits); 

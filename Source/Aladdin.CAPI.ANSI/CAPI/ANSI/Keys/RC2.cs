@@ -5,10 +5,16 @@
     ///////////////////////////////////////////////////////////////////////////
     public class RC2 : SecretKeyFactory
     {
-        // тип ключа
-        public static readonly SecretKeyFactory Instance = new RC2(); 
-
-        // размер ключей
-	    public override int[] KeySizes { get { return CAPI.KeySizes.Range(1, 128); }}
+        // конструктор
+        public RC2(int[] keySizes) : base(keySizes) {}
+        // конструктор
+        public RC2() : base(CAPI.KeySizes.Range(1, 128)) {}
+    
+        // ограничить размер ключей
+        public override SecretKeyFactory Narrow(int[] keySizes) 
+        { 
+            // ограничить размер ключей
+            return new RC2(keySizes); 
+        }
     }
 }

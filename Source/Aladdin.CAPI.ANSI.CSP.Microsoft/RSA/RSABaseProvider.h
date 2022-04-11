@@ -10,14 +10,26 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 	public ref class BaseProvider : Provider
 	{
 		// конструктор
-		public: BaseProvider() : Provider(PROV_RSA_FULL, MS_DEF_PROV_W, false, true) {}
-
+		public: BaseProvider() : Provider(PROV_RSA_FULL, MS_DEF_PROV_W, false, true) 
+		{
+			// заполнить список фабрик кодирования ключей
+			SecretKeyFactories()->Add("RC2" , gcnew Keys::RC2 (KeySizes::Range(5, 7))); 
+			SecretKeyFactories()->Add("RC4" , gcnew Keys::RC4 (KeySizes::Range(5, 7))); 
+			SecretKeyFactories()->Add("DES" , gcnew Keys::DES (                     )); 
+			SecretKeyFactories()->Add("DESX", gcnew Keys::DESX(                     )); 
+		}
 		// конструктор
 		protected: BaseProvider(DWORD type, String^ name, bool sspi, bool oaep) 
 
 			// сохранить переданные параметры
-			: Provider(type, name, sspi, oaep) {}
-
+			: Provider(type, name, sspi, oaep) 
+		{
+			// заполнить список фабрик кодирования ключей
+			SecretKeyFactories()->Add("RC2" , gcnew Keys::RC2 (KeySizes::Range(5, 7))); 
+			SecretKeyFactories()->Add("RC4" , gcnew Keys::RC4 (KeySizes::Range(5, 7))); 
+			SecretKeyFactories()->Add("DES" , gcnew Keys::DES (                     )); 
+			SecretKeyFactories()->Add("DESX", gcnew Keys::DESX(                     )); 
+		}
 		// имя группы провайдеров
 		public: virtual property String^ Group { String^ get() override 
 		{ 
@@ -51,7 +63,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		}
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+			Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, System::Type^ type) override;
 	}; 
 }}}}}}

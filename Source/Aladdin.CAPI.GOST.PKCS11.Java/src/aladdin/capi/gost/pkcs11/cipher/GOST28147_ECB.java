@@ -46,10 +46,8 @@ public class GOST28147_ECB extends aladdin.capi.pkcs11.BlockMode
     @Override public final SecretKeyFactory keyFactory() 
     { 
         // тип ключа
-        return aladdin.capi.gost.keys.GOST28147.INSTANCE; 
+        return aladdin.capi.gost.keys.GOST.INSTANCE; 
     } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return new int[] {32}; }
 	// размер блока
 	@Override public final int blockSize() { return 8; } 
     

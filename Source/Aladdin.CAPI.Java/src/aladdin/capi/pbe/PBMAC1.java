@@ -41,7 +41,7 @@ public class PBMAC1 extends Mac
         SecretKeyFactory keyFactory = macAlgorithm.keyFactory(); int keySize = -1; 
         
         // определить допустимые размеры ключей
-        int[] keySizes = macAlgorithm.keySizes(); 
+        int[] keySizes = macAlgorithm.keyFactory().keySizes(); 
         
         // указать рекомендуемый размер ключа
         if (keySizes != null && keySizes.length == 1) keySize = keySizes[0]; 

@@ -74,7 +74,7 @@ namespace Aladdin.CAPI.PKCS12
 	    public void ChangeKeys(IPrivateKey privateKey, Certificate certificate) 
 	    {
 		    // проверить наличие сертификата
-		    if (this.certificate == null || this.privateKey == null) throw new AuthenticationException();
+		    if (this.certificate == null || this.privateKey == null) throw new UnauthorizedAccessException();
 
             // сохранить старый личный ключ
             using (IPrivateKey oldPrivateKey = RefObject.AddRef(EnvelopePrivateKey)) 

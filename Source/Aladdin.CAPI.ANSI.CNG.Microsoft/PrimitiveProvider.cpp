@@ -52,7 +52,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateGenerator(
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)
 	{
 		// преобразовать тип параметров
-		ANSI::RSA::IParameters^ rsaParameters = (ANSI::RSA::IParameters^)parameters;
+		ANSI::RSA::IParameters^ rsaParameters = ANSI::RSA::Parameters::Convert(parameters);
 
 		// проверить значение экспоненты
 		if (rsaParameters->PublicExponent != Math::BigInteger::ValueOf(0x10001L)) return nullptr;
@@ -90,10 +90,9 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateGenerator(
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 	CAPI::Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, Type^ type)
+	String^ oid, ASN1::IEncodable^ parameters, Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		// для алгоритмов хэширования
 		if (type == CAPI::Hash::typeid)
@@ -143,10 +142,10 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 				array<int>^ keySizes = KeySizes::Range(1, 16); 
 
 				// при указании параметров алгоритма
-				int keyBits = 32; if (!ASN1::Encodable::IsNullOrEmpty(parameters->Parameters))
+				int keyBits = 32; if (!ASN1::Encodable::IsNullOrEmpty(parameters))
 				{ 
 					// раскодировать параметры алгоритма
-					ASN1::Integer^ version = gcnew ASN1::Integer(parameters->Parameters);
+					ASN1::Integer^ version = gcnew ASN1::Integer(parameters);
                 
 					// определить число битов
 					keyBits = ASN1::ANSI::RSA::RC2ParameterVersion::GetKeyBits(version); 
@@ -169,11 +168,11 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 				array<int>^ keySizes = KeySizes::Range(1, 16); 
 
 				// проверить указание параметров
-				if (parameters->Parameters->Tag != ASN1::Tag::Sequence) break; 
+				if (parameters->Tag != ASN1::Tag::Sequence) break; 
 				
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::RSA::RC2CBCParams^ algParameters = 
-					gcnew ASN1::ANSI::RSA::RC2CBCParams(parameters->Parameters);
+					gcnew ASN1::ANSI::RSA::RC2CBCParams(parameters);
             
 				// определить число битов
 				int keyBits = ASN1::ANSI::RSA::RC2ParameterVersion::GetKeyBits(
@@ -210,7 +209,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::ssig_des_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
 				Using<IBlockCipher^> blockCipher(gcnew Cipher::DES(Provider)); 
@@ -224,7 +223,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::ssig_des_ofb) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters); 
 
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -241,7 +240,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::ssig_des_cfb) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+				ASN1::ANSI::FBParameter^ algParameters = gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -258,7 +257,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::rsa_desx_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// создать алгоритм шифрования 
 				Using<IBlockCipher^> blockCipher(gcnew Cipher::DESX(Provider)); 
@@ -286,7 +285,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::rsa_tdes192_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать допустимый размер ключей
 				array<int>^ keySizes = gcnew array<int> {24}; 
@@ -317,7 +316,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes128_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать допустимый размер ключей
 				array<int>^ keySizes = gcnew array<int> {16}; 
@@ -335,7 +334,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -356,7 +355,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -390,7 +389,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes192_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать допустимый размер ключей
 				array<int>^ keySizes = gcnew array<int> {24}; 
@@ -408,7 +407,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -429,7 +428,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -463,7 +462,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			if (oid == ASN1::ANSI::OID::nist_aes256_cbc) 
 			{
 				// раскодировать параметры алгоритма
-				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters->Parameters); 
+				ASN1::OctetString^ iv = gcnew ASN1::OctetString(parameters); 
 
 				// указать допустимый размер ключей
 				array<int>^ keySizes = gcnew array<int> {32}; 
@@ -481,7 +480,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -502,7 +501,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ANSI::FBParameter^ algParameters = 
-					gcnew ASN1::ANSI::FBParameter(parameters->Parameters); 
+					gcnew ASN1::ANSI::FBParameter(parameters); 
             
 				// извлечь размер сдвига
 				int bits = algParameters->NumberOfBits->Value->IntValue; if ((bits % 8) != 0) break; 
@@ -532,7 +531,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры
 				ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams^ algParameters = 
-					gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters->Parameters);
+					gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters);
 
 				// получить алгоритм хэширования
 				Using<CAPI::Hash^> hashAlgorithm(
@@ -577,7 +576,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры
 				ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams^ algParameters = 
-					gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters->Parameters);
+					gcnew ASN1::ISO::PKCS::PKCS1::RSAESOAEPParams(parameters);
 
 				// получить алгоритм хэширования
 				Using<CAPI::Hash^> hashAlgorithm(
@@ -622,7 +621,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams^ algParameters = 
-					gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters->Parameters); 
+					gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters); 
 
 				// проверить поддержку алгоритма
 				if (algParameters->TrailerField->Value->IntValue != 0x01) break; 
@@ -671,7 +670,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
 				// раскодировать параметры алгоритма
 				ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams^ algParameters = 
-					gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters->Parameters); 
+					gcnew ASN1::ISO::PKCS::PKCS1::RSASSAPSSParams(parameters); 
  
 				// проверить поддержку алгоритма
 				if (algParameters->TrailerField->Value->IntValue != 0x01) break; 
@@ -734,7 +733,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -755,7 +754,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -776,7 +775,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -797,7 +796,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -818,7 +817,7 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 			{
     			// раскодировать параметры
 				ASN1::ISO::AlgorithmIdentifier^ wrapParameters = 
-					gcnew ASN1::ISO::AlgorithmIdentifier(parameters->Parameters); 
+					gcnew ASN1::ISO::AlgorithmIdentifier(parameters); 
 
 				// указать параметры алгоритма хэширования
 				ASN1::ISO::AlgorithmIdentifier^ hashParameters = 
@@ -838,5 +837,5 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 		}
 	}
 	// вызвать базовую функцию
-	return ANSI::Factory::RedirectAlgorithm(factory, scope, parameters, type); 
+	return ANSI::Factory::RedirectAlgorithm(factory, scope, oid, parameters, type); 
 }

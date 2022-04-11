@@ -43,16 +43,4 @@ public final class SecretKey implements ISecretKey
         
     // уменьшить счетчик ссылок
     @Override public final void close() { release(); }
-    
-    ////////////////////////////////////////////////////////////////////////////
-    // Реализация java.security.Key
-    ////////////////////////////////////////////////////////////////////////////
-    // тип ключа 
-    @Override public String getAlgorithm() { return keyFactory().names()[0]; }
-    
-    // формат закодированного представления
-    @Override public String getFormat() { return "RAW"; }
-    
-    // закодированное представление
-    @Override public byte[] getEncoded() { return value(); }
 }

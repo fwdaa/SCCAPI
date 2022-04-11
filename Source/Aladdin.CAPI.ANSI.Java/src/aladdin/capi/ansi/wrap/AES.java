@@ -39,8 +39,6 @@ public class AES extends KeyWrap
     }
     // тип ключа
 	@Override public final SecretKeyFactory keyFactory() { return aesECB.keyFactory(); } 
-	// размер ключей
-	@Override public final int[] keySizes() { return aesECB.keySizes(); } 
 
     // зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey KEK, ISecretKey wrappedKey) 
@@ -158,7 +156,9 @@ public class AES extends KeyWrap
     ////////////////////////////////////////////////////////////////////////////
     public static void test(KeyWrap keyWrap) throws Exception
     {
-        if (KeySizes.contains(keyWrap.keySizes(), 16))
+        int[] keySizes = keyWrap.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 16))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -177,7 +177,7 @@ public class AES extends KeyWrap
             (byte)0x9D, (byte)0x3E, (byte)0x86, (byte)0x23, 
             (byte)0x71, (byte)0xD2, (byte)0xCF, (byte)0xE5
         }); 
-        if (KeySizes.contains(keyWrap.keySizes(), 24))
+        if (KeySizes.contains(keySizes, 24))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -198,7 +198,7 @@ public class AES extends KeyWrap
             (byte)0x46, (byte)0x8A, (byte)0xB8, (byte)0xA1, 
             (byte)0x7A, (byte)0xD8, (byte)0x4E, (byte)0x5D
         }); 
-        if (KeySizes.contains(keyWrap.keySizes(), 32))
+        if (KeySizes.contains(keySizes, 32))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -221,7 +221,7 @@ public class AES extends KeyWrap
             (byte)0x93, (byte)0xC8, (byte)0x19, (byte)0x1E, 
             (byte)0x7D, (byte)0x6E, (byte)0x8A, (byte)0xE7
         }); 
-        if (KeySizes.contains(keyWrap.keySizes(), 24))
+        if (KeySizes.contains(keySizes, 24))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -246,7 +246,7 @@ public class AES extends KeyWrap
             (byte)0x6B, (byte)0xA8, (byte)0x14, (byte)0x91, 
             (byte)0x5C, (byte)0x67, (byte)0x62, (byte)0xD2
         }); 
-        if (KeySizes.contains(keyWrap.keySizes(), 32))
+        if (KeySizes.contains(keySizes, 32))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 
@@ -273,7 +273,7 @@ public class AES extends KeyWrap
             (byte)0x8C, (byte)0xD5, (byte)0xD1, (byte)0x7D, 
             (byte)0x6B, (byte)0x25, (byte)0x4D, (byte)0xA1
         }); 
-        if (KeySizes.contains(keyWrap.keySizes(), 32))
+        if (KeySizes.contains(keySizes, 32))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, 
             (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, 

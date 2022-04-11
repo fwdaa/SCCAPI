@@ -9,24 +9,31 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 	public ref class Provider abstract : Microsoft::Provider
 	{
 		// способ кодирования чисел
-		protected: static const Math::Endian Endian = Math::Endian::LittleEndian; 
+		protected: static const Math::Endian Endian = Math::Endian::LittleEndian; private: bool oaep; 
+
+		// фабрики кодирования ключей 
+		private: Dictionary<String^, SecretKeyFactory^>^ secretKeyFactories; 
+		private: Dictionary<String^,       KeyFactory^>^       keyFactories; 
 
 		// конструктор
 		public: Provider(DWORD type, String^ name, bool sspi, bool oaep) 
 
 			// сохранить переданные параметры
-			: Microsoft::Provider(type, name, sspi) { this->oaep = oaep; } private: bool oaep; 
+			: Microsoft::Provider(type, name, sspi) { this->oaep = oaep; 
+
+			// заполнить список фабрик кодирования ключей
+			KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa, 
+				gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa)
+			); 
+			if (oaep) KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa_oaep, 
+				gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa_oaep)
+			); 
+		} 
 
 		// вернуть тип ключа
 		public: virtual CAPI::CSP::SecretKeyType^ GetSecretKeyType(
 			SecretKeyFactory^ keyFactory, DWORD keySize) override;
 
-		// поддерживаемые фабрики кодирования ключей
-		public: virtual array<KeyFactory^>^ KeyFactories() override
-		{
-			// поддерживаемые фабрики кодирования ключей
-			return gcnew array<KeyFactory^> { gcnew ANSI::RSA::KeyFactory(ASN1::ISO::PKCS::PKCS1::OID::rsa) }; 
-		}
 		// создать алгоритм генерации ключей
 		public protected: virtual CAPI::KeyPairGenerator^ CreateGenerator(
 			Factory^ outer, SecurityObject^ scope, 
@@ -34,8 +41,8 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 
 		// создать алгоритм для параметров
 		public protected: virtual IAlgorithm^ CreateAlgorithm(
-			Factory^ outer, SecurityStore^ scope, 
-			ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type) override;
+			Factory^ outer, SecurityStore^ scope, String^ oid, 
+			ASN1::IEncodable^ parameters, System::Type^ type) override;
 
 		// импортировать пару ключей
 		public protected: virtual CAPI::CSP::KeyHandle^ ImportKeyPair(

@@ -26,19 +26,19 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::GetSecretKeyType(
 	SecretKeyFactory^ keyFactory, DWORD keySize)
 {$
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::DES ::Instance)) 
+	if (dynamic_cast<Keys::DES^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_DES); 
 	}
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::RC4::Instance)) 
+	if (dynamic_cast<Keys::RC4^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_RC4);
 	}
 	// в зависимости от типа алгоритма
-	if (Object::ReferenceEquals(keyFactory, Keys::RC2::Instance)) 
+	if (dynamic_cast<Keys::RC2^>(keyFactory) != nullptr) 
 	{
 		// указать идентификатор алгоритма
 		return gcnew SecretKeyType(CALG_RC2);
@@ -230,7 +230,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateGenerator(
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)
 	{
 		// преобразовать тип параметров
-		ANSI::RSA::IParameters^ rsaParameters = (ANSI::RSA::IParameters^)parameters;
+		ANSI::RSA::IParameters^ rsaParameters = ANSI::RSA::Parameters::Convert(parameters);
 
 		// проверить значение экспоненты
 		if (rsaParameters->PublicExponent != Math::BigInteger::ValueOf(0x10001L)) return nullptr; 
@@ -243,11 +243,10 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateGenerator(
 
 Aladdin::CAPI::IAlgorithm^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateAlgorithm(
-	Factory^ factory, SecurityStore^ scope, 
-	ASN1::ISO::AlgorithmIdentifier^ parameters, System::Type^ type)
+	Factory^ factory, SecurityStore^ scope, String^ oid, 
+	ASN1::IEncodable^ parameters, System::Type^ type)
 {$
-	// определить идентификатор алгоритма
-	String^ oid = parameters->Algorithm->Value; for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		if (type == Mac::typeid)
 		{
@@ -354,7 +353,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateAlgorithm(
 			{
 				// раскодировать параметры
 				ASN1::Sequence^ sequence = gcnew ASN1::Sequence(
-					ASN1::Encodable::Decode(parameters->Parameters->Encoded)
+					ASN1::Encodable::Decode(parameters->Encoded)
 				);
 				// проверить параметры по умолчанию
 				if (sequence->Length != 0) break; 
@@ -375,7 +374,7 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateAlgorithm(
 			{
 				// раскодировать параметры
 				ASN1::Sequence^ sequence = gcnew ASN1::Sequence(
-					ASN1::Encodable::Decode(parameters->Parameters->Encoded)
+					ASN1::Encodable::Decode(parameters->Encoded)
 				);
 				// проверить параметры по умолчанию
 				if (sequence->Length != 0) break; 
@@ -438,5 +437,5 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::RSA::Provider::CreateAlgorithm(
 		}
 */	}
 	// вызвать базовую функцию
-	return Microsoft::Provider::CreateAlgorithm(factory, scope, parameters, type); 
+	return Microsoft::Provider::CreateAlgorithm(factory, scope, oid, parameters, type); 
 }

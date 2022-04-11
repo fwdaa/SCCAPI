@@ -1,4 +1,5 @@
 package aladdin.capi.ansi.pkcs11.pbe;
+import aladdin.capi.*;
 import aladdin.capi.pkcs11.*;
 import aladdin.capi.pkcs11.Attribute;
 import aladdin.capi.pkcs11.pbe.*;
@@ -19,7 +20,7 @@ public class PBESP12_RC4 extends PBESP12
 	public PBESP12_RC4(Applet applet, long algID, byte[] salt, int iterations)
 	{
         // сохранить переданные параметры
-        super(applet, algID, salt, iterations, RC4.INSTANCE); 
+        super(applet, algID, salt, iterations); 
         
         // определить эффективное число битов ключа
         if (algID == API.CKM_PBE_SHA1_RC4_128) keyLength = 16; else 
@@ -28,11 +29,12 @@ public class PBESP12_RC4 extends PBESP12
         // при ошибке выбросить исключение
         else throw new UnsupportedOperationException(); 
 	}
-	// размер ключа
-	@Override protected int keyLength() { return keyLength; }  
-	// размер синхропосылки
-	@Override protected int ivLength() { return 8; }  
-    
+	// фабрика ключа
+	@Override protected SecretKeyFactory deriveKeyFactory()
+    {
+        // фабрика ключа
+        return new RC4(new int[] {keyLength}); 
+    }
 	// создать алгоритм шифрования
 	@Override protected aladdin.capi.Cipher createCipher(byte[] iv) throws IOException
     {
@@ -41,7 +43,7 @@ public class PBESP12_RC4 extends PBESP12
         
         // создать алгоритм шифрования
         aladdin.capi.Cipher cipher = Creator.createCipher(
-            applet().provider(), applet(), mechanism, keyLength()
+            applet().provider(), applet(), mechanism, keyLength
         ); 
         // проверить наличие алгоритма
         if (cipher == null) throw new UnsupportedOperationException(); return cipher; 
@@ -52,7 +54,7 @@ public class PBESP12_RC4 extends PBESP12
         // дополнительные атрибуты ключа
         return new Attribute[] {
             new Attribute(API.CKA_KEY_TYPE , API.CKK_RC4), 
-            new Attribute(API.CKA_VALUE_LEN, keyLength     ) 
+            new Attribute(API.CKA_VALUE_LEN, keyLength  ) 
         }; 
     } 
 }

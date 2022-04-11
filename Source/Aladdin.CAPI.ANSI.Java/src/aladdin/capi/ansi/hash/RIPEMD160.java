@@ -375,7 +375,9 @@ public class RIPEMD160 extends BlockHash
     ////////////////////////////////////////////////////////////////////////////
     public static void testHMAC(Mac algorithm) throws Exception
     {
-        if (KeySizes.contains(algorithm.keySizes(), 20))
+        int[] keySizes = algorithm.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 20))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
             (byte)0x0b, (byte)0x0b, (byte)0x0b, (byte)0x0b, 
@@ -389,7 +391,7 @@ public class RIPEMD160 extends BlockHash
             (byte)0x2d, (byte)0xcc, (byte)0x39, (byte)0x37, 
             (byte)0x7f, (byte)0x0a, (byte)0x56, (byte)0x68
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 4))
+        if (KeySizes.contains(keySizes, 4))
         Mac.knownTest(algorithm, "Jefe".getBytes("UTF-8"), 
             1, "what do ya want for nothing?", new byte[] {
             (byte)0xdd, (byte)0xa6, (byte)0xc0, (byte)0x21, 
@@ -398,7 +400,7 @@ public class RIPEMD160 extends BlockHash
             (byte)0x64, (byte)0xa7, (byte)0xf0, (byte)0x33, 
             (byte)0xb4, (byte)0x3c, (byte)0x40, (byte)0x69
             }); 
-        if (KeySizes.contains(algorithm.keySizes(), 20))
+        if (KeySizes.contains(keySizes, 20))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
             (byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA, 
@@ -412,7 +414,7 @@ public class RIPEMD160 extends BlockHash
             (byte)0x98, (byte)0xe1, (byte)0x16, (byte)0xe2, 
             (byte)0x95, (byte)0xd8, (byte)0xe7, (byte)0xc1
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 25))
+        if (KeySizes.contains(keySizes, 25))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, 
             (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, 
@@ -428,7 +430,7 @@ public class RIPEMD160 extends BlockHash
             (byte)0xf1, (byte)0xbe, (byte)0xb9, (byte)0x7a, 
             (byte)0x43, (byte)0x65, (byte)0xec, (byte)0xf4        
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 20))
+        if (KeySizes.contains(keySizes, 20))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
             (byte)0x0c, (byte)0x0c, (byte)0x0c, (byte)0x0c, 
@@ -442,7 +444,7 @@ public class RIPEMD160 extends BlockHash
             (byte)0x50, (byte)0x0f, (byte)0xf3, (byte)0xd8, 
             (byte)0xe0, (byte)0x51, (byte)0x8e, (byte)0x39        
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 80))
+        if (KeySizes.contains(keySizes, 80))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
@@ -471,7 +473,7 @@ public class RIPEMD160 extends BlockHash
             (byte)0x5a, (byte)0xda, (byte)0x76, (byte)0x05, 
             (byte)0xb7, (byte)0x91, (byte)0xfd, (byte)0x8b        
         }); 
-        if (KeySizes.contains(algorithm.keySizes(), 80))
+        if (KeySizes.contains(keySizes, 80))
         Mac.knownTest(algorithm, new byte[] { 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 
             (byte)0xaa, (byte)0xaa, (byte)0xaa, (byte)0xaa, 

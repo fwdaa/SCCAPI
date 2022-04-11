@@ -2,50 +2,48 @@ package aladdin.capi;
 import aladdin.*; 
 import aladdin.asn1.*; 
 import aladdin.asn1.iso.*; 
+import aladdin.asn1.iso.pkix.*;
 import aladdin.asn1.iso.pkcs.pkcs5.*; 
-import aladdin.asn1.iso.pkcs.pkcs8.PrivateKeyInfo;
-import aladdin.asn1.iso.pkix.SubjectPublicKeyInfo;
+import aladdin.asn1.iso.pkcs.pkcs8.*;
 import aladdin.capi.pbe.*;
 import java.io.*; 
+import java.util.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Базовый класс для фабрики алгоритмов
 ///////////////////////////////////////////////////////////////////////////
 public abstract class Factory extends RefObject
 {
+	// поддерживаемые фабрики кодирования ключей
+	public Map<String, SecretKeyFactory> secretKeyFactories() 
+    { 
+        // поддерживаемые фабрики кодирования ключей
+        return new HashMap<String, SecretKeyFactory>(); 
+    }
 	// получить фабрику кодирования ключей
-	public final SecretKeyFactory getSecretKeyFactory(String name)
+	public final SecretKeyFactory getSecretKeyFactory(String algorithm)
     {
-        // для всех фабрик ключей
-        for (SecretKeyFactory keyFactory : secretKeyFactories())
-        {
-            // для всех поддерживаемых имен
-            for (String keyName : keyFactory.names())
-            {
-                // сравнить имя ключа
-                if (keyName.compareToIgnoreCase(name) == 0) return keyFactory; 
-            }
-        }
+        // получить поддерживаемые фабрики кодирования ключей
+        Map<String, SecretKeyFactory> keyFactories = secretKeyFactories(); 
+        
         // получить фабрику кодирования ключей
-        return SecretKeyFactory.GENERIC; 
+        SecretKeyFactory factory = keyFactories.get(algorithm); 
+        
+        // вернуть фабрику кодирования ключей
+        return (factory != null) ? factory : SecretKeyFactory.GENERIC; 
     }
 	// поддерживаемые фабрики кодирования ключей
-	public SecretKeyFactory[] secretKeyFactories() { return new SecretKeyFactory[0]; }
-    
+	public Map<String, KeyFactory> keyFactories() 
+    { 
+        // поддерживаемые фабрики кодирования ключей
+        return new HashMap<String, KeyFactory>(); 
+    }
 	// получить фабрику кодирования ключей
 	public final KeyFactory getKeyFactory(String keyOID)
     {
-        // для всех фабрик ключей
-        for (KeyFactory keyFactory : keyFactories())
-        {
-            // проверить наличие ключа
-            if (keyOID.equals(keyFactory.keyOID())) return keyFactory; 
-        }
-        return null; 
+        // получить фабрику кодирования ключей
+        return keyFactories().get(keyOID); 
     }
-	// поддерживаемые фабрики кодирования ключей
-	public KeyFactory[] keyFactories() { return new KeyFactory[0]; }
-    
 	// раскодировать открытый ключ
 	public final IPublicKey decodePublicKey(
 		SubjectPublicKeyInfo subjectPublicKeyInfo) throws IOException
@@ -137,51 +135,62 @@ public abstract class Factory extends RefObject
             return generator.generate(keyID, keyOID, keyUsage, keyFlags); 
         }
 	}
+    // создать блочный алгоритм шифрования 
+	public final IBlockCipher createBlockCipher(SecurityStore scope, 
+        String name, IEncodable parameters) throws IOException
+    {
+        // создать блочный алгоритм шифрования 
+        return (IBlockCipher)createAlgorithm(scope, name, parameters, IBlockCipher.class); 
+    }
 	// создать алгоритм для параметров
-	public IAlgorithm createAlgorithm(
+	public final IAlgorithm createAlgorithm(
         SecurityStore scope, AlgorithmIdentifier parameters, 
         java.lang.Class<? extends IAlgorithm> type) throws IOException
     {
         // создать алгоритм для параметров
-        return createAggregatedAlgorithm(this, scope, parameters, type); 
+        return createAlgorithm(scope, parameters.algorithm().value(), parameters.parameters(), type); 
+    }
+	public IAlgorithm createAlgorithm(
+        SecurityStore scope, String oid, IEncodable parameters, 
+        java.lang.Class<? extends IAlgorithm> type) throws IOException
+    {
+        // создать алгоритм для параметров
+        return createAggregatedAlgorithm(this, scope, oid, parameters, type); 
     }
 	// создать алгоритм для параметров
 	protected IAlgorithm createAggregatedAlgorithm(Factory outer, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters,
         java.lang.Class<? extends IAlgorithm> type) throws IOException
     { 
         // создать агрегированную фабрику
         try (Factory factory = AggregatedFactory.create(outer, this))
         {        
             // создать алгоритм для параметров
-            return createAlgorithm(factory, scope, parameters, type); 
+            return createAlgorithm(factory, scope, oid, parameters, type); 
         }
     }
 	// создать алгоритм для параметров
 	protected IAlgorithm createAlgorithm(Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters,
         java.lang.Class<? extends IAlgorithm> type) throws IOException
     { 
         // создать алгоритм для параметров
-        return Factory.redirectAlgorithm(factory, scope, parameters, type); 
+        return Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
     ////////////////////////////////////////////////////////////////////////////
 	// Перенаправление алгоритмов
     ////////////////////////////////////////////////////////////////////////////
 	public static IAlgorithm redirectAlgorithm(Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters,
         java.lang.Class<? extends IAlgorithm> type) throws IOException
     { 
-		// определить идентификатор алгоритма
-		String oid = parameters.algorithm().value(); 
-
 		// для алгоритмов вычисления имитовставки
 		if (type.equals(Mac.class))
 		{
 			if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBMAC1)) 
 			{
 				// раскодировать параметры алгоритма
-				PBMAC1Parameter pbeParameters = new PBMAC1Parameter(parameters.parameters()); 
+				PBMAC1Parameter pbeParameters = new PBMAC1Parameter(parameters); 
                 
                 // создать алгоритм вычисления имитовставки
                 try (Mac macAlgorithm = (Mac)factory.createAlgorithm(
@@ -209,7 +218,7 @@ public abstract class Factory extends RefObject
 			if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBES2)) 
 			{
 				// раскодировать параметры алгоритма
-				PBES2Parameter pbeParameters = new PBES2Parameter(parameters.parameters()); 
+				PBES2Parameter pbeParameters = new PBES2Parameter(parameters); 
                 
                 // создать алгоритм шифрования
                 try (Cipher cipher = (Cipher)factory.createAlgorithm(
@@ -237,7 +246,7 @@ public abstract class Factory extends RefObject
 			if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBKDF2)) 
 			{
 				// раскодировать параметры алгоритма
-				PBKDF2Parameter pbeParameters =	new PBKDF2Parameter(parameters.parameters()); 
+				PBKDF2Parameter pbeParameters =	new PBKDF2Parameter(parameters); 
                 
                 // при указании размера ключа
                 int keySize = -1; if (pbeParameters.keyLength() != null)
@@ -267,7 +276,7 @@ public abstract class Factory extends RefObject
 		{
             // получить алгоритм шифрования данных
             try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                scope, parameters, Cipher.class))
+                scope, oid, parameters, Cipher.class))
             {
                 // проверить наличие алгоритма
                 if (cipher == null) return null; 
@@ -280,13 +289,13 @@ public abstract class Factory extends RefObject
 		else if (type.equals(TransportKeyWrap.class))
 		{
     		// получить алгоритм зашифрования данных
-			return factory.createAlgorithm(scope, parameters, Encipherment.class); 
+			return factory.createAlgorithm(scope, oid, parameters, Encipherment.class); 
         }
 		// для алгоритмов передачи ключа
 		else if (type.equals(TransportKeyUnwrap.class))
 		{
     		// получить алгоритм расшифрования данных
-			return factory.createAlgorithm(scope, parameters, Decipherment.class); 
+			return factory.createAlgorithm(scope, oid, parameters, Decipherment.class); 
         }
 		return null; 
 	}

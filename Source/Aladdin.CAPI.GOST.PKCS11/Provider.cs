@@ -13,6 +13,10 @@ namespace Aladdin.CAPI.GOST.PKCS11
         // возможность импорта ключевой пары в память
         private Module module; private bool canImport; 
     
+        // фабрики кодирования ключей 
+        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
+        private Dictionary<String, KeyFactory      > keyFactories; 
+    
 	    // конструктор
         public Provider(string name, bool canImport) : this(null, name, canImport) {}
 
@@ -21,6 +25,26 @@ namespace Aladdin.CAPI.GOST.PKCS11
         { 
             // сохранить переданне параметры
             this.module = module; this.canImport = canImport; 
+
+            // создать список фабрик кодирования ключей
+            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
+        
+            // заполнить список фабрик кодирования ключей
+            secretKeyFactories.Add("GOST28147", Keys.GOST.Instance); 
+        
+            // создать список фабрик кодирования ключей
+            keyFactories = new Dictionary<String, KeyFactory>(); 
+
+            // заполнить список фабрик кодирования ключей
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_2001, 
+                new GOST.GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2001)
+            ); 
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_2012_256, 
+                new GOST.GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_256)
+            ); 
+            keyFactories.Add(ASN1.GOST.OID.gostR3410_2012_512, 
+                new GOST.GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_512)
+            ); 
         }
         // интерфейс вызова функций
         public override Module Module { get { return module; }}
@@ -28,15 +52,10 @@ namespace Aladdin.CAPI.GOST.PKCS11
         // возможность генерации и импорта ключевой пары в памяти
         public override bool CanImportSessionPair(CAPI.PKCS11.Applet applet) { return canImport; } 
     
-	    public override KeyFactory[] KeyFactories() 
-	    {
-            // вернуть список фабрик
-            return new KeyFactory[] {
-                new GOST.GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2001    ), 
-                new GOST.GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_256), 
-                new GOST.GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_512) 
-            }; 
-	    }
+	    // поддерживаемые фабрики кодирования ключей
+	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
+	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+
 	    public override string[] GeneratedKeys(SecurityStore scope) 
 	    {
             // проверить тип области видимости
@@ -96,7 +115,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 	    public override CAPI.PKCS11.Attribute[] SecretKeyAttributes(
             SecretKeyFactory keyFactory, int keySize, bool hasValue) 
         { 
-            if (Object.ReferenceEquals(keyFactory, Keys.GOST28147.Instance))
+            if (Object.ReferenceEquals(keyFactory, Keys.GOST.Instance))
             {
                 // закодировать идентификатор таблицы подстановок
                 byte[] encodedOID = new ASN1.ObjectIdentifier(ASN1.GOST.OID.encrypts_A).Encoded; 
@@ -235,10 +254,9 @@ namespace Aladdin.CAPI.GOST.PKCS11
         }
 		// создать алгоритм для параметров
 		protected override IAlgorithm CreateAlgorithm(
-			CAPI.Factory factory, SecurityStore scope, ASN1.ISO.AlgorithmIdentifier parameters, Type type)
+			CAPI.Factory factory, SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type)
         {
-	        // определить идентификатор алгоритма
-	        string oid = parameters.Algorithm.Value; for (int i = 0; i < 1; i++)
+	        for (int i = 0; i < 1; i++)
             { 
 	            // для алгоритмов хэширования
 	            if (type == typeof(CAPI.Hash))
@@ -249,10 +267,10 @@ namespace Aladdin.CAPI.GOST.PKCS11
                         ASN1.ObjectIdentifier sboxOID = new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro); 
                     
                         // проверить наличие параметров
-                        if (!ASN1.Encodable.IsNullOrEmpty(parameters.Parameters)) 
+                        if (!ASN1.Encodable.IsNullOrEmpty(parameters)) 
                         {
                             // раскодировать идентификатор параметров
-                            sboxOID = new ASN1.ObjectIdentifier(parameters.Parameters);
+                            sboxOID = new ASN1.ObjectIdentifier(parameters);
                         }
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_GOSTR3411, sboxOID.Encoded); 
@@ -295,10 +313,10 @@ namespace Aladdin.CAPI.GOST.PKCS11
                         ASN1.ObjectIdentifier sboxOID = new ASN1.ObjectIdentifier(ASN1.GOST.OID.hashes_cryptopro); 
                     
                         // проверить наличие параметров
-                        if (!ASN1.Encodable.IsNullOrEmpty(parameters.Parameters)) 
+                        if (!ASN1.Encodable.IsNullOrEmpty(parameters)) 
                         {
                             // раскодировать идентификатор параметров
-                            sboxOID = new ASN1.ObjectIdentifier(parameters.Parameters);
+                            sboxOID = new ASN1.ObjectIdentifier(parameters);
                         }
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_GOSTR3411_HMAC, sboxOID.Encoded); 
@@ -335,7 +353,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 		            {
 			            // раскодировать параметры алгоритма
 			            ASN1.GOST.GOST28147CipherParameters algParameters = 
-				            new ASN1.GOST.GOST28147CipherParameters(parameters.Parameters); 
+				            new ASN1.GOST.GOST28147CipherParameters(parameters); 
 
 			            // определить идентификатор таблицы подстановок
 			            ASN1.ObjectIdentifier sboxOID = algParameters.ParamSet; 
@@ -362,7 +380,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 		            { 
 			            // раскодировать параметры алгоритма
 			            ASN1.GOST.GOST28147CipherParameters algParameters = 
-				            new ASN1.GOST.GOST28147CipherParameters(parameters.Parameters); 
+				            new ASN1.GOST.GOST28147CipherParameters(parameters); 
 
 			            // определить идентификатор таблицы подстановок
 			            ASN1.ObjectIdentifier paramsOID = algParameters.ParamSet; 
@@ -381,6 +399,18 @@ namespace Aladdin.CAPI.GOST.PKCS11
                         if (cipher == null) break; return cipher; 
 		            }
 	            }
+                // для алгоритмов симметричного шифрования
+                else if (type == typeof(IBlockCipher))
+                {
+                    if (oid == "GOST28147")
+                    { 
+                        // раскодировать параметры алгоритма
+                        ASN1.ObjectIdentifier cipherParameters = new ASN1.ObjectIdentifier(parameters); 
+                    
+                        // создать блочный алгоритм шифрования
+                        return Creator.CreateGOST28147(this, scope, cipherParameters.Value); 
+                    }
+                }
 	            // для алгоритмов наследования ключа
 	            else if (type == typeof(CAPI.KeyDerive))
                 {
@@ -388,7 +418,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 			        {
 				        // раскодировать параметры алгоритма
 				        ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter pbeParameters = 
-                            new ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter(parameters.Parameters);
+                            new ASN1.ISO.PKCS.PKCS5.PBKDF2Parameter(parameters);
                 
                         // инициализировать переменные
                         ulong prf = 0; byte[] prfData = null; int keySize = -1; 
@@ -415,7 +445,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
                             if (ASN1.Encodable.IsNullOrEmpty(hashParameters)) prfData = null; 
                             else {
                                 // закодировать значение идентификатора
-                                prfData = parameters.Parameters.Encoded;
+                                prfData = parameters.Encoded;
                             }
                         } 
                         else if (hmacOID == ASN1.GOST.OID.gostR3411_2012_HMAC_256)
@@ -442,7 +472,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 		            else if (oid == ASN1.GOST.OID.keyMeshing_cryptopro) 
 		            {
 			            // раскодировать параметры алгоритма
-			            ASN1.ObjectIdentifier sboxOID = new ASN1.ObjectIdentifier(parameters.Parameters); 
+			            ASN1.ObjectIdentifier sboxOID = new ASN1.ObjectIdentifier(parameters); 
 
                         // создать алгоритм наследования ключа
                         KeyDerive keyDerive = Creator.CreateKeyMeshing(this, scope, sboxOID.Value); 
@@ -458,7 +488,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 		            {
 			            // раскодировать параметры алгоритма
 			            ASN1.GOST.KeyWrapParameters wrapParameters = 
-				            new ASN1.GOST.KeyWrapParameters(parameters.Parameters); 
+				            new ASN1.GOST.KeyWrapParameters(parameters); 
 
                         // проверить наличие UKM
                         if (wrapParameters.Ukm == null) throw new InvalidDataException(); 
@@ -477,7 +507,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 			        {
 			            // раскодировать параметры алгоритма
 			            ASN1.GOST.KeyWrapParameters wrapParameters = 
-				            new ASN1.GOST.KeyWrapParameters(parameters.Parameters); 
+				            new ASN1.GOST.KeyWrapParameters(parameters); 
                 
                         // проверить наличие UKM
                         if (wrapParameters.Ukm == null) throw new InvalidDataException(); 
@@ -714,7 +744,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
 	            }
             }
             // вызвать базовую функцию
-            return GOST.Factory.RedirectAlgorithm(factory, scope, parameters, type); 
+            return GOST.Factory.RedirectAlgorithm(factory, scope, oid, parameters, type); 
         }
     }
 }

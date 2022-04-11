@@ -30,8 +30,6 @@ public class STB34101 extends KeyDerive
     }
     // тип ключа
     @Override public SecretKeyFactory keyFactory() { return belt.keyFactory(); } 
-    // размер используемых ключей
-    @Override public final int[] keySizes() { return belt.keySizes(); }
 
     @Override public ISecretKey deriveKey(ISecretKey key, 
         byte[] random, SecretKeyFactory keyFactory, int deriveSize) 

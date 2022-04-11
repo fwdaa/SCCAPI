@@ -480,11 +480,8 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 				// для всех наборов параметров
 				for (int i = 0; i < sboxOIDs->Length; i++)
 				{
-					// создать блочный алгоритм шифрования
-					Using<IBlockCipher^> gost28147(provider->CreateGOST28147(sboxOIDs[i])); 
-
 					// выполнить тесты
-					GOST::Test::TestGOST28147(provider, nullptr, gost28147.Get(), sboxOIDs[i]); 
+					GOST::Test::TestGOST28147(provider, nullptr, sboxOIDs[i]); 
 				}
 				// для всех наборов параметров
 				for (int i = 0; i < hashOIDs->Length; i++)
@@ -528,11 +525,8 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 				// для всех наборов параметров
 				for (int i = 0; i < sboxOIDs->Length; i++)
 				{
-					// создать блочный алгоритм шифрования
-					Using<IBlockCipher^> gost28147(provider->CreateGOST28147(sboxOIDs[i])); 
-
 					// выполнить тесты
-					GOST::Test::TestGOST28147(provider, nullptr, gost28147.Get(), sboxOIDs[i]); 
+					GOST::Test::TestGOST28147(provider, nullptr, sboxOIDs[i]); 
 				}
 				// выполнить тесты
 				GOST::Test::TestGOSTR3411_2012_256     (provider, nullptr); 
@@ -571,11 +565,8 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 				// для всех наборов параметров
 				for (int i = 0; i < sboxOIDs->Length; i++)
 				{
-					// создать блочный алгоритм шифрования
-					Using<IBlockCipher^> gost28147(provider->CreateGOST28147(sboxOIDs[i])); 
-
 					// выполнить тесты
-					GOST::Test::TestGOST28147(provider, nullptr, gost28147.Get(), sboxOIDs[i]); 
+					GOST::Test::TestGOST28147(provider, nullptr, sboxOIDs[i]); 
 				}
 				// выполнить тесты
 				GOST::Test::TestGOSTR3411_2012_256     (provider, nullptr); 

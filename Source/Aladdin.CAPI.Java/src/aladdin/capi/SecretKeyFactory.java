@@ -11,21 +11,41 @@ public class SecretKeyFactory
 {
     // произвольный ключ
     public final static SecretKeyFactory GENERIC = new SecretKeyFactory(); 
-    
+
     // конструктор
-    protected SecretKeyFactory() { this("GENERIC"); }
+    public SecretKeyFactory() { this(KeySizes.UNRESTRICTED); }
         
     // конструктор
-    protected SecretKeyFactory(String... names) 
-    
+    public SecretKeyFactory(int[] keySizes) 
+        
         // сохранить переданные параметры
-        { this.names = names; } private final String[] names; 
+        { this.keySizes = keySizes; } private final int[] keySizes; 
         
-    // имя типа
-    public final String[] names() { return names; }
-    
+    // ограничить допустимые ключи
+    public SecretKeyFactory narrow(int[] keySizes)
+    {
+        // при допустимости только одного размера ключа
+        if (this.keySizes != null && this.keySizes.length == 1)
+        {
+            // проверить корректность действий
+            if (keySizes == null || keySizes.length != 1)
+            {
+                // при ошибке выбросить исключение
+                throw new IllegalStateException(); 
+            }
+            // проверить совпадение размера ключа
+            if (keySizes[0] != this.keySizes[0]) 
+            {
+                // при ошибке выбросить исключение
+                throw new IllegalStateException(); 
+            }
+            return this; 
+        }
+        // ограничить допустимые ключи
+        return new SecretKeyFactory(keySizes); 
+    }
     // размер ключей
-    public int[] keySizes () { return KeySizes.UNRESTRICTED; }
+    public final int[] keySizes () { return keySizes; }
     
     // создать ключ
     public ISecretKey create(byte[] value) 
@@ -55,8 +75,8 @@ public class SecretKeyFactory
         return new SecretKey(this, value); 
     }
     // извлечь данные ключа
-    public KeySpec getSpec(byte[] value, Class<? extends KeySpec> specType)
-        throws InvalidKeyException
+    public KeySpec getSpec(String algorithm, byte[] value, 
+        Class<? extends KeySpec> specType) throws InvalidKeyException
     {
         // проверить размер ключа
         if (!KeySizes.contains(keySizes(), value.length)) 
@@ -68,7 +88,7 @@ public class SecretKeyFactory
         if (specType.isAssignableFrom(SecretKeySpec.class))
         {
             // вернуть значение ключа
-            return new SecretKeySpec(value, names[0]); 
+            return new SecretKeySpec(value, algorithm); 
         }
         return null; 
     }

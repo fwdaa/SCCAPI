@@ -50,9 +50,7 @@ public class RC2_CBC extends aladdin.capi.pkcs11.BlockMode
         return new Mechanism(API.CKM_RC2_CBC, rc2Parameters); 
     }
     // тип ключа
-    @Override public final SecretKeyFactory keyFactory() { return RC2.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return keySizes; }
+    @Override public final SecretKeyFactory keyFactory() { return new RC2(keySizes); } 
 	// размер блока
 	@Override public final int blockSize() { return 8; } 
 

@@ -25,9 +25,7 @@ public class TDES_ECB extends aladdin.capi.pkcs11.BlockMode
 		return new Mechanism(API.CKM_DES3_ECB); 
 	}
     // тип ключа
-    @Override public final SecretKeyFactory keyFactory() { return TDES.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return keySizes; }
+    @Override public final SecretKeyFactory keyFactory() { return new TDES(keySizes); } 
 	// размер блока
 	@Override public final int blockSize() { return 8; } 
 

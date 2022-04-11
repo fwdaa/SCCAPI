@@ -11,9 +11,6 @@ public class Cipher extends RefObject implements IAlgorithm
 {
     // тип ключа
     public SecretKeyFactory keyFactory() { return SecretKeyFactory.GENERIC; }
-    // размер ключа
-    public int[] keySizes () { return keyFactory().keySizes(); }
-    
     // размер блока
 	public int blockSize() { return 1; }
     
@@ -118,8 +115,6 @@ public class Cipher extends RefObject implements IAlgorithm
         }
         // тип ключа
         @Override public SecretKeyFactory keyFactory() { return cipher.keyFactory(); } 
-        // размер ключей
-        @Override public int[] keySizes() { return cipher.keySizes(); } 
         
         // зашифровать ключ
         @Override public byte[] wrap(IRand rand, ISecretKey key, ISecretKey CEK) 
@@ -189,7 +184,7 @@ public class Cipher extends RefObject implements IAlgorithm
         PaddingMode padding, int[] dataSizes) throws Exception
     {
         // получить допустимые размеры ключей
-        int[] keySizes = cipherAlgorithm.keySizes(); 
+        int[] keySizes = cipherAlgorithm.keyFactory().keySizes(); 
         
         // при отсутствии ограничений на размер ключа
         if (keySizes == KeySizes.UNRESTRICTED || keySizes.length > 32)
@@ -201,7 +196,7 @@ public class Cipher extends RefObject implements IAlgorithm
         for (int keySize : keySizes)
         { 
             // проверить поддержку размера ключа
-            if (!KeySizes.contains(cipherAlgorithm.keySizes(), keySize)) continue; 
+            if (!KeySizes.contains(cipherAlgorithm.keyFactory().keySizes(), keySize)) continue; 
             
             // сгенерировать ключ 
             try (ISecretKey key = cipherAlgorithm.keyFactory().generate(rand, keySize)) 

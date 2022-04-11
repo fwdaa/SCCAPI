@@ -14,40 +14,59 @@ import aladdin.capi.mac.*;
 import aladdin.capi.pbe.*;
 import aladdin.capi.keyx.*;
 import java.io.*; 
+import java.util.*; 
 
 //////////////////////////////////////////////////////////////////////////////
 // Создание параметров по умолчанию
 //////////////////////////////////////////////////////////////////////////////
 public final class Factory extends aladdin.capi.Factory
 {
-	///////////////////////////////////////////////////////////////////////
+    // фабрики кодирования ключей 
+    private final Map<String, SecretKeyFactory> secretKeyFactories; 
+    private final Map<String, KeyFactory      > keyFactories; 
+    
+    // конструктор
+    public Factory()
+    {
+        // создать список фабрик кодирования ключей
+        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
+        
+        // заполнить список фабрик кодирования ключей
+        secretKeyFactories.put("RC2"   , new aladdin.capi.ansi.keys.RC2 ()); 
+        secretKeyFactories.put("RC4"   , new aladdin.capi.ansi.keys.RC4 ()); 
+        secretKeyFactories.put("RC5"   , new aladdin.capi.ansi.keys.RC5 ()); 
+        secretKeyFactories.put("DES"   , new aladdin.capi.ansi.keys.DES ()); 
+        secretKeyFactories.put("DESX"  , new aladdin.capi.ansi.keys.DESX()); 
+        secretKeyFactories.put("DESede", new aladdin.capi.ansi.keys.TDES()); 
+        secretKeyFactories.put("AES"   , new aladdin.capi.ansi.keys.AES ()); 
+        
+        // создать список фабрик кодирования ключей
+        keyFactories = new HashMap<String, KeyFactory>(); 
+
+        // заполнить список фабрик кодирования ключей
+        keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA, 
+            new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA)
+        ); 
+        keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP, 
+            new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP)
+        ); 
+        keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS, 
+            new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)
+        ); 
+        keyFactories.put(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY, 
+            new aladdin.capi.ansi.x942.KeyFactory(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY)
+        ); 
+        keyFactories.put(aladdin.asn1.ansi.OID.X957_DSA, 
+            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X957_DSA)
+        ); 
+        keyFactories.put(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY, 
+            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)
+        ); 
+    }
 	// Поддерживаемые фабрики кодирования ключей
-	///////////////////////////////////////////////////////////////////////
-	@Override public SecretKeyFactory[] secretKeyFactories() 
-	{
-        // вернуть список фабрик
-        return new SecretKeyFactory[] {
-            aladdin.capi.ansi.keys.AES     .INSTANCE, 
-            aladdin.capi.ansi.keys.TDES    .INSTANCE, 
-            aladdin.capi.ansi.keys.DESX    .INSTANCE, 
-            aladdin.capi.ansi.keys.DES     .INSTANCE, 
-            aladdin.capi.ansi.keys.RC2     .INSTANCE, 
-            aladdin.capi.ansi.keys.RC4     .INSTANCE, 
-            aladdin.capi.ansi.keys.RC5     .INSTANCE, 
-            aladdin.capi.ansi.keys.Skipjack.INSTANCE 
-        }; 
-	}
-	@Override public KeyFactory[] keyFactories() 
-	{
-        // вернуть список фабрик
-        return new KeyFactory[] {
-            new aladdin.capi.ansi.rsa .KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), 
-            new aladdin.capi.ansi.x942.KeyFactory(aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY),
-            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X957_DSA),
-            new aladdin.capi.ansi.x962.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY),
-            new aladdin.capi.ansi.kea .KeyFactory(aladdin.asn1.ansi.OID.INFOSEC_KEA)
-        }; 
-	}
+	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
+	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+    
 	///////////////////////////////////////////////////////////////////////
 	// Cоздать алгоритм генерации ключей
 	///////////////////////////////////////////////////////////////////////
@@ -57,10 +76,10 @@ public final class Factory extends aladdin.capi.Factory
 	{
         if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA)) 
         {
-            // преобразовать тип параметров
+            // получить параметры алгоритма RSA
             aladdin.capi.ansi.rsa.IParameters rsaParameters = 
-                (aladdin.capi.ansi.rsa.IParameters)parameters; 
-
+                aladdin.capi.ansi.rsa.Parameters.convert(parameters); 
+            
             // создать алгоритм генерации ключей
             return new aladdin.capi.ansi.rsa.KeyPairGenerator(
                 factory, scope, rand, rsaParameters
@@ -116,11 +135,10 @@ public final class Factory extends aladdin.capi.Factory
 	// Cоздать алгоритм для параметров
 	///////////////////////////////////////////////////////////////////////
 	@Override protected IAlgorithm createAlgorithm(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
-        // определить идентификатор алгоритма
-		String oid = parameters.algorithm().value(); for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 1; i++)
         {
             // для алгоритмов хэширования
             if (type.equals(Hash.class))
@@ -150,16 +168,14 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.INFOSEC_SKIPJACK_CBC))
                 {
                     // раскодировать параметры алгоритма
-                    SkipjackParm algParameters = 
-                        new SkipjackParm(parameters.parameters());
+                    SkipjackParm algParameters = new SkipjackParm(parameters);
 
                     // указать алгоритм шифрования блока
                     try (Cipher engine = new aladdin.capi.ansi.engine.Skipjack()) 
                     {
                         // указать используемый режим
-                        CipherMode.CBC mode = new CipherMode.CBC(
-                            algParameters.iv().value()
-                        ); 
+                        CipherMode.CBC mode = new CipherMode.CBC(algParameters.iv().value()); 
+                        
                         // создать алгоритм симметричного шифрования
                         return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
                     }
@@ -167,10 +183,10 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_ECB))
                 { 
                     // при указании параметров алгоритма
-                    int keyBits = 32; if (!Encodable.isNullOrEmpty(parameters.parameters()))
+                    int keyBits = 32; if (!Encodable.isNullOrEmpty(parameters))
                     { 
                         // раскодировать параметры алгоритма
-                        Integer version = new Integer(parameters.parameters());
+                        Integer version = new Integer(parameters);
 
                         // определить число битов
                         keyBits = RC2ParameterVersion.getKeyBits(version); 
@@ -179,7 +195,7 @@ public final class Factory extends aladdin.capi.Factory
                     try (Cipher cipher = new aladdin.capi.ansi.engine.RC2(keyBits))
                     {
                         // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC4    )) 
@@ -190,8 +206,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC))
                 {
                     // раскодировать параметры алгоритма
-                    RC5CBCParameter algParameters = 
-                        new RC5CBCParameter(parameters.parameters());
+                    RC5CBCParameter algParameters = new RC5CBCParameter(parameters);
 
                     // определить число раундов
                     int rounds = algParameters.rounds().value().intValue(); 
@@ -204,9 +219,8 @@ public final class Factory extends aladdin.capi.Factory
                         try (Cipher engine = new aladdin.capi.ansi.engine.RC5_64(rounds))
                         {
                             // указать используемый режим
-                            CipherMode.CBC mode = new CipherMode.CBC(
-                                algParameters.iv().value()
-                            ); 
+                            CipherMode.CBC mode = new CipherMode.CBC(algParameters.iv().value()); 
+                            
                             // создать алгоритм симметричного шифрования
                             return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.NONE);
                         }
@@ -215,9 +229,8 @@ public final class Factory extends aladdin.capi.Factory
                         try (Cipher engine = new aladdin.capi.ansi.engine.RC5_128(rounds))
                         {
                             // указать используемый режим
-                            CipherMode.CBC mode = new CipherMode.CBC(
-                                algParameters.iv().value()
-                            ); 
+                            CipherMode.CBC mode = new CipherMode.CBC(algParameters.iv().value()); 
+                            
                             // создать алгоритм симметричного шифрования
                             return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.NONE);
                         }
@@ -227,8 +240,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC_PAD))
                 {
                     // раскодировать параметры алгоритма
-                    RC5CBCParameter algParameters = 
-                        new RC5CBCParameter(parameters.parameters());
+                    RC5CBCParameter algParameters = new RC5CBCParameter(parameters);
 
                     // определить число раундов
                     int rounds = algParameters.rounds().value().intValue(); 
@@ -241,9 +253,8 @@ public final class Factory extends aladdin.capi.Factory
                         try (Cipher engine = new aladdin.capi.ansi.engine.RC5_64(rounds))
                         {
                             // указать используемый режим
-                            CipherMode.CBC mode = new CipherMode.CBC(
-                                algParameters.iv().value()
-                            ); 
+                            CipherMode.CBC mode = new CipherMode.CBC(algParameters.iv().value()); 
+                            
                             // создать алгоритм симметричного шифрования
                             return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.PKCS5);
                         }
@@ -252,9 +263,8 @@ public final class Factory extends aladdin.capi.Factory
                         try (Cipher engine = new aladdin.capi.ansi.engine.RC5_128(rounds))
                         {
                             // указать используемый режим
-                            CipherMode.CBC mode = new CipherMode.CBC(
-                                algParameters.iv().value()
-                            ); 
+                            CipherMode.CBC mode = new CipherMode.CBC(algParameters.iv().value()); 
+                            
                             // создать алгоритм симметричного шифрования
                             return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.PKCS5);
                         }
@@ -267,7 +277,7 @@ public final class Factory extends aladdin.capi.Factory
                     try (Cipher cipher = new aladdin.capi.ansi.engine.DES())
                     {
                         // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_ECB))
@@ -276,7 +286,7 @@ public final class Factory extends aladdin.capi.Factory
                     try (Cipher cipher = new aladdin.capi.ansi.engine.AES(new int[] {16}))
                     {
                         // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_ECB))
@@ -285,7 +295,7 @@ public final class Factory extends aladdin.capi.Factory
                     try (Cipher cipher = new aladdin.capi.ansi.engine.AES(new int[] {24}))
                     {
                         // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
                 if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_ECB))
@@ -294,7 +304,7 @@ public final class Factory extends aladdin.capi.Factory
                     try (Cipher cipher = new aladdin.capi.ansi.engine.AES(new int[] {32}))
                     {
                         // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(cipher, PaddingMode.ANY);
+                        return new BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
             }
@@ -310,7 +320,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP))
                 {
                     // раскодировать параметры
-                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters.parameters());
+                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters);
 
                     // создать алгоритм хэширования
                     try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -346,7 +356,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP)) 
                 {
                     // раскодировать параметры
-                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters.parameters());
+                    RSAESOAEPParams oaepParameters = new RSAESOAEPParams(parameters);
 
                     // создать алгоритм хэширования
                     try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -381,7 +391,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
                 {
                     // раскодировать параметры алгоритма
-                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
 
                     // проверить вид завершителя
                     if (pssParameters.trailerField().value().intValue() != 1) break; 
@@ -429,7 +439,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
                 {
                     // раскодировать параметры алгоритма
-                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                    RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
 
                     // проверить вид завершителя
                     if (pssParameters.trailerField().value().intValue() != 1) break; 
@@ -491,8 +501,7 @@ public final class Factory extends aladdin.capi.Factory
                     oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма хэширования
                     AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
@@ -514,8 +523,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.X963_ECDH_STD_SHA1))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -541,8 +549,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_224))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -568,8 +575,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_256))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -595,8 +601,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_384))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -622,8 +627,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_512))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -649,8 +653,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.X963_ECDH_COFACTOR_SHA1))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -676,8 +679,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_224))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -703,8 +705,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_256))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -730,8 +731,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_384))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -757,8 +757,7 @@ public final class Factory extends aladdin.capi.Factory
                 if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_512))
                 {
                     // раскодировать параметры
-                    AlgorithmIdentifier wrapParameters = 
-                        new AlgorithmIdentifier(parameters.parameters()); 
+                    AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
 
                     // указать параметры алгоритма наследования ключа
                     AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
@@ -784,4175 +783,4106 @@ public final class Factory extends aladdin.capi.Factory
             }
         }
         // вызвать базовую функцию
-        return Factory.redirectAlgorithm(factory, scope, parameters, type); 
+        return Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	///////////////////////////////////////////////////////////////////////
 	// Перенаправление алгоритмов
 	///////////////////////////////////////////////////////////////////////
 	public static IAlgorithm redirectAlgorithm(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters, 
+        SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
 	{
         // для алгоритмов хэширования
         if (type.equals(Hash.class))
         {
             // перенаправить алгоритм хэширования
-            return redirectHash(factory, scope, parameters); 
+            return redirectHash(factory, scope, oid, parameters); 
         }
         // для алгоритмов вычисления имитовставки
         else if (type.equals(Mac.class))
         {
             // перенаправить алгоритм вычисления имитовставки
-            return redirectMac(factory, scope, parameters); 
+            return redirectMac(factory, scope, oid, parameters); 
         }
         // для алгоритмов симметричного шифрования
         else if (type.equals(Cipher.class))
         {
             // перенаправить алгоритм симметричного шифрования
-            return redirectCipher(factory, scope, parameters); 
+            return redirectCipher(factory, scope, oid, parameters); 
+        }
+        // для алгоритмов симметричного шифрования
+        else if (type.equals(IBlockCipher.class))
+        {
+            // перенаправить алгоритм симметричного шифрования
+            return redirectBlockCipher(factory, scope, oid, parameters); 
         }
         // для алгоритмов шифрования ключа
         else if (type.equals(KeyWrap.class))
         {
             // перенаправить алгоритм шифрования ключа
-            return redirectKeyWrap(factory, scope, parameters); 
+            return redirectKeyWrap(factory, scope, oid, parameters); 
         }
         // для алгоритмов наследования ключа
         else if (type.equals(KeyDerive.class))
         {
             // перенаправить алгоритм наследования ключа
-            return redirectKeyDerive(factory, scope, parameters); 
+            return redirectKeyDerive(factory, scope, oid, parameters); 
         }
         // для алгоритмов выработки подписи
         else if (type.equals(SignHash.class))
         {
             // перенаправить алгоритм выработки подписи
-            return redirectSignHash(factory, scope, parameters); 
+            return redirectSignHash(factory, scope, oid, parameters); 
         }
         // для алгоритмов проверки подписи
         else if (type.equals(VerifyHash.class))
         {
             // перенаправить алгоритм проверки подписи
-            return redirectVerifyHash(factory, scope, parameters); 
+            return redirectVerifyHash(factory, scope, oid, parameters); 
         }
         // для алгоритмов подписи
         else if (type.equals(SignData.class))
         {
             // перенаправить алгоритм подписи
-            return redirectSignData(factory, scope, parameters); 
+            return redirectSignData(factory, scope, oid, parameters); 
         }
         // для алгоритмов подписи
         else if (type.equals(VerifyData.class))
         {
             // перенаправить алгоритм подписи
-            return redirectVerifyData(factory, scope, parameters); 
+            return redirectVerifyData(factory, scope, oid, parameters); 
         }
         // для алгоритмов согласования общего ключа
         else if (type.equals(ITransportAgreement.class))
         {
             // перенаправить алгоритм согласования общего ключа
-            return redirectTransportAgreement(factory, scope, parameters); 
+            return redirectTransportAgreement(factory, scope, oid, parameters); 
         }
         // для алгоритмов согласования общего ключа
         else if (type.equals(TransportKeyWrap.class))
         {
             // перенаправить алгоритм согласования общего ключа
-            return redirectTransportKeyWrap(factory, scope, parameters); 
+            return redirectTransportKeyWrap(factory, scope, oid, parameters); 
         }
         // для алгоритмов согласования общего ключа
         else if (type.equals(TransportKeyUnwrap.class))
         {
             // перенаправить алгоритм согласования общего ключа
-            return redirectTransportKeyUnwrap(factory, scope, parameters); 
+            return redirectTransportKeyUnwrap(factory, scope, oid, parameters); 
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
 	}
 	private static IAlgorithm redirectHash(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
 	{
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = Hash.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = Hash.class; 
+        
+        // в зависимости от идентификатора алгоритма
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_SHA)) 
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
-            // в зависимости от идентификатора алгоритма
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_SHA)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.SSIG_SHA1; 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.SSIG_SHA1; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, Hash.class); 
-            }
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
 	}
 	private static IAlgorithm redirectMac(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
 	{
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = Mac.class; for (int i = 0; i < 1; i++) 
+        Class<? extends IAlgorithm> type = Mac.class; 
+        
+        // создать алгоритм вычисления имитовставки
+        if (oid.equals(aladdin.asn1.ansi.OID.ENTRUST_PBMAC)) 
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
+            // раскодировать параметры алгоритма
+            PBMParameter pbeParameters = new PBMParameter(parameters); 
+
             // создать алгоритм вычисления имитовставки
-            if (oid.equals(aladdin.asn1.ansi.OID.ENTRUST_PBMAC)) 
+            try (Mac macAlgorithm = (Mac)factory.createAlgorithm(
+                scope, pbeParameters.mac(), Mac.class))
             {
-                // раскодировать параметры алгоритма
-                PBMParameter pbeParameters = new PBMParameter(parameters.parameters()); 
+                // проверить наличие алгоритма
+                if (macAlgorithm == null) return null; 
+
+                // создать алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, pbeParameters.owf(), Hash.class))
+                {
+                    // проверить наличие алгоритма
+                    if (hashAlgorithm == null) return null; 
+
+                    // создать алгоритм вычисления имитовставки по паролю
+                    return new PBMAC(hashAlgorithm, macAlgorithm,  
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    );
+                }
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_MAC))
+        {
+            // раскодировать размер имитовставки
+            Integer bits = new Integer(parameters); 
+
+            // проверить корректность размера
+            if ((bits.value().intValue() % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
+                new OctetString(new byte[8])
+            );  
+            // создать алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class))
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null;  
 
                 // создать алгоритм вычисления имитовставки
-                try (Mac macAlgorithm = (Mac)factory.createAlgorithm(
-                    scope, pbeParameters.mac(), Mac.class))
-                {
-                    // проверить наличие алгоритма
-                    if (macAlgorithm == null) break; 
-
-                    // создать алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, pbeParameters.owf(), Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break; 
-
-                        // создать алгоритм вычисления имитовставки по паролю
-                        return new PBMAC(hashAlgorithm, macAlgorithm,  
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        );
-                    }
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_MAC))
-            {
-                // раскодировать размер имитовставки
-                Integer bits = new Integer(parameters.parameters()); 
-
-                // проверить корректность размера
-                if ((bits.value().intValue() % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
-                    new OctetString(new byte[8])
-                );  
-                // создать алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break;  
-
-                    // создать алгоритм вычисления имитовставки
-                    return new aladdin.capi.mac.CBCMAC1(cipher, 
-                        PaddingMode.NONE, bits.value().intValue() / 8
-                    ); 
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.IPSEC_HMAC_MD5))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
+                return new aladdin.capi.mac.CBCMAC1(cipher, 
+                    PaddingMode.NONE, bits.value().intValue() / 8
                 ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
-
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.IPSEC_HMAC_RIPEMD160))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.IPSEC_HMAC_MD5))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA1))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.IPSEC_HMAC_RIPEMD160))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.IPSEC_HMAC_SHA1))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA1))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.RSA_HMAC_SHA1; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_224))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.IPSEC_HMAC_SHA1))
+        {
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.RSA_HMAC_SHA1; 
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
+            {
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
+
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_256))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_384))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_384))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512_224))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_224), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_224), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512_256))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_256), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_256), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                    scope, hashParameters, Hash.class))
-                {
-                    // проверить наличие алгоритма хэширования
-                    if (hashAlgorithm == null) break; 
+                // проверить наличие алгоритма хэширования
+                if (hashAlgorithm == null) return null;  
 
-                    // создать алгоритм вычисления имитовставки
-                    return new HMAC(hashAlgorithm); 
-                }
+                // создать алгоритм вычисления имитовставки
+                return new HMAC(hashAlgorithm); 
             }
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
 	}
 	private static IAlgorithm redirectCipher(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = Cipher.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = Cipher.class; 
+        
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_ECB))
+        { 
+            // указать размер ключа по умолчанию
+            if (Encodable.isNullOrEmpty(parameters))
+            {
+                // указать число битов по умолчанию
+                parameters = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(32); 
+
+                // создать алгоритм
+                return factory.createAlgorithm(scope, oid, parameters, type); 
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_CBC))
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_ECB))
-            { 
-                // указать размер ключа по умолчанию
-                if (Encodable.isNullOrEmpty(parameters.parameters()))
+            // в зависимости от используемых параметров
+            if (parameters.tag().equals(Tag.OCTETSTRING))
+            {
+                // указать число битов по умолчанию
+                Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(32); 
+
+                // указать синхропосылку
+                OctetString iv = new OctetString(parameters); 
+
+                // закодировать параметры алгоритма
+                parameters = new aladdin.asn1.ansi.rsa.RC2CBCParams(version, iv); 
+                
+                // создать алгоритм 
+                return factory.createAlgorithm(scope, oid, parameters, type); 
+            }
+            else { 
+                // раскодировать параметры алгоритма
+                aladdin.asn1.ansi.rsa.RC2CBCParams algParameters = 
+                    new aladdin.asn1.ansi.rsa.RC2CBCParams(parameters);
+
+                // указать идентификатор алгоритма шифрования блока
+                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_ECB), 
+                    algParameters.parameterVersion()
+                );  
+                // создать алгоритм шифрования блока
+                try (Cipher engine = (Cipher)factory.createAlgorithm(
+                    scope, engineParameters, Cipher.class))
                 {
-                    // указать число битов по умолчанию
-                    Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(32); 
+                    // проверить наличие алгоритма
+                    if (engine == null) return null; 
 
-                    // закодировать параметры алгоритма
-                    parameters = new AlgorithmIdentifier(parameters.algorithm(), version);
-
-                    // создать алгоритм
-                    return factory.createAlgorithm(scope, parameters, type); 
+                    // указать используемый режим
+                    CipherMode.CBC mode = new CipherMode.CBC(
+                        algParameters.iv().value()
+                    ); 
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_CBC))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC_PAD))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.RSA_RC5_CBC; 
+            
+            // создать алгоритм
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
             {
-                // в зависимости от используемых параметров
-                if (parameters.parameters().tag().equals(Tag.OCTETSTRING))
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_ECB)) 
+        {
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.NONE);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_ECB_PAD)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.TT_DES_ECB; 
+            
+            // создать алгоритм
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            OctetString iv = new OctetString(parameters); 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
+            {
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
+
+                // указать используемый режим
+                CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
+
+                // создать алгоритм симметричного шифрования
+                return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_CBC)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.SSIG_DES_CBC; 
+            
+            // создать алгоритм шифрования блока
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.NONE);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_CBC_PAD)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.TT_DES_CBC; 
+            
+            // создать алгоритм
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_OFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
+
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
+            {
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // указать число битов по умолчанию
-                    Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(32); 
-
-                    // указать синхропосылку
-                    OctetString iv = new OctetString(parameters.parameters()); 
-
-                    // закодировать параметры алгоритма
-                    parameters = new AlgorithmIdentifier(
-                        parameters.algorithm(), new aladdin.asn1.ansi.rsa.RC2CBCParams(version, iv)
-                    ); 
-                    // создать алгоритм 
-                    return factory.createAlgorithm(scope, parameters, type); 
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
                 }
                 else { 
-                    // раскодировать параметры алгоритма
-                    aladdin.asn1.ansi.rsa.RC2CBCParams algParameters = 
-                        new aladdin.asn1.ansi.rsa.RC2CBCParams(parameters.parameters());
+                    // указать используемый режим
+                    CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
 
-                    // указать идентификатор алгоритма шифрования блока
-                    AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                        new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_ECB), 
-                        algParameters.parameterVersion()
-                    );  
-                    // создать алгоритм шифрования блока
-                    try (Cipher engine = (Cipher)factory.createAlgorithm(
-                        scope, engineParameters, Cipher.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (engine == null) break; 
-
-                        // указать используемый режим
-                        CipherMode.CBC mode = new CipherMode.CBC(
-                            algParameters.iv().value()
-                        ); 
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
-                    }
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.OFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC_PAD))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_CFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
+
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // изменить идентификатор алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC5_CBC), 
-                    parameters.parameters()
-                ); 
-                // создать алгоритм
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, type))
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
+                }
+                else { 
+                    // указать используемый режим
+                    CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
 
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_ECB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_DESX_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            OctetString iv = new OctetString(parameters); 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
+
                 // создать алгоритм шифрования блока
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                try (Cipher engineX = new aladdin.capi.ansi.engine.DESX(engine))
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.NONE);
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_ECB_PAD)) 
-            {
-                // изменить идентификатор алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_DES_ECB), 
-                    parameters.parameters()
-                ); 
-                // создать алгоритм
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, type))
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                OctetString iv = new OctetString(parameters.parameters()); 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
-
                     // указать используемый режим
                     CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
 
                     // создать алгоритм симметричного шифрования
-                    return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+                    return new aladdin.capi.mode.CBC(engineX, mode, PaddingMode.ANY);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_TDES_ECB))
+        {
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
-                    parameters.parameters()
-                );  
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
+
                 // создать алгоритм шифрования блока
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                try (Cipher tdes = new aladdin.capi.ansi.engine.TDES(engine, new int[] {16, 24}))  
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.NONE);
+                    // создать алгоритм симметричного шифрования
+                    return new BlockMode.PaddingConverter(tdes, PaddingMode.ANY);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_DES_CBC_PAD)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_ECB))
+        {
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // изменить идентификатор алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_DES_CBC), 
-                    parameters.parameters()
-                ); 
-                // создать алгоритм
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, type))
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
 
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_OFB)) 
-            {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
-
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
-
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
                 // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                try (Cipher tdes = new aladdin.capi.ansi.engine.TDES(engine, new int[] {24}))  
                 {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
-                    }
-                    else { 
-                        // указать используемый режим
-                        CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB(engine, mode);
-                    }
+                    // создать алгоритм симметричного шифрования
+                    return new BlockMode.PaddingConverter(tdes, PaddingMode.NONE);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DES_CFB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_ECB_PAD))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.TT_TDES192_ECB; 
+            
+            // создать алгоритм
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
             {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
 
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
-
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
-                    }
-                    else { 
-                        // указать используемый режим
-                        CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB(engine, mode);
-                    }
-                }
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_DESX_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.RSA_TDES192_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            OctetString iv = new OctetString(parameters); 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                OctetString iv = new OctetString(parameters.parameters()); 
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
 
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
+                // указать используемый режим
+                CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
 
-                    // создать алгоритм шифрования блока
-                    try (Cipher engineX = new aladdin.capi.ansi.engine.DESX(engine))
-                    {
-                        // указать используемый режим
-                        CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CBC(engineX, mode, PaddingMode.ANY);
-                    }
-                }
+                // создать алгоритм симметричного шифрования
+                return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_TDES_ECB))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_CBC)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.RSA_TDES192_CBC; 
+            
+            // создать алгоритм шифрования блока
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
             {
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(
-                    scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
 
-                    // создать алгоритм шифрования блока
-                    try (Cipher tdes = new aladdin.capi.ansi.engine.TDES(engine, new int[] {16, 24}))  
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(tdes, PaddingMode.ANY);
-                    }
-                }
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.NONE); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_ECB))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_CBC_PAD)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.TT_TDES192_CBC; 
+            
+            // создать алгоритм
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, oid, parameters, type))
             {
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(
-                    scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
 
-                    // создать алгоритм шифрования блока
-                    try (Cipher tdes = new aladdin.capi.ansi.engine.TDES(engine, new int[] {24}))  
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new BlockMode.ConvertPadding(tdes, PaddingMode.NONE);
-                    }
-                }
+                // изменить способ дополнения
+                return new BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_ECB_PAD))
-            {
-                // изменить идентификатор алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_ECB), 
-                    parameters.parameters()
-                ); 
-                // создать алгоритм
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, type))
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            OctetString iv = new OctetString(parameters); 
 
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
-                }
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
+            {
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
+
+                // указать используемый режим
+                CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
+
+                // создать алгоритм симметричного шифрования
+                return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.RSA_TDES192_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_OFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
+
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                OctetString iv = new OctetString(parameters.parameters()); 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
-
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
+                }
+                else {
                     // указать используемый режим
-                    CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
+                    CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
 
                     // создать алгоритм симметричного шифрования
-                    return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+                    return new aladdin.capi.mode.OFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_CBC)) 
-            {
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_TDES192_CBC), 
-                    parameters.parameters()
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_CFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
 
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.NONE); 
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
+            {
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
+                {
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
                 }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_TDES192_CBC_PAD)) 
-            {
-                // изменить идентификатор алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_CBC), 
-                    parameters.parameters()
-                ); 
-                // создать алгоритм
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, parameters, type))
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-
-                    // изменить способ дополнения
-                    return new BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                OctetString iv = new OctetString(parameters.parameters()); 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
-
+                else {
                     // указать используемый режим
-                    CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
+                    CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
 
                     // создать алгоритм симметричного шифрования
-                    return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+                    return new aladdin.capi.mode.CFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_OFB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            OctetString iv = new OctetString(parameters); 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
 
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
+                // указать используемый режим
+                CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
 
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
-                    }
-                    else {
-                        // указать используемый режим
-                        CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB(engine, mode);
-                    }
-                }
+                // создать алгоритм симметричного шифрования
+                return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_CFB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_OFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
+
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
-
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
-
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
-                    }
-                    else {
-                        // указать используемый режим
-                        CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB(engine, mode);
-                    }
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
                 }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                OctetString iv = new OctetString(parameters.parameters()); 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
-
+                else {
                     // указать используемый режим
-                    CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
+                    CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
 
                     // создать алгоритм симметричного шифрования
-                    return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+                    return new aladdin.capi.mode.OFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_OFB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_CFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
+
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
-
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
-
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
-                    }
-                    else {
-                        // указать используемый режим
-                        CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB(engine, mode);
-                    }
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
                 }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_CFB)) 
-            {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
-
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
-
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
-                    }
-                    else {
-                        // указать используемый режим
-                        CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
-
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB(engine, mode);
-                    }
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                OctetString iv = new OctetString(parameters.parameters()); 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters= new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
-                {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; 
-
+                else {
                     // указать используемый режим
-                    CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
+                    CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
 
                     // создать алгоритм симметричного шифрования
-                    return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+                    return new aladdin.capi.mode.CFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_OFB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            OctetString iv = new OctetString(parameters); 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters= new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
+                // проверить наличие алгоритма
+                if (engine == null) return null; 
 
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
+                // указать используемый режим
+                CipherMode.CBC mode = new CipherMode.CBC(iv.value()); 
 
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
+                // создать алгоритм симметричного шифрования
+                return new aladdin.capi.mode.CBC(engine, mode, PaddingMode.ANY);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_OFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
 
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
+            {
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
-                    }
-                    else { 
-                        // указать используемый режим
-                        CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.OFB1(engine, algParameters.iv().value()); 
+                }
+                else { 
+                    // указать используемый режим
+                    CipherMode.OFB mode = new CipherMode.OFB(algParameters.iv().value(), bits / 8); 
 
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.OFB(engine, mode);
-                    }
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.OFB(engine, mode);
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_CFB)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_CFB)) 
+        {
+            // раскодировать параметры алгоритма
+            FBParameter algParameters = new FBParameter(parameters); 
+
+            // извлечь величину сдвига
+            int bits = algParameters.numberOfBits().value().intValue(); 
+
+            // проверить корректность параметров
+            if (bits != 1 && (bits % 8) != 0) return null; 
+
+            // указать идентификатор алгоритма шифрования блока
+            AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
+            );  
+            // создать алгоритм шифрования блока
+            try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, type))
             {
-                // раскодировать параметры алгоритма
-                FBParameter algParameters = new FBParameter(parameters.parameters()); 
-
-                // извлечь величину сдвига
-                int bits = algParameters.numberOfBits().value().intValue(); 
-
-                // проверить корректность параметров
-                if (bits != 1 && (bits % 8) != 0) break; 
-
-                // указать идентификатор алгоритма шифрования блока
-                AlgorithmIdentifier engineParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
-                );  
-                // создать алгоритм шифрования блока
-                try (Cipher engine = (Cipher)factory.createAlgorithm(scope, engineParameters, Cipher.class))
+                // проверить наличие алгоритма
+                if (engine == null) return null; if (bits == 1)
                 {
-                    // проверить наличие алгоритма
-                    if (engine == null) break; if (bits == 1)
-                    {
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
-                    }
-                    else {
-                        // указать используемый режим
-                        CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CFB1(engine, algParameters.iv().value()); 
+                }
+                else {
+                    // указать используемый режим
+                    CipherMode.CFB mode = new CipherMode.CFB(algParameters.iv().value(), bits / 8); 
 
-                        // создать алгоритм симметричного шифрования
-                        return new aladdin.capi.mode.CFB(engine, mode);
-                    }
+                    // создать алгоритм симметричного шифрования
+                    return new aladdin.capi.mode.CFB(engine, mode);
                 }
             }
-            // для алгоритмов шифрования по паролю
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_DES_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        // для алгоритмов шифрования по паролю
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_DES_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
-                    new OctetString(new byte[8])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
+                new OctetString(new byte[8])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.DES(factory, scope))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            // для алгоритмов шифрования по паролю
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_DES_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        // для алгоритмов шифрования по паролю
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_DES_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
-                    new OctetString(new byte[8])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
+                new OctetString(new byte[8])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.DES(factory, scope))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_RC2_64_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_RC2_64_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
+            ); 
+            // закодировать эффективное число битов
+            Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(64); 
+
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
+                new aladdin.asn1.ansi.rsa.RC2CBCParams(
+                    version, new OctetString(new byte[8])
+                )
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
-                ); 
-                // закодировать эффективное число битов
-                Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(64); 
-
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
-                    new aladdin.asn1.ansi.rsa.RC2CBCParams(
-                        version, new OctetString(new byte[8])
-                    )
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.RC2(factory, scope, 64, 8))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_RC2_64_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_RC2_64_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
+            ); 
+            // закодировать эффективное число битов
+            Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(64); 
+
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
+                new aladdin.asn1.ansi.rsa.RC2CBCParams(
+                    version, new OctetString(new byte[8])
+                )
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
-                ); 
-                // закодировать эффективное число битов
-                Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(64); 
-
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
-                    new aladdin.asn1.ansi.rsa.RC2CBCParams(
-                        version, new OctetString(new byte[8])
-                    )
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.RC2(factory, scope, 64, 8))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_SHA1_DES_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_SHA1_DES_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
-                    new OctetString(new byte[8])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_DES_CBC), 
+                new OctetString(new byte[8])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.DES(factory, scope))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_SHA1_RC2_64_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_SHA1_RC2_64_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать эффективное число битов
+            Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(64); 
+
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
+                new aladdin.asn1.ansi.rsa.RC2CBCParams(
+                    version, new OctetString(new byte[8])
+                )
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать эффективное число битов
-                Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(64); 
-
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
-                    new aladdin.asn1.ansi.rsa.RC2CBCParams(
-                        version, new OctetString(new byte[8])
-                    )
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.RC2(factory, scope, 64, 8))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 8, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_128)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_128)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC4), 
-                    Null.INSTANCE
-                ); 
-                // найти алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class))
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC4), 
+                Null.INSTANCE
+            ); 
+            // найти алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class))
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null;
+
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
-
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBESP12(cipher, 16, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBESP12(cipher, 16, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_40)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_40)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC4), 
+                Null.INSTANCE
+            ); 
+            // найти алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class))
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+                // проверить наличие алгоритма
+                if (cipher == null) return null;
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC4), 
-                    Null.INSTANCE
-                ); 
-                // найти алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class))
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break;
+                    // проверить наличие алгоритмов
+                    if (hashAlgorithm == null) return null;
 
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритмов
-                        if (hashAlgorithm == null) break;
-
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBESP12(cipher, 5, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBESP12(cipher, 5, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_128_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_128_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать эффективное число битов
+            Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(128); 
+
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
+                new aladdin.asn1.ansi.rsa.RC2CBCParams(
+                    version, new OctetString(new byte[8])
+                )
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать эффективное число битов
-                Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(128); 
-
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
-                    new aladdin.asn1.ansi.rsa.RC2CBCParams(
-                        version, new OctetString(new byte[8])
-                    )
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.RC2(factory, scope, 128, 16))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBESP12(blockCipher, 16, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBESP12(blockCipher, 16, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_40_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_40_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать эффективное число битов
+            Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(40); 
+
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
+                new aladdin.asn1.ansi.rsa.RC2CBCParams(
+                    version, new OctetString(new byte[8])
+                )
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать эффективное число битов
-                Integer version = aladdin.asn1.ansi.rsa.RC2ParameterVersion.getVersion(40); 
-
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
-                    new aladdin.asn1.ansi.rsa.RC2CBCParams(
-                        version, new OctetString(new byte[8])
-                    )
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.RC2(factory, scope, 40, 5))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBESP12(blockCipher, 5, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBESP12(blockCipher, 5, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_192_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_192_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_CBC), 
+                new OctetString(new byte[8])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_CBC), 
-                    new OctetString(new byte[8])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.TDES(factory, scope, 24))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритмов
-                        if (hashAlgorithm == null) break;
+                    // проверить наличие алгоритмов
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBESP12(blockCipher, 24, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBESP12(blockCipher, 24, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_128_CBC)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_128_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_TDES_ECB), Null.INSTANCE
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
             {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_TDES_ECB), Null.INSTANCE
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.TDES(factory, scope, 16))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритмов
-                        if (hashAlgorithm == null) break;
+                    // проверить наличие алгоритмов
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBESP12(blockCipher, 16, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBESP12(blockCipher, 16, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES128_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES128_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_CBC), 
-                    new OctetString(new byte[16])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_CBC), 
+                new OctetString(new byte[16])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.AES(factory, scope, 16))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 16, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 16, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES192_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES192_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_CBC), 
-                    new OctetString(new byte[16])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_CBC), 
+                new OctetString(new byte[16])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.AES(factory, scope, 24))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 24, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 24, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES256_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES256_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_CBC), 
-                    new OctetString(new byte[16])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_CBC), 
+                new OctetString(new byte[16])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.AES(factory, scope, 32))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 32, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 32, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES128_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES128_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_CBC), 
-                    new OctetString(new byte[16])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_CBC), 
+                new OctetString(new byte[16])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.AES(factory, scope, 16))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 16, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 16, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES192_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES192_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_CBC), 
-                    new OctetString(new byte[16])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_CBC), 
+                new OctetString(new byte[16])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.AES(factory, scope, 24))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 24, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 24, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES256_CBC)) 
-            {
-                // раскодировать параметры алгоритма
-                PBEParameter pbeParameters = new PBEParameter(parameters.parameters());
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES256_CBC)) 
+        {
+            // раскодировать параметры алгоритма
+            PBEParameter pbeParameters = new PBEParameter(parameters);
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_CBC), 
-                    new OctetString(new byte[16])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_CBC), 
+                new OctetString(new byte[16])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
                 {
                     // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.AES(factory, scope, 32))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break;
+                    if (hashAlgorithm == null) return null;
 
-                        // вернуть алгоритм шифрования по паролю
-                        return new PBES1CBC(blockCipher, 32, hashAlgorithm, 
-                            pbeParameters.salt().value(), 
-                            pbeParameters.iterationCount().value().intValue()
-                        ); 
-                    }
+                    // вернуть алгоритм шифрования по паролю
+                    return new PBES1CBC(blockCipher, 32, hashAlgorithm, 
+                        pbeParameters.salt().value(), 
+                        pbeParameters.iterationCount().value().intValue()
+                    ); 
                 }
             }
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
-	private static IAlgorithm redirectKeyWrap(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+	private static IAlgorithm redirectBlockCipher(aladdin.capi.Factory factory, 
+        SecurityStore scope, String name, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = KeyWrap.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = IBlockCipher.class; 
+        
+        if (name.equals("RC2")) 
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
+            // указать идентификатор алгоритма
+            String oid = aladdin.asn1.ansi.OID.RSA_RC2_ECB; 
             
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_PWRI_KEK)) 
+            // проверить наличие алгоритма
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, oid, parameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // при указании параметров алгоритма
+            int keyBits = 32; if (!Encodable.isNullOrEmpty(parameters))
+            { 
+                // раскодировать параметры алгоритма
+                Integer version = new Integer(parameters);
+
+                // определить число битов
+                keyBits = RC2ParameterVersion.getKeyBits(version); 
+            }
+            // создать блочный алгоритм шифрования
+            return new aladdin.capi.ansi.cipher.RC2(factory, scope, keyBits); 
+        }
+        if (name.equals("DES")) 
+        {
+            // указать идентификатор алгоритма
+            String oid = aladdin.asn1.ansi.OID.SSIG_DES_ECB; 
+            
+            // проверить наличие алгоритма
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, oid, parameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // создать блочный алгоритм шифрования
+            return new aladdin.capi.ansi.cipher.DES(factory, scope); 
+        }
+        if (name.equals("DESX")) 
+        {
+            // указать идентификатор алгоритма
+            String oid = aladdin.asn1.ansi.OID.SSIG_DES_ECB; 
+            
+            // проверить наличие алгоритма
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, oid, parameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // создать блочный алгоритм шифрования
+            return new aladdin.capi.ansi.cipher.DESX(factory, scope); 
+        }
+        if (name.equals("DESede") || name.equals("TripleDES")) 
+        {
+            // указать идентификатор алгоритма
+            String oid = aladdin.asn1.ansi.OID.SSIG_TDES_ECB; 
+
+            // проверить наличие алгоритма
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, oid, parameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // создать блочный алгоритм шифрования
+            return new aladdin.capi.ansi.cipher.TDES(factory, scope); 
+        }
+        if (name.equals("AES")) 
+        {
+            // указать идентификатор алгоритма
+            String oid = aladdin.asn1.ansi.OID.NIST_AES256_ECB; 
+
+            // проверить наличие алгоритма
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, oid, parameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // создать блочный алгоритм шифрования
+            return new aladdin.capi.ansi.cipher.AES(factory, scope); 
+        }
+        // вызвать базовую функцию
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, name, parameters, type); 
+    }
+	private static IAlgorithm redirectKeyWrap(aladdin.capi.Factory factory, 
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
+    {
+        // указать тип алгоритма
+        Class<? extends IAlgorithm> type = KeyWrap.class; 
+        
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_PWRI_KEK)) 
+        {
+            // раскодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(parameters); 
+
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // извлечи идентификатор алгоритма шифрования
+            String cipherOID = cipherParameters.algorithm().value(); 
+
+            // в зависимости от идентификатора
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_RC2_CBC))
             {
                 // раскодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = 
-                    new AlgorithmIdentifier(parameters.parameters()); 
+                aladdin.asn1.ansi.rsa.RC2CBCParams rc2Parameters = 
+                    new aladdin.asn1.ansi.rsa.RC2CBCParams(cipherParameters.parameters()); 
 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(
+                    scope, "RC2", rc2Parameters.parameterVersion()))
                 {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // извлечи идентификатор алгоритма шифрования
-                String cipherOID = cipherParameters.algorithm().value(); 
-
-                // в зависимости от идентификатора
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_RC2_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    aladdin.asn1.ansi.rsa.RC2CBCParams rc2Parameters = 
-                        new aladdin.asn1.ansi.rsa.RC2CBCParams(cipherParameters.parameters()); 
-
                     // определить эффективное число битов
                     int effectiveKeyBits = RC2ParameterVersion.getKeyBits(
                         rc2Parameters.parameterVersion()
                     ); 
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.RC2(
-                        factory, scope, effectiveKeyBits, effectiveKeyBits / 8))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, rc2Parameters.iv().value());
-                    }
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(
+                        blockCipher, effectiveKeyBits / 8, rc2Parameters.iv().value()
+                    );
                 }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    aladdin.asn1.ansi.rsa.RC5CBCParameter rc5Parameters = 
-                        new aladdin.asn1.ansi.rsa.RC5CBCParameter(cipherParameters.parameters()); 
-
-                    // определить размер блока
-                    int blockSize = rc5Parameters.blockSize().value().intValue() / 8; 
-
-                    // определить число раундов
-                    int rounds = rc5Parameters.rounds().value().intValue(); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = 
-                        new aladdin.capi.ansi.cipher.RC5(factory, scope, blockSize, rounds))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, rc5Parameters.iv().value());
-                    }
-                }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_DESX_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    OctetString desParameters = new OctetString(cipherParameters.parameters()); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.DESX(factory, scope))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, desParameters.value());
-                    }
-                }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.SSIG_DES_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    OctetString desParameters = new OctetString(cipherParameters.parameters()); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.DES(factory, scope))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, desParameters.value());
-                    }
-                }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_TDES192_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    OctetString tdesParameters = new OctetString(cipherParameters.parameters()); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.TDES(factory, scope, 24))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, tdesParameters.value());
-                    }
-                }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.NIST_AES128_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.AES(factory, scope, 16))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, aesParameters.value());
-                    }
-                }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.NIST_AES192_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.AES(factory, scope, 24))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, aesParameters.value());
-                    }
-                }
-                if (cipherOID.equals(aladdin.asn1.ansi.OID.NIST_AES256_CBC))
-                {
-                    // раскодировать параметры алгоритма
-                    OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
-
-                    // указать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.AES(factory, scope, 32))
-                    {
-                        // вернуть алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.SMIME(blockCipher, aesParameters.value());
-                    }
-                }
-                break; 
             }
-            // создать алгоритм шифрования ключа
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_RC2_128_WRAP)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_RC5_CBC))
             {
                 // раскодировать параметры алгоритма
-                Integer version = new Integer(parameters.parameters());
+                aladdin.asn1.ansi.rsa.RC5CBCParameter rc5Parameters = 
+                    new aladdin.asn1.ansi.rsa.RC5CBCParameter(cipherParameters.parameters()); 
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
-                    new aladdin.asn1.ansi.rsa.RC2CBCParams(
-                        version, new OctetString(new byte[8])
-                    )
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null || !KeySizes.contains(cipher.keySizes(), 16)) break; 
-                }
-                // получить алгоритм шифрования
-                try (IBlockCipher blockCipher = new aladdin.capi.ansi.cipher.RC2(
-                    factory, scope, RC2ParameterVersion.getKeyBits(version), 16))
-                {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break; 
+                // определить размер блока
+                int blockSize = rc5Parameters.blockSize().value().intValue() / 8; 
 
-                        // создать алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.RC2(blockCipher, hashAlgorithm);
-                    }
-                }
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_TDES192_WRAP)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // закодировать параметры алгоритма
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_CBC), 
-                    new OctetString(new byte[8])
-                );
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(
-                    scope, cipherParameters, Cipher.class)) 
-                {
-                    // проверить наличие алгоритма
-                    if (cipher == null) break; 
-                }
-                // получить алгоритм шифрования
+                // определить число раундов
+                int rounds = rc5Parameters.rounds().value().intValue(); 
+
+                // указать блочный алгоритм шифрования
                 try (IBlockCipher blockCipher = 
-                    new aladdin.capi.ansi.cipher.TDES(factory, scope, 24))
+                    new aladdin.capi.ansi.cipher.RC5(factory, scope, blockSize, rounds))
                 {
-                    // получить алгоритм хэширования
-                    try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
-                        scope, hashParameters, Hash.class))
-                    {
-                        // проверить наличие алгоритма
-                        if (hashAlgorithm == null) break; 
-
-                        // создать алгоритм шифрования ключа
-                        return new aladdin.capi.ansi.wrap.TDES(blockCipher, hashAlgorithm);
-                    }
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 0, rc5Parameters.iv().value());
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_WRAP)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_DESX_CBC))
             {
-                // указать параметры алгоритма шифрования
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
-                ); 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (cipher == null) break; 
+                // раскодировать параметры алгоритма
+                OctetString desParameters = new OctetString(cipherParameters.parameters()); 
 
-                    // создать алгоритм шифрования ключа
-                    return new aladdin.capi.ansi.wrap.AES(cipher);
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "DESX", Null.INSTANCE))
+                {
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 0, desParameters.value());
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_WRAP_PAD)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.SSIG_DES_CBC))
             {
-                // указать параметры алгоритма шифрования
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
-                ); 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (cipher == null) break; 
+                // раскодировать параметры алгоритма
+                OctetString desParameters = new OctetString(cipherParameters.parameters()); 
 
-                    // создать алгоритм шифрования ключа
-                    return new aladdin.capi.ansi.wrap.AES_PAD(cipher);
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+                {
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 0, desParameters.value());
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_WRAP)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.RSA_TDES192_CBC))
             {
-                // указать параметры алгоритма шифрования
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
-                ); 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (cipher == null) break; 
+                // раскодировать параметры алгоритма
+                OctetString tdesParameters = new OctetString(cipherParameters.parameters()); 
 
-                    // создать алгоритм шифрования ключа
-                    return new aladdin.capi.ansi.wrap.AES(cipher);
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+                {
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 24, tdesParameters.value());
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_WRAP_PAD)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.NIST_AES128_CBC))
             {
-                // указать параметры алгоритма шифрования
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
-                ); 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (cipher == null) break; 
+                // раскодировать параметры алгоритма
+                OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
 
-                    // создать алгоритм шифрования ключа
-                    return new aladdin.capi.ansi.wrap.AES_PAD(cipher);
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+                {
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 16, aesParameters.value());
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_WRAP)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.NIST_AES192_CBC))
             {
-                // указать параметры алгоритма шифрования
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
-                ); 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (cipher == null) break; 
+                // раскодировать параметры алгоритма
+                OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
 
-                    // создать алгоритм шифрования ключа
-                    return new aladdin.capi.ansi.wrap.AES(cipher);
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+                {
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 24, aesParameters.value());
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_WRAP_PAD)) 
+            if (cipherOID.equals(aladdin.asn1.ansi.OID.NIST_AES256_CBC))
             {
-                // указать параметры алгоритма шифрования
-                AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
-                ); 
-                // получить алгоритм шифрования
-                try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+                // раскодировать параметры алгоритма
+                OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
+
+                // указать блочный алгоритм шифрования
+                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
                 {
-                    // проверить поддержку алгоритма
-                    if (cipher == null) break; 
+                    // вернуть алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 32, aesParameters.value());
+                }
+            }
+            return null; 
+        }
+        // создать алгоритм шифрования ключа
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_RC2_128_WRAP)) 
+        {
+            // раскодировать параметры алгоритма
+            Integer version = new Integer(parameters);
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_RC2_CBC), 
+                new aladdin.asn1.ansi.rsa.RC2CBCParams(
+                    version, new OctetString(new byte[8])
+                )
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null || !KeySizes.contains(cipher.keyFactory().keySizes(), 16)) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
+                {
+                    // проверить наличие алгоритма
+                    if (hashAlgorithm == null) return null; 
 
                     // создать алгоритм шифрования ключа
-                    return new aladdin.capi.ansi.wrap.AES_PAD(cipher);
+                    return new aladdin.capi.ansi.wrap.RC2(blockCipher, 16, hashAlgorithm);
                 }
             }
         }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_TDES192_WRAP)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // закодировать параметры алгоритма
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_TDES192_CBC), 
+                new OctetString(new byte[8])
+            );
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(
+                scope, cipherParameters, Cipher.class)) 
+            {
+                // проверить наличие алгоритма
+                if (cipher == null) return null; 
+            }
+            // получить алгоритм шифрования
+            try (IBlockCipher blockCipher = 
+                factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+            {
+                // получить алгоритм хэширования
+                try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
+                    scope, hashParameters, Hash.class))
+                {
+                    // проверить наличие алгоритма
+                    if (hashAlgorithm == null) return null; 
+
+                    // создать алгоритм шифрования ключа
+                    return new aladdin.capi.ansi.wrap.TDES(blockCipher, 24, hashAlgorithm);
+                }
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_WRAP)) 
+        {
+            // указать параметры алгоритма шифрования
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
+            ); 
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+            {
+                // проверить поддержку алгоритма
+                if (cipher == null) return null; 
+
+                // создать алгоритм шифрования ключа
+                return new aladdin.capi.ansi.wrap.AES(cipher);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES128_WRAP_PAD)) 
+        {
+            // указать параметры алгоритма шифрования
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES128_ECB), Null.INSTANCE
+            ); 
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+            {
+                // проверить поддержку алгоритма
+                if (cipher == null) return null; 
+
+                // создать алгоритм шифрования ключа
+                return new aladdin.capi.ansi.wrap.AES_PAD(cipher);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_WRAP)) 
+        {
+            // указать параметры алгоритма шифрования
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
+            ); 
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+            {
+                // проверить поддержку алгоритма
+                if (cipher == null) return null; 
+
+                // создать алгоритм шифрования ключа
+                return new aladdin.capi.ansi.wrap.AES(cipher);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES192_WRAP_PAD)) 
+        {
+            // указать параметры алгоритма шифрования
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES192_ECB), Null.INSTANCE
+            ); 
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+            {
+                // проверить поддержку алгоритма
+                if (cipher == null) return null; 
+
+                // создать алгоритм шифрования ключа
+                return new aladdin.capi.ansi.wrap.AES_PAD(cipher);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_WRAP)) 
+        {
+            // указать параметры алгоритма шифрования
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
+            ); 
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+            {
+                // проверить поддержку алгоритма
+                if (cipher == null) return null; 
+
+                // создать алгоритм шифрования ключа
+                return new aladdin.capi.ansi.wrap.AES(cipher);
+            }
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_AES256_WRAP_PAD)) 
+        {
+            // указать параметры алгоритма шифрования
+            AlgorithmIdentifier cipherParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_AES256_ECB), Null.INSTANCE
+            ); 
+            // получить алгоритм шифрования
+            try (Cipher cipher = (Cipher)factory.createAlgorithm(scope, cipherParameters, Cipher.class))
+            {
+                // проверить поддержку алгоритма
+                if (cipher == null) return null; 
+
+                // создать алгоритм шифрования ключа
+                return new aladdin.capi.ansi.wrap.AES_PAD(cipher);
+            }
+        }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectKeyDerive(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = KeyDerive.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = KeyDerive.class; 
+        
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MGF1))
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MGF1))
-            {
-                // раскодировать параметры
-                AlgorithmIdentifier hashParameters = 
-                    new AlgorithmIdentifier(parameters.parameters()); 
+            // раскодировать параметры
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(parameters); 
 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; return new MGF1(hash);
-                }
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; return new MGF1(hash);
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_KDF_X963))
-            {
-                // раскодировать параметры
-                AlgorithmIdentifier hashParameters = 
-                    new AlgorithmIdentifier(parameters.parameters()); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.CERTICOM_KDF_X963))
+        {
+            // раскодировать параметры
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(parameters); 
 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; return new X963KDF(hash);
-                }
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; return new X963KDF(hash);
             }
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectSignHash(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = SignHash.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = SignHash.class; 
+        
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SIGN)) 
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SIGN)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        } 
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224) ||
+            oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256) ||
+            oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384) ||
+            oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        } 
+        // защита от зацикливания
+        if (!oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS) && 
+            !oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1  )) 
+        {
+            // получить алгоритм подписи данных
+            SignData signAlgorithm = (SignData)factory.createAlgorithm(
+                scope, oid, parameters, SignData.class
+            ); 
+            // при наличии алгоритма
+            if (signAlgorithm != null && signAlgorithm.signHashAlgorithm() != null) 
+            {
+                // вернуть алгоритм подписи хэш-значения
+                return RefObject.addRef(signAlgorithm.signHashAlgorithm()); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X957_DSA; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            } 
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224) ||
-                oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256) ||
-                oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384) ||
-                oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            } 
-            // защита от зацикливания
-            if (!oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS) && 
-                !oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1  )) 
-            {
-                // получить алгоритм подписи данных
-                SignData signAlgorithm = (SignData)factory.createAlgorithm(
-                    scope, parameters, SignData.class
-                ); 
-                // при наличии алгоритма
-                if (signAlgorithm != null && signAlgorithm.signHashAlgorithm() != null) 
-                {
-                    // вернуть алгоритм подписи хэш-значения
-                    return RefObject.addRef(signAlgorithm.signHashAlgorithm()); 
-                }
-            }
+            return null; 
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectVerifyHash(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = VerifyHash.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = VerifyHash.class; 
+        
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SIGN)) 
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SIGN)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        } 
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224) ||
+            oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256) ||
+            oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384) ||
+            oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        } 
+        // защита от зацикливания
+        if (!oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS) && 
+            !oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1  ))
+        {
+            // получить алгоритм проверки подписи данных
+            VerifyData verifyAlgorithm = (VerifyData)factory.createAlgorithm(
+                scope, oid, parameters, VerifyData.class
+            ); 
+            // при наличии алгоритма
+            if (verifyAlgorithm != null && verifyAlgorithm.verifyHashAlgorithm() != null) 
+            {
+                // вернуть алгоритм проверки подписи хэш-значения
+                return RefObject.addRef(verifyAlgorithm.verifyHashAlgorithm()); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X957_DSA; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            } 
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224) ||
-                oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256) ||
-                oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384) ||
-                oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            } 
-            // защита от зацикливания
-            if (!oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS) && 
-                !oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1  ))
-            {
-                // получить алгоритм проверки подписи данных
-                VerifyData verifyAlgorithm = (VerifyData)factory.createAlgorithm(
-                    scope, parameters, VerifyData.class
-                ); 
-                // при наличии алгоритма
-                if (verifyAlgorithm != null && verifyAlgorithm.verifyHashAlgorithm() != null) 
-                {
-                    // вернуть алгоритм проверки подписи хэш-значения
-                    return RefObject.addRef(verifyAlgorithm.verifyHashAlgorithm()); 
-                }
-            }
+            return null; 
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectSignData(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = SignData.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = SignData.class; 
+        
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2)) 
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD2)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD4), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD4)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD5)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD128)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD128), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD160)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD256)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA1))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_SHA1))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
+        {
+            // раскодировать параметры алгоритма
+            RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = pssParameters.hashAlgorithm(); 
+
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, oid, parameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_384))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_512))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X957_DSA_SHA1)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA1)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_224)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_256)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_384)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_512)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+            {
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
+                {
+                    // проверить поддержку алгоритма
+                    if (signHash == null) return null; 
+
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SPECIFIED)) 
+        {
+            // раскодировать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(parameters); 
             
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2)) 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (signHash == null) return null; 
 
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD2)) 
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2; 
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD4), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (signHash == null) return null; 
 
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD4)) 
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4; 
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (signHash == null) return null; 
 
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD5)) 
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5; 
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD128)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD128), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (signHash == null) return null; 
 
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD160)) 
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (signHash == null) return null; 
 
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD256)) 
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма подписи
+            AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм подписи
+                try (SignHash signHash = (SignHash)factory.createAlgorithm(
+                    scope, signHashParameters, SignHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (signHash == null) return null; 
 
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA1))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_SHA1))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_224))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_224))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_256))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
-            {
-                // раскодировать параметры алгоритма
-                RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
-
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = pssParameters.hashAlgorithm(); 
-
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, parameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_224))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_256))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_384))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_512))
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X957_DSA_SHA1)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA1)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
-
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_224)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_256)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_384)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_512)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SPECIFIED)) 
-            {
-                // раскодировать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    parameters.parameters()
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
-            {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма подписи
-                AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
-                {
-                    // проверить поддержку алгоритма
-                    if (hash == null) break; 
-
-                    // получить алгоритм подписи
-                    try (SignHash signHash = (SignHash)factory.createAlgorithm(
-                        scope, signHashParameters, SignHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (signHash == null) break; 
-
-                        // создать алгоритм подписи данных
-                        return new SignHashData(hash, hashParameters, signHash); 
-                    }
-                }   
-            }
+                    // создать алгоритм подписи данных
+                    return new SignHashData(hash, hashParameters, signHash); 
+                }
+            }   
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectVerifyData(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = VerifyData.class; for (int i = 0; i < 1; i++)
-        {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
+        Class<? extends IAlgorithm> type = VerifyData.class; 
         
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2)) 
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD2), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD2)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD2)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4)) 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD4), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD4), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null;  
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD4)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD4)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD4; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5)) 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.RSA_MD5), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD5)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_MD5)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD128)) 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD128)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD160)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD160)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD160), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD256)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_RIPEMD256)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.TT_RIPEMD256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1))
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA1))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_SHA1))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_SHA1))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.TT_RSA_SHA1))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_224))
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256))
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384))
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512))
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_224))
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_256))
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS)) 
+        {
+            // раскодировать параметры алгоритма
+            RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters); 
+
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = pssParameters.hashAlgorithm();
+
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // раскодировать параметры алгоритма
-                RSASSAPSSParams pssParameters = new RSASSAPSSParams(parameters.parameters()); 
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
 
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = pssParameters.hashAlgorithm();
-
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, oid, parameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, parameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_224))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_224))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_256))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_256))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_384))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_384))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_512))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_RSA_SHA3_512))
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA3_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X957_DSA_SHA1)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X957_DSA_SHA1)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA1)) 
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_DSA_SHA1)) 
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_224)) 
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_224)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_256)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_256)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_384)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_384)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_512)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.NIST_DSA_SHA2_512)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X957_DSA), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SPECIFIED)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SPECIFIED)) 
+        {
+            // раскодировать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(parameters); 
+            
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // раскодировать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    parameters.parameters()
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.SSIG_SHA1), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_224), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512)) 
+        {
+            // указать параметры алгоритма хэширования
+            AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+            ); 
+            // указать параметры алгоритма проверки подписи
+            AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512), Null.INSTANCE
+            ); 
+            // получить алгоритм хэширования
+            try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
             {
-                // указать параметры алгоритма хэширования
-                AlgorithmIdentifier hashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
-                ); 
-                // указать параметры алгоритма проверки подписи
-                AlgorithmIdentifier verifyHashParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512), Null.INSTANCE
-                ); 
-                // получить алгоритм хэширования
-                try (Hash hash = (Hash)factory.createAlgorithm(scope, hashParameters, Hash.class))
+                // проверить поддержку алгоритма
+                if (hash == null) return null; 
+
+                // получить алгоритм проверки подписи
+                try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
+                    scope, verifyHashParameters, VerifyHash.class))
                 {
                     // проверить поддержку алгоритма
-                    if (hash == null) break; 
+                    if (verifyHash == null) return null; 
 
-                    // получить алгоритм проверки подписи
-                    try (VerifyHash verifyHash = (VerifyHash)factory.createAlgorithm(
-                        scope, verifyHashParameters, VerifyHash.class))
-                    {
-                        // проверить поддержку алгоритма
-                        if (verifyHash == null) break; 
-
-                        // создать алгоритм проверки подписи данных
-                        return new VerifyHashData(hash, hashParameters, verifyHash); 
-                    }
+                    // создать алгоритм проверки подписи данных
+                    return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectTransportAgreement(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = ITransportAgreement.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = ITransportAgreement.class; 
+        
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_SSDH))
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
+            // указать параметры алгоритма
+            AlgorithmIdentifier ssdhParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(oid), parameters
+            ); 
+            // создать алгоритм 
+            return TransportAgreement.createSSDH(factory, scope, ssdhParameters); 
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_SSDH; 
             
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_SSDH))
+            // создать алгоритм SSDH
+            try (ITransportAgreement transportAgreement = (ITransportAgreement)
+                factory.createAlgorithm(scope, oid, parameters, type))
             {
-                // создать алгоритм 
-                return TransportAgreement.createSSDH(factory, scope, parameters); 
+                // проверить наличие алгоритма
+                if (transportAgreement == null) return null;
+                
+                // вернуть алгоритм ESDH
+                return new ESDH(factory, transportAgreement); 
             }
-            if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.    X963_ECDH_STD_SHA1    ) || 
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_224) ||
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_256) || 
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_384) ||
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_512))
+        {
+            // указать параметры алгоритма
+            AlgorithmIdentifier ssdhParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(oid), parameters
+            ); 
+            // создать алгоритм SSDH
+            try (ITransportAgreement transportAgreement = 
+                TransportAgreement.createSSDH(factory, scope, ssdhParameters))
             {
-                // указать параметры алгоритма SSDH
-                AlgorithmIdentifier ssdhParameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_SSDH), 
-                    parameters.parameters()
-                ); 
-                // создать алгоритм SSDH
-                try (ITransportAgreement transportAgreement = (ITransportAgreement)
-                    factory.createAlgorithm(scope, ssdhParameters, type))
-                {
-                    // проверить наличие алгоритма
-                    if (transportAgreement == null) break;
-                    
-                    // вернуть алгоритм ESDH
-                    return new ESDH(factory, transportAgreement); 
-                }
+                // проверить наличие алгоритма
+                if (transportAgreement == null) return null;
+                
+                // вернуть алгоритм ESDH
+                return new ESDH(factory, transportAgreement); 
             }
-            if (oid.equals(aladdin.asn1.ansi.OID.    X963_ECDH_STD_SHA1    ) || 
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_224) ||
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_256) || 
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_384) ||
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_STD_SHA2_512))
+        }
+        if (oid.equals(aladdin.asn1.ansi.OID.    X963_ECDH_COFACTOR_SHA1    ) ||
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_224) ||
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_256) ||
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_384) ||
+            oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_512))
+        {
+            // указать параметры алгоритма
+            AlgorithmIdentifier ssdhParameters = new AlgorithmIdentifier(
+                new ObjectIdentifier(oid), parameters
+            ); 
+            // создать алгоритм SSDH
+            try (ITransportAgreement transportAgreement = 
+                TransportAgreement.createSSDH(factory, scope, ssdhParameters))
             {
-                // создать алгоритм SSDH
-                try (ITransportAgreement transportAgreement = 
-                    TransportAgreement.createSSDH(factory, scope, parameters))
-                {
-                    // проверить наличие алгоритма
-                    if (transportAgreement == null) break;
-                    
-                    // вернуть алгоритм ESDH
-                    return new ESDH(factory, transportAgreement); 
-                }
-            }
-            if (oid.equals(aladdin.asn1.ansi.OID.    X963_ECDH_COFACTOR_SHA1    ) ||
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_224) ||
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_256) ||
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_384) ||
-                oid.equals(aladdin.asn1.ansi.OID.CERTICOM_ECDH_COFACTOR_SHA2_512))
-            {
-                // создать алгоритм SSDH
-                try (ITransportAgreement transportAgreement = 
-                    TransportAgreement.createSSDH(factory, scope, parameters))
-                {
-                    // проверить наличие алгоритма
-                    if (transportAgreement == null) break;
-                    
-                    // вернуть алгоритм ESDH
-                    return new ESDH(factory, transportAgreement); 
-                }
+                // проверить наличие алгоритма
+                if (transportAgreement == null) return null;
+                
+                // вернуть алгоритм ESDH
+                return new ESDH(factory, transportAgreement); 
             }
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectTransportKeyWrap(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = TransportKeyWrap.class; for (int i = 0; i < 1; i++)
-        {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
+        Class<? extends IAlgorithm> type = TransportKeyWrap.class; 
         
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_KEYX))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_KEYX))
+        {
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 	private static IAlgorithm redirectTransportKeyUnwrap(aladdin.capi.Factory factory, 
-        SecurityStore scope, AlgorithmIdentifier parameters) throws IOException
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
         // указать тип алгоритма
-        Class<? extends IAlgorithm> type = TransportKeyUnwrap.class; for (int i = 0; i < 1; i++)
+        Class<? extends IAlgorithm> type = TransportKeyUnwrap.class; 
+        
+        if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_KEYX))
         {
-            // определить идентификатор алгоритма
-            String oid = parameters.algorithm().value(); 
-            
-            if (oid.equals(aladdin.asn1.ansi.OID.SSIG_RSA_KEYX))
-            {
-                // указать идентификатор алгоритма
-                oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
+            // изменить идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
 
-                // указать параметры алгоритма
-                parameters = new AlgorithmIdentifier(
-                    new ObjectIdentifier(oid), parameters.parameters()
-                ); 
-                // создать алгоритм
-                return factory.createAlgorithm(scope, parameters, type); 
-            }
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
         }
         // вызвать базовую функцию
-		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, parameters, type); 
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
 }

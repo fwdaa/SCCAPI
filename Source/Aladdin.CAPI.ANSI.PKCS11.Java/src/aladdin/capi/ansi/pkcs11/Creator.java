@@ -1379,7 +1379,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // создать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher, PaddingMode.NONE))
+                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher))
                 {
                     // создать алгоритм выработки имитовставки
                     return OMAC1.create(blockCipher, new byte[8], macSize); 
@@ -1418,7 +1418,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // создать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher, PaddingMode.NONE))
+                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher))
                 {
                     // создать алгоритм выработки имитовставки
                     return OMAC1.create(blockCipher, new byte[8]); 
@@ -1517,7 +1517,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // создать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher, PaddingMode.NONE))
+                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher))
                 {
                     // создать алгоритм выработки имитовставки
                     return OMAC1.create(blockCipher, new byte[16], macSize); 
@@ -1556,7 +1556,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // создать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher, PaddingMode.NONE))
+                try (IBlockCipher blockCipher = new aladdin.capi.BlockCipher(cipher))
                 {
                     // создать алгоритм выработки имитовставки
                     return OMAC1.create(blockCipher, new byte[16]); 
@@ -1673,7 +1673,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // изменить режим дополнения
-                return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
+                return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
         }
         if (algID == API.CKM_RC4) 
@@ -1768,7 +1768,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // изменить режим дополнения
-                return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
+                return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
         }
         if (algID == API.CKM_DES_ECB)
@@ -1828,7 +1828,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // изменить режим дополнения
-                return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
+                return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
         }
         if (algID == API.CKM_DES_CFB64)
@@ -1997,7 +1997,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // изменить режим дополнения
-                return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
+                return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
         }
         if (algID == API.CKM_AES_ECB)
@@ -2066,7 +2066,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // изменить режим дополнения
-                return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.PKCS5); 
+                return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.PKCS5); 
             }
         }
         if (algID == API.CKM_AES_CTS)
@@ -2094,7 +2094,7 @@ public abstract class Creator
                 if (cipher == null) return null; 
                 
                 // изменить режим дополнения
-                return new aladdin.capi.BlockMode.ConvertPadding(cipher, PaddingMode.CTS); 
+                return new aladdin.capi.BlockMode.PaddingConverter(cipher, PaddingMode.CTS); 
             }
         }
         if (algID == API.CKM_AES_CFB128)

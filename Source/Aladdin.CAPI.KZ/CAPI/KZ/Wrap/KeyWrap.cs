@@ -25,8 +25,6 @@ namespace Aladdin.CAPI.KZ.Wrap
         }
         // тип ключа
         public override SecretKeyFactory KeyFactory { get { return gost28147.KeyFactory; }}
-        // размер ключа алгоритма
-        public override int[] KeySizes { get { return gost28147.KeySizes; }}
     
 	    // зашифровать ключ
 	    public override byte[] Wrap(IRand rand, ISecretKey key, ISecretKey CEK)

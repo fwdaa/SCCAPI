@@ -33,7 +33,5 @@ public class AES_CFB1 extends aladdin.capi.pkcs11.Cipher
 		return new Mechanism(API.CKM_AES_CFB1, iv); 
 	}
     // тип ключа
-    @Override public final SecretKeyFactory keyFactory() { return AES.INSTANCE; } 
-	// размер ключа в байтах
-	@Override public final int[] keySizes() { return keySizes; }
+    @Override public final SecretKeyFactory keyFactory() { return new AES(keySizes); } 
 }

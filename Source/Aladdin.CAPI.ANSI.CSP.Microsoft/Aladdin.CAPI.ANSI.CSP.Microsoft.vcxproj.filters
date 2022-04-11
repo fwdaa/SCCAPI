@@ -182,13 +182,7 @@
     <ClInclude Include="MAC\HMAC.h">
       <Filter>Header Files\MAC</Filter>
     </ClInclude>
-    <ClInclude Include="Cipher\AES128.h">
-      <Filter>Header Files\Cipher</Filter>
-    </ClInclude>
-    <ClInclude Include="Cipher\AES192.h">
-      <Filter>Header Files\Cipher</Filter>
-    </ClInclude>
-    <ClInclude Include="Cipher\AES256.h">
+    <ClInclude Include="Cipher\AES.h">
       <Filter>Header Files\Cipher</Filter>
     </ClInclude>
     <ClInclude Include="Cipher\DES.h">

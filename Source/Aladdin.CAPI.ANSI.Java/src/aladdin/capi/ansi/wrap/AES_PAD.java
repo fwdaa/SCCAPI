@@ -39,8 +39,6 @@ public class AES_PAD extends KeyWrap
     }
     // тип ключа
 	@Override public final SecretKeyFactory keyFactory() { return aesECB.keyFactory(); } 
-    // размер ключей
-    @Override public final int[] keySizes() { return aesECB.keySizes(); } 
 
     // зашифровать ключ
 	@Override public byte[] wrap(IRand rand, ISecretKey KEK, ISecretKey wrappedKey) 
@@ -168,7 +166,9 @@ public class AES_PAD extends KeyWrap
     ////////////////////////////////////////////////////////////////////////////
     public static void test(KeyWrap keyWrap) throws Exception
     {
-        if (KeySizes.contains(keyWrap.keySizes(), 24))
+        int[] keySizes = keyWrap.keyFactory().keySizes(); 
+        
+        if (KeySizes.contains(keySizes, 24))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x58, (byte)0x40, (byte)0xdf, (byte)0x6e, 
             (byte)0x29, (byte)0xb0, (byte)0x2a, (byte)0xf1, 
@@ -192,7 +192,7 @@ public class AES_PAD extends KeyWrap
             (byte)0x5f, (byte)0x54, (byte)0xf3, (byte)0x73, 
             (byte)0xfa, (byte)0x54, (byte)0x3b, (byte)0x6a
         });  
-        if (KeySizes.contains(keyWrap.keySizes(), 24))
+        if (KeySizes.contains(keySizes, 24))
         knownTest(null, keyWrap, new byte[] {
             (byte)0x58, (byte)0x40, (byte)0xdf, (byte)0x6e, 
             (byte)0x29, (byte)0xb0, (byte)0x2a, (byte)0xf1, 

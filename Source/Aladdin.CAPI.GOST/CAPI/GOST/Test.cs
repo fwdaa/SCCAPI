@@ -53,10 +53,7 @@ namespace Aladdin.CAPI.GOST
                 ////////////////////////////////////////////////////////////////////
                 for (int i = 0; i < sboxOIDs.Length; i++)
                 {
-                    using (IBlockCipher gost28147 = factory.CreateGOST28147(scope, sboxOIDs[i]))
-                    {
-                        TestGOST28147(factory, scope, gost28147, sboxOIDs[i]);                     
-                    }
+                    TestGOST28147(factory, scope, sboxOIDs[i]);                     
                 }
                 TestGOSTR3412(factory, scope); 
             
@@ -407,19 +404,21 @@ namespace Aladdin.CAPI.GOST
             WriteLine("MAC.GOSTR3412/64");
 
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = Cipher.GOSTR3412.Create(factory, scope, 8))
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                scope, "GOST3412_2015_M", ASN1.Null.Instance))
             {
                 // выполнить тест
-                Engine.GOSTR3412.TestMAC64(blockCipher);
+                Engine.GOSTR3412_K.TestMAC64(blockCipher);
             }
             WriteLine(); 
             WriteLine("MAC.GOSTR3412/128");
         
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = Cipher.GOSTR3412.Create(factory, scope, 16))
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                scope, "GOST3412_2015_K", ASN1.Null.Instance))
             {
                 // выполнить тест
-                Engine.GOSTR3412.TestMAC128(blockCipher);
+                Engine.GOSTR3412_K.TestMAC128(blockCipher);
             }
             Console.WriteLine(); 
         }
@@ -437,8 +436,12 @@ namespace Aladdin.CAPI.GOST
                 // указать генератор случайных данных
                 using (IRand rand = new CAPI.Rand(null))
                 {
+                    // указать параметры алгоритма
+                    ASN1.IEncodable paramSet = new ASN1.ObjectIdentifier(paramOID); 
+
                     // получить доверенный алгоритм шифрования
-                    using (IBlockCipher trustBlockCipher = trustFactory.CreateGOST28147(null, paramOID)) 
+                    using (IBlockCipher trustBlockCipher = 
+                        trustFactory.CreateBlockCipher(null, "GOST28147", paramSet))
                     {
                         // указать режим ECB
                         CipherMode parameters = new CipherMode.ECB(); 
@@ -502,11 +505,19 @@ namespace Aladdin.CAPI.GOST
                 }
             }
         }
-        public static void TestGOST28147(CAPI.Factory factory, 
-            SecurityStore scope, IBlockCipher blockCipher, string paramOID)
+        public static void TestGOST28147(CAPI.Factory factory, SecurityStore scope, string paramOID)
         {
             WriteLine("Cipher.GOST28147/{0}", paramOID);
         
+            // указать параметры алгоритма
+            ASN1.IEncodable paramSet = new ASN1.ObjectIdentifier(paramOID); 
+                
+            // создать блочный алгоритм шифрования
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "GOST28147", paramSet))
+            {
+                // выполнить тесты
+                if (blockCipher != null) TestGOST28147(blockCipher, paramOID); 
+            }
             // указать допустимые размеры
             int[] dataSizes = new int[] { 0, 1, 7, 8, 9, 15, 16, 17, 1023, 1024, 1025 }; 
 
@@ -520,14 +531,11 @@ namespace Aladdin.CAPI.GOST
                     new ASN1.OctetString(iv), new ASN1.ObjectIdentifier(paramOID)
                 )
             ); 
-            // указать доверенную фабрику
-            using (GOST.Factory trustFactory = new GOST.Factory()) 
+            // создать алгоритм шифрования
+            using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters))
             {
-                // выполнить тесты
-                if (blockCipher != null) TestGOST28147(blockCipher, paramOID); 
-
-                // создать алгоритм шифрования
-                using (CAPI.Cipher cipher = factory.CreateAlgorithm<CAPI.Cipher>(scope, parameters))
+                // указать доверенную фабрику
+                using (GOST.Factory trustFactory = new GOST.Factory()) 
                 {
                     // выполнить тест
                     CipherTest(cipher, PaddingMode.None, trustFactory, null, parameters, dataSizes);
@@ -539,19 +547,21 @@ namespace Aladdin.CAPI.GOST
             WriteLine("Cipher.GOSTR3412/64");
         
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = Cipher.GOSTR3412.Create(factory, scope, 8))
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                scope, "GOST3412_2015_M", ASN1.Null.Instance))
             {
                 // протестировать алгоритм
-                Engine.GOSTR3412.Test64(blockCipher);
+                Engine.GOSTR3412_K.Test64(blockCipher);
             }
             WriteLine();
             WriteLine("Cipher.GOSTR3412/128");
         
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = Cipher.GOSTR3412.Create(factory, scope, 16))
+            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                scope, "GOST3412_2015_K", ASN1.Null.Instance))
             {
                 // протестировать алгоритм
-                Engine.GOSTR3412.Test128(blockCipher);
+                Engine.GOSTR3412_K.Test128(blockCipher);
             }
             WriteLine();
         }

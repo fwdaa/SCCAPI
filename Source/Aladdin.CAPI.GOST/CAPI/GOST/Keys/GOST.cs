@@ -3,12 +3,12 @@
     ///////////////////////////////////////////////////////////////////////////
     // Ключ ГОСТ 28147-89
     ///////////////////////////////////////////////////////////////////////////
-    public class GOST28147 : SecretKeyFactory
+    public class GOST : SecretKeyFactory
     {
         // тип ключа
-        public static readonly SecretKeyFactory Instance = new GOST28147(); 
+        public static readonly SecretKeyFactory Instance = new GOST(); 
 
-        // размер ключей
-	    public override int[] KeySizes { get { return new int[] { 32 }; }}
+        // конструктор
+        public GOST() : base(new int[] {32}) {}
     }
 }

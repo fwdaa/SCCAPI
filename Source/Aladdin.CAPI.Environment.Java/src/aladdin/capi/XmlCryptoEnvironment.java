@@ -8,6 +8,8 @@ import org.w3c.dom.*;
 ///////////////////////////////////////////////////////////////////////////
 public class XmlCryptoEnvironment extends CryptoEnvironment
 {
+    private static final long serialVersionUID = 9010803885202009665L;
+    
     // конструктор
 	public XmlCryptoEnvironment(String fileName) throws Exception
     {
