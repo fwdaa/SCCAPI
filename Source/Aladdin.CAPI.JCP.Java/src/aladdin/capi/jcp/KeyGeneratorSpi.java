@@ -13,21 +13,17 @@ public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
 	private final Provider provider; private final String name; 
 	// генератор случайных данных и размер ключа
 	private SecureRandom random; private int keySize; 
+    // фабрика кодирования ключа
+    private SecretKeyFactory keyFactory; 
 
 	// конструктор
 	public KeyGeneratorSpi(Provider provider, String name) 
 	{
 		// сохранить переданные параметры
-		this.provider = provider; Factory factory = provider.factory(); 
+		this.provider = provider; this.name = name; 
         
-        // проверить поддержку ключа
-        if (factory.getSecretKeyFactory(name) == null) 
-        {
-            // при ошибке выбросить исключение
-            throw new UnsupportedOperationException(); 
-        }
         // инициализировать переменные
-        this.name = name; this.random = null; this.keySize = 0;
+        random = null; keyFactory = null; keySize = 0;
 	}
 	@Override
 	protected final void engineInit(int keyBits, SecureRandom random) 
@@ -35,8 +31,11 @@ public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
         // проверить поддержку размера ключа
         if ((keyBits % 8) != 0) throw new InvalidParameterException(); 
         
-        // получить фабрику кодирования ключей
-        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(name); 
+        // получить фабрику кодирования ключа
+        keyFactory = provider.getSecretKeyFactory(name); 
+        
+        // проверить наличие фабрики
+        if (keyFactory == null) throw new IllegalStateException(); 
         
         // проверить поддержку размера ключа
         if (!KeySizes.contains(keyFactory.keySizes(), keyBits / 8))
@@ -50,25 +49,33 @@ public final class KeyGeneratorSpi extends javax.crypto.KeyGeneratorSpi
 	@Override
 	protected final void engineInit(SecureRandom random) 
 	{
-        // сохранить переданные параметры
-        this.random = random; this.keySize = 0; 
+        // получить фабрику кодирования ключа
+        keyFactory = provider.getSecretKeyFactory(name); this.random = random;
+        
+        // проверить наличие фабрики
+        if (keyFactory == null) throw new IllegalStateException(); 
     }
 	@Override
-	protected final void engineInit(AlgorithmParameterSpec paramSpec, 
-        SecureRandom random) throws InvalidAlgorithmParameterException 
+	protected final void engineInit(
+        AlgorithmParameterSpec paramSpec, SecureRandom random) 
+            throws InvalidAlgorithmParameterException 
 	{
-        // проверить указание параметров
-        if (paramSpec == null) { engineInit(random); return; }
-        
-        // параметры генерации не поддерживаются
-        throw new InvalidAlgorithmParameterException(); 
+        // сохранить генератор случайных данных
+        try { this.random = random; 
+            
+            // получить фабрику кодирования ключа
+            keyFactory = provider.getSecretKeyFactory(name, paramSpec); 
+        }
+        // обработать возможное исключение
+        catch (InvalidParameterSpecException e) 
+        { 
+            // изменить тип исключения 
+            throw new InvalidAlgorithmParameterException(e.getMessage()); 
+        }
 	}
 	@Override
 	protected final javax.crypto.SecretKey engineGenerateKey() 
 	{
-        // получить фабрику кодирования ключей
-        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(name); 
-        
         // при отсутствии размера ключа
         int keyLength = keySize; if (keyLength == 0) 
         {

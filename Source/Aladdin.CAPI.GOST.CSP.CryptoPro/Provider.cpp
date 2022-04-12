@@ -580,8 +580,9 @@ Aladdin::CAPI::GOST::CSP::CryptoPro::Provider::CreateAlgorithm(
 				ASN1::ObjectIdentifier^ paramSet = algParameters->ParamSet; 
 
 				// создать алгоритм шифрования
-				Using<IBlockCipher^> blockCipher(CreateBlockCipher(scope, "GOST28147", paramSet)); 
-
+				Using<IBlockCipher^> blockCipher((IBlockCipher^)CreateAlgorithm(
+					scope, "GOST28147", paramSet, IBlockCipher::typeid
+				)); 
 				// извлечь синхропосылку
 				array<BYTE>^ iv = algParameters->IV->Value; 
 		 

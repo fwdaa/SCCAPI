@@ -6,10 +6,10 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнение ISO 9797-1.2
 ///////////////////////////////////////////////////////////////////////////////
-public class ISO extends BlockPadding
+public class ISO9797 extends BlockPadding
 { 
     // идентификатор режима
-    @Override public PaddingMode mode() { return PaddingMode.ISO; } 
+    @Override public PaddingMode mode() { return PaddingMode.ISO9797; } 
     
     // алгоритм зашифрования данных
     @Override public Transform createEncryption(Transform encryption, CipherMode mode)
@@ -53,7 +53,7 @@ public class ISO extends BlockPadding
         @Override public int blockSize() { return encryption.blockSize(); }
 
         // режим дополнения
-        @Override public PaddingMode padding() { return PaddingMode.ISO; }
+        @Override public PaddingMode padding() { return PaddingMode.ISO9797; }
 
         // инициализировать алгоритм
         @Override public void init() throws IOException { encryption.init(); } 
@@ -116,7 +116,7 @@ public class ISO extends BlockPadding
         @Override public int blockSize() { return decryption.blockSize(); }
 
         // режим дополнения
-        @Override public PaddingMode padding() { return PaddingMode.ISO; }
+        @Override public PaddingMode padding() { return PaddingMode.ISO9797; }
 
         // инициализировать алгоритм
         @Override public void init() throws IOException { decryption.init(); lastBlock = null; } 

@@ -96,27 +96,6 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
         // Поддерживаемые ключи
         ///////////////////////////////////////////////////////////////////////
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
-        { 
-            // создать список поддерживаемых ключей
-            Dictionary<String, SecretKeyFactory> keyFactories = 
-                new Dictionary<String, SecretKeyFactory>(); 
-        
-            // для всех фабрик алгоритмов
-            foreach (Factory factory in factories)
-            {
-                // для всех поддерживаемых ключей
-                foreach (KeyValuePair<String, SecretKeyFactory> entry in factory.SecretKeyFactories())
-                {
-                    // проверить отсутствие элемента
-                    if (keyFactories.ContainsKey(entry.Key)) continue; 
-
-                    // добавить фабрику в таблицу
-                    keyFactories.Add(entry.Key, entry.Value); 
-                }
-            }
-            return keyFactories; 
-        }
 	    public override Dictionary<String, KeyFactory> KeyFactories() 
         { 
             // создать список поддерживаемых ключей

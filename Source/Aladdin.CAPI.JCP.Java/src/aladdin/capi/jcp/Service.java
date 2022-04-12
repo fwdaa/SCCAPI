@@ -83,7 +83,7 @@ public class Service extends Provider.Service
 					if (!types[i].isAssignableFrom(args[i].getClass())) { find = false; break; }
 				}
 				// вызвать конструктор
-				if (find) return constructor.newInstance((Object[])args);
+				if (find) return constructor.newInstance(args);
 			}
             throw new NoSuchAlgorithmException();
 		}

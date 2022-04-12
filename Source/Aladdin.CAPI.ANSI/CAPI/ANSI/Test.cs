@@ -720,7 +720,7 @@ namespace Aladdin.CAPI.ANSI
             WriteLine("MAC.CMAC_AES");
 
             // создать блочный алгоритм шифрования
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "AES", ASN1.Null.Instance))
             {
                 // создать алгоритм выработки имитовставки
@@ -1062,7 +1062,7 @@ namespace Aladdin.CAPI.ANSI
             WriteLine("KeyWrap.SMIME_DES");
 
             // указать алгоритм шифрования
-            using (IBlockCipher des = factory.CreateBlockCipher(
+            using (IBlockCipher des = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "DES", ASN1.Null.Instance))
             {
                 // выполнить тест
@@ -1074,7 +1074,7 @@ namespace Aladdin.CAPI.ANSI
             WriteLine("KeyWrap.SMIME_TDES");
 
             // указать алгоритм шифрования
-            using (IBlockCipher tdes = factory.CreateBlockCipher(
+            using (IBlockCipher tdes = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "DESede", ASN1.Null.Instance))
             {
                 // выполнить тест

@@ -61,6 +61,8 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
 	protected final void engineInit(java.security.Key key, AlgorithmParameterSpec paramSpec, 
 		SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException 
 	{
+        // проверить тип ключа
+        if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
 		try {
 			// преобразовать тип параметров
 			parameters = provider.createParameters(name, paramSpec); this.random = random;
@@ -71,22 +73,18 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
             // при ошибке выбросить исключение
             throw new InvalidAlgorithmParameterException(e.getMessage()); 
         }  
-        // проверить тип ключа
-        if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
-        
         // преобразовать тип ключа
         try (IPrivateKey privateKey = provider.translatePrivateKey((java.security.PrivateKey)key))  
         {
             // создать алгоритм асимметричного шифрования
-            IKeyAgreement keyAgreement = (IKeyAgreement)privateKey.factory().createAlgorithm(
+            keyAgreement = (IKeyAgreement)privateKey.factory().createAlgorithm(
                 privateKey.scope(), name, parameters.getEncodable(), IKeyAgreement.class
             ); 
             // проверить наличие алгоритма
             if (keyAgreement == null) throw new InvalidAlgorithmParameterException(); 
 
-            // сохранить личный ключ и алгоритм
-            this.privateKey   = RefObject.addRef(privateKey  ); 
-            this.keyAgreement = RefObject.addRef(keyAgreement); 
+            // сохранить личный ключ
+            this.privateKey = RefObject.addRef(privateKey); 
         }
         // обработать возможное исключение
         catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); } 
@@ -126,15 +124,34 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
 	@Override
 	protected final byte[] engineGenerateSecret() 
 	{
-		try { 
-			// сгенерировать общий секрет
-			SecretKey secretKey = (SecretKey)engineGenerateSecret(null);
-
-			// проверить тип ключа
-			if (secretKey.getFormat().equals("RAW")) return secretKey.getEncoded(); 
-		} 
-		// при ошибке выбросить исключение
-		catch (InvalidKeyException e) {} throw new RuntimeException(); 
+        // проверить допустимость вызова
+        if (keyAgreement == null || publicKey == null) throw new IllegalStateException(); 
+        
+        // получить фабрику кодирования ключей
+        aladdin.capi.SecretKeyFactory keyFactory = aladdin.capi.SecretKeyFactory.GENERIC; 
+        
+        // создать объект генератора случайных данных
+        try (IRand rand = provider.createRand(random))
+        {
+            // согласовать ключ
+            try (DeriveData kdfData = keyAgreement.deriveKey(
+                privateKey, publicKey, rand, keyFactory, -1))
+            {
+                // проверить допустимость вызова
+                if (kdfData.random != null && kdfData.random.length != 0) 
+                {
+                    // при ошибке выбросить исключение
+                    throw new IllegalStateException(); 
+                }
+                // получить созданный секретный ключ
+                byte[] value = kdfData.key.value(); 
+                
+                // проверить наличие значения
+                if (value == null) throw new IllegalStateException(); return value; 
+            }
+        }
+        // обработать возможное исключение
+        catch (IOException e) { throw new RuntimeException(e); }
 	}
 	@Override
 	protected final javax.crypto.SecretKey engineGenerateSecret(String algorithm) 
@@ -144,7 +161,7 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
         if (keyAgreement == null || publicKey == null) throw new IllegalStateException(); 
         
         // получить фабрику кодирования ключей
-        aladdin.capi.SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(algorithm); 
+        aladdin.capi.SecretKeyFactory keyFactory = provider.getSecretKeyFactory(algorithm); 
         
         // проверить поддержку ключа
         if (keyFactory == null) throw new UnsupportedOperationException(); 

@@ -16,9 +16,6 @@ namespace Aladdin { namespace CAPI { namespace GOST { namespace CSP { namespace 
 		public: Provider(DWORD type) : CAPI::CSP::Provider(type, nullptr, false) { version = Version; 
 		 
 			// добавить фабрику кодирования ключей
-			SecretKeyFactories()->Add("GOST28147", GOST::Keys::GOST::Instance); 
-
-			// добавить фабрику кодирования ключей
 			KeyFactories()->Add(ASN1::GOST::OID::gostR3410_2001, 
 				gcnew GOST::GOSTR3410::ECKeyFactory(ASN1::GOST::OID::gostR3410_2001)
 			); 

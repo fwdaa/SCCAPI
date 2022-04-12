@@ -34,11 +34,6 @@ public final class AggregatedFactory extends Factory
         // освободить используемые ресурсы
         RefObject.release(outer); RefObject.release(factory); super.onClose();
     }
-    @Override public Map<String, SecretKeyFactory> secretKeyFactories() 
-    { 
-        // поддерживаемые ключи
-        return outer.secretKeyFactories(); 
-    }
     @Override public Map<String, KeyFactory> keyFactories() 
     { 
         // поддерживаемые ключи

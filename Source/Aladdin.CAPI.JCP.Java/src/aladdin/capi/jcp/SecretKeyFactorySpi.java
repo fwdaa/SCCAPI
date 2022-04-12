@@ -36,28 +36,37 @@ public final class SecretKeyFactorySpi extends javax.crypto.SecretKeyFactorySpi
 		throws InvalidKeySpecException 
 	{
 		// проверить формат ключа
-		if (!(keySpec instanceof SecretKeySpec)) throw new InvalidKeySpecException(); 
-            
-        // выполнить преобразование типа
-        SecretKeySpec secretKeySpec = (SecretKeySpec)keySpec; 
-        
-        // получить закодированное представление
-        byte[] encoded = secretKeySpec.getEncoded(); if (encoded == null) return secretKeySpec; 
-        
-        // извлечь имя алгоритма
-        String algorithm = secretKeySpec.getAlgorithm();
-        
-        // получить тип ключа
-        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(algorithm);         
-        
-		// создать симметричный ключ
-		try (ISecretKey secretKey = keyFactory.create(encoded)) 
-        {
-            // зарегистрировать симметричный ключ
-            return new SecretKey(provider, algorithm, secretKey); 
+		if (keySpec instanceof SecretKeySpec) 
+        {    
+            // выполнить преобразование типа
+            SecretKeySpec secretKeySpec = (SecretKeySpec)keySpec; 
+
+            // получить закодированное представление
+            byte[] encoded = secretKeySpec.getEncoded(); if (encoded == null) return secretKeySpec; 
+
+            // извлечь имя алгоритма
+            String algorithm = secretKeySpec.getAlgorithm();
+
+            // получить фабрику кодирования ключа
+            SecretKeyFactory keyFactory = provider.getSecretKeyFactory(algorithm);         
+
+            // проверить наличие фабрики
+            if (keyFactory == null) throw new InvalidKeySpecException(); 
+
+            // создать симметричный ключ
+            try (ISecretKey secretKey = keyFactory.create(encoded)) 
+            {
+                // зарегистрировать симметричный ключ
+                return new SecretKey(provider, algorithm, secretKey); 
+            }
+            // обработать возможное исключение
+            catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }  	
         }
-        // обработать возможное исключение
-        catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }  	
+        if (keySpec instanceof PBEKeySpec)
+        {
+            /* TODO */
+        }
+        throw new InvalidKeySpecException();         
 	}
 	@Override
     @SuppressWarnings({"unchecked", "rawtypes"}) 

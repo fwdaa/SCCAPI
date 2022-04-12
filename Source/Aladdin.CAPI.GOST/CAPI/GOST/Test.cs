@@ -404,7 +404,7 @@ namespace Aladdin.CAPI.GOST
             WriteLine("MAC.GOSTR3412/64");
 
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "GOST3412_2015_M", ASN1.Null.Instance))
             {
                 // выполнить тест
@@ -414,7 +414,7 @@ namespace Aladdin.CAPI.GOST
             WriteLine("MAC.GOSTR3412/128");
         
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "GOST3412_2015_K", ASN1.Null.Instance))
             {
                 // выполнить тест
@@ -441,7 +441,7 @@ namespace Aladdin.CAPI.GOST
 
                     // получить доверенный алгоритм шифрования
                     using (IBlockCipher trustBlockCipher = 
-                        trustFactory.CreateBlockCipher(null, "GOST28147", paramSet))
+                        trustFactory.CreateAlgorithm<IBlockCipher>(null, "GOST28147", paramSet))
                     {
                         // указать режим ECB
                         CipherMode parameters = new CipherMode.ECB(); 
@@ -513,7 +513,8 @@ namespace Aladdin.CAPI.GOST
             ASN1.IEncodable paramSet = new ASN1.ObjectIdentifier(paramOID); 
                 
             // создать блочный алгоритм шифрования
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "GOST28147", paramSet))
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
+                scope, "GOST28147", paramSet))
             {
                 // выполнить тесты
                 if (blockCipher != null) TestGOST28147(blockCipher, paramOID); 
@@ -547,7 +548,7 @@ namespace Aladdin.CAPI.GOST
             WriteLine("Cipher.GOSTR3412/64");
         
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "GOST3412_2015_M", ASN1.Null.Instance))
             {
                 // протестировать алгоритм
@@ -557,7 +558,7 @@ namespace Aladdin.CAPI.GOST
             WriteLine("Cipher.GOSTR3412/128");
         
             // создать алгоритм шифрования блока
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "GOST3412_2015_K", ASN1.Null.Instance))
             {
                 // протестировать алгоритм

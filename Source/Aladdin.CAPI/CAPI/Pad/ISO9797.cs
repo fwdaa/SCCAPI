@@ -6,10 +6,10 @@ namespace Aladdin.CAPI.Pad
     ///////////////////////////////////////////////////////////////////////////////
     // Дополнение ISO 9797-1.2
     ///////////////////////////////////////////////////////////////////////////////
-    public class ISO : BlockPadding
+    public class ISO9797 : BlockPadding
     { 
         // идентификатор режима
-        public override PaddingMode Mode { get { return PaddingMode.ISO; }} 
+        public override PaddingMode Mode { get { return PaddingMode.ISO9797; }} 
 
 	    // алгоритм зашифрования данных
 	    public override Transform CreateEncryption(Transform encryption, CipherMode mode)
@@ -52,7 +52,7 @@ namespace Aladdin.CAPI.Pad
             public override int BlockSize { get { return encryption.BlockSize; }}
 
             // способ дополнения блока
-            public override PaddingMode Padding { get { return PaddingMode.ISO; }}
+            public override PaddingMode Padding { get { return PaddingMode.ISO9797; }}
 
             // инициализировать алгоритм
             public override void Init() { encryption.Init(); } 
@@ -113,7 +113,7 @@ namespace Aladdin.CAPI.Pad
             public override int BlockSize { get { return decryption.BlockSize; }}
 
             // способ дополнения блока
-            public override PaddingMode Padding { get { return PaddingMode.ISO; }}
+            public override PaddingMode Padding { get { return PaddingMode.ISO9797; }}
 
             // инициализировать алгоритм
             public override void Init() { decryption.Init(); lastBlock = null; } 

@@ -13,22 +13,11 @@ import java.util.*;
 public final class Factory extends aladdin.capi.Factory
 {
     // фабрики кодирования ключей 
-    private final Map<String, SecretKeyFactory> secretKeyFactories; 
-    private final Map<String, KeyFactory      > keyFactories; 
+    private final Map<String, KeyFactory> keyFactories; 
     
     // конструктор
-    public Factory()
-    {
-        // создать список фабрик кодирования ключей
-        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // заполнить список фабрик кодирования ключей
-        secretKeyFactories.put("GOST"     , new aladdin.capi.gost.keys.GOST    ()); 
-        secretKeyFactories.put("STB34101" , new aladdin.capi.stb .keys.STB34101()); 
-        
-        // создать список фабрик кодирования ключей
-        keyFactories = new HashMap<String, KeyFactory>(); 
-
+    public Factory() { keyFactories = new HashMap<String, KeyFactory>(); 
+    
         // заполнить список фабрик кодирования ключей
         keyFactories.put(OID.STB11762_BDS_PUBKEY, 
             new aladdin.capi.stb.stb11762.BDSKeyFactory(OID.STB11762_BDS_PUBKEY)
@@ -46,9 +35,8 @@ public final class Factory extends aladdin.capi.Factory
             new aladdin.capi.stb.stb34101.KeyFactory(OID.STB34101_BIGN_PUBKEY)
         ); 
     }
-	// Поддерживаемые фабрики кодирования ключей
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
-	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+	// поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
     ///////////////////////////////////////////////////////////////////////
     // Фиксированные таблицы подстановок

@@ -49,6 +49,9 @@ Aladdin::CAPI::ANSI::CNG::Microsoft::PrimitiveProvider::CreateGenerator(
 	CAPI::Factory^ factory, SecurityObject^ scope, 
 	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
+	// указать идентификатор алгоритма
+	keyOID = CAPI::ANSI::Factory::RedirectKeyName(keyOID); 
+
 	if (keyOID == ASN1::ISO::PKCS::PKCS1::OID::rsa)
 	{
 		// преобразовать тип параметров

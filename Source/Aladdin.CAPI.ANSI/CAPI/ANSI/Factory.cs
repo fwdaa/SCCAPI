@@ -9,26 +9,10 @@ namespace Aladdin.CAPI.ANSI
 	public class Factory : CAPI.Factory
 	{
         // фабрики кодирования ключей 
-        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
-        private Dictionary<String, KeyFactory      > keyFactories; 
+        private Dictionary<String, KeyFactory> keyFactories; 
     
         // конструктор
-        public Factory()
-        {
-            // создать список фабрик кодирования ключей
-            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования ключей
-            secretKeyFactories.Add("RC2"   , new Keys.RC2 ()); 
-            secretKeyFactories.Add("RC4"   , new Keys.RC4 ()); 
-            secretKeyFactories.Add("RC5"   , new Keys.RC5 ()); 
-            secretKeyFactories.Add("DES"   , new Keys.DES ()); 
-            secretKeyFactories.Add("DESX"  , new Keys.DESX()); 
-            secretKeyFactories.Add("DESede", new Keys.TDES()); 
-            secretKeyFactories.Add("AES"   , new Keys.AES ()); 
-        
-            // создать список фабрик кодирования ключей
-            keyFactories = new Dictionary<String, KeyFactory>(); 
+        public Factory() { keyFactories = new Dictionary<String, KeyFactory>(); 
 
             // заполнить список фабрик кодирования ключей
             keyFactories.Add(ASN1.ISO.PKCS.PKCS1.OID.rsa, 
@@ -50,10 +34,25 @@ namespace Aladdin.CAPI.ANSI
                 new X962.KeyFactory(ASN1.ANSI.OID.x962_ec_public_key)
             ); 
         }
+        public static string RedirectKeyName(string name)
+        {
+            // указать идентификатор алгоритма
+            if (String.Compare(name, "RSA", true) == 0) return ASN1.ISO.PKCS.PKCS1.OID.rsa;      
+            if (String.Compare(name, "DH" , true) == 0) return ASN1.ANSI.OID.x942_dh_public_key; 
+            if (String.Compare(name, "DSA", true) == 0) return ASN1.ANSI.OID.x957_dsa;           
+            if (String.Compare(name, "EC" , true) == 0) return ASN1.ANSI.OID.x962_ec_public_key; 
+
+            return name; 
+        }
 	    // поддерживаемые фабрики кодирования ключей
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
-	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     
+	    // получить фабрику кодирования ключей
+	    public override KeyFactory GetKeyFactory(string keyOID)
+        {
+            // получить фабрику кодирования ключей
+            return base.GetKeyFactory(RedirectKeyName(keyOID)); 
+        }
 		///////////////////////////////////////////////////////////////////////
 		// Cоздать алгоритм генерации ключей
 		///////////////////////////////////////////////////////////////////////
@@ -61,6 +60,9 @@ namespace Aladdin.CAPI.ANSI
             CAPI.Factory factory, SecurityObject scope, 
             IRand rand, string keyOID, IParameters parameters)
 		{
+            // указать идентификатор алгоритма
+            keyOID = RedirectKeyName(keyOID); 
+
 			if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa) 
 			{
                 // преобразовать тип параметров
@@ -181,9 +183,6 @@ namespace Aladdin.CAPI.ANSI
                         // определить число раундов
                         int rounds = algParameters.Rounds.Value.IntValue; 
 
-                        // определить размер блока
-                        int blockSize = algParameters.BlockSize.Value.IntValue; 
-            
                         // определить размер блока
                         switch (algParameters.BlockSize.Value.IntValue)
                         {
@@ -732,6 +731,36 @@ namespace Aladdin.CAPI.ANSI
             // для алгоритмов хэширования
 		    if (type == typeof(CAPI.Hash))
 		    {
+                if (String.Compare(oid, "MD2", true) == 0) { oid = ASN1.ANSI.OID.rsa_md2; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "MD5", true) == 0) { oid = ASN1.ANSI.OID.rsa_md5; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA-1", true) == 0) { oid = ASN1.ANSI.OID.ssig_sha1; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA-256", true) == 0) { oid = ASN1.ANSI.OID.nist_sha2_256; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA-384", true) == 0) { oid = ASN1.ANSI.OID.nist_sha2_384; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA-512", true) == 0) { oid = ASN1.ANSI.OID.nist_sha2_512; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Hash>(scope, oid, parameters); 
+                }
 			    if (oid == ASN1.ANSI.OID.ssig_sha) 
                 {
                     // изменить идентификатор алгоритма
@@ -744,6 +773,31 @@ namespace Aladdin.CAPI.ANSI
 		    // для алгоритмов вычисления имитовставки
 		    if (type == typeof(Mac))
 		    {
+                if (String.Compare(oid, "HmacMD5", true) == 0) { oid = ASN1.ANSI.OID.ipsec_hmac_md5; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Mac>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "HmacSHA1", true) == 0) { oid = ASN1.ANSI.OID.rsa_hmac_sha1; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Mac>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "HmacSHA256", true) == 0) { oid = ASN1.ANSI.OID.rsa_hmac_sha2_256; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Mac>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "HmacSHA384", true) == 0) { oid = ASN1.ANSI.OID.rsa_hmac_sha2_384; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Mac>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "HmacSHA512", true) == 0) { oid = ASN1.ANSI.OID.rsa_hmac_sha2_512; 
+            
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Mac>(scope, oid, parameters); 
+                }
 			    // создать алгоритм вычисления имитовставки
 			    if (oid == ASN1.ANSI.OID.entrust_pbmac) 
 			    {
@@ -952,6 +1006,159 @@ namespace Aladdin.CAPI.ANSI
 		    // для алгоритмов симметричного шифрования
 		    else if (type == typeof(CAPI.Cipher))
 		    {
+                if (String.Compare(oid, "RC4", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.rsa_rc4; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                // для алгоритмов шифрования по паролю
+                if (String.Compare(oid, "PBEWithMD2AndDES", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS5.OID.pbe_md2_des_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithMD5AndDES", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS5.OID.pbe_md5_des_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithMD2AndRC2_64", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS5.OID.pbe_md2_rc2_64_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithMD5AndRC2_64", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS5.OID.pbe_md5_rc2_64_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndDES", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS5.OID.pbe_sha1_des_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndRC2_64", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS5.OID.pbe_sha1_rc2_64_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndRC4_128", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS12.OID.pbe_sha1_rc4_128; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndRC4_40", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS12.OID.pbe_sha1_rc4_40; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndRC2_128", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS12.OID.pbe_sha1_rc2_128_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndRC2_40", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS12.OID.pbe_sha1_rc2_40_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndDESede_192", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS12.OID.pbe_sha1_tdes_192_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndDESede_128", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS12.OID.pbe_sha1_tdes_128_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndAES_128", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.bc_pbe_sha1_pkcs12_aes128_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndAES_192", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.bc_pbe_sha1_pkcs12_aes192_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA1AndAES_256", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.bc_pbe_sha1_pkcs12_aes256_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA256AndAES_128", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.bc_pbe_sha2_256_pkcs12_aes128_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA256AndAES_192", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.bc_pbe_sha2_256_pkcs12_aes192_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "PBEWithSHA256AndAES_256", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.bc_pbe_sha2_256_pkcs12_aes256_cbc; 
+        
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<CAPI.Cipher>(scope, oid, parameters); 
+                }
 			    if (oid == ASN1.ANSI.OID.rsa_rc2_ecb)
                 { 
                     // указать размер ключа по умолчанию
@@ -1605,7 +1812,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "DES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -1646,7 +1853,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "DES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -1689,7 +1896,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "RC2", version))
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(scope, "RC2", version))
                     {
                         // получить алгоритм хэширования
                         using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
@@ -1731,7 +1938,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "RC2", version))
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(scope, "RC2", version))
                     {
                         // получить алгоритм хэширования
                         using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
@@ -1770,7 +1977,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "DES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -1813,7 +2020,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "RC2", version))
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(scope, "RC2", version))
                     {
                         // получить алгоритм хэширования
                         using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
@@ -1929,7 +2136,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "RC2", version))
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(scope, "RC2", version))
                     {
                         // получить алгоритм хэширования
                         using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
@@ -1971,7 +2178,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "RC2", version))
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(scope, "RC2", version))
                     {
                         // получить алгоритм хэширования
                         using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
@@ -2010,7 +2217,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "DESede", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2049,7 +2256,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "DESede", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2089,7 +2296,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "AES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2129,7 +2336,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "AES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2169,7 +2376,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "AES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2209,7 +2416,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "AES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2249,7 +2456,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "AES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2289,7 +2496,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "AES", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2311,7 +2518,7 @@ namespace Aladdin.CAPI.ANSI
 		    // для алгоритмов симметричного шифрования
 		    else if (type == typeof(IBlockCipher))
 		    {
-                if (oid == "RC2") 
+                if (String.Compare(oid, "RC2", true) == 0) 
                 {
                     // указать идентификатор алгоритма
                     oid = ASN1.ANSI.OID.rsa_rc2_ecb; 
@@ -2335,7 +2542,7 @@ namespace Aladdin.CAPI.ANSI
                     // создать блочный алгоритм шифрования
                     return new Cipher.RC2(factory, scope, keyBits); 
                 }
-                if (oid == "DES") 
+                if (String.Compare(oid, "DES", true) == 0) 
                 {
                     // указать идентификатор алгоритма
                     oid = ASN1.ANSI.OID.ssig_des_ecb; 
@@ -2350,7 +2557,7 @@ namespace Aladdin.CAPI.ANSI
                     // создать блочный алгоритм шифрования
                     return new Cipher.DES(factory, scope); 
                 }
-                if (oid == "DESX") 
+                if (String.Compare(oid, "DESX", true) == 0) 
                 {
                     // указать идентификатор алгоритма
                     oid = ASN1.ANSI.OID.ssig_des_ecb; 
@@ -2365,7 +2572,7 @@ namespace Aladdin.CAPI.ANSI
                     // создать блочный алгоритм шифрования
                     return new Cipher.DESX(factory, scope); 
                 }
-                if (oid == "DESede" || oid == "TripleDES") 
+                if (String.Compare(oid, "DESede", true) == 0) 
                 {
                     // указать идентификатор алгоритма
                     oid = ASN1.ANSI.OID.ssig_tdes_ecb; 
@@ -2380,7 +2587,7 @@ namespace Aladdin.CAPI.ANSI
                     // создать блочный алгоритм шифрования
                     return new Cipher.TDES(factory, scope); 
                 }
-                if (oid == "AES") 
+                if (String.Compare(oid, "AES", true) == 0) 
                 {
                     // указать идентификатор алгоритма
                     oid = ASN1.ANSI.OID.nist_aes256_ecb; 
@@ -2399,6 +2606,38 @@ namespace Aladdin.CAPI.ANSI
 		    // для алгоритмов шифрования ключа
 		    else if (type == typeof(KeyWrap))
 		    {
+                if (String.Compare(oid, "DESedeWrap", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS9.OID.smime_tdes192_wrap; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<KeyWrap>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "AESWrap_128", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.nist_aes128_wrap; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<KeyWrap>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "AESWrap_192", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.nist_aes192_wrap; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<KeyWrap>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "AESWrap_256", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.nist_aes256_wrap; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<KeyWrap>(scope, oid, parameters); 
+                }
 			    if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_pwri_kek) 
 			    {
 			        // раскодировать параметры алгоритма
@@ -2422,7 +2661,7 @@ namespace Aladdin.CAPI.ANSI
                             new ASN1.ANSI.RSA.RC2CBCParams(cipherParameters.Parameters); 
                 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "RC2", rc2Parameters.ParameterVersion))
                         {
                             // определить эффективное число битов
@@ -2461,7 +2700,7 @@ namespace Aladdin.CAPI.ANSI
                             cipherParameters.Parameters
                         ); 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "DES", ASN1.Null.Instance))
                         {
                             // вернуть алгоритм шифрования ключа
@@ -2475,7 +2714,7 @@ namespace Aladdin.CAPI.ANSI
                             cipherParameters.Parameters
                         ); 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "DESX", ASN1.Null.Instance))
                         {
                             // вернуть алгоритм шифрования ключа
@@ -2489,7 +2728,7 @@ namespace Aladdin.CAPI.ANSI
                             cipherParameters.Parameters
                         ); 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "DESede", ASN1.Null.Instance))
                         {
                             // вернуть алгоритм шифрования ключа
@@ -2503,7 +2742,7 @@ namespace Aladdin.CAPI.ANSI
                             cipherParameters.Parameters
                         ); 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "AES", ASN1.Null.Instance))
                         {
                             // вернуть алгоритм шифрования ключа
@@ -2517,7 +2756,7 @@ namespace Aladdin.CAPI.ANSI
                             cipherParameters.Parameters
                         ); 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "AES", ASN1.Null.Instance))
                         {
                             // вернуть алгоритм шифрования ключа
@@ -2531,7 +2770,7 @@ namespace Aladdin.CAPI.ANSI
                             cipherParameters.Parameters
                         ); 
                         // указать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                        using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                             scope, "AES", ASN1.Null.Instance))
                         {
                             // вернуть алгоритм шифрования ключа
@@ -2561,7 +2800,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null || !KeySizes.Contains(cipher.KeyFactory.KeySizes, 16)) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, "RC2", version))
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(scope, "RC2", version))
                     {
                         // получить алгоритм хэширования
                         using (CAPI.Hash hashAlgorithm = factory.CreateAlgorithm<CAPI.Hash>(
@@ -2593,7 +2832,7 @@ namespace Aladdin.CAPI.ANSI
                         if (cipher == null) return null; 
                     }
                     // получить алгоритм шифрования
-                    using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+                    using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                         scope, "DESede", ASN1.Null.Instance))
                     {
                         // получить алгоритм хэширования
@@ -2723,6 +2962,48 @@ namespace Aladdin.CAPI.ANSI
                     }
 			    }
 		    }
+		    // для алгоритмов асимметричного шифрования
+		    else if (type == typeof(Encipherment))
+		    {
+                if (String.Compare(oid, "RSA"                  , true) == 0 || 
+                    String.Compare(oid, "RSA/NONE/PKCS1Padding", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Encipherment>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "RSA/NONE/OAEPPadding", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_oaep; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Encipherment>(scope, oid, parameters); 
+                }
+            }
+		    // для алгоритмов асимметричного шифрования
+		    else if (type == typeof(Decipherment))
+		    {
+                if (String.Compare(oid, "RSA"                  , true) == 0 || 
+                    String.Compare(oid, "RSA/NONE/PKCS1Padding", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Decipherment>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "RSA/NONE/OAEPPadding", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_oaep; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<Decipherment>(scope, oid, parameters); 
+                }
+            }
 		    // для алгоритмов выработкиподписи
 		    else if (type == typeof(SignHash))
             {
@@ -2818,6 +3099,94 @@ namespace Aladdin.CAPI.ANSI
 		    // для алгоритмов подписи
 		    else if (type == typeof(SignData))
 		    {
+                if (String.Compare(oid, "MD2withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_md2; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "MD5withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_md5; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA1withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha1; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA256withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha2_256; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA384withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha2_384; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA512withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha2_512; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA1withDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x957_dsa_sha1; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA1withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha1; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA256withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha2_256; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA384withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha2_384; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA512withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha2_512; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
+                }
 			    if (oid == ASN1.ANSI.OID.ssig_rsa_md2) 
 			    {
 			        // указать параметры алгоритма хэширования
@@ -3696,6 +4065,94 @@ namespace Aladdin.CAPI.ANSI
 		    // для алгоритмов подписи
 		    else if (type == typeof(VerifyData))
 		    {
+                if (String.Compare(oid, "MD2withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_md2; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "MD5withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_md5; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA1withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha1; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA256withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha2_256; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA384withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha2_384; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA512withRSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ISO.PKCS.PKCS1.OID.rsa_sha2_512; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA1withDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x957_dsa_sha1; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA1withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha1; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA256withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha2_256; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA384withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha2_384; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "SHA512withECDSA", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ecdsa_sha2_512; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
+                }
 			    if (oid == ASN1.ISO.PKCS.PKCS1.OID.rsa_md2) 
 			    {
 			        // указать параметры алгоритма хэширования
@@ -4571,6 +5028,26 @@ namespace Aladdin.CAPI.ANSI
                     }
                 }
 		    }
+		    // для алгоритмов согласования общего ключа
+		    else if (type == typeof(IKeyAgreement))
+            {
+                if (String.Compare(oid, "DiffieHellman", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x942_dh_public_key; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters); 
+                }
+                if (String.Compare(oid, "ECDH", true) == 0) 
+                { 
+                    // указать идентификатор алгоритма
+                    oid = ASN1.ANSI.OID.x962_ec_public_key; 
+
+                    // создать алгоритм
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters); 
+                }
+            }
 		    // для алгоритмов согласования общего ключа
 		    else if (type == typeof(ITransportAgreement))
             {

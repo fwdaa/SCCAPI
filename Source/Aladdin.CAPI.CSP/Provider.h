@@ -16,8 +16,7 @@ namespace Aladdin { namespace CAPI { namespace CSP
         private: DWORD		            type;      // тип провайдера
 
 		// фабрики кодирования ключей 
-		private: Dictionary<String^, SecretKeyFactory^>^ secretKeyFactories; 
-		private: Dictionary<String^,       KeyFactory^>^       keyFactories; 
+		private: Dictionary<String^, KeyFactory^>^ keyFactories; 
 
 		// конструктор
 		protected: Provider(DWORD type, String^ szName, bool sspi); 
@@ -36,8 +35,7 @@ namespace Aladdin { namespace CAPI { namespace CSP
         public: property DWORD Version { DWORD get() { return handle.Get()->GetLong(PP_VERSION, 0); }}
 
 		// поддерживаемые фабрики кодирования ключей
-		public: virtual Dictionary<String^, SecretKeyFactory^>^ SecretKeyFactories() override { return secretKeyFactories; }
-		public: virtual Dictionary<String^,       KeyFactory^>^       KeyFactories() override { return       keyFactories; }
+		public: virtual Dictionary<String^, KeyFactory^>^ KeyFactories() override { return keyFactories; }
 
 		///////////////////////////////////////////////////////////////////////
 		// Генерация случайных данных

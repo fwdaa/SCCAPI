@@ -334,7 +334,7 @@ Aladdin::CAPI::BlockPadding^ Aladdin::CAPI::CSP::BlockMode::GetPadding()
     if (padding == PaddingMode::PKCS5) return gcnew Pad::PKCS5(); 
 
     // вернуть дополнение ISO
-    if (padding == PaddingMode::ISO) return gcnew Pad::ISO(); 
+    if (padding == PaddingMode::ISO9797) return gcnew Pad::ISO9797(); 
 
     // для режима дополнения CTS
     if (padding == PaddingMode::CTS) return gcnew Pad::CTS(); 

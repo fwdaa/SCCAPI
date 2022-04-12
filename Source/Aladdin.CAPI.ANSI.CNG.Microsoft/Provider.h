@@ -18,6 +18,12 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// ”правление алгоритмами
 		///////////////////////////////////////////////////////////////////////
 
+	    // получить фабрику кодировани€ ключей
+		public: virtual KeyFactory^ GetKeyFactory(String^ keyOID) override
+        {
+            // получить фабрику кодировани€ ключей
+            return CAPI::Factory::GetKeyFactory(ANSI::Factory::RedirectKeyName(keyOID)); 
+        }
 		// фабрика генераторов случайных данных
 		public:	virtual IRandFactory^ CreateRandFactory(SecurityObject^ scope, bool strong) override 
 		{ 

@@ -727,7 +727,8 @@ public class Test extends aladdin.capi.Test
         println("MAC.CMAC_AES");
 
         // создать блочный алгоритм шифрования
-        try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+        try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+            scope, "AES", Null.INSTANCE, IBlockCipher.class))
         {
             // создать алгоритм выработки имитовставки
             try (Mac algorithm = aladdin.capi.mac.OMAC1.create(blockCipher, new byte[16], 16))
@@ -1071,7 +1072,8 @@ public class Test extends aladdin.capi.Test
         println("KeyWrap.SMIME_DES");
 
         // указать алгоритм шифрования
-        try (IBlockCipher des = factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+        try (IBlockCipher des = (IBlockCipher)factory.createAlgorithm(
+            scope, "DES", Null.INSTANCE, IBlockCipher.class))
         {
             // выполнить тест
             aladdin.capi.ansi.engine.DES.testSMIME(des);
@@ -1082,7 +1084,8 @@ public class Test extends aladdin.capi.Test
         println("KeyWrap.SMIME_TDES");
 
         // указать алгоритм шифрования
-        try (IBlockCipher tdes = factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+        try (IBlockCipher tdes = (IBlockCipher)factory.createAlgorithm(
+            scope, "DESede", Null.INSTANCE, IBlockCipher.class))
         {
             // выполнить тест
             aladdin.capi.ansi.engine.TDES.testSMIME(tdes);

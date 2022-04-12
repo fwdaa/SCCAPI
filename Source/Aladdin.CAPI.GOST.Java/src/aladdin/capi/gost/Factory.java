@@ -18,32 +18,19 @@ import java.util.*;
 public final class Factory extends aladdin.capi.Factory
 {
     // фабрики кодирования ключей 
-    private final Map<String, SecretKeyFactory> secretKeyFactories; 
-    private final Map<String, KeyFactory      > keyFactories; 
+    private final Map<String, KeyFactory> keyFactories; 
     
     // конструктор
-    public Factory()
-    {
-        // создать список фабрик кодирования ключей
-        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // заполнить список фабрик кодирования ключей
-        secretKeyFactories.put("GOST28147"      , aladdin.capi.gost.keys.GOST.INSTANCE); 
-        secretKeyFactories.put("GOST3412_2015_M", aladdin.capi.gost.keys.GOST.INSTANCE); 
-        secretKeyFactories.put("GOST3412_2015_K", aladdin.capi.gost.keys.GOST.INSTANCE); 
-        
-        // создать список фабрик кодирования ключей
-        keyFactories = new HashMap<String, KeyFactory>(); 
-
+    public Factory() { keyFactories = new HashMap<String, KeyFactory>(); 
+    
         // заполнить список фабрик кодирования ключей
         keyFactories.put(OID.GOSTR3410_1994    , new DHKeyFactory(OID.GOSTR3410_1994    )); 
         keyFactories.put(OID.GOSTR3410_2001    , new ECKeyFactory(OID.GOSTR3410_2001    )); 
         keyFactories.put(OID.GOSTR3410_2012_256, new ECKeyFactory(OID.GOSTR3410_2012_256)); 
         keyFactories.put(OID.GOSTR3410_2012_512, new ECKeyFactory(OID.GOSTR3410_2012_512)); 
     }
-	// Поддерживаемые фабрики кодирования ключей
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
-	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+	// поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
 	///////////////////////////////////////////////////////////////////////
     // Фиксированные таблицы подстановок
@@ -183,7 +170,8 @@ public final class Factory extends aladdin.capi.Factory
                     ObjectIdentifier paramSet = cipherParameters.paramSet(); 
 
                     // создать блочный алгоритм шифрования
-                    try (IBlockCipher blockCipher = createBlockCipher(scope, "GOST28147", paramSet))
+                    try (IBlockCipher blockCipher = (IBlockCipher)createAlgorithm(
+                        scope, "GOST28147", paramSet, IBlockCipher.class))
                     {
                         // получить именованные параметры алгоритма
                         GOST28147ParamSet namedParameters = 
@@ -300,7 +288,8 @@ public final class Factory extends aladdin.capi.Factory
                     try (Mac macAlgorithm = (Mac)factory.createAlgorithm(scope, macParameters, Mac.class))
                     {
                         // создать блочный алгоритм шифрования
-                        try (IBlockCipher blockCipher = createBlockCipher(scope, "GOST28147", paramSet))
+                        try (IBlockCipher blockCipher = (IBlockCipher)createAlgorithm(
+                            scope, "GOST28147", paramSet, IBlockCipher.class))
                         {
                             // получить режим простой замены
                             try (Cipher cipher = blockCipher.createBlockMode(new CipherMode.ECB()))
@@ -336,7 +325,8 @@ public final class Factory extends aladdin.capi.Factory
                     try (Mac macAlgorithm = (Mac)factory.createAlgorithm(scope, macParameters, Mac.class))
                     {
                         // создать блочный алгоритм шифрования
-                        try (IBlockCipher blockCipher = createBlockCipher(scope, "GOST28147", paramSet))
+                        try (IBlockCipher blockCipher = (IBlockCipher)createAlgorithm(
+                            scope, "GOST28147", paramSet, IBlockCipher.class))
                         {
                             // получить режим простой замены
                             try (Cipher cipher = blockCipher.createBlockMode(new CipherMode.ECB()))

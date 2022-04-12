@@ -32,25 +32,6 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
     // интерфейс вызова функций
 	@Override public Module module() { return module; } 
     
-    @Override public Map<String, SecretKeyFactory> secretKeyFactories() 
-    {
-        // создать список поддерживаемых ключей
-        Map<String, SecretKeyFactory> keyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // для всех поддерживаемых ключей
-        for (Map.Entry<String, SecretKeyFactory> entry : gostProvider.secretKeyFactories().entrySet())
-        {
-            // добавить фабрику в таблицу
-            keyFactories.put(entry.getKey(), entry.getValue()); 
-        }
-        // для всех поддерживаемых ключей
-        for (Map.Entry<String, SecretKeyFactory> entry : super.secretKeyFactories().entrySet())
-        {
-            // добавить фабрику в таблицу
-            keyFactories.put(entry.getKey(), entry.getValue()); 
-        }
-        return keyFactories; 
-    }
     @Override public Map<String, KeyFactory> keyFactories() 
     {
         // создать список поддерживаемых ключей

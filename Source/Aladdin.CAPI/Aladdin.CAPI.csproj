@@ -158,7 +158,7 @@
     <Compile Include="CAPI\Mode\ECB.cs" />
     <Compile Include="CAPI\BlockPadding.cs" />
     <Compile Include="CAPI\Pad\CTS.cs" />
-    <Compile Include="CAPI\Pad\ISO.cs" />
+    <Compile Include="CAPI\Pad\ISO9797.cs" />
     <Compile Include="CAPI\Pad\PKCS5.cs" />
     <Compile Include="CAPI\Pad\Zero.cs" />
     <Compile Include="CAPI\PBE\PBMAC.cs" />

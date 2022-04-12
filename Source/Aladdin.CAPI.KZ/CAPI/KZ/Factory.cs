@@ -9,25 +9,10 @@ namespace Aladdin.CAPI.KZ
     public class Factory : CAPI.Factory
     {
         // фабрики кодирования ключей 
-        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
-        private Dictionary<String, KeyFactory      > keyFactories; 
+        private Dictionary<String, KeyFactory> keyFactories; 
     
         // конструктор
-        public Factory()
-        {
-            // создать список фабрик кодирования ключей
-            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования ключей
-            secretKeyFactories.Add("RC2"   , new ANSI.Keys.RC2 ()); 
-            secretKeyFactories.Add("RC4"   , new ANSI.Keys.RC4 ()); 
-            secretKeyFactories.Add("DES"   , new ANSI.Keys.DES ()); 
-            secretKeyFactories.Add("DESede", new ANSI.Keys.TDES()); 
-            secretKeyFactories.Add("AES"   , new ANSI.Keys.AES ()); 
-            secretKeyFactories.Add("GOST"  , new GOST.Keys.GOST()); 
-        
-            // создать список фабрик кодирования ключей
-            keyFactories = new Dictionary<String, KeyFactory>(); 
+        public Factory() { keyFactories = new Dictionary<String, KeyFactory>(); 
 
             // заполнить список фабрик кодирования ключей
             keyFactories.Add(ASN1.KZ.OID.gamma_key_rsa_1024, 
@@ -76,9 +61,8 @@ namespace Aladdin.CAPI.KZ
                 new GOST34310.ECKeyFactory(ASN1.KZ.OID.gamma_key_ec256_512_b_xch) 
             ); 
         }
-	    // Поддерживаемые фабрики кодирования ключей
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
-	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+	    // поддерживаемые фабрики кодирования ключей
+	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     
 	    ///////////////////////////////////////////////////////////////////////
         // Фиксированные таблицы подстановок

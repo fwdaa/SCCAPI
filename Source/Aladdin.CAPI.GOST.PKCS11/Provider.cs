@@ -14,8 +14,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
         private Module module; private bool canImport; 
     
         // фабрики кодирования ключей 
-        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
-        private Dictionary<String, KeyFactory      > keyFactories; 
+        private Dictionary<String, KeyFactory> keyFactories; 
     
 	    // конструктор
         public Provider(string name, bool canImport) : this(null, name, canImport) {}
@@ -26,12 +25,6 @@ namespace Aladdin.CAPI.GOST.PKCS11
             // сохранить переданне параметры
             this.module = module; this.canImport = canImport; 
 
-            // создать список фабрик кодирования ключей
-            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования ключей
-            secretKeyFactories.Add("GOST28147", Keys.GOST.Instance); 
-        
             // создать список фабрик кодирования ключей
             keyFactories = new Dictionary<String, KeyFactory>(); 
 
@@ -53,8 +46,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
         public override bool CanImportSessionPair(CAPI.PKCS11.Applet applet) { return canImport; } 
     
 	    // поддерживаемые фабрики кодирования ключей
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
-	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
 
 	    public override string[] GeneratedKeys(SecurityStore scope) 
 	    {

@@ -9,20 +9,14 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 	public ref class AESEnhancedProvider : StrongProvider
 	{
 		// конструктор
-		public: AESEnhancedProvider() : StrongProvider(PROV_RSA_AES, nullptr, false, true)
-		{
-			// заполнить список фабрик кодирования ключей
-			SecretKeyFactories()->Add("AES", gcnew Keys::AES()); 
-		}
+		public: AESEnhancedProvider() : StrongProvider(PROV_RSA_AES, nullptr, false, true) {}
+
 		// конструктор
 		protected: AESEnhancedProvider(DWORD type, String^ name, bool sspi, bool oaep) 
 		
 			// сохранить переданные параметры
-			: StrongProvider(type, name, sspi, oaep) 
-		{
-			// заполнить список фабрик кодирования ключей
-			SecretKeyFactories()->Add("AES", gcnew Keys::AES()); 
-		}
+			: StrongProvider(type, name, sspi, oaep) {}
+
 		// имя группы
 		public: virtual property String^ Group { String^ get() override { return Name; }}
 

@@ -226,12 +226,6 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 	///////////////////////////////////////////////////////////////////////
 
     // поддерживаемые ключи
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() 
-    {
-        // вернуть поддерживаемые ключи
-        return factories.secretKeyFactories(); 
-    }
-    // поддерживаемые ключи
 	@Override public Map<String, KeyFactory> keyFactories() 
     {
         // вернуть поддерживаемые ключи

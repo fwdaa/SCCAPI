@@ -15,31 +15,13 @@ import java.util.*;
 public abstract class Factory extends RefObject
 {
 	// поддерживаемые фабрики кодирования ключей
-	public Map<String, SecretKeyFactory> secretKeyFactories() 
-    { 
-        // поддерживаемые фабрики кодирования ключей
-        return new HashMap<String, SecretKeyFactory>(); 
-    }
-	// получить фабрику кодирования ключей
-	public final SecretKeyFactory getSecretKeyFactory(String algorithm)
-    {
-        // получить поддерживаемые фабрики кодирования ключей
-        Map<String, SecretKeyFactory> keyFactories = secretKeyFactories(); 
-        
-        // получить фабрику кодирования ключей
-        SecretKeyFactory factory = keyFactories.get(algorithm); 
-        
-        // вернуть фабрику кодирования ключей
-        return (factory != null) ? factory : SecretKeyFactory.GENERIC; 
-    }
-	// поддерживаемые фабрики кодирования ключей
 	public Map<String, KeyFactory> keyFactories() 
     { 
         // поддерживаемые фабрики кодирования ключей
         return new HashMap<String, KeyFactory>(); 
     }
 	// получить фабрику кодирования ключей
-	public final KeyFactory getKeyFactory(String keyOID)
+	public KeyFactory getKeyFactory(String keyOID)
     {
         // получить фабрику кодирования ключей
         return keyFactories().get(keyOID); 
@@ -135,13 +117,6 @@ public abstract class Factory extends RefObject
             return generator.generate(keyID, keyOID, keyUsage, keyFlags); 
         }
 	}
-    // создать блочный алгоритм шифрования 
-	public final IBlockCipher createBlockCipher(SecurityStore scope, 
-        String name, IEncodable parameters) throws IOException
-    {
-        // создать блочный алгоритм шифрования 
-        return (IBlockCipher)createAlgorithm(scope, name, parameters, IBlockCipher.class); 
-    }
 	// создать алгоритм для параметров
 	public final IAlgorithm createAlgorithm(
         SecurityStore scope, AlgorithmIdentifier parameters, 

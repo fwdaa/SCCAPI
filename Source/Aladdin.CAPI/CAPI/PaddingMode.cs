@@ -1,5 +1,5 @@
 ﻿namespace Aladdin.CAPI
 {
     // режим дополнения
-    public enum PaddingMode { Any = -1, None = 0, Zero = 1, PKCS5 = 2, ISO = 3, CTS = 4 }
+    public enum PaddingMode { Any = -1, None = 0, Zero = 1, PKCS5 = 2, ISO9797 = 3, CTS = 4 }
 }

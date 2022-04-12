@@ -33,12 +33,6 @@ namespace Aladdin.CAPI
             // освободить используемые ресурсы
             RefObject.Release(outer); RefObject.Release(factory); base.OnDispose();
         }
-        // поддерживаемые ключи
-        public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
-        { 
-            // поддерживаемые ключи
-            return outer.SecretKeyFactories(); 
-        }
         public override Dictionary<String, KeyFactory> KeyFactories() 
         { 
             // поддерживаемые ключи

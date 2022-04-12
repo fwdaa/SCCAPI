@@ -8,6 +8,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class SecretKey extends RefObject implements javax.crypto.SecretKey
 {
+    private static final long serialVersionUID = -3811029150707481222L;
+    
     // используемый провайдер и номер слота
 	private final Provider provider; private final int slot;
     // имя алгоритма и используемый ключ

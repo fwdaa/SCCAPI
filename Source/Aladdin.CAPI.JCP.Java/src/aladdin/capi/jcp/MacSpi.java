@@ -48,20 +48,20 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
 			AlgorithmParametersSpi parameters = provider.createParameters(name, paramSpec); 
             
             // создать алгоритм вычисления имитовставки
-            try (Mac macAlgorithm = (Mac)provider.factory().createAlgorithm(
+            try (Mac algorithm = (Mac)provider.factory().createAlgorithm(
                 parameters.getScope(), name, parameters.getEncodable(), Mac.class))
             {
                 // проверить наличие алгоритма
-                if (macAlgorithm == null) throw new InvalidAlgorithmParameterException(); 
+                if (algorithm == null) throw new InvalidAlgorithmParameterException(); 
                     
                 // преобразовать тип ключа
                 try (ISecretKey nativeKey = provider.translateSecretKey(secretKey))
                 {
                     // инициализировать алгоритм
-                    macAlgorithm.init(nativeKey); this.key = RefObject.addRef(nativeKey);
+                    algorithm.init(nativeKey); this.key = RefObject.addRef(nativeKey);
                     
                     // сохранить созданный алгоритм
-                    this.macAlgorithm = RefObject.addRef(macAlgorithm);
+                    this.macAlgorithm = RefObject.addRef(algorithm);
                 }
             }
             // обработать возможное исключение

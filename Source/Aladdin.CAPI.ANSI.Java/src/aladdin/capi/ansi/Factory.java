@@ -21,28 +21,12 @@ import java.util.*;
 //////////////////////////////////////////////////////////////////////////////
 public final class Factory extends aladdin.capi.Factory
 {
-    // фабрики кодирования ключей 
-    private final Map<String, SecretKeyFactory> secretKeyFactories; 
-    private final Map<String, KeyFactory      > keyFactories; 
+    // фабрики кодирования ключей
+    private final Map<String, KeyFactory> keyFactories; 
     
     // конструктор
-    public Factory()
-    {
-        // создать список фабрик кодирования ключей
-        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // заполнить список фабрик кодирования ключей
-        secretKeyFactories.put("RC2"   , new aladdin.capi.ansi.keys.RC2 ()); 
-        secretKeyFactories.put("RC4"   , new aladdin.capi.ansi.keys.RC4 ()); 
-        secretKeyFactories.put("RC5"   , new aladdin.capi.ansi.keys.RC5 ()); 
-        secretKeyFactories.put("DES"   , new aladdin.capi.ansi.keys.DES ()); 
-        secretKeyFactories.put("DESX"  , new aladdin.capi.ansi.keys.DESX()); 
-        secretKeyFactories.put("DESede", new aladdin.capi.ansi.keys.TDES()); 
-        secretKeyFactories.put("AES"   , new aladdin.capi.ansi.keys.AES ()); 
-        
-        // создать список фабрик кодирования ключей
-        keyFactories = new HashMap<String, KeyFactory>(); 
-
+    public Factory() { keyFactories = new HashMap<String, KeyFactory>(); 
+    
         // заполнить список фабрик кодирования ключей
         keyFactories.put(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA, 
             new aladdin.capi.ansi.rsa.KeyFactory(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA)
@@ -63,10 +47,25 @@ public final class Factory extends aladdin.capi.Factory
             new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)
         ); 
     }
+    public static String redirectKeyName(String name)
+    {
+        // указать идентификатор алгоритма
+        if (name.equalsIgnoreCase("RSA")) return aladdin.asn1.iso.pkcs.pkcs1.OID.RSA;      
+        if (name.equalsIgnoreCase("DH" )) return aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY; 
+        if (name.equalsIgnoreCase("DSA")) return aladdin.asn1.ansi.OID.X957_DSA;           
+        if (name.equalsIgnoreCase("EC" )) return aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY; 
+        
+        return name; 
+    }
 	// Поддерживаемые фабрики кодирования ключей
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
-	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
+	// получить фабрику кодирования ключей
+	@Override public KeyFactory getKeyFactory(String keyOID)
+    {
+        // получить фабрику кодирования ключей
+        return super.getKeyFactory(redirectKeyName(keyOID)); 
+    }
 	///////////////////////////////////////////////////////////////////////
 	// Cоздать алгоритм генерации ключей
 	///////////////////////////////////////////////////////////////////////
@@ -74,6 +73,9 @@ public final class Factory extends aladdin.capi.Factory
         aladdin.capi.Factory factory, SecurityObject scope, 
         IRand rand, String keyOID, IParameters parameters)
 	{
+        // указать идентификатор алгоритма
+        keyOID = redirectKeyName(keyOID); 
+        
         if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA)) 
         {
             // получить параметры алгоритма RSA
@@ -198,7 +200,7 @@ public final class Factory extends aladdin.capi.Factory
                         return new BlockMode.PaddingConverter(cipher, PaddingMode.ANY);
                     }
                 }
-                if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC4    )) 
+                if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC4)) 
                 {
                     // вернуть алгоритм шифрования
                     return new aladdin.capi.ansi.cipher.RC4();
@@ -828,6 +830,18 @@ public final class Factory extends aladdin.capi.Factory
             // перенаправить алгоритм наследования ключа
             return redirectKeyDerive(factory, scope, oid, parameters); 
         }
+        // для алгоритмов асимметричного шифрования
+        else if (type.equals(Encipherment.class))
+        {
+            // перенаправить алгоритм асимметричного шифрования
+            return redirectEncipherment(factory, scope, oid, parameters); 
+        }
+        // для алгоритмов асимметричного шифрования
+        else if (type.equals(Decipherment.class))
+        {
+            // перенаправить алгоритм асимметричного шифрования
+            return redirectDecipherment(factory, scope, oid, parameters); 
+        }
         // для алгоритмов выработки подписи
         else if (type.equals(SignHash.class))
         {
@@ -851,6 +865,12 @@ public final class Factory extends aladdin.capi.Factory
         {
             // перенаправить алгоритм подписи
             return redirectVerifyData(factory, scope, oid, parameters); 
+        }
+        // для алгоритмов согласования общего ключа
+        else if (type.equals(IKeyAgreement.class))
+        {
+            // перенаправить алгоритм согласования общего ключа
+            return redirectKeyAgreement(factory, scope, oid, parameters); 
         }
         // для алгоритмов согласования общего ключа
         else if (type.equals(ITransportAgreement.class))
@@ -879,6 +899,36 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = Hash.class; 
         
+        if (oid.equalsIgnoreCase("MD2")) { oid = aladdin.asn1.ansi.OID.RSA_MD2; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("MD5")) { oid = aladdin.asn1.ansi.OID.RSA_MD5; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA-1")) { oid = aladdin.asn1.ansi.OID.SSIG_SHA1; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA-256")) { oid = aladdin.asn1.ansi.OID.NIST_SHA2_256; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA-384")) { oid = aladdin.asn1.ansi.OID.NIST_SHA2_384; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA-512")) { oid = aladdin.asn1.ansi.OID.NIST_SHA2_512; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
         // в зависимости от идентификатора алгоритма
         if (oid.equals(aladdin.asn1.ansi.OID.SSIG_SHA)) 
         {
@@ -897,6 +947,31 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = Mac.class; 
         
+        if (oid.equalsIgnoreCase("HmacMD5")) { oid = aladdin.asn1.ansi.OID.IPSEC_HMAC_MD5; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("HmacSHA1")) { oid = aladdin.asn1.ansi.OID.RSA_HMAC_SHA1; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("HmacSHA256")) { oid = aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_256; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("HmacSHA384")) { oid = aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_384; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("HmacSHA512")) { oid = aladdin.asn1.ansi.OID.RSA_HMAC_SHA2_512; 
+            
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
         // создать алгоритм вычисления имитовставки
         if (oid.equals(aladdin.asn1.ansi.OID.ENTRUST_PBMAC)) 
         {
@@ -1121,6 +1196,156 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = Cipher.class; 
         
+        if (oid.equalsIgnoreCase("RC4")) { oid = aladdin.asn1.ansi.OID.RSA_RC4; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        // для алгоритмов шифрования по паролю
+        if (oid.equalsIgnoreCase("PBEWithMD2AndDES")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_DES_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithMD5AndDES")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_DES_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithMD2AndRC2_64")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD2_RC2_64_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithMD5AndRC2_64")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_MD5_RC2_64_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndDES")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_SHA1_DES_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndRC2_64")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs5.OID.PBE_SHA1_RC2_64_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndRC4_128")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_128; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndRC4_40")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC4_40; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndRC2_128")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_128_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndRC2_40")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_RC2_40_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndDESede_192")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_192_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndDESede_128")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs12.OID.PBE_SHA1_TDES_128_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndAES_128")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES128_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndAES_192")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES192_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA1AndAES_256")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.BC_PBE_SHA1_PKCS12_AES256_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA256AndAES_128")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES128_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA256AndAES_192")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES192_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("PBEWithSHA256AndAES_256")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.BC_PBE_SHA2_256_PKCS12_AES256_CBC; 
+        
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
         if (oid.equals(aladdin.asn1.ansi.OID.RSA_RC2_ECB))
         { 
             // указать размер ключа по умолчанию
@@ -1760,8 +1985,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "DES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -1801,8 +2026,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "DES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -1846,7 +2071,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "RC2", version, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -1890,7 +2116,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "RC2", version, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -1929,8 +2156,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "DES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -1974,7 +2201,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "RC2", version, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2090,7 +2318,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "RC2", version, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2134,7 +2363,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "RC2", version, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2173,8 +2403,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "DESede", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2212,8 +2442,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "DESede", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2252,8 +2482,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "AES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2292,8 +2522,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "AES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2332,8 +2562,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "AES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2372,8 +2602,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "AES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2412,8 +2642,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "AES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2452,8 +2682,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                scope, "AES", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2479,7 +2709,7 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = IBlockCipher.class; 
         
-        if (name.equals("RC2")) 
+        if (name.equalsIgnoreCase("RC2")) 
         {
             // указать идентификатор алгоритма
             String oid = aladdin.asn1.ansi.OID.RSA_RC2_ECB; 
@@ -2503,7 +2733,7 @@ public final class Factory extends aladdin.capi.Factory
             // создать блочный алгоритм шифрования
             return new aladdin.capi.ansi.cipher.RC2(factory, scope, keyBits); 
         }
-        if (name.equals("DES")) 
+        if (name.equalsIgnoreCase("DES")) 
         {
             // указать идентификатор алгоритма
             String oid = aladdin.asn1.ansi.OID.SSIG_DES_ECB; 
@@ -2518,7 +2748,7 @@ public final class Factory extends aladdin.capi.Factory
             // создать блочный алгоритм шифрования
             return new aladdin.capi.ansi.cipher.DES(factory, scope); 
         }
-        if (name.equals("DESX")) 
+        if (name.equalsIgnoreCase("DESX")) 
         {
             // указать идентификатор алгоритма
             String oid = aladdin.asn1.ansi.OID.SSIG_DES_ECB; 
@@ -2533,7 +2763,7 @@ public final class Factory extends aladdin.capi.Factory
             // создать блочный алгоритм шифрования
             return new aladdin.capi.ansi.cipher.DESX(factory, scope); 
         }
-        if (name.equals("DESede") || name.equals("TripleDES")) 
+        if (name.equalsIgnoreCase("DESede")) 
         {
             // указать идентификатор алгоритма
             String oid = aladdin.asn1.ansi.OID.SSIG_TDES_ECB; 
@@ -2548,7 +2778,7 @@ public final class Factory extends aladdin.capi.Factory
             // создать блочный алгоритм шифрования
             return new aladdin.capi.ansi.cipher.TDES(factory, scope); 
         }
-        if (name.equals("AES")) 
+        if (name.equalsIgnoreCase("AES")) 
         {
             // указать идентификатор алгоритма
             String oid = aladdin.asn1.ansi.OID.NIST_AES256_ECB; 
@@ -2572,6 +2802,38 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = KeyWrap.class; 
         
+        if (oid.equalsIgnoreCase("DESedeWrap")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_TDES192_WRAP; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("AESWrap_128")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.NIST_AES128_WRAP; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("AESWrap_192")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.NIST_AES192_WRAP; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("AESWrap_256")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.NIST_AES256_WRAP; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
         if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_PWRI_KEK)) 
         {
             // раскодировать параметры алгоритма
@@ -2595,8 +2857,8 @@ public final class Factory extends aladdin.capi.Factory
                     new aladdin.asn1.ansi.rsa.RC2CBCParams(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(
-                    scope, "RC2", rc2Parameters.parameterVersion()))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "RC2", rc2Parameters.parameterVersion(), IBlockCipher.class))
                 {
                     // определить эффективное число битов
                     int effectiveKeyBits = RC2ParameterVersion.getKeyBits(
@@ -2634,7 +2896,8 @@ public final class Factory extends aladdin.capi.Factory
                 OctetString desParameters = new OctetString(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "DESX", Null.INSTANCE))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "DESX", Null.INSTANCE, IBlockCipher.class))
                 {
                     // вернуть алгоритм шифрования ключа
                     return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 0, desParameters.value());
@@ -2646,7 +2909,8 @@ public final class Factory extends aladdin.capi.Factory
                 OctetString desParameters = new OctetString(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "DES", Null.INSTANCE))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "DES", Null.INSTANCE, IBlockCipher.class))
                 {
                     // вернуть алгоритм шифрования ключа
                     return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 0, desParameters.value());
@@ -2658,7 +2922,8 @@ public final class Factory extends aladdin.capi.Factory
                 OctetString tdesParameters = new OctetString(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "DESede", Null.INSTANCE, IBlockCipher.class))
                 {
                     // вернуть алгоритм шифрования ключа
                     return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 24, tdesParameters.value());
@@ -2670,7 +2935,8 @@ public final class Factory extends aladdin.capi.Factory
                 OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "AES", Null.INSTANCE, IBlockCipher.class))
                 {
                     // вернуть алгоритм шифрования ключа
                     return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 16, aesParameters.value());
@@ -2682,7 +2948,8 @@ public final class Factory extends aladdin.capi.Factory
                 OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "AES", Null.INSTANCE, IBlockCipher.class))
                 {
                     // вернуть алгоритм шифрования ключа
                     return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 24, aesParameters.value());
@@ -2694,7 +2961,8 @@ public final class Factory extends aladdin.capi.Factory
                 OctetString aesParameters = new OctetString(cipherParameters.parameters()); 
 
                 // указать блочный алгоритм шифрования
-                try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "AES", Null.INSTANCE))
+                try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "AES", Null.INSTANCE, IBlockCipher.class))
                 {
                     // вернуть алгоритм шифрования ключа
                     return new aladdin.capi.ansi.wrap.SMIME(blockCipher, 32, aesParameters.value());
@@ -2727,7 +2995,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null || !KeySizes.contains(cipher.keyFactory().keySizes(), 16)) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = factory.createBlockCipher(scope, "RC2", version))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "RC2", version, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2760,8 +3029,8 @@ public final class Factory extends aladdin.capi.Factory
                 if (cipher == null) return null; 
             }
             // получить алгоритм шифрования
-            try (IBlockCipher blockCipher = 
-                factory.createBlockCipher(scope, "DESede", Null.INSTANCE))
+            try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+                    scope, "DESede", Null.INSTANCE, IBlockCipher.class))
             {
                 // получить алгоритм хэширования
                 try (Hash hashAlgorithm = (Hash)factory.createAlgorithm(
@@ -2907,6 +3176,56 @@ public final class Factory extends aladdin.capi.Factory
         // вызвать базовую функцию
 		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
     }
+	private static IAlgorithm redirectEncipherment(aladdin.capi.Factory factory, 
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
+    {
+        // указать тип алгоритма
+        Class<? extends IAlgorithm> type = Encipherment.class; 
+        
+        if (oid.equalsIgnoreCase("RSA") || oid.equalsIgnoreCase("RSA/NONE/PKCS1Padding")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("RSA/NONE/OAEPPadding")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        // вызвать базовую функцию
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
+    }
+	private static IAlgorithm redirectDecipherment(aladdin.capi.Factory factory, 
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
+    {
+        // указать тип алгоритма
+        Class<? extends IAlgorithm> type = Decipherment.class; 
+        
+        if (oid.equalsIgnoreCase("RSA") || oid.equalsIgnoreCase("RSA/NONE/PKCS1Padding")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("RSA/NONE/OAEPPadding")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_OAEP; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        // вызвать базовую функцию
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
+    }
 	private static IAlgorithm redirectSignHash(aladdin.capi.Factory factory, 
         SecurityStore scope, String oid, IEncodable parameters) throws IOException
     {
@@ -3017,6 +3336,94 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = SignData.class; 
         
+        if (oid.equalsIgnoreCase("MD2withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("MD5withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA1withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA256withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA384withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA512withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA1withDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA1withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA256withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA384withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA512withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
         if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2)) 
         {
             // указать параметры алгоритма хэширования
@@ -3899,6 +4306,94 @@ public final class Factory extends aladdin.capi.Factory
         // указать тип алгоритма
         Class<? extends IAlgorithm> type = VerifyData.class; 
         
+        if (oid.equalsIgnoreCase("MD2withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("MD5withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD5; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA1withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA256withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA384withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA512withRSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA1withDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA1withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA1; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA256withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA384withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("SHA512withECDSA")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
         if (oid.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_MD2)) 
         {
             // указать параметры алгоритма хэширования
@@ -4771,6 +5266,31 @@ public final class Factory extends aladdin.capi.Factory
                     return new VerifyHashData(hash, hashParameters, verifyHash); 
                 }
             }
+        }
+        // вызвать базовую функцию
+		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
+    }
+	private static IAlgorithm redirectKeyAgreement(aladdin.capi.Factory factory, 
+        SecurityStore scope, String oid, IEncodable parameters) throws IOException
+    {
+        // указать тип алгоритма
+        Class<? extends IAlgorithm> type = IKeyAgreement.class; 
+        
+        if (oid.equalsIgnoreCase("DiffieHellman")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
+        }
+        if (oid.equalsIgnoreCase("ECDH")) 
+        { 
+            // указать идентификатор алгоритма
+            oid = aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY; 
+
+            // создать алгоритм
+            return factory.createAlgorithm(scope, oid, parameters, type); 
         }
         // вызвать базовую функцию
 		return aladdin.capi.Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 

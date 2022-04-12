@@ -39,14 +39,14 @@ public final class MessageDigestSpi extends java.security.MessageDigestSpi imple
             AlgorithmParametersSpi parameters = provider.createParameters(name, paramSpec); 
             
             // создать алгоритм хэширования
-            try (Hash hashAlgorithm = (Hash)provider.factory().createAlgorithm(
+            try (Hash algorithm = (Hash)provider.factory().createAlgorithm(
                 parameters.getScope(), name, parameters.getEncodable(), Hash.class))
             {
                 // проверить наличие алгоритма
-                if (hashAlgorithm == null) throw new InvalidAlgorithmParameterException(); 
+                if (algorithm == null) throw new InvalidAlgorithmParameterException(); 
                 
                 // инициализировать алгоритм
-                hashAlgorithm.init(); this.hashAlgorithm = RefObject.addRef(hashAlgorithm);
+                algorithm.init(); this.hashAlgorithm = RefObject.addRef(algorithm);
             }
         }
         // обработать возможную ошибку

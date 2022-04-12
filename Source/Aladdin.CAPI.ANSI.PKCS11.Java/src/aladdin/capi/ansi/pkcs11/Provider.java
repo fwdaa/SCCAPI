@@ -23,8 +23,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     private final Module module; private final boolean canImport; 
     
     // фабрики кодирования ключей 
-    private final Map<String, SecretKeyFactory> secretKeyFactories; 
-    private final Map<String, KeyFactory      > keyFactories; 
+    private final Map<String, KeyFactory> keyFactories; 
     
 	// конструктор
 	public Provider(String name, boolean canImport) { this(null, name, canImport); }
@@ -34,17 +33,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     { 
         // сохранить переданне параметры
         super(name); this.module = module; this.canImport = canImport;
-        
-        // создать список фабрик кодирования ключей
-        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // заполнить список фабрик кодирования ключей
-        secretKeyFactories.put("RC2"   , new aladdin.capi.ansi.keys.RC2 ()); 
-        secretKeyFactories.put("RC4"   , new aladdin.capi.ansi.keys.RC4 ()); 
-        secretKeyFactories.put("RC5"   , new aladdin.capi.ansi.keys.RC5 ()); 
-        secretKeyFactories.put("DES"   , new aladdin.capi.ansi.keys.DES ()); 
-        secretKeyFactories.put("DESede", new aladdin.capi.ansi.keys.TDES()); 
-        secretKeyFactories.put("AES"   , new aladdin.capi.ansi.keys.AES ()); 
         
         // создать список фабрик кодирования ключей
         keyFactories = new HashMap<String, KeyFactory>(); 
@@ -85,10 +73,15 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         // тип структуры передачи параметров механизма PBKDF2
         return aladdin.capi.pkcs11.pbe.PBKDF2.ParametersType.PARAMS2; 
     }
-	// Поддерживаемые фабрики кодирования ключей
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
-	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+	// поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
+	// получить фабрику кодирования ключей
+	@Override public KeyFactory getKeyFactory(String keyOID)
+    {
+        // получить фабрику кодирования ключей
+        return super.getKeyFactory(aladdin.capi.ansi.Factory.redirectKeyName(keyOID)); 
+    }
 	@Override public String[] generatedKeys(SecurityStore scope) 
 	{
         // проверить область видимости
@@ -354,6 +347,9 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         Factory factory, SecurityObject scope, IRand rand, 
         String keyOID, IParameters parameters) throws IOException
     {
+        // указать идентификатор алгоритма
+        keyOID = aladdin.capi.ansi.Factory.redirectKeyName(keyOID);         
+        
         // проверить тип параметров
         if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA))
         {

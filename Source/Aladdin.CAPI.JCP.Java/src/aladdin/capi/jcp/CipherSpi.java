@@ -1,40 +1,42 @@
 package aladdin.capi.jcp;
 import aladdin.*;
+import aladdin.asn1.*;
 import aladdin.capi.*; 
 import aladdin.capi.Cipher; 
 import java.security.*;
 import java.security.spec.*;
 import java.io.*; 
+import javax.crypto.*; 
+import javax.crypto.spec.*; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Симметричный алгоритм шифрования
 ///////////////////////////////////////////////////////////////////////////////
 public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 {
-	// провайдер, слот и идентификатор алгоритма
-	private final Provider provider; private final int slot; private byte[] iv; 
+	// провайдер, слот и имя алгоритма
+	private final Provider provider; private final int slot; private String name; 
+    
     // параметры алгоритма и генератор случайных данных
     private AlgorithmParametersSpi parameters; private SecureRandom random; 
-
-    // имя алгоритма, режим шифрования и дополнения 
-    private final String name; private int mode; private PaddingMode padding; 
-    // алгоритм шифрования, ключ и преобразование шифрования
-	private IAlgorithm algorithm; private Object key; private Transform transform; 
+    
+    // режим шифрования, дополнения и синхропосылка
+    private String mode; private PaddingMode padding; private int opmode; 
+    
+    // алгоритм шифрования, ключ и синхропосылка
+	private IAlgorithm algorithm; private Object key; 
 	
 	// конструктор
 	public CipherSpi(Provider provider, String name) 
 	{ 
 		// сохранить параметры
-		this.provider = provider; this.slot = provider.addObject(this); 
+		this.provider = provider; this.slot = provider.addObject(this); this.name = name; 
         
         // инициализировать переменные
         parameters = new AlgorithmParametersSpi(provider, name); random = null; 
 
 		// инициализировать параметры
-        this.name = name; mode = 0; padding = PaddingMode.NONE; 
-        
-		// инициализировать параметры
-		algorithm = null; key = null; transform = null;
+        mode = "NONE"; padding = PaddingMode.NONE; opmode = 0; algorithm = null; key = null;
 	}  
     // освободить выделенные ресурсы
     @Override public void close() throws IOException
@@ -43,114 +45,204 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         if (key instanceof IRefObject) RefObject.release((IRefObject)key);
         
         // освободить выделенные ресурсы
-        RefObject.release(transform); RefObject.release(algorithm); provider.removeObject(slot); 
+        RefObject.release(algorithm); provider.removeObject(slot); 
+    }
+	@Override protected final void engineSetMode(String mode) throws NoSuchAlgorithmException 
+	{
+        // обработать указание режима ECB и CBC
+        if (mode.equalsIgnoreCase("NONE") || mode.equals("ECB") || mode.equals("CBC")) this.mode = mode;
+        
+        // обработать указание режима CBC с дополнением CTS
+        else if (mode.equals("CTS")) { this.mode = "CBC"; padding = PaddingMode.CTS; } 
+        
+        // обработать указание режима CFB и OFB
+        else if (mode.startsWith("CFB") || mode.startsWith("OFB") || mode.startsWith("CTR")) 
+        { 
+            // перейти на размер блока для режима
+            this.mode = mode; mode = mode.substring(3); if (mode.length() != 0)
+            {
+                // прочитать размер блока для режима
+                int modeBits = java.lang.Integer.parseInt(mode); 
+            
+                // проверить корректность размера блока
+                if (modeBits == 0 || (modeBits % 8) != 0) throw new NoSuchAlgorithmException(); 
+            }
+        }
+        // при ошибке выбросить исключение
+        else throw new NoSuchAlgorithmException(); 
+    }
+	@Override protected final void engineSetPadding(String padding) throws NoSuchPaddingException 
+	{
+        // проверить указание дополнения 
+        if (padding.equalsIgnoreCase("NoPadding")) return; 
+        
+        // обработать дополнения блочного алгоритма шифрования
+        if (padding.equalsIgnoreCase("ZeroBytePadding" )) { this.padding = PaddingMode.ZERO;    return; }
+        if (padding.equalsIgnoreCase("ISO7816-4Padding")) { this.padding = PaddingMode.ISO9797; return; }
+        if (padding.equalsIgnoreCase("PKCS5Padding"    )) { this.padding = PaddingMode.PKCS5;   return; }
+        if (padding.equalsIgnoreCase("ISO10126Padding" )) { this.padding = PaddingMode.PKCS5;   return; }
+        if (padding.equalsIgnoreCase("CTSPadding"      )) { this.padding = PaddingMode.CTS;     return; }
+        
+        // обработать дополнения асимметричного шифрования
+        if (padding.equalsIgnoreCase("PKCS1Padding") || padding.equalsIgnoreCase("OAEPPadding"))
+        {
+            // проверить отсутствие блочного шифрования 
+            if (!mode.equalsIgnoreCase("NONE")) throw new NoSuchPaddingException(); 
+            
+            // указать полное имя алгоритма
+            name = name + "/" + mode + "/" + padding; 
+        }
+        // дополнение не поддерживается 
+        throw new javax.crypto.NoSuchPaddingException(); 
     }
 	@Override
-	protected final void engineInit(int opmode, java.security.Key key, 
-		SecureRandom random) throws InvalidKeyException 
+	protected final void engineInit(int opmode, 
+        java.security.Key key, SecureRandom random) throws InvalidKeyException 
 	{
-		// инициализировать алгоритм
-		try { engineInit(opmode, key, (AlgorithmParameterSpec)null, random); }
-		
+		try { 
+            // преобразовать тип параметров
+            AlgorithmParametersSpi spi = provider.createParameters(name, null); 
+
+            // инициализировать алгоритм
+            engineInit(opmode, key, spi, random); 
+        }
 		// обработать возможное исключение
 		catch (InvalidAlgorithmParameterException e) { throw new RuntimeException(e); }
+		catch (InvalidParameterSpecException      e) { throw new RuntimeException(e); }
 	}
 	@Override
 	protected final void engineInit(int opmode, java.security.Key key, 
 		java.security.AlgorithmParameters parameters, SecureRandom random) 
 		throws InvalidKeyException, InvalidAlgorithmParameterException 
 	{
-		try { 
-			// получить закодированное представление
-			AlgorithmParameterSpec spec = (parameters != null) ? 
-                parameters.getParameterSpec(KeyStoreParameterSpec.class) : null;
-			
-			// инициализировать алгоритм
-			engineInit(opmode, key, spec, random); 
-		}
-		// обработать возможное исключение
-		catch (InvalidParameterSpecException e) 
-        { 
-            // преобразовать тип исключения
-            throw new InvalidAlgorithmParameterException(e.getMessage()); 
-        }
+        // преобразовать тип параметров
+        AlgorithmParametersSpi spi = AlgorithmParametersSpi.getInstance(
+            provider, name, parameters
+        ); 
+        // инициализировать алгоритм
+        engineInit(opmode, key, spi, random); 
 	}
 	@Override
 	protected final void engineInit(int opmode, java.security.Key key, 
 		AlgorithmParameterSpec spec, SecureRandom random) 
 		throws InvalidKeyException, InvalidAlgorithmParameterException 
-	{
-		// сохранить переданные параметры
-		this.random = random; this.mode = opmode; 
-        
-        // при наличии области видимости 
-        SecurityStore scope = null; if (spec instanceof KeyStoreParameterSpec) 
-        {
-            // указать область видимости
-            scope = ((KeyStoreParameterSpec)spec).getScope(); 
+    {
+        try { 
+            // преобразовать тип параметров
+            AlgorithmParametersSpi spi = provider.createParameters(name, spec); 
+
+            // инициализировать алгоритм
+            engineInit(opmode, key, spi, random); 
         }
-        // при указании синхропосылки
-        if (spec instanceof javax.crypto.spec.IvParameterSpec)
-        {
-            // извлчеь синхропосылку
-            iv = ((javax.crypto.spec.IvParameterSpec)spec).getIV(); spec = null; 
-        }
-    	// преобразовать тип параметров
-		try { parameters = provider.createParameters(name, spec); }
-			
         // обработать возможное исключение
 		catch (InvalidParameterSpecException e) 
         { 
             // изменить тип исключения 
             throw new InvalidAlgorithmParameterException(e.getMessage()); 
         }  
+    }
+	protected final void engineInit(int opmode, java.security.Key key, 
+		AlgorithmParametersSpi parameters, SecureRandom random) 
+		throws InvalidKeyException, InvalidAlgorithmParameterException 
+	{
+		// сохранить переданные параметры
+		this.opmode = opmode; this.parameters = parameters; this.random = random; 
+        
+        // получить закодированные параметры
+        IEncodable encodable = parameters.getEncodable(); 
+        
     	// создать блочный алгоритм симметричного шифрования
-		try (IAlgorithm cipher = provider.factory().createBlockCipher(
-            scope, name, parameters.getEncodable()))
+		try (IBlockCipher blockCipher = (IBlockCipher)provider.factory().createAlgorithm(
+            parameters.getScope(), name, encodable, IBlockCipher.class))
         {
-            if (cipher != null) 
-            { 
+            // при наличии алгоритма
+            if (blockCipher != null) 
+            {
                 // проверить тип ключа
                 if (!(key instanceof javax.crypto.SecretKey)) throw new InvalidKeyException(); 
-        
-                // преобразовать тип ключа
-                this.key = provider.translateSecretKey((javax.crypto.SecretKey)key); 
                 
-                // сохранить используемый алгоритм
-                this.algorithm = RefObject.addRef(cipher); return; 
+                // преобразовать тип ключа
+                try (ISecretKey secretKey = provider.translateSecretKey((javax.crypto.SecretKey)key)) 
+                {
+                    // создать режим шифрования 
+                    try (Cipher cipher = createCipher(blockCipher))
+                    {
+                        // в зависимости от режима
+                        if (opmode == javax.crypto.Cipher.ENCRYPT_MODE) 
+                        {
+                            // создать преобразование шифрования 
+                            algorithm = createTransform(cipher, opmode, secretKey); 
+                        }
+                        // в зависимости от режима
+                        else if (opmode == javax.crypto.Cipher.DECRYPT_MODE) 
+                        {
+                            // создать преобразование шифрования 
+                            algorithm = createTransform(cipher, opmode, secretKey); 
+                        }
+                        else {
+                            // создать алгоритм шифрования ключа
+                            algorithm = cipher.createKeyWrap(padding); 
+
+                            // сохранить ключ шифрования
+                            this.key = RefObject.addRef(secretKey); 
+                        }
+                        return; 
+                    }
+                }
             }
         }
         // обработать возможное исключение
-        catch (IOException e) { throw new InvalidAlgorithmParameterException(e); }
+        catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
         
         // создать алгоритм симметричного шифрования
-		try (IAlgorithm cipher = provider.factory().createAlgorithm(
-            scope, name, parameters.getEncodable(), Cipher.class))
+		try (Cipher cipher = (Cipher)provider.factory().createAlgorithm(
+            parameters.getScope(), name, encodable, Cipher.class))
         {
-            if (cipher != null) 
-            { 
+            // при наличии алгоритма
+            if (cipher != null) { if (!mode.equalsIgnoreCase("NONE")) throw new InvalidAlgorithmParameterException(); 
+            
                 // проверить тип ключа
                 if (!(key instanceof javax.crypto.SecretKey)) throw new InvalidKeyException(); 
-        
+             
                 // преобразовать тип ключа
-                this.key = provider.translateSecretKey((javax.crypto.SecretKey)key); 
-                
-                // сохранить используемый алгоритм
-                this.algorithm = RefObject.addRef(cipher); return;
+                try (ISecretKey secretKey = provider.translateSecretKey((javax.crypto.SecretKey)key)) 
+                {
+                    // в зависимости от режима
+                    if (opmode == javax.crypto.Cipher.ENCRYPT_MODE) 
+                    {
+                        // создать преобразование шифрования 
+                        algorithm = createTransform(cipher, opmode, secretKey); 
+                    }
+                    // в зависимости от режима
+                    else if (opmode == javax.crypto.Cipher.DECRYPT_MODE) 
+                    {
+                        // создать преобразование шифрования 
+                        algorithm = createTransform(cipher, opmode, secretKey); 
+                    }
+                    else {
+                        // создать алгоритм шифрования ключа
+                        algorithm = cipher.createKeyWrap(padding); 
+
+                        // сохранить ключ шифрования
+                        this.key = RefObject.addRef(secretKey); 
+                    }
+                    return; 
+                }
             }
         }
         // обработать возможное исключение
-        catch (IOException e) { throw new InvalidAlgorithmParameterException(e); }
+        catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
         
-        // для алгоритмов зашифрования
-        if (opmode == javax.crypto.Cipher.WRAP_MODE)
+        // для алгоритмов шифрования ключа
+        if (opmode == javax.crypto.Cipher.WRAP_MODE || opmode == javax.crypto.Cipher.UNWRAP_MODE)
         {
 			// создать алгоритм шифрования ключа
 			try (IAlgorithm keyWrap = provider.factory().createAlgorithm(
-                scope, name, parameters.getEncodable(), KeyWrap.class))
+                parameters.getScope(), name, encodable, KeyWrap.class))
             {
-                if (keyWrap != null)
-                {
+                // при наличии алгоритма
+                if (keyWrap != null) { if (!mode.equalsIgnoreCase("NONE")) throw new InvalidAlgorithmParameterException(); 
+                
                     // проверить тип ключа
                     if (!(key instanceof javax.crypto.SecretKey)) throw new InvalidKeyException(); 
 
@@ -162,14 +254,18 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
                 }
             }
             // обработать возможное исключение
-            catch (IOException e) { throw new InvalidAlgorithmParameterException(e); }
-            
+            catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
+        }
+        // для алгоритмов зашифрования ключа
+        if (opmode == javax.crypto.Cipher.WRAP_MODE)
+        {    
             // создать алгоритм асимметричного шифрования
             try (IAlgorithm encipherment = provider.factory().createAlgorithm(
-                parameters.getScope(), name, parameters.getEncodable(), Encipherment.class))
+                parameters.getScope(), name, encodable, Encipherment.class))
             {
-                if (encipherment != null)
-                {
+                // при наличии алгоритма
+                if (encipherment != null) { if (!mode.equalsIgnoreCase("NONE")) throw new InvalidAlgorithmParameterException(); 
+                    
                     // проверить тип ключа
                     if (!(key instanceof java.security.PublicKey)) throw new InvalidKeyException();
                     
@@ -181,36 +277,18 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
                 }
             }
             // обработать возможное исключение
-            catch (IOException e) { throw new InvalidAlgorithmParameterException(e); }
+            catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
         }
-        // для алгоритмов зашифрования
+        // для алгоритмов расшифрования ключа
         if (opmode == javax.crypto.Cipher.UNWRAP_MODE)
         {
-			// создать алгоритм шифрования ключа
-			try (IAlgorithm keyWrap = provider.factory().createAlgorithm(
-                scope, name, parameters.getEncodable(), KeyWrap.class))
-            {
-                if (keyWrap != null)
-                {
-                    // проверить тип ключа
-                    if (!(key instanceof javax.crypto.SecretKey)) throw new InvalidKeyException(); 
-
-                    // преобразовать тип ключа
-                    this.key = provider.translateSecretKey((javax.crypto.SecretKey)key); 
-
-                    // сохранить используемый алгоритм
-                    this.algorithm = RefObject.addRef(keyWrap); return;
-                }
-            }
-            // обработать возможное исключение
-            catch (IOException e) { throw new InvalidAlgorithmParameterException(e); }
-            
             // создать алгоритм асимметричного шифрования
             try (IAlgorithm decipherment = provider.factory().createAlgorithm(
-                parameters.getScope(), name, parameters.getEncodable(), Decipherment.class))
+                parameters.getScope(), name, encodable, Decipherment.class))
             {
-                if (decipherment != null)
-                {
+                // при наличии алгоритма
+                if (decipherment != null) { if (!mode.equalsIgnoreCase("NONE")) throw new InvalidAlgorithmParameterException(); 
+                    
                     // проверить тип ключа
                     if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
                     
@@ -222,7 +300,7 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
                 }
             }
             // обработать возможное исключение
-            catch (IOException e) { throw new InvalidAlgorithmParameterException(e); }
+            catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
         }
         // неподдерживаемый алгоритм
         throw new InvalidAlgorithmParameterException(); 
@@ -233,123 +311,87 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         // вернуть параметры алгоритма
         return new AlgorithmParameters(provider, parameters); 
     }
-	@Override
-	protected final void engineSetMode(String string) throws NoSuchAlgorithmException 
-	{
-        // проверить тип алгоритма
-        if (!(algorithm instanceof IBlockCipher)) throw new IllegalStateException(); 
-        
-        // выполнить преобразование типа
-        IBlockCipher blockCipher = (IBlockCipher)algorithm; CipherMode mode = null; 
-        try {  
-            // указать параметры режима
-            if (string.equals("ECB")) mode = new CipherMode.ECB(); 
-            else {
-                // определить размер блока и синхропосылку
-                int blockSize = blockCipher.blockSize(); byte[] iv = engineGetIV();
+    // создать алгоритм шифрования
+    private Cipher createCipher(IBlockCipher blockCipher) 
+        throws InvalidAlgorithmParameterException, IOException
+    {
+        // указать режим по умолчанию и синхропосылку
+        CipherMode mode = new CipherMode.ECB(); byte[] iv = engineGetIV();
                 
-                // указать параметры режима
-                if (string.equals("CBC")) mode = new CipherMode.CBC(iv, blockSize); else 
-                if (string.equals("CFB")) mode = new CipherMode.CFB(iv, blockSize); else 
-                if (string.equals("OFB")) mode = new CipherMode.OFB(iv, blockSize); else 
-                if (string.equals("CTR")) mode = new CipherMode.CTR(iv, blockSize);  
-            }
-            // операция не поддерживается
-            if (mode == null) throw new UnsupportedOperationException();
-            
-            // создать режим шифрования
-            try (Cipher cipher = blockCipher.createBlockMode(mode))
-            {
-                // переназначить алгоритм
-                algorithm.release(); algorithm = RefObject.addRef(cipher);
-            }
-        }
-        // обработать возможное исключение
-        catch (IOException e) { throw new UnsupportedOperationException(e); }
-	}
-	@Override
-	protected final void engineSetPadding(String string) 
-        throws javax.crypto.NoSuchPaddingException 
-	{
-        // проверить тип алгоритма
-        if (algorithm instanceof Encipherment || algorithm instanceof Decipherment)
-        {
-            // при ошибке выбросить исключение
-            throw new IllegalStateException(); 
-        }
-        // проверить тип алгоритма
-        if (algorithm instanceof KeyWrap) throw new IllegalStateException(); 
-        
-        // указать режим дополнения
-        if (string.equals("NoPadding"   )) padding = PaddingMode.NONE ; else 
-        if (string.equals("PKCS5Padding")) padding = PaddingMode.PKCS5; else 
-        if (string.equals("ZeroPadding" )) padding = PaddingMode.ZERO ; else 
-        if (string.equals("ISOPadding"  )) padding = PaddingMode.ISO  ; else 
-        if (string.equals("CTSPadding"  )) padding = PaddingMode.CTS  ; else 
-        
-		// операция не поддерживается
-		throw new UnsupportedOperationException();
-	}
-    // перейти в алгоритм шифрования
-    private Cipher gotoCipher() throws IOException
-    {
-        // проверить тип алгоритма
-        if (algorithm instanceof Cipher) return (Cipher)algorithm;
-        
-        // проверить тип алгоритма
-        if (!(algorithm instanceof IBlockCipher)) throw new IllegalStateException(); 
-        
-        // выполнить преобразование типа
-        IBlockCipher blockCipher = (IBlockCipher)algorithm; 
-        
-        // создать режим шифрования
-        try (Cipher cipher = blockCipher.createBlockMode(new CipherMode.ECB()))
-        {
-            // переназначить алгоритм
-            algorithm.release(); algorithm = RefObject.addRef(cipher); 
-        }
-        return (Cipher)algorithm; 
-    }
-    // создать преобразование шифрования
-    private Transform createTransform() throws IOException, InvalidKeyException
-    {
-        // перейти в алгоритм шифрования
-        Cipher cipher = gotoCipher();
+        // определить размер блока 
+        int blockSize = blockCipher.blockSize(); 
+                
+        // указать параметры режима
+        if (this.mode.equals("CBC")) mode = new CipherMode.CBC(iv); 
         
         // в зависимости от режима
-        if (mode == javax.crypto.Cipher.ENCRYPT_MODE) 
+        else if (this.mode.startsWith("CFB")) 
+        {
+            // извлечь размер блока
+            String str = this.mode.substring(3); if (str.length() != 0) 
+            {
+                // раскодировать размер блока
+                blockSize = java.lang.Integer.parseInt(str) / 8; 
+            }
+            // указать параметры режима
+            mode = new CipherMode.CFB(iv, blockSize); 
+        } 
+        // в зависимости от режима
+        else if (this.mode.startsWith("OFB")) 
+        {
+            // извлечь размер блока
+            String str = this.mode.substring(3); if (str.length() != 0) 
+            {
+                // раскодировать размер блока
+                blockSize = java.lang.Integer.parseInt(str) / 8; 
+            }
+            // указать параметры режима
+            mode = new CipherMode.OFB(iv, blockSize); 
+        }
+        // в зависимости от режима
+        else if (this.mode.startsWith("CTR")) 
+        {
+            // извлечь размер блока
+            String str = this.mode.substring(3); if (str.length() != 0) 
+            {
+                // раскодировать размер блока
+                blockSize = java.lang.Integer.parseInt(str) / 8; 
+            }
+            // указать параметры режима
+            mode = new CipherMode.CTR(iv, blockSize);  
+        }
+        // операция не поддерживается
+        if (mode == null) throw new InvalidAlgorithmParameterException();
+            
+        // создать режим шифрования
+        return blockCipher.createBlockMode(mode); 
+    }
+    // создать преобразование шифрования
+    private Transform createTransform(Cipher cipher, int opmode, ISecretKey key) 
+        throws InvalidKeyException, IOException
+    {
+        // в зависимости от режима
+        if (opmode == javax.crypto.Cipher.ENCRYPT_MODE) 
         {
             // создать алгоритм зашифрования
-            try (Transform transform = cipher.createEncryption((ISecretKey)key, padding)) 
+            try (Transform transform = cipher.createEncryption(key, padding)) 
             {
                 // инициализировать алгоритм
                 transform.init(); return RefObject.addRef(transform); 
             }
         }
         // в зависимости от режима
-        else if (mode == javax.crypto.Cipher.DECRYPT_MODE) 
+        else if (opmode == javax.crypto.Cipher.DECRYPT_MODE) 
         {
             // создать алгоритм расшифрования
-            try (Transform transform = cipher.createDecryption((ISecretKey)key, padding)) 
+            try (Transform transform = cipher.createDecryption(key, padding)) 
             {
                 // инициализировать алгоритм
                 transform.init(); return RefObject.addRef(transform); 
             }
         }
         // при ошибке выбросить исключение
-        throw new IllegalStateException(); 
-    }
-    // создать алгоритм шифрования ключа
-    private KeyWrap createKeyWrap() throws IOException
-    {
-        // проверить тип алгоритма
-        if (algorithm instanceof KeyWrap) 
-        {
-            // вернуть алгоритм шифрования ключа
-            return RefObject.addRef((KeyWrap)algorithm); 
-        }
-        // создать алгоритм шифрования ключа
-        return gotoCipher().createKeyWrap(padding);  
+        else throw new IllegalStateException(); 
     }
 	@Override
 	protected final int engineGetKeySize(java.security.Key key) throws InvalidKeyException 
@@ -375,17 +417,11 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         // проверить наличие инициализации
         if (algorithm == null) throw new IllegalStateException(); 
         
-        // для блочного алгоритма шифрования
-        if (algorithm instanceof IBlockCipher)
+        // для алгоритма преобразования 
+        if (algorithm instanceof Transform)
         {
             // вернуть размер блока
-            return ((IBlockCipher)algorithm).blockSize(); 
-        }
-        // для симметричного алгоритма шифрования
-        if (algorithm instanceof Cipher)
-        {
-            // вернуть размер блока
-            return ((Cipher)algorithm).blockSize(); 
+            return ((Transform)algorithm).blockSize(); 
         }
         return 0; 
 	}
@@ -403,12 +439,29 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 	}
 	@Override protected final byte[] engineGetIV() 
     { 
-        // определить размер блока
-        if (iv != null) return iv; int blockSize = engineGetBlockSize();
-
-		// вернуть нулевую синхропосылку
-		return (blockSize != 0) ? new byte[blockSize] : null; 
+        try { 
+            // получить синхропосылку
+            return parameters.engineGetParameterSpec(IvParameterSpec.class).getIV(); 
+        }
+        // обработать возможное исключение
+        catch (InvalidParameterSpecException e) { return null; }
     }
+	@Override
+	protected final int engineUpdate(byte[] input, int inputOffset, int inputLen, 
+		byte[] output, int outputOffset) throws javax.crypto.ShortBufferException 
+	{
+		// зашифровать/расшифровать данные
+		byte[] buffer = engineUpdate(input, inputOffset, inputLen);
+		
+		// проверить размер буфера
+		if (output.length - outputOffset < buffer.length) 
+        {
+            // при ошибке выбросить исключение
+            throw new javax.crypto.ShortBufferException(); 
+        }
+		// скопировать данные
+		System.arraycopy(buffer, 0, output, 0, buffer.length); return buffer.length; 
+	}
 	@Override 
     protected final byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) 
 	{
@@ -427,11 +480,8 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 		// выделить буфер требуемого размера
 		byte[] buffer = new byte[engineGetOutputSize(inputLen)];
 		try {
-            // создать преобразование шифрования 
-            if (transform == null) transform = createTransform(); 
-        
 			// зашифровать/расшифровать данные
-			int outputLen = transform.update(input, inputOffset, inputLen, buffer, 0); 
+			int outputLen = ((Transform)algorithm).update(input, inputOffset, inputLen, buffer, 0); 
 
 			// проверить размер буфера
 			if (buffer.length == outputLen) return buffer; 
@@ -446,14 +496,14 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 		catch (Exception e) { throw new RuntimeException(e); }
 	}
 	@Override
-	protected final int engineUpdate(byte[] input, int inputOffset, int inputLen, 
+	protected final int engineDoFinal(byte[] input, int inputOffset, int inputLen, 
 		byte[] output, int outputOffset) throws javax.crypto.ShortBufferException 
 	{
-		// зашифровать/расшифровать данные
-		byte[] buffer = engineUpdate(input, inputOffset, inputLen);
+		// завершить зашифрование/расшифрование данных
+		byte[] buffer = engineDoFinal(input, inputOffset, inputLen);
 		
 		// проверить размер буфера
-		if (output.length - outputOffset < buffer.length) 
+		if (output.length - outputOffset < buffer.length)
         {
             // при ошибке выбросить исключение
             throw new javax.crypto.ShortBufferException(); 
@@ -468,16 +518,13 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         if (algorithm == null) throw new IllegalStateException(); 
         
         // для алгоритмов шифрования 
-        if (algorithm instanceof IBlockCipher || algorithm instanceof Cipher)
+        if (algorithm instanceof Transform)
         {
             // выделить буфер требуемого размера
             byte[] buffer = new byte[engineGetOutputSize(inputLen)];
             try {
-                // создать преобразование шифрования 
-                if (transform == null) transform = createTransform(); 
-
                 // завершить зашифрование/расшифрование данных
-                int outputLen = transform.finish(input, inputOffset, inputLen, buffer, 0); 
+                int outputLen = ((Transform)algorithm).finish(input, inputOffset, inputLen, buffer, 0); 
 
                 // проверить размер буфера
                 if (buffer.length == outputLen) return buffer; 
@@ -498,10 +545,10 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
             byte[] buffer = new byte[inputLen]; System.arraycopy(input, inputOffset, buffer, 0, inputLen);
             
             // указать тип алгоритма
-            SecretKeyFactory keyFactory = SecretKeyFactory.GENERIC; 
+            aladdin.capi.SecretKeyFactory keyFactory = aladdin.capi.SecretKeyFactory.GENERIC; 
 
             // проверить допустимость вызова
-            if (mode == javax.crypto.Cipher.ENCRYPT_MODE || mode == javax.crypto.Cipher.WRAP_MODE) 
+            if (opmode == javax.crypto.Cipher.ENCRYPT_MODE || opmode == javax.crypto.Cipher.WRAP_MODE) 
             {
                 // преобразовать тип ключа
                 try (ISecretKey CEK = keyFactory.create(buffer))
@@ -558,26 +605,10 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         }
 	}
 	@Override
-	protected final int engineDoFinal(byte[] input, int inputOffset, int inputLen, 
-		byte[] output, int outputOffset) throws javax.crypto.ShortBufferException 
-	{
-		// завершить зашифрование/расшифрование данных
-		byte[] buffer = engineDoFinal(input, inputOffset, inputLen);
-		
-		// проверить размер буфера
-		if (output.length - outputOffset < buffer.length)
-        {
-            // при ошибке выбросить исключение
-            throw new javax.crypto.ShortBufferException(); 
-        }
-		// скопировать данные
-		System.arraycopy(buffer, 0, output, 0, buffer.length); return buffer.length; 
-	}
-	@Override
 	protected final byte[] engineWrap(java.security.Key key) throws InvalidKeyException 
 	{
         // проверить допустимость вызова
-        if (mode != javax.crypto.Cipher.WRAP_MODE) throw new IllegalStateException(); 
+        if (opmode != javax.crypto.Cipher.WRAP_MODE) throw new IllegalStateException(); 
         
         // проверить наличие инициализации
         if (algorithm == null) throw new IllegalStateException(); 
@@ -591,18 +622,14 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         // создать объект генератора случайных данных
         try (IRand rand = provider.createRand(random))
         {
-            // для алгоритмов шифрования 
-            if (algorithm instanceof IBlockCipher || algorithm instanceof Cipher || algorithm instanceof KeyWrap)
+            // для алгоритмов шифрования ключа
+            if (algorithm instanceof KeyWrap)
             {
-                // создать алгоритм шифрования ключа
-                try (KeyWrap keyWrap = createKeyWrap()) 
+                // преобразовать тип ключа
+                try (ISecretKey CEK = provider.translateSecretKey(secretKey))
                 {
-                    // преобразовать тип ключа
-                    try (ISecretKey CEK = provider.translateSecretKey(secretKey))
-                    {
-                        // зашифровать ключ
-                        return keyWrap.wrap(rand, (ISecretKey)this.key, CEK); 
-                    }
+                    // зашифровать ключ
+                    return ((KeyWrap)algorithm).wrap(rand, (ISecretKey)this.key, CEK); 
                 }
             }
             // получить значение ключа
@@ -624,26 +651,25 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 		throws InvalidKeyException, NoSuchAlgorithmException 
 	{
         // проверить допустимость вызова
-        if (mode != javax.crypto.Cipher.UNWRAP_MODE) throw new IllegalStateException(); 
+        if (opmode != javax.crypto.Cipher.UNWRAP_MODE) throw new IllegalStateException(); 
         
 		// проверить тип ключа
 		if (wrappedKeyType != javax.crypto.Cipher.SECRET_KEY) throw new NoSuchAlgorithmException();
         
-        // указать тип алгоритма
-        SecretKeyFactory keyFactory = provider.factory().getSecretKeyFactory(wrappedKeyAlgorithm); 
+        // получить фабрику кодирования 
+        aladdin.capi.SecretKeyFactory keyFactory = provider.getSecretKeyFactory(wrappedKeyAlgorithm); 
+        
+        // проверить наличие фабрики
+        if (keyFactory == null) throw new NoSuchAlgorithmException(); 
 
-        // для алгоритмов шифрования 
-        if (algorithm instanceof IBlockCipher || algorithm instanceof Cipher || algorithm instanceof KeyWrap)
+        // для алгоритмов шифрования ключа
+        if (algorithm instanceof KeyWrap)
         {
-            // создать алгоритм шифрования ключа
-            try (KeyWrap keyWrap = createKeyWrap()) 
-            { 
-                // расшифровать ключ
-                try (ISecretKey nativeKey = keyWrap.unwrap((ISecretKey)key, wrappedKey, keyFactory))
-                {
-                    // зарегистрировать симметричный ключ
-                    return new SecretKey(provider, wrappedKeyAlgorithm, nativeKey); 
-                }
+            // расшифровать ключ
+            try (ISecretKey nativeKey = ((KeyWrap)algorithm).unwrap((ISecretKey)key, wrappedKey, keyFactory))
+            {
+                // зарегистрировать симметричный ключ
+                return new SecretKey(provider, wrappedKeyAlgorithm, nativeKey); 
             }
             // обработать возможное исключение
             catch (IOException e) { throw new RuntimeException(e); }  	

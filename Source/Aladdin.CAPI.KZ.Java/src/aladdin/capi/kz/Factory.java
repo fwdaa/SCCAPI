@@ -16,25 +16,10 @@ import java.util.*;
 public final class Factory extends aladdin.capi.Factory
 {
     // фабрики кодирования ключей 
-    private final Map<String, SecretKeyFactory> secretKeyFactories; 
-    private final Map<String, KeyFactory      > keyFactories; 
+    private final Map<String, KeyFactory> keyFactories; 
     
     // конструктор
-    public Factory()
-    {
-        // создать список фабрик кодирования ключей
-        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // заполнить список фабрик кодирования ключей
-        secretKeyFactories.put("RC2"   , new aladdin.capi.ansi.keys.RC2 ()); 
-        secretKeyFactories.put("RC4"   , new aladdin.capi.ansi.keys.RC4 ()); 
-        secretKeyFactories.put("DES"   , new aladdin.capi.ansi.keys.DES ()); 
-        secretKeyFactories.put("DESede", new aladdin.capi.ansi.keys.TDES()); 
-        secretKeyFactories.put("AES"   , new aladdin.capi.ansi.keys.AES ()); 
-        secretKeyFactories.put("GOST"  , new aladdin.capi.gost.keys.GOST()); 
-        
-        // создать список фабрик кодирования ключей
-        keyFactories = new HashMap<String, KeyFactory>(); 
+    public Factory() { keyFactories = new HashMap<String, KeyFactory>(); 
 
         // заполнить список фабрик кодирования ключей
         keyFactories.put(OID.GAMMA_KEY_RSA_1024, 
@@ -83,9 +68,8 @@ public final class Factory extends aladdin.capi.Factory
             new aladdin.capi.kz.gost34310.ECKeyFactory(OID.GAMMA_KEY_EC256_512_B_XCH) 
         ); 
     }
-	// Поддерживаемые фабрики кодирования ключей
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
-	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+	// поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
     ///////////////////////////////////////////////////////////////////////
     // Фиксированные таблицы подстановок

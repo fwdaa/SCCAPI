@@ -11,7 +11,7 @@ import java.security.spec.*;
 public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
 {
     // используемый провайдер и идентификатор ключа
-	private final Provider provider; private String keyOID; private SecurityStore scope;
+	private final Provider provider; private final String keyOID; private SecurityStore scope;
 	// генератор случайных данных и параметры алгоритма
 	private SecureRandom random; private IParameters parameters;
     
@@ -40,28 +40,17 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
 	public final void initialize(AlgorithmParameterSpec paramSpec, SecureRandom random) 
 		throws InvalidAlgorithmParameterException 
 	{
-        // сохранить генератор случайных данных
-        this.random = random; if (paramSpec == null) { parameters = null; return; } 
-        
-        // в зависимости от типа параметров
-        if (paramSpec instanceof KeyStoreParameterSpec)
-        {
-            // указать область видимости
-            scope = ((KeyStoreParameterSpec)paramSpec).getScope(); 
-
-            // извлечь параметры алгоритма
-            paramSpec = ((KeyStoreParameterSpec)paramSpec).paramSpec();
-        }
-        // проверить наличие параметров
-        if (paramSpec == null) { parameters = null; return; } 
-
-        // указать фабрику кодирования
-        aladdin.capi.KeyFactory keyFactory = provider.factory().getKeyFactory(keyOID); 
         try {
-            // получить закодированное представление 
+            // указать фабрику кодирования
+            aladdin.capi.KeyFactory keyFactory = provider.factory().getKeyFactory(keyOID); 
+        
+            // создать параметры алгоритма
             AlgorithmParametersSpi parameters = provider.createParameters(keyOID, paramSpec); 
             
-            // получить закодированное представление
+            // сохранить генератор случайных данных
+            this.random = random; this.scope = parameters.getScope(); 
+            
+            // получить закодированные параметры
             IEncodable encodable = parameters.getEncodable(); 
             
             // раскодировать параметры алгоритма
@@ -79,18 +68,9 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
 	@Override
 	public final java.security.KeyPair generateKeyPair() 
     {
-        // проверить идентификатор ключа
-        if (keyOID == null) throw new IllegalStateException();
-        
         // указать фабрику кодирования
         aladdin.capi.KeyFactory keyFactory = provider.factory().getKeyFactory(keyOID); 
                 
-        // проверить поддержку ключа
-        if (keyFactory == null) throw new UnsupportedOperationException(); 
-        
-        // указать способ использования ключа
-        KeyUsage keyUsage = keyFactory.getKeyUsage(); 
-        
         // создать объект генератора случайных данных
         try (IRand rand = provider.createRand(random))
         {
@@ -103,7 +83,7 @@ public final class KeyPairGeneratorSpi extends java.security.KeyPairGeneratorSpi
 
                 // сгенерировать ключи
                 try (aladdin.capi.KeyPair keyPair = generator.generate(
-                    null, keyOID, keyUsage, KeyFlags.NONE))
+                    null, keyOID, keyFactory.getKeyUsage(), KeyFlags.NONE))
                 {
                     // зарегистрировать личный ключ
                     java.security.PrivateKey privateKey = new PrivateKey(provider, keyPair.privateKey);

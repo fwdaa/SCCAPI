@@ -35,32 +35,6 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
         ///////////////////////////////////////////////////////////////////////
         // Поддерживаемые ключи
         ///////////////////////////////////////////////////////////////////////
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
-        { 
-            // создать список поддерживаемых ключей
-            Dictionary<String, SecretKeyFactory> keyFactories = 
-                new Dictionary<String, SecretKeyFactory>(); 
-        
-            // для всех поддерживаемых ключей
-            foreach (KeyValuePair<String, SecretKeyFactory> entry in gostProvider.SecretKeyFactories())
-            {
-                // проверить отсутствие элемента
-                if (keyFactories.ContainsKey(entry.Key)) continue; 
-
-                // добавить фабрику в таблицу
-                keyFactories.Add(entry.Key, entry.Value); 
-            }
-            // для всех поддерживаемых ключей
-            foreach (KeyValuePair<String, SecretKeyFactory> entry in base.SecretKeyFactories())
-            {
-                // проверить отсутствие элемента
-                if (keyFactories.ContainsKey(entry.Key)) continue; 
-
-                // добавить фабрику в таблицу
-                keyFactories.Add(entry.Key, entry.Value); 
-            }
-            return keyFactories; 
-        }
 	    public override Dictionary<String, KeyFactory> KeyFactories() 
         { 
             // создать список поддерживаемых ключей

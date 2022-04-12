@@ -15,8 +15,7 @@ namespace Aladdin { namespace CAPI { namespace CNG
 		private: NProviderHandle^ hProvider; private: String^ name;
 
 		// фабрики кодирования ключей 
-		private: Dictionary<String^, SecretKeyFactory^>^ secretKeyFactories; 
-		private: Dictionary<String^,       KeyFactory^>^       keyFactories; 
+		private: Dictionary<String^, KeyFactory^>^ keyFactories; 
 
 		// конструктор
 		protected: NProvider(String^ name);  
@@ -30,8 +29,7 @@ namespace Aladdin { namespace CAPI { namespace CNG
 		public: property NProviderHandle^ Handle { NProviderHandle^ get() { return hProvider; }}
 
 		// поддерживаемые фабрики кодирования ключей
-		public: virtual Dictionary<String^, SecretKeyFactory^>^ SecretKeyFactories() override { return secretKeyFactories; }
-		public: virtual Dictionary<String^,       KeyFactory^>^       KeyFactories() override { return       keyFactories; }
+		public: virtual Dictionary<String^, KeyFactory^>^ KeyFactories() override { return keyFactories; }
 
 		///////////////////////////////////////////////////////////////////////
 		// Выполнение операции с открытым/личным ключом контейнера

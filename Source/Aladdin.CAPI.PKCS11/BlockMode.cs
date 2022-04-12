@@ -82,7 +82,7 @@ namespace Aladdin.CAPI.PKCS11
             if (padding == PaddingMode.PKCS5) return new Pad.PKCS5(); 
 
             // вернуть дополнение ISO
-            if (padding == PaddingMode.ISO) return new Pad.ISO(); 
+            if (padding == PaddingMode.ISO9797) return new Pad.ISO9797(); 
 
             // для режима дополнения CTS
             if (padding == PaddingMode.CTS) return new Pad.CTS(); 

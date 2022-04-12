@@ -58,8 +58,8 @@ namespace Aladdin.CAPI.GOST.Cipher
             string name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
         
             // создать блочный алгоритм шифрования 
-            using (IBlockCipher blockCipher = 
-                factory.CreateBlockCipher(scope, name, ASN1.Null.Instance))
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
+                scope, name, ASN1.Null.Instance))
             {
                 // проверить наличие алгоритма
                 if (blockCipher == null) return null; 
@@ -89,7 +89,8 @@ namespace Aladdin.CAPI.GOST.Cipher
             String name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
         
             // создать блочный алгоритм шифрования
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(scope, name, ASN1.Null.Instance))
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
+                scope, name, ASN1.Null.Instance))
             {
                 // проверить наличие алгоритма
                 if (blockCipher == null) return null; byte[] start = new byte[blockSize]; 

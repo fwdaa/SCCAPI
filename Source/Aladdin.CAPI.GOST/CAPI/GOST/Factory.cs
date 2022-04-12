@@ -10,22 +10,10 @@ namespace Aladdin.CAPI.GOST
     public class Factory : CAPI.Factory
     {
         // фабрики кодирования ключей 
-        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
-        private Dictionary<String, KeyFactory      > keyFactories; 
+        private Dictionary<String, KeyFactory> keyFactories; 
     
         // конструктор
-        public Factory()
-        {
-            // создать список фабрик кодирования ключей
-            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования ключей
-            secretKeyFactories.Add("GOST28147"      , Keys.GOST.Instance); 
-            secretKeyFactories.Add("GOST3412_2015_M", Keys.GOST.Instance); 
-            secretKeyFactories.Add("GOST3412_2015_K", Keys.GOST.Instance); 
-        
-            // создать список фабрик кодирования ключей
-            keyFactories = new Dictionary<String, KeyFactory>(); 
+        public Factory() { keyFactories = new Dictionary<String, KeyFactory>(); 
 
             // заполнить список фабрик кодирования ключей
             keyFactories.Add(ASN1.GOST.OID.gostR3410_1994    , new GOSTR3410.DHKeyFactory(ASN1.GOST.OID.gostR3410_1994    )); 
@@ -34,8 +22,7 @@ namespace Aladdin.CAPI.GOST
             keyFactories.Add(ASN1.GOST.OID.gostR3410_2012_512, new GOSTR3410.ECKeyFactory(ASN1.GOST.OID.gostR3410_2012_512)); 
         }
 	    // Поддерживаемые фабрики кодирования ключей
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
-	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     
 	    ///////////////////////////////////////////////////////////////////////
         // Фиксированные таблицы подстановок
@@ -174,7 +161,8 @@ namespace Aladdin.CAPI.GOST
                         ASN1.ObjectIdentifier paramSet = cipherParameters.ParamSet; 
                 
                         // создать блочный алгоритм шифрования
-                        using (IBlockCipher blockCipher = CreateBlockCipher(scope, "GOST28147", paramSet))
+                        using (IBlockCipher blockCipher = CreateAlgorithm<IBlockCipher>(
+                            scope, "GOST28147", paramSet))
                         {
 				            // получить именованные параметры алгоритма
 				            ASN1.GOST.GOST28147ParamSet namedParameters = 
@@ -292,7 +280,8 @@ namespace Aladdin.CAPI.GOST
                         using (Mac macAlgorithm = factory.CreateAlgorithm<Mac>(scope, macParameters))
                         {
                             // создать блочный алгоритм шифрования
-                            using (IBlockCipher blockCipher = CreateBlockCipher(scope, "GOST28147", paramSet))
+                            using (IBlockCipher blockCipher = CreateAlgorithm<IBlockCipher>(
+                                scope, "GOST28147", paramSet))
                             {
                                 // получить режим простой замены
                                 using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(new CipherMode.ECB()))
@@ -327,7 +316,8 @@ namespace Aladdin.CAPI.GOST
                         using (Mac macAlgorithm = factory.CreateAlgorithm<Mac>(scope, macParameters))
                         {
                             // создать блочный алгоритм шифрования
-                            using (IBlockCipher blockCipher = CreateBlockCipher(scope, "GOST28147", paramSet))
+                            using (IBlockCipher blockCipher = CreateAlgorithm<IBlockCipher>(
+                                scope, "GOST28147", paramSet))
                             {
                                 // получить режим простой замены
                                 using (CAPI.Cipher cipher = blockCipher.CreateBlockMode(new CipherMode.ECB()))

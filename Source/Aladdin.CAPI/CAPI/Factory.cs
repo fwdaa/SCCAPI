@@ -9,28 +9,13 @@ namespace Aladdin.CAPI
 	public abstract class Factory : RefObject
 	{
 	    // поддерживаемые фабрики кодирования ключей
-	    public virtual Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
-        { 
-            // поддерживаемые фабрики кодирования ключей
-            return new Dictionary<String, SecretKeyFactory>(); 
-        }
-	    // получить фабрику кодирования ключей
-	    public SecretKeyFactory GetSecretKeyFactory(string algorithm)
-        {
-            // получить поддерживаемые фабрики кодирования ключей
-            Dictionary<String, SecretKeyFactory> keyFactories = SecretKeyFactories(); 
-
-	        // получить фабрику кодирования ключей
-            return keyFactories.ContainsKey(algorithm) ? keyFactories[algorithm] : SecretKeyFactory.Generic; 
-        }
-	    // поддерживаемые фабрики кодирования ключей
 	    public virtual Dictionary<String, KeyFactory> KeyFactories() 
         { 
 	        // поддерживаемые фабрики кодирования ключей
             return new Dictionary<String, KeyFactory>(); 
         }
 	    // получить фабрику кодирования ключей
-	    public KeyFactory GetKeyFactory(string keyOID)
+	    public virtual KeyFactory GetKeyFactory(string keyOID)
         {
             // получить фабрики кодирования ключей
             Dictionary<String, KeyFactory> keyFactories = KeyFactories(); 
@@ -128,12 +113,6 @@ namespace Aladdin.CAPI
                 return generator.Generate(keyID, keyOID, keyUsage, keyFlags);
             }
 	    }
-        // создать блочный алгоритм шифрования 
-	    public IBlockCipher CreateBlockCipher(SecurityStore scope, string name, ASN1.IEncodable parameters)
-        {
-            // создать блочный алгоритм шифрования 
-            return CreateAlgorithm<IBlockCipher>(scope, name, parameters); 
-        }
 		// создать алгоритм для параметров
         public T CreateAlgorithm<T>(SecurityStore scope,
             ASN1.ISO.AlgorithmIdentifier parameters) where T : IAlgorithm

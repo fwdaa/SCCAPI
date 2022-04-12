@@ -72,7 +72,7 @@ public abstract class Provider extends java.security.Provider implements Closeab
     public final void removeObject(int slot) { objects.set(slot, null); }
     
     // создать параметры алгоритма   
-	public AlgorithmParametersSpi createParameters(String algorithm, AlgorithmParameterSpec spec) 
+	public final AlgorithmParametersSpi createParameters(String algorithm, AlgorithmParameterSpec spec) 
 		throws InvalidParameterSpecException
 	{ 
         // создать экземпляр параметров
@@ -81,6 +81,78 @@ public abstract class Provider extends java.security.Provider implements Closeab
 		// раскодировать параметры
         parameters.engineInit(spec); return parameters; 
 	}  
+    // получить фабрику кодирования ключей
+    public final SecretKeyFactory getSecretKeyFactory(String name) 
+    {
+        // параметры отсутствуют
+        SecurityStore scope = null; IEncodable encodable = null; 
+            
+        // создать блочный алгоритм шифрования
+        try (IBlockCipher algorithm = (IBlockCipher)factory().createAlgorithm(
+            scope, name, encodable, IBlockCipher.class))
+        {
+            // указать фабрику кодирования
+            if (algorithm != null) return algorithm.keyFactory(); 
+        }
+        catch (Throwable e) {}
+        
+        // создать алгоритм шифрования
+        try (Cipher algorithm = (Cipher)factory().createAlgorithm(
+            scope, name, encodable, Cipher.class))
+        {
+            // указать фабрику кодирования
+            if (algorithm != null) return algorithm.keyFactory(); 
+        }
+        catch (Throwable e) {}
+        
+        // создать алгоритм шифрования ключа
+        try (KeyWrap algorithm = (KeyWrap)factory().createAlgorithm(
+            scope, name, encodable, KeyWrap.class))
+        {
+            // указать фабрику кодирования
+            if (algorithm != null) return algorithm.keyFactory();
+        }
+        catch (Throwable e) {} return null; 
+    }
+    // получить фабрику кодирования ключей
+    public final SecretKeyFactory getSecretKeyFactory(String name, 
+        AlgorithmParameterSpec paramSpec) throws InvalidParameterSpecException
+    {
+        try { 
+            // создать параметры алгоритма
+            AlgorithmParametersSpi parameters = createParameters(name, paramSpec); 
+            
+            // получить закодированные параметры
+            IEncodable encodable = parameters.getEncodable(); 
+            
+            // создать блочный алгоритм шифрования
+            try (IBlockCipher algorithm = (IBlockCipher)factory().createAlgorithm(
+                parameters.getScope(), name, encodable, IBlockCipher.class))
+            {
+                // указать фабрику кодирования
+                if (algorithm != null) return algorithm.keyFactory(); 
+            }
+            // создать алгоритм шифрования
+            try (Cipher algorithm = (Cipher)factory().createAlgorithm(
+                parameters.getScope(), name, encodable, Cipher.class))
+            {
+                // указать фабрику кодирования
+                if (algorithm != null) return algorithm.keyFactory(); 
+            }
+            // создать алгоритм шифрования ключа
+            try (KeyWrap algorithm = (KeyWrap)factory().createAlgorithm(
+                parameters.getScope(), name, encodable, KeyWrap.class))
+            {
+                // указать фабрику кодирования
+                if (algorithm != null) return algorithm.keyFactory();
+            }
+        }
+        // обработать возможное исключение
+        catch (IOException e) { throw new InvalidParameterSpecException(e.getMessage()); }
+        
+        // при ошибке выбросить исключение
+        throw new InvalidParameterSpecException();
+    }
     // преобразовать симметричный ключ в "родной" формат
 	public final ISecretKey translateSecretKey(
 		javax.crypto.SecretKey key) throws InvalidKeyException 
@@ -100,8 +172,11 @@ public abstract class Provider extends java.security.Provider implements Closeab
         // проверить наличие значения
         if (encoded == null) throw new InvalidKeyException(); 
         
-        // указать тип ключа
-        SecretKeyFactory keyFactory = factory().getSecretKeyFactory(algorithm); 
+        // получить фабрику кодирования ключа
+        SecretKeyFactory keyFactory = getSecretKeyFactory(algorithm); 
+        
+        // проверить наличие фабрики
+        if (keyFactory == null) throw new InvalidKeyException(); 
         
 		// создать симметричный ключ
 		return keyFactory.create(encoded); 

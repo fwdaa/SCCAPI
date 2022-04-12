@@ -290,12 +290,6 @@ namespace Aladdin.CAPI.Software
 		///////////////////////////////////////////////////////////////////////
 
         // поддерживаемые ключи
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() 
-        { 
-            // поддерживаемые ключи
-            return factories.SecretKeyFactories(); 
-        }
-        // поддерживаемые ключи
 	    public override Dictionary<String, KeyFactory> KeyFactories() 
         { 
             // поддерживаемые ключи

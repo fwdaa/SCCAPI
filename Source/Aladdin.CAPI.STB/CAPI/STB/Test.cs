@@ -137,7 +137,7 @@ namespace Aladdin.CAPI.STB
             WriteLine("Cipher.STB34101");
         
             // создать алгоритм шифрования
-            using (IBlockCipher blockCipher = factory.CreateBlockCipher(
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
                 scope, "STB34101", ASN1.Null.Instance))
             {
                 // выполнить тест

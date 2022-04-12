@@ -80,7 +80,7 @@ public abstract class BlockMode extends Cipher
         if (padding == PaddingMode.PKCS5) return new aladdin.capi.pad.PKCS5(); 
 
         // вернуть дополнение ISO
-        if (padding == PaddingMode.ISO) return new aladdin.capi.pad.ISO(); 
+        if (padding == PaddingMode.ISO9797) return new aladdin.capi.pad.ISO9797(); 
 
         // для режима дополнения CTS
         if (padding == PaddingMode.CTS) return new aladdin.capi.pad.CTS(); 

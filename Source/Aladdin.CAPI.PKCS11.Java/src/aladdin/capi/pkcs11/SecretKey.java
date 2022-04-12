@@ -59,13 +59,6 @@ public class SecretKey extends RefObject implements ISecretKey
         // вернуть значение атрибута
 		return (attribute != null) ? (byte[])attribute.value() : null; 
     }
-    // тип ключа /* TODO */
-    @Override public String getAlgorithm() { return "GENERIC"; }
-    // формат закодированного представления
-    @Override public String getFormat() { return "RAW"; }
-    // закодированное представление
-    @Override public byte[] getEncoded() { return value(); }
-    
 	// создать сеансовый объект
 	public SessionObject toSessionObject(
         Session session, Attribute[] attributes) throws IOException

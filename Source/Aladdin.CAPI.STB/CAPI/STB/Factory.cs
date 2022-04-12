@@ -10,21 +10,10 @@ namespace Aladdin.CAPI.STB
     public class Factory : CAPI.Factory
     {
         // фабрики кодирования ключей 
-        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
-        private Dictionary<String, KeyFactory      > keyFactories; 
+        private Dictionary<String, KeyFactory> keyFactories; 
     
         // конструктор
-        public Factory()
-        {
-            // создать список фабрик кодирования ключей
-            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования ключей
-            secretKeyFactories.Add("GOST"     , new GOST.Keys.GOST    ()); 
-            secretKeyFactories.Add("STB34101" , new STB .Keys.STB34101()); 
-        
-            // создать список фабрик кодирования ключей
-            keyFactories = new Dictionary<String, KeyFactory>(); 
+        public Factory() { keyFactories = new Dictionary<String, KeyFactory>(); 
 
             // заполнить список фабрик кодирования ключей
             keyFactories.Add(ASN1.STB.OID.stb11762_bds_pubKey, 
@@ -43,9 +32,8 @@ namespace Aladdin.CAPI.STB
                 new STB34101.KeyFactory(ASN1.STB.OID.stb34101_bign_pubKey)
             ); 
         }
-	    // Поддерживаемые фабрики кодирования ключей
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
-	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+	    // поддерживаемые фабрики кодирования ключей
+	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
 
 	    ///////////////////////////////////////////////////////////////////////
         // Фиксированные таблицы подстановок

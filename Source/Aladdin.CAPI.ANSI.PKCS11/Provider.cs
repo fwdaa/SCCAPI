@@ -13,8 +13,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
         private Module module; private bool canImport; 
     
         // фабрики кодирования ключей 
-        private Dictionary<String, SecretKeyFactory> secretKeyFactories; 
-        private Dictionary<String, KeyFactory      > keyFactories; 
+        private Dictionary<String, KeyFactory> keyFactories; 
     
 	    // конструктор
 	    public Provider(string name, bool canImport) : this(null, name, canImport) {}
@@ -25,17 +24,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             // сохранить переданне параметры
             this.module = RefObject.AddRef(module); this.canImport = canImport; 
 
-            // создать список фабрик кодирования ключей
-            secretKeyFactories = new Dictionary<String, SecretKeyFactory>(); 
-        
-            // заполнить список фабрик кодирования ключей
-            secretKeyFactories.Add("RC2"   , new Keys.RC2 ()); 
-            secretKeyFactories.Add("RC4"   , new Keys.RC4 ()); 
-            secretKeyFactories.Add("RC5"   , new Keys.RC5 ()); 
-            secretKeyFactories.Add("DES"   , new Keys.DES ()); 
-            secretKeyFactories.Add("DESede", new Keys.TDES()); 
-            secretKeyFactories.Add("AES"   , new Keys.AES ()); 
-        
             // создать список фабрик кодирования ключей
             keyFactories = new Dictionary<String, KeyFactory>(); 
 
@@ -82,9 +70,14 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             get { return CAPI.PKCS11.PBE.PBKDF2.ParametersType.Params2; }
         }
 	    // поддерживаемые фабрики кодирования ключей
-	    public override Dictionary<String, SecretKeyFactory> SecretKeyFactories() { return secretKeyFactories; }
-	    public override Dictionary<String,       KeyFactory> KeyFactories      () { return       keyFactories; } 
+	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     
+	    // получить фабрику кодирования ключей
+	    public override KeyFactory GetKeyFactory(string keyOID)
+        {
+            // получить фабрику кодирования ключей
+            return base.GetKeyFactory(Factory.RedirectKeyName(keyOID)); 
+        }
 	    public override string[] GeneratedKeys(SecurityStore scope) 
 	    {
             // проверить область видимости
@@ -345,6 +338,9 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             CAPI.Factory factory, SecurityObject scope, 
             IRand rand, string keyOID, IParameters parameters) 
         {
+            // указать идентификатор алгоритма
+            keyOID = Factory.RedirectKeyName(keyOID);         
+
             // проверить тип параметров
             if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
             {

@@ -20,8 +20,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     private final Module module; private final boolean canImport; 
     
     // фабрики кодирования ключей 
-    private final Map<String, SecretKeyFactory> secretKeyFactories; 
-    private final Map<String, KeyFactory      > keyFactories; 
+    private final Map<String, KeyFactory> keyFactories; 
     
 	// конструктор
 	public Provider(String name, boolean canImport) { this(null, name, canImport); }
@@ -31,12 +30,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     { 
         // сохранить переданне параметры
         super(name); this.module = module; this.canImport = canImport; 
-        
-        // создать список фабрик кодирования ключей
-        secretKeyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // заполнить список фабрик кодирования ключей
-        secretKeyFactories.put("GOST28147", aladdin.capi.gost.keys.GOST.INSTANCE); 
         
         // создать список фабрик кодирования ключей
         keyFactories = new HashMap<String, KeyFactory>(); 
@@ -52,9 +45,8 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     // возможность генерации и импорта ключевой пары в памяти
     @Override public boolean canImportSessionPair(Applet applet) { return canImport; } 
     
-	// Поддерживаемые фабрики кодирования ключей
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() { return secretKeyFactories; }
-	@Override public Map<String,       KeyFactory> keyFactories      () { return       keyFactories; } 
+	// поддерживаемые фабрики кодирования ключей
+	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
 	@Override public String[] generatedKeys(SecurityStore scope) 
 	{

@@ -8,25 +8,10 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 	public ref class PrimitiveProvider : CAPI::Factory, IRandFactory
 	{
 		// фабрики кодирования ключей 
-		private: Dictionary<String^, SecretKeyFactory^>^ secretKeyFactories; 
-		private: Dictionary<String^,       KeyFactory^>^       keyFactories; 
+		private: Dictionary<String^, KeyFactory^>^ keyFactories; 
 
 		// конструктор
-		public: PrimitiveProvider()
-		{
-			// создать список фабрик кодирования ключей
-			secretKeyFactories = gcnew Dictionary<String^, SecretKeyFactory^>(); 
-
-			// заполнить список фабрик кодирования ключей
-			secretKeyFactories->Add("RC2"   , gcnew Keys::RC2 (KeySizes::Range(1, 16))); 
-			secretKeyFactories->Add("RC4"   , gcnew Keys::RC4 (KeySizes::Range(1, 16))); 
-			secretKeyFactories->Add("DES"   , gcnew Keys::DES (                      )); 
-			secretKeyFactories->Add("DESX"  , gcnew Keys::DESX(                      )); 
-			secretKeyFactories->Add("DESede", gcnew Keys::TDES(                      )); 
-			secretKeyFactories->Add("AES"   , gcnew Keys::AES (                      )); 
-
-			// создать список фабрик кодирования ключей
-			keyFactories = gcnew Dictionary<String^, KeyFactory^>(); 
+		public: PrimitiveProvider() { keyFactories = gcnew Dictionary<String^, KeyFactory^>(); 
 
 			// заполнить список фабрик кодирования ключей
 			KeyFactories()->Add(ASN1::ISO::PKCS::PKCS1::OID::rsa, 
@@ -52,9 +37,14 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		public: property String^ Provider { String^ get() { return "Microsoft Primitive Provider"; }}
 
 		// поддерживаемые фабрики кодирования ключей
-		public: virtual Dictionary<String^, SecretKeyFactory^>^ SecretKeyFactories() override { return secretKeyFactories; }
-		public: virtual Dictionary<String^,       KeyFactory^>^       KeyFactories() override { return       keyFactories; }
+		public: virtual Dictionary<String^, KeyFactory^>^ KeyFactories() override { return keyFactories; }
 
+	    // получить фабрику кодирования ключей
+		public: virtual KeyFactory^ GetKeyFactory(String^ keyOID) override
+        {
+            // получить фабрику кодирования ключей
+            return CAPI::Factory::GetKeyFactory(ANSI::Factory::RedirectKeyName(keyOID)); 
+        }
 		// создать генератор случайных данных
 		public: virtual IRand^ CreateRand(Object^ window) 
 		{

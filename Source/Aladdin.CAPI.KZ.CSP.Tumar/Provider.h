@@ -14,14 +14,6 @@ namespace Aladdin { namespace CAPI { namespace KZ { namespace CSP { namespace Tu
 			// сохранить переданные параметры
 			: ANSI::CSP::Microsoft::RSA::AESEnhancedProvider(type, name, sspi, false) 
 		{
-			// заполнить список фабрик кодирования ключей
-			SecretKeyFactories()->Add("RC2"   , gcnew ANSI::Keys::RC2 (KeySizes::Range(5, 16))); 
-			SecretKeyFactories()->Add("RC4"   , gcnew ANSI::Keys::RC4 (KeySizes::Range(5, 16))); 
-			SecretKeyFactories()->Add("DES"   , gcnew ANSI::Keys::DES (                      )); 
-			SecretKeyFactories()->Add("DESede", gcnew ANSI::Keys::TDES(                      )); 
-			SecretKeyFactories()->Add("AES"   , gcnew ANSI::Keys::AES (                      )); 
-			SecretKeyFactories()->Add("GOST"  , gcnew GOST::Keys::GOST(                      ));   
-
 			// указать фабрику алгоритмов
 			Using<CAPI::Factory^> factory(gcnew KZ::Factory()); 
 

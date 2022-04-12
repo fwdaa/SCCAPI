@@ -61,7 +61,8 @@ public final class GOSTR3412 extends BlockCipher
         String name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
         
         // создать блочный алгоритм шифрования 
-        try (IBlockCipher blockCipher = factory.createBlockCipher(scope, name, Null.INSTANCE))
+        try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+            scope, name, Null.INSTANCE, IBlockCipher.class))
         {
             // проверить наличие алгоритма
             if (blockCipher == null) return null; 
@@ -92,7 +93,8 @@ public final class GOSTR3412 extends BlockCipher
         String name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
         
         // создать блочный алгоритм шифрования
-        try (IBlockCipher blockCipher = factory.createBlockCipher(scope, name, Null.INSTANCE))
+        try (IBlockCipher blockCipher = (IBlockCipher)factory.createAlgorithm(
+            scope, name, Null.INSTANCE, IBlockCipher.class))
         {
             // проверить наличие алгоритма
             if (blockCipher == null) return null; byte[] start = new byte[blockSize]; 

@@ -89,23 +89,6 @@ public class Factories extends Factory implements Iterable<Factory>
     ///////////////////////////////////////////////////////////////////////
     // Поддерживаемые ключи
     ///////////////////////////////////////////////////////////////////////
-	@Override public Map<String, SecretKeyFactory> secretKeyFactories() 
-    { 
-        // создать список поддерживаемых ключей
-        Map<String, SecretKeyFactory> keyFactories = new HashMap<String, SecretKeyFactory>(); 
-        
-        // для всех фабрик алгоритмов
-        for (Factory factory : factories)
-        {
-            // для всех поддерживаемых ключей
-            for (Map.Entry<String, SecretKeyFactory> entry : factory.secretKeyFactories().entrySet())
-            {
-                // добавить фабрику в таблицу
-                keyFactories.put(entry.getKey(), entry.getValue()); 
-            }
-        }
-        return keyFactories; 
-    }
 	@Override public Map<String, KeyFactory> keyFactories() 
     { 
         // создать список поддерживаемых ключей

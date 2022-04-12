@@ -103,20 +103,22 @@ public class KeyFactorySpi extends java.security.KeyFactorySpi
             // обработать возможное исключение
             catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }
         }
-        // для всех поддерживаемых ключей
-        for (aladdin.capi.KeyFactory keyFactory : provider.factory().keyFactories().values())
-        try {
-            // создать открытый ключ
-            aladdin.capi.IPublicKey publicKey = keyFactory.createPublicKey(keySpec); 
-            
-            // проверить создание ключа
-            if (publicKey != null) return publicKey; 
+        else {
+            // для всех поддерживаемых ключей
+            for (aladdin.capi.KeyFactory keyFactory : provider.factory().keyFactories().values())
+            try {
+                // создать открытый ключ
+                aladdin.capi.IPublicKey publicKey = keyFactory.createPublicKey(keySpec); 
+
+                // проверить создание ключа
+                if (publicKey == null) return publicKey; 
+            }
+            // при ошибке выбросить исключение
+            catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }
+
+            // при ошибке выбросить исключение
+            throw new InvalidKeySpecException(); 
         }
-        // при ошибке выбросить исключение
-        catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }
-        
-        // при ошибке выбросить исключение
-        throw new InvalidKeySpecException(); 
     }
     // создать личный ключ
     @Override protected java.security.PrivateKey engineGeneratePrivate(KeySpec keySpec)
@@ -155,21 +157,23 @@ public class KeyFactorySpi extends java.security.KeyFactorySpi
             // обработать возможное исключение
             catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }
         }
-        // для всех поддерживаемых ключей
-        for (aladdin.capi.KeyFactory keyFactory : provider.factory().keyFactories().values())
-        try {
-            // создать личный ключ
-            try (IPrivateKey privateKey = keyFactory.createPrivateKey(provider.factory(), keySpec)) 
-            {
-                // зарегистрировать личный ключ
-                if (privateKey != null) return new PrivateKey(provider, privateKey); 
+        else {
+            // для всех поддерживаемых ключей
+            for (aladdin.capi.KeyFactory keyFactory : provider.factory().keyFactories().values())
+            try {
+                // создать личный ключ
+                try (IPrivateKey privateKey = keyFactory.createPrivateKey(provider.factory(), keySpec)) 
+                {
+                    // зарегистрировать личный ключ
+                    if (privateKey != null) return new PrivateKey(provider, privateKey); 
+                }
             }
+            // при ошибке выбросить исключение
+            catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }
+
+            // при ошибке выбросить исключение
+            throw new InvalidKeySpecException(); 
         }
-        // при ошибке выбросить исключение
-        catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }
-        
-        // при ошибке выбросить исключение
-        throw new InvalidKeySpecException(); 
     }
     // получить данные ключа
     @SuppressWarnings({"unchecked"}) 
@@ -181,7 +185,7 @@ public class KeyFactorySpi extends java.security.KeyFactorySpi
         if (key instanceof java.security.PublicKey)
         try {
             // преобразовать тип ключа
-            aladdin.capi.IPublicKey publicKey = (aladdin.capi.IPublicKey)engineTranslateKey(key); 
+            aladdin.capi.IPublicKey publicKey = provider.translatePublicKey((aladdin.capi.IPublicKey)key); 
 
             // получить данные ключа
             return (T)publicKey.keyFactory().getPublicKeySpec(publicKey, specType); 
@@ -220,20 +224,16 @@ public class KeyFactorySpi extends java.security.KeyFactorySpi
                 throw new InvalidKeySpecException(); 
             }
             // преобразовать ключ в "родной" формат
-            try (ISecretKey secretKey = provider.translateSecretKey(
-                (javax.crypto.SecretKey)key)) 
+            try (ISecretKey secretKey = provider.translateSecretKey((javax.crypto.SecretKey)key)) 
             {
                 // получить данные ключа
                 return (T)secretKey.keyFactory().getSpec(key.getAlgorithm(), encoded, specType); 
             }
             // обработать возможное исключение
-            catch (InvalidKeyException e) 
-            { 
-                // при ошибке выбросить исключение
-                throw new InvalidKeySpecException(e.getMessage()); 
-            }
-            // обработать возможное исключение
             catch (IOException e) { throw new InvalidKeySpecException(e.getMessage()); }  	
+            
+            // обработать возможное исключение
+            catch (InvalidKeyException e) { throw new InvalidKeySpecException(e.getMessage()); }
         }
         // при ошибке выбросить исключение
         throw new InvalidKeySpecException(); 
