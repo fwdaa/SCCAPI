@@ -2,6 +2,7 @@ package aladdin.capi.stb.stb11762;
 import aladdin.asn1.stb.*;
 import java.security.spec.*; 
 import java.math.*;
+import javax.crypto.spec.*;
 
 ///////////////////////////////////////////////////////////////////////
 // Параметры подписи с параметрами обмена
@@ -10,6 +11,19 @@ public class BDSBDHParameters extends DSAParameterSpec implements IBDSBDHParamet
 {
     private static final long serialVersionUID = -4786163540825284235L;
     
+    // конструктор
+    public static IBDSBDHParameters getInstance(AlgorithmParameterSpec paramSpec)
+        throws InvalidParameterSpecException
+    { 
+        // в зависимости от типа данных
+        if (paramSpec instanceof DSAParameterSpec)
+        {
+            // выполнить преобразование типа
+            if (paramSpec instanceof IBDSBDHParameters) return (IBDSBDHParameters)paramSpec; 
+        }
+        // тип параметров не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
     // конструктор
     public BDSBDHParameters(IBDSParameters bdsParameters, IBDHParameters bdhParameters)
     {
@@ -42,4 +56,22 @@ public class BDSBDHParameters extends DSAParameterSpec implements IBDSBDHParamet
 
     private final IBDSParameters	bdsParameters;		// параметры подписи 
     private final IBDHParameters	bdhParameters;		// параметры обмена
+
+    @SuppressWarnings({"unchecked"}) 
+    @Override public <T extends AlgorithmParameterSpec> 
+        T getParameterSpec(Class<T> specType) 
+            throws InvalidParameterSpecException
+    {
+        // вернуть параметры
+        if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this;
+        
+        // в зависимости от типа данных
+        if (specType.isAssignableFrom(DHParameterSpec.class))
+        {
+            // вернуть параметры ключа
+            return (T)new DHParameterSpec(bdhP(), bdhG(), bdhN()); 
+        }
+        // тип параметров не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
 }

@@ -20,6 +20,27 @@ public class Parameters extends RSAKeyGenParameterSpec implements IParameters
         return new Parameters((IKeyBitsParameters)parameters); 
     }
     // конструктор
+    public static IParameters getInstance(AlgorithmParameterSpec paramSpec) 
+        throws InvalidParameterSpecException
+    { 
+        // в зависимости от типа данных
+        if (paramSpec instanceof RSAKeyGenParameterSpec)
+        {
+            // выполнить преобразование типа
+            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
+            
+            // выполнить преобразование типа
+            RSAKeyGenParameterSpec rsaParamSpec = (RSAKeyGenParameterSpec)paramSpec; 
+            
+            // создать параметры ключа
+            return new Parameters(rsaParamSpec.getKeysize(), 
+                rsaParamSpec.getPublicExponent()
+            ); 
+        }
+        // тип параметров не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
+    // конструктор
     public Parameters(int modulusBits, BigInteger publicExponent) 
     { 
         // сохранить переданные параметры
@@ -44,4 +65,16 @@ public class Parameters extends RSAKeyGenParameterSpec implements IParameters
     @Override public int getKeyBits() { return getKeysize(); }
     // размер модуля в битах
     @Override public int getModulusBits() { return getKeysize(); }
+
+    @SuppressWarnings({"unchecked"}) 
+    @Override public <T extends AlgorithmParameterSpec> 
+        T getParameterSpec(Class<T> specType) 
+            throws InvalidParameterSpecException
+    {
+        // вернуть параметры
+        if (specType.isAssignableFrom(RSAKeyGenParameterSpec.class)) return (T)this; 
+        
+        // тип параметров не поддерживается
+        throw new InvalidParameterSpecException(); 
+    } 
 } 

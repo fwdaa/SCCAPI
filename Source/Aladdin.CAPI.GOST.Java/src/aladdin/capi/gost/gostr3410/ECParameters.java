@@ -22,6 +22,38 @@ public class ECParameters extends ECParameterSpec implements IECParameters
             parameters.getGenerator(), parameters.getOrder()
         ); 
     }
+    // конструктор
+    public static IECParameters getInstance(AlgorithmParameterSpec paramSpec) 
+        throws InvalidParameterSpecException
+    { 
+        // в зависимости от типа данных
+        if (paramSpec instanceof ECParameterSpec)
+        {
+            // выполнить преобразование типа
+            if (paramSpec instanceof IECParameters) return (IECParameters)paramSpec; 
+            
+            // выполнить преобразование типа
+            ECParameterSpec ecParamSpec = (ECParameterSpec)paramSpec; 
+        
+            // проверить корректность параметров
+            if (ecParamSpec.getCofactor() != 1) throw new InvalidParameterSpecException(); 
+            try { 
+                // преобразовать тип кривой
+                CurveFp curve = CurveFp.convert(ecParamSpec.getCurve());
+        
+                // создать параметры ключа
+                return new ECParameters(curve, ecParamSpec.getGenerator(), ecParamSpec.getOrder()); 
+            }
+            // при возникновении ошибки
+            catch (IllegalArgumentException e) 
+            { 
+                // изменить тип исключения
+                throw new InvalidParameterSpecException(e.getMessage()); 
+            }
+        }
+        // тип параметров не поддерживается 
+        throw new InvalidParameterSpecException(); 
+    }
     // конструктор 
     public ECParameters(GOSTR3410ParamSet parameters) 
     {
@@ -40,4 +72,16 @@ public class ECParameters extends ECParameterSpec implements IECParameters
     }
     // эллиптическая кривая
     @Override public final CurveFp getCurve() { return (CurveFp)super.getCurve(); } 
+    
+    @SuppressWarnings({"unchecked"}) 
+    @Override public <T extends AlgorithmParameterSpec> 
+        T getParameterSpec(Class<T> specType) 
+            throws InvalidParameterSpecException
+    {
+        // вернуть параметры
+        if (specType.isAssignableFrom(ECParameterSpec.class)) return (T)this; 
+        
+        // тип параметров не поддерживается 
+        throw new InvalidParameterSpecException(); 
+    }
 }

@@ -73,15 +73,21 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         // тип структуры передачи параметров механизма PBKDF2
         return aladdin.capi.pkcs11.pbe.PBKDF2.ParametersType.PARAMS2; 
     }
+    // получить идентификатор ключа
+    @Override public String convertKeyName(String name) 
+    { 
+        // получить идентификатор ключа
+        return aladdin.capi.ansi.Aliases.convertKeyName(name); 
+    } 
+    // получить идентификатор алгоритма
+    @Override public String convertAlgorithmName(String name) 
+    { 
+        // получить идентификатор ключа
+        return aladdin.capi.ansi.Aliases.convertAlgorithmName(name); 
+    } 
 	// поддерживаемые фабрики кодирования ключей
 	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
-	// получить фабрику кодирования ключей
-	@Override public KeyFactory getKeyFactory(String keyOID)
-    {
-        // получить фабрику кодирования ключей
-        return super.getKeyFactory(aladdin.capi.ansi.Factory.redirectKeyName(keyOID)); 
-    }
 	@Override public String[] generatedKeys(SecurityStore scope) 
 	{
         // проверить область видимости
@@ -347,9 +353,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         Factory factory, SecurityObject scope, IRand rand, 
         String keyOID, IParameters parameters) throws IOException
     {
-        // указать идентификатор алгоритма
-        keyOID = aladdin.capi.ansi.Factory.redirectKeyName(keyOID);         
-        
         // проверить тип параметров
         if (keyOID.equals(aladdin.asn1.iso.pkcs.pkcs1.OID.RSA))
         {

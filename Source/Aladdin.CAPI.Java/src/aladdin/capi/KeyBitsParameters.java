@@ -1,4 +1,5 @@
 package aladdin.capi;
+import java.security.spec.*;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Параметры размера ключа в битах
@@ -12,4 +13,13 @@ public class KeyBitsParameters implements IKeyBitsParameters
     
     // размер ключа в битах
     @Override public int getKeyBits() { return keyBits; } private final int keyBits;  
+    
+    // получить параметры алгоритма
+    @Override public <T extends AlgorithmParameterSpec> 
+        T getParameterSpec(Class<T> specType) 
+            throws InvalidParameterSpecException
+    {
+        // операция не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
 }

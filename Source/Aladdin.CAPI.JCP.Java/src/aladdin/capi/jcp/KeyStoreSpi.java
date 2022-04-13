@@ -1,13 +1,14 @@
 package aladdin.capi.jcp;
+import aladdin.RefObject;
 import aladdin.io.*; 
 import aladdin.asn1.*; 
 import aladdin.asn1.iso.pkix.*; 
+import aladdin.asn1.iso.pkcs.pkcs8.*;
 import aladdin.capi.*; 
 import aladdin.util.*; 
 import java.io.*;
 import java.security.*;
 import java.security.cert.*;
-import java.security.spec.*;
 import java.util.*;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +19,7 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
 	// криптографический провайдер и слот
 	private final Provider provider; private final int slot; 
     // криптографический контейнер
-    private aladdin.capi.software.Container container; private String keyOID; 
+    private aladdin.capi.software.Container container; private final String keyOID; 
     
 	// конструктор
 	public KeyStoreSpi(Provider provider, String keyOID) 
@@ -33,7 +34,7 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
     @Override public void close() throws IOException
     { 
         // закрыть контейнер 
-        if (container != null) container.close(); provider.removeObject(slot); 
+        RefObject.release(container); provider.removeObject(slot); 
     }
 	@Override
 	public final Date engineGetCreationDate(String name) 
@@ -248,21 +249,30 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
 	@Override
 	public final void engineSetKeyEntry(String alias, byte[] encoded, 
 		java.security.cert.Certificate[] certificates) throws KeyStoreException 
-	{
-        // указать фабрику ключей
-		KeyFactorySpi keyFactory = new KeyFactorySpi(provider); 
-        
-        // указать закодированное представление ключа
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded); 
+    {
         try { 
             // раскодировать личный ключ
-            java.security.PrivateKey privateKey = keyFactory.engineGeneratePrivate(spec);
+            PrivateKeyInfo privateKeyInfo = new PrivateKeyInfo(Encodable.decode(encoded)); 
 
-            // записать ключевую пару в контейнер
-            engineSetKeyEntry(alias, privateKey, null, certificates); 
+            // извлечь идентификатор открытого ключа
+            String keyOID = privateKeyInfo.privateKeyAlgorithm().algorithm().value(); 
+
+            // получить фабрику кодирования
+            aladdin.capi.KeyFactory keyFactory = provider.factory().getKeyFactory(keyOID); 
+
+            // проверить поддержку ключа
+            if (keyFactory == null) throw new UnsupportedOperationException(); 
+
+            // раскодировать личный ключ
+            try (IPrivateKey privateKey = keyFactory.decodePrivateKey(
+                provider.factory(), privateKeyInfo))
+            {
+                // записать ключевую пару в контейнер
+                engineSetKeyEntry(alias, privateKey, null, certificates); 
+            }
         }
-        // при ошибке выбросить исключение
-        catch (InvalidKeySpecException e) { throw new RuntimeException(e.getMessage()); }
+        // обработать возможное исключение
+        catch (IOException e) { throw new KeyStoreException(e.getMessage()); }
 	}
 	@Override
 	public final void engineSetKeyEntry(String alias, java.security.Key key, 
@@ -289,14 +299,11 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
         // при ошибке выбросить исключение
         catch (CertificateEncodingException e) { throw new RuntimeException(e); }
         
-        // указать фабрику ключей
-		KeyFactorySpi keyFactory = new KeyFactorySpi(provider); 
-        
         // извлечь открытый ключ
-        IPublicKey publicKey = (IPublicKey)keyFactory.engineTranslateKey(certificates[0].getPublicKey()); 
+        IPublicKey publicKey = provider.translatePublicKey(certificates[0].getPublicKey()); 
         
         // преобразовать тип личного ключа
-        try (IPrivateKey privateKey = (IPrivateKey)keyFactory.engineTranslateKey(key))
+        try (IPrivateKey privateKey = provider.translatePrivateKey((java.security.PrivateKey)key))
         {
             // создать пару ключей
             try (aladdin.capi.KeyPair keyPair = new aladdin.capi.KeyPair(publicKey, privateKey, keyID))

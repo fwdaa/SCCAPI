@@ -294,44 +294,9 @@ public class KeyFactory extends aladdin.capi.KeyFactory
         AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException, IOException 
     { 
-        // в зависимости от типа данных
-        if (paramSpec instanceof ECParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-            
-            // выполнить преобразование типа
-            ECParameterSpec ecParamSpec = (ECParameterSpec)paramSpec; 
-            
-            // преобразовать тип кривой
-            aladdin.capi.ec.Curve curve = aladdin.capi.ec.Curve.convert(
-                ecParamSpec.getCurve()
-            );
-            // создать параметры ключа
-            return new Parameters(curve, ecParamSpec.getGenerator(), 
-                ecParamSpec.getOrder(), ecParamSpec.getCofactor(), null
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.createParameters(paramSpec); 
+        // создать параметры
+        return Parameters.getInstance(paramSpec); 
     }
-    // извлечь параметры
-    @Override public AlgorithmParameterSpec getParametersSpec(
-        aladdin.capi.IParameters parameters, 
-        Class<? extends AlgorithmParameterSpec> specType) 
-    { 
-        // выполнить преобразование типа
-        IParameters ecParameters = (IParameters)parameters; 
-        
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(ECParameterSpec.class))
-        {
-            // выполнить преобразование типа
-            return Parameters.convert(ecParameters); 
-        }
-        // вызвать базовую функцию
-        return super.getParametersSpec(parameters, specType); 
-    } 
     // создать открытый ключ
     @Override public aladdin.capi.IPublicKey createPublicKey(KeySpec keySpec) 
         throws InvalidKeySpecException, IOException
@@ -374,6 +339,7 @@ public class KeyFactory extends aladdin.capi.KeyFactory
     // извлечь данные открытого ключа
     @Override public KeySpec getPublicKeySpec(
         aladdin.capi.IPublicKey publicKey, Class<? extends KeySpec> specType)
+        throws InvalidKeySpecException
     {
         // выполнить преобразование типа
         IParameters parameters = (IParameters)publicKey.parameters();
@@ -434,8 +400,8 @@ public class KeyFactory extends aladdin.capi.KeyFactory
     }
     // извлечь данные личного ключа
     @Override public KeySpec getPrivateKeySpec(
-        aladdin.capi.IPrivateKey privateKey, 
-        Class<? extends KeySpec> specType) throws IOException
+        aladdin.capi.IPrivateKey privateKey, Class<? extends KeySpec> specType) 
+        throws InvalidKeySpecException, IOException
     {
         // выполнить преобразование типа
         IParameters parameters = (IParameters)privateKey.parameters(); 

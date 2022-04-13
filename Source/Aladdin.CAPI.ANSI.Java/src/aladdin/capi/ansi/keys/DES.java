@@ -17,6 +17,24 @@ public class DES extends SecretKeyFactory
     public DES() { super(new int[] {8}); }
     
     // создать ключ
+    @Override public ISecretKey create(KeySpec keySpec) throws InvalidKeySpecException
+    {
+        // проверить тип данных
+        if (keySpec instanceof DESKeySpec)
+        {
+            // получить значение ключа
+            byte[] value = ((DESKeySpec)keySpec).getKey(); 
+            
+            // проверить наличие значения 
+            if (value == null) throw new InvalidKeySpecException(); 
+            
+            // созать ключ
+            return create(value); 
+        }
+        // вызвать базовую функцию
+        return super.create(keySpec); 
+    }
+    // создать ключ
     @Override public ISecretKey create(byte[] value) 
     { 
         // создать копию значения
@@ -60,8 +78,9 @@ public class DES extends SecretKeyFactory
         return new SecretKey(this, value); 
     }
     // извлечь данные ключа
-    @Override public KeySpec getSpec(String algorithm, byte[] value, 
-        Class<? extends KeySpec> specType) throws InvalidKeyException
+    @Override public KeySpec getSpec(String algorithm, 
+        byte[] value, Class<? extends KeySpec> specType) 
+            throws InvalidKeyException
     {
         // в зависимости от типа
         if (specType.isAssignableFrom(DESKeySpec.class))

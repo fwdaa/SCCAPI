@@ -238,45 +238,13 @@ public class BDSBDHKeyFactory extends KeyFactory
             // выполнить преобразование типа
             if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
         }
-        // вызвать базовую функцию
-        return super.createParameters(paramSpec); 
+        // создать параметры
+        return BDSBDHParameters.getInstance(paramSpec); 
     }
-    // извлечь параметры
-    @Override public AlgorithmParameterSpec getParametersSpec(
-        aladdin.capi.IParameters parameters, 
-        Class<? extends AlgorithmParameterSpec> specType) 
-    { 
-        // выполнить преобразование типа
-        IBDSBDHParameters bdshParameters = (IBDSBDHParameters)parameters; 
-        
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DSAParameterSpec.class))
-        {
-            // в зависимости от типа данных
-            if (bdshParameters instanceof DSAParameterSpec)
-            {
-                // выполнить преобразование типа
-                return (DSAParameterSpec)bdshParameters; 
-            }
-            // вернуть параметры ключа
-            return new DSAParameterSpec(bdshParameters.bdsP(), 
-                bdshParameters.bdsQ(), bdshParameters.bdsA()
-            ); 
-        }
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DHParameterSpec.class))
-        {
-            // вернуть параметры ключа
-            return new DHParameterSpec(bdshParameters.bdhP(), 
-                bdshParameters.bdhG(), bdshParameters.bdhN()
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.getParametersSpec(parameters, specType); 
-    } 
     // извлечь данные ключа
     @Override public KeySpec getPublicKeySpec(
         aladdin.capi.IPublicKey publicKey, Class<? extends KeySpec> specType)
+        throws InvalidKeySpecException
     {
         // выполнить преобразование типа
         IBDSBDHParameters parameters = (IBDSBDHParameters)publicKey.parameters(); 
@@ -305,8 +273,8 @@ public class BDSBDHKeyFactory extends KeyFactory
     }
     // извлечь данные ключа
     @Override public KeySpec getPrivateKeySpec(
-        aladdin.capi.IPrivateKey privateKey, 
-        Class<? extends KeySpec> specType) throws IOException
+        aladdin.capi.IPrivateKey privateKey, Class<? extends KeySpec> specType) 
+        throws InvalidKeySpecException, IOException
     {
         // выполнить преобразование типа
         IBDSBDHParameters parameters = (IBDSBDHParameters)privateKey.parameters(); 

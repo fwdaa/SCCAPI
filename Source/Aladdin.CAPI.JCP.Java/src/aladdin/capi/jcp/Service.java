@@ -1,6 +1,8 @@
 package aladdin.capi.jcp;
+import aladdin.capi.*;
 import java.security.*; 
 import java.lang.reflect.*; 
+import java.io.*;
 import java.util.*; 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -31,6 +33,7 @@ public class Service extends Provider.Service
 		this.type = type; this.args = args;  
 	}
 	@Override
+    @SuppressWarnings({"try"}) 
 	public final boolean supportsParameter(Object obj) 
 	{
 		// проверить тип ключа
@@ -38,13 +41,30 @@ public class Service extends Provider.Service
 
 		// преобразовать тип провайдера
 		Provider provider = (Provider)getProvider(); 
-		
-		// преобразовать тип ключа
-		java.security.Key key = (java.security.Key)obj; 
-		
-		// создать алгоритм вычисления имитовставки
-		try { new KeyFactorySpi(provider).engineTranslateKey(key); return true; } 
-		
+		try { 
+            // для открытого ключа
+            if (obj instanceof java.security.PublicKey)
+            {
+                // выполнить преобразование типа
+                java.security.PublicKey publicKey = (java.security.PublicKey)obj; 
+
+                // преобразовать тип ключа
+                provider.translatePublicKey(publicKey); 
+            }
+            // для открытого ключа
+            else if (obj instanceof java.security.PrivateKey)
+            {
+                // выполнить преобразование типа
+                java.security.PrivateKey privateKey = (java.security.PrivateKey)obj; 
+
+                // преобразовать тип ключа
+                try (IPrivateKey nativeKey = provider.translatePrivateKey(privateKey)) {}
+
+                // обработать возможное исключение
+                catch (IOException e) { throw new InvalidKeyException(e.getMessage()); }  	
+            }
+            return true; 
+        }
 		// обработать возможное исключение
 		catch (Throwable e) { return false; }
 	}

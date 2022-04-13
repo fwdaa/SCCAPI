@@ -11,6 +11,31 @@ public class BDSParameters extends DSAParameterSpec implements IBDSParameters
     private static final long serialVersionUID = 6836485618865537858L;
     
     // конструктор
+    public static IBDSParameters getInstance(AlgorithmParameterSpec paramSpec) 
+        throws InvalidParameterSpecException
+    { 
+        // в зависимости от типа данных
+        if (paramSpec instanceof DSAParameterSpec)
+        {
+            // выполнить преобразование типа
+            if (paramSpec instanceof IBDSParameters) return (IBDSParameters)paramSpec; 
+            
+            // выполнить преобразование типа
+            DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
+            
+            // вычислить параметры L и R
+            int l = dsaParamSpec.getP().bitLength(); 
+            int r = dsaParamSpec.getQ().bitLength(); 
+            
+            // создать параметры ключа
+            return new BDSParameters(l, r, dsaParamSpec.getP(), 
+                dsaParamSpec.getQ(), dsaParamSpec.getG(), new byte[32], null
+            ); 
+        }
+        // тип параметров не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
+    // конструктор
     public BDSParameters(int l, int r, BigInteger p, BigInteger q, BigInteger a, byte[] h, byte[] z)
     {
         // сохранить переданные параметры
@@ -45,4 +70,16 @@ public class BDSParameters extends DSAParameterSpec implements IBDSParameters
     @Override public BigInteger bdsP() { return getP(); } 
     @Override public BigInteger bdsQ() { return getQ(); } 
     @Override public BigInteger bdsA() { return getG(); } 
+    
+    @SuppressWarnings({"unchecked"}) 
+    @Override public <T extends AlgorithmParameterSpec> 
+        T getParameterSpec(Class<T> specType) 
+            throws InvalidParameterSpecException
+    {
+        // вернуть параметры
+        if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this; 
+        
+        // тип параметров не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
 }

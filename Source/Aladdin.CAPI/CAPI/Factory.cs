@@ -8,6 +8,9 @@ namespace Aladdin.CAPI
 	///////////////////////////////////////////////////////////////////////////
 	public abstract class Factory : RefObject
 	{
+        // получить идентификатор ключа
+        public virtual string ConvertKeyName(string name) { return name; } 
+    
 	    // поддерживаемые фабрики кодирования ключей
 	    public virtual Dictionary<String, KeyFactory> KeyFactories() 
         { 
@@ -15,8 +18,11 @@ namespace Aladdin.CAPI
             return new Dictionary<String, KeyFactory>(); 
         }
 	    // получить фабрику кодирования ключей
-	    public virtual KeyFactory GetKeyFactory(string keyOID)
+	    public KeyFactory GetKeyFactory(string keyOID)
         {
+            // указать идентификатор ключа
+            keyOID = ConvertKeyName(keyOID); 
+
             // получить фабрики кодирования ключей
             Dictionary<String, KeyFactory> keyFactories = KeyFactories(); 
 
@@ -81,6 +87,9 @@ namespace Aladdin.CAPI
 		public virtual KeyPairGenerator CreateGenerator(
             SecurityObject scope, IRand rand, string keyOID, IParameters parameters) 
         { 
+            // получить идентификатор ключа
+            keyOID = ConvertKeyName(keyOID); 
+
             // создать алгоритм генерации ключей
             return CreateAggregatedGenerator(this, scope, rand, keyOID, parameters); 
         }
@@ -113,6 +122,9 @@ namespace Aladdin.CAPI
                 return generator.Generate(keyID, keyOID, keyUsage, keyFlags);
             }
 	    }
+        // получить идентификатор алгоритма
+        public virtual string ConvertAlgorithmName(string name) { return name; } 
+    
 		// создать алгоритм для параметров
         public T CreateAlgorithm<T>(SecurityStore scope,
             ASN1.ISO.AlgorithmIdentifier parameters) where T : IAlgorithm
@@ -130,6 +142,9 @@ namespace Aladdin.CAPI
         public virtual IAlgorithm CreateAlgorithm(SecurityStore scope,
             string oid, ASN1.IEncodable parameters, Type type)
         {
+            // получить идентификатор алгоритма
+            oid = ConvertAlgorithmName(oid); 
+
             // создать алгоритм
             return CreateAggregatedAlgorithm(this, scope, oid, parameters, type); 
         }
@@ -152,6 +167,128 @@ namespace Aladdin.CAPI
             // вызвать базовую функцию
             return Factory.RedirectAlgorithm(factory, scope, oid, parameters, type); 
 		}
+        ///////////////////////////////////////////////////////////////////////
+		// Создать режим блочного шифрования 
+        ///////////////////////////////////////////////////////////////////////
+        public static Cipher Create(Factory factory, SecurityStore scope, 
+            string name, ASN1.IEncodable parameters, byte[] iv)
+        {
+            // разделить имя на части
+            string[] parts = name.Split('/'); name = parts[0]; 
+
+            // указать режим шифрования и дополнения
+            string mode = (parts.Length > 1) ? parts[1].ToUpper() : String.Empty; 
+
+            // создать блочный режим шифрования
+            using (IBlockCipher blockCipher = factory.CreateAlgorithm<IBlockCipher>(
+                scope, name, parameters))
+            {
+                // проверить наличие алгоритма
+                if (blockCipher == null) return null; 
+
+                // определить размер блока
+                int blockSize = blockCipher.BlockSize; CipherMode cipherMode = null;
+
+                // указать режим ECB
+                if (mode.Length == 0 || mode == "NONE" || mode == "ECB") cipherMode = new CipherMode.ECB(); 
+
+                // для режима CBC
+                else if (mode.StartsWith("CBC")) { mode = mode.Substring(3); 
+                
+                    // проверить наличие синхропосылки
+                    if (iv == null) throw new ArgumentException(); 
+              
+                    // прочитать размер блока для режима
+                    if (mode.Length != 0) { int modeBits = Int32.Parse(mode); 
+
+                        // проверить корректность размера блока
+                        if (modeBits == 0 || (modeBits % 8) != 0) throw new ArgumentException(); 
+
+                        // указать размер блока
+                        blockSize = modeBits % 8; 
+                    }
+                    // указать используемый ражим
+                    cipherMode = new CipherMode.CBC(iv, blockSize); 
+                }
+                // для режима CFB
+                else if (mode.StartsWith("CFB")) { mode = mode.Substring(3); 
+                
+                    // проверить наличие синхропосылки
+                    if (iv == null) throw new ArgumentException(); 
+
+                    // прочитать размер блока для режима
+                    if (mode.Length != 0) { int modeBits = Int32.Parse(mode); 
+
+                        // проверить корректность размера блока
+                        if (modeBits == 0 || (modeBits % 8) != 0) throw new ArgumentException(); 
+
+                        // указать размер блока
+                        blockSize = modeBits % 8; 
+                    }
+                    // указать используемый ражим
+                    cipherMode = new CipherMode.CFB(iv, blockSize); 
+                }
+                // для режима OFB
+                else if (mode.StartsWith("OFB")) { mode = mode.Substring(3); 
+                
+                    // проверить наличие синхропосылки
+                    if (iv == null) throw new ArgumentException(); 
+
+                    // прочитать размер блока для режима
+                    if (mode.Length != 0) { int modeBits = Int32.Parse(mode); 
+
+                        // проверить корректность размера блока
+                        if (modeBits == 0 || (modeBits % 8) != 0) throw new ArgumentException(); 
+
+                        // указать размер блока
+                        blockSize = modeBits % 8; 
+                    }
+                    // указать используемый ражим
+                    cipherMode = new CipherMode.OFB(iv, blockSize); 
+                }
+                // для режима OFB
+                else if (mode.StartsWith("OFB")) { mode = mode.Substring(3); 
+                
+                    // проверить наличие синхропосылки
+                    if (iv == null) throw new ArgumentException(); 
+
+                    // прочитать размер блока для режима
+                    if (mode.Length != 0) { int modeBits = Int32.Parse(mode); 
+
+                        // проверить корректность размера блока
+                        if (modeBits == 0 || (modeBits % 8) != 0) throw new ArgumentException(); 
+
+                        // указать размер блока
+                        blockSize = modeBits % 8; 
+                    }
+                    // указать используемый ражим
+                    cipherMode = new CipherMode.OFB(iv, blockSize); 
+                }
+                // для режима CTR
+                else if (mode.StartsWith("CTR")) { mode = mode.Substring(3); 
+                
+                    // проверить наличие синхропосылки
+                    if (iv == null) throw new ArgumentException(); 
+
+                    // прочитать размер блока для режима
+                    if (mode.Length != 0) { int modeBits = Int32.Parse(mode); 
+
+                        // проверить корректность размера блока
+                        if (modeBits == 0 || (modeBits % 8) != 0) throw new ArgumentException(); 
+
+                        // указать размер блока
+                        blockSize = modeBits % 8; 
+                    }
+                    // указать используемый ражим
+                    cipherMode = new CipherMode.CTR(iv, blockSize); 
+                }
+                // режим не поддерживается
+                else throw new NotSupportedException(); 
+                 
+                // создать режим блочного шифрования 
+                return blockCipher.CreateBlockMode(cipherMode); 
+            }
+        }
         ///////////////////////////////////////////////////////////////////////
 		// Перенаправление алгоритмов 
         ///////////////////////////////////////////////////////////////////////

@@ -155,54 +155,14 @@ public class KeyFactory extends aladdin.capi.KeyFactory
             return new KeyPair(publicKey, privateKey, null); 
         }
     } 
-    
     // создать параметры
     @Override public aladdin.capi.IParameters createParameters(
         AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException, IOException 
     { 
-        // в зависимости от типа данных
-        if (paramSpec instanceof DSAParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-            
-            // выполнить преобразование типа
-            DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
-            
-            // создать параметры ключа
-            return new Parameters(dsaParamSpec.getP(), 
-                dsaParamSpec.getQ(), dsaParamSpec.getG()
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.createParameters(paramSpec); 
+        // создать параметры
+        return Parameters.getInstance(paramSpec); 
     }
-    // извлечь параметры
-    @Override public AlgorithmParameterSpec getParametersSpec(
-        aladdin.capi.IParameters parameters, 
-        Class<? extends AlgorithmParameterSpec> specType) 
-    { 
-        // выполнить преобразование типа
-        IParameters dsaParameters = (IParameters)parameters; 
-        
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DSAParameterSpec.class))
-        {
-            // в зависимости от типа данных
-            if (dsaParameters instanceof DSAParameterSpec)
-            {
-                // выполнить преобразование типа
-                return (DSAParameterSpec)dsaParameters; 
-            }
-            // вернуть параметры ключа
-            return new DSAParameterSpec(dsaParameters.getP(), 
-                dsaParameters.getQ(), dsaParameters.getG()
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.getParametersSpec(parameters, specType); 
-    } 
     // создать открытый ключ
     @Override public aladdin.capi.IPublicKey createPublicKey(KeySpec keySpec) 
         throws InvalidKeySpecException, IOException
@@ -226,6 +186,7 @@ public class KeyFactory extends aladdin.capi.KeyFactory
     // извлечь данные открытого ключа
     @Override public KeySpec getPublicKeySpec(
         aladdin.capi.IPublicKey publicKey, Class<? extends KeySpec> specType)
+        throws InvalidKeySpecException
     {
         // выполнить преобразование типа
         IParameters parameters = (IParameters)publicKey.parameters(); 
@@ -267,8 +228,8 @@ public class KeyFactory extends aladdin.capi.KeyFactory
     }
     // извлечь данные личного ключа
     @Override public KeySpec getPrivateKeySpec(
-        aladdin.capi.IPrivateKey privateKey, 
-        Class<? extends KeySpec> specType) throws IOException
+        aladdin.capi.IPrivateKey privateKey, Class<? extends KeySpec> specType) 
+        throws InvalidKeySpecException, IOException
     {
         // выполнить преобразование типа
         IParameters parameters = (IParameters)privateKey.parameters();

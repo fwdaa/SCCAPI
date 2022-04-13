@@ -69,15 +69,21 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             // тип структуры передачи параметров механизма PBKDF2
             get { return CAPI.PKCS11.PBE.PBKDF2.ParametersType.Params2; }
         }
+        // получить идентификатор ключа
+        public override string ConvertKeyName(string name) 
+        { 
+            // получить идентификатор ключа
+            return Aliases.ConvertKeyName(name); 
+        } 
+        // получить идентификатор алгоритма
+        public override string ConvertAlgorithmName(string name) 
+        { 
+            // получить идентификатор ключа
+            return Aliases.ConvertAlgorithmName(name); 
+        } 
 	    // поддерживаемые фабрики кодирования ключей
 	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     
-	    // получить фабрику кодирования ключей
-	    public override KeyFactory GetKeyFactory(string keyOID)
-        {
-            // получить фабрику кодирования ключей
-            return base.GetKeyFactory(Factory.RedirectKeyName(keyOID)); 
-        }
 	    public override string[] GeneratedKeys(SecurityStore scope) 
 	    {
             // проверить область видимости
@@ -338,9 +344,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             CAPI.Factory factory, SecurityObject scope, 
             IRand rand, string keyOID, IParameters parameters) 
         {
-            // указать идентификатор алгоритма
-            keyOID = Factory.RedirectKeyName(keyOID);         
-
             // проверить тип параметров
             if (keyOID == ASN1.ISO.PKCS.PKCS1.OID.rsa)
             {

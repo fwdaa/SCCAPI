@@ -6,6 +6,7 @@ import aladdin.asn1.iso.pkix.*;
 import aladdin.asn1.iso.pkcs.pkcs5.*; 
 import aladdin.asn1.iso.pkcs.pkcs8.*;
 import aladdin.capi.pbe.*;
+import java.security.spec.*; 
 import java.io.*; 
 import java.util.*; 
 
@@ -14,6 +15,16 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public abstract class Factory extends RefObject
 {
+    // создать параметры
+    public IEncodedParameters createParameters(AlgorithmParameterSpec spec)
+        throws InvalidParameterSpecException
+    {
+        // операция не поддерживается
+        throw new InvalidParameterSpecException(); 
+    }
+    // получить идентификатор ключа
+    public String convertKeyName(String name) { return name; } 
+    
 	// поддерживаемые фабрики кодирования ключей
 	public Map<String, KeyFactory> keyFactories() 
     { 
@@ -21,10 +32,10 @@ public abstract class Factory extends RefObject
         return new HashMap<String, KeyFactory>(); 
     }
 	// получить фабрику кодирования ключей
-	public KeyFactory getKeyFactory(String keyOID)
+	public final KeyFactory getKeyFactory(String keyOID)
     {
         // получить фабрику кодирования ключей
-        return keyFactories().get(keyOID); 
+        return keyFactories().get(convertKeyName(keyOID)); 
     }
 	// раскодировать открытый ключ
 	public final IPublicKey decodePublicKey(
@@ -82,6 +93,9 @@ public abstract class Factory extends RefObject
 	public KeyPairGenerator createGenerator(SecurityObject scope, 
         IRand rand, String keyOID, IParameters parameters) throws IOException 
     { 
+        // получить идентификатор ключа
+        keyOID = convertKeyName(keyOID); 
+        
         // создать алгоритм генерации ключей
         return createAggregatedGenerator(this, scope, rand, keyOID, parameters); 
     }
@@ -117,6 +131,9 @@ public abstract class Factory extends RefObject
             return generator.generate(keyID, keyOID, keyUsage, keyFlags); 
         }
 	}
+    // получить идентификатор алгоритма
+    public String convertAlgorithmName(String name) { return name; } 
+    
 	// создать алгоритм для параметров
 	public final IAlgorithm createAlgorithm(
         SecurityStore scope, AlgorithmIdentifier parameters, 
@@ -129,6 +146,9 @@ public abstract class Factory extends RefObject
         SecurityStore scope, String oid, IEncodable parameters, 
         java.lang.Class<? extends IAlgorithm> type) throws IOException
     {
+        // получить идентификатор алгоритма
+        oid = convertAlgorithmName(oid); 
+        
         // создать алгоритм для параметров
         return createAggregatedAlgorithm(this, scope, oid, parameters, type); 
     }
@@ -151,6 +171,134 @@ public abstract class Factory extends RefObject
     { 
         // создать алгоритм для параметров
         return Factory.redirectAlgorithm(factory, scope, oid, parameters, type); 
+    }
+    ///////////////////////////////////////////////////////////////////////
+	// Создать режим блочного шифрования 
+    ///////////////////////////////////////////////////////////////////////
+    public final Cipher createBlockMode(SecurityStore scope, 
+        String name, IEncodable parameters, byte[] iv) throws IOException
+    {
+        // получить позицию разделителя
+        int index = name.indexOf("/"); String mode = new String(); 
+        
+        // извлечь имя алгоритма 
+        if (index >= 0) { mode = name.substring(0, index).toUpperCase(); 
+        
+            // извлечь имя режима
+            name = name.substring(index + 1);  
+        }
+        // создать блочный режим шифрования
+        try (IBlockCipher blockCipher = (IBlockCipher)createAlgorithm(
+            scope, name, parameters, IBlockCipher.class))
+        {
+            // проверить наличие алгоритма
+            if (blockCipher == null) return null; 
+
+            // определить размер блока
+            int blockSize = blockCipher.blockSize(); CipherMode cipherMode = null;
+
+            // по умолчанию
+            if (mode.length() == 0 || mode.equals("NONE") || mode.equals("ECB")) 
+            {
+                // указать режим ECB
+                cipherMode = new CipherMode.ECB(); 
+            }
+            // для режима CBC
+            else if (mode.startsWith("CBC")) { mode = mode.substring(3); 
+            
+                // проверить наличие синхропосылки
+                if (iv == null) throw new IllegalArgumentException(); 
+              
+                // прочитать размер блока для режима
+                if (mode.length() != 0) { int modeBits = java.lang.Integer.parseInt(mode); 
+
+                    // проверить корректность размера блока
+                    if (modeBits == 0 || (modeBits % 8) != 0) throw new IllegalArgumentException(); 
+
+                    // указать размер блока
+                    blockSize = modeBits % 8; 
+                }
+                // указать используемый ражим
+                cipherMode = new CipherMode.CBC(iv, blockSize); 
+            }
+            // для режима CFB
+            else if (mode.startsWith("CFB")) { mode = mode.substring(3); 
+                
+                // проверить наличие синхропосылки
+                if (iv == null) throw new IllegalArgumentException(); 
+                
+                // прочитать размер блока для режима
+                if (mode.length() != 0) { int modeBits = java.lang.Integer.parseInt(mode); 
+
+                    // проверить корректность размера блока
+                    if (modeBits == 0 || (modeBits % 8) != 0) throw new IllegalArgumentException(); 
+
+                    // указать размер блока
+                    blockSize = modeBits % 8; 
+                }
+                // указать используемый ражим
+                cipherMode = new CipherMode.CFB(iv, blockSize); 
+            }
+            // для режима OFB
+            else if (mode.startsWith("OFB")) { mode = mode.substring(3); 
+               
+                // проверить наличие синхропосылки
+                if (iv == null) throw new IllegalArgumentException(); 
+                
+                // прочитать размер блока для режима
+                if (mode.length() != 0) { int modeBits = java.lang.Integer.parseInt(mode); 
+
+                    // проверить корректность размера блока
+                    if (modeBits == 0 || (modeBits % 8) != 0) throw new IllegalArgumentException(); 
+
+                    // указать размер блока
+                    blockSize = modeBits % 8; 
+                }
+                // указать используемый ражим
+                cipherMode = new CipherMode.OFB(iv, blockSize); 
+            }
+            // для режима OFB
+            else if (mode.startsWith("OFB")) { mode = mode.substring(3); 
+                
+                // проверить наличие синхропосылки
+                if (iv == null) throw new IllegalArgumentException(); 
+                
+                // прочитать размер блока для режима
+                if (mode.length() != 0) { int modeBits = java.lang.Integer.parseInt(mode); 
+
+                    // проверить корректность размера блока
+                    if (modeBits == 0 || (modeBits % 8) != 0) throw new IllegalArgumentException(); 
+
+                    // указать размер блока
+                    blockSize = modeBits % 8; 
+                }
+                // указать используемый ражим
+                cipherMode = new CipherMode.OFB(iv, blockSize); 
+            }
+            // для режима CTR
+            else if (mode.startsWith("CTR")) { mode = mode.substring(3); 
+                
+                // проверить наличие синхропосылки
+                if (iv == null) throw new IllegalArgumentException(); 
+                
+                // прочитать размер блока для режима
+                if (mode.length() != 0) { int modeBits = java.lang.Integer.parseInt(mode); 
+
+                    // проверить корректность размера блока
+                    if (modeBits == 0 || (modeBits % 8) != 0) throw new IllegalArgumentException(); 
+
+                    // указать размер блока
+                    blockSize = modeBits % 8; 
+                }
+                // указать используемый ражим
+                cipherMode = new CipherMode.CTR(iv, blockSize); 
+            }
+            // режим не поддерживается
+            else throw new UnsupportedOperationException(); 
+             
+            // создать режим блочного шифрования 
+            return blockCipher.createBlockMode(cipherMode); 
+        }
     }
     ////////////////////////////////////////////////////////////////////////////
 	// Перенаправление алгоритмов

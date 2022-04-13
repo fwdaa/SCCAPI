@@ -3,6 +3,7 @@ import aladdin.asn1.iso.*;
 import aladdin.asn1.gost.*;
 import java.security.spec.*; 
 import java.math.*; 
+import javax.crypto.spec.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры ГОСТ Р 34.10-1994
@@ -10,19 +11,31 @@ import java.math.*;
 public class DHParameters extends DSAParameterSpec implements IDHParameters
 {
     private static final long serialVersionUID = -7173437093791632739L;
-/*    
-    // выполнить преобразование типа
-    public static DHParameters convert(IDHParameters parameters)
-    {
-        // проверить тип параметров
-        if (parameters instanceof DHParameters) return (DHParameters)parameters; 
-        
-        // выполнить преобразование типа
-        return new DHParameters(parameters.getP(), 
-            parameters.getQ(), parameters.getG(), parameters.validationParameters()
-        ); 
+    
+    // конструктор
+    public static IDHParameters getInstance(AlgorithmParameterSpec paramSpec) 
+        throws InvalidParameterSpecException
+    { 
+        // проверить требуемый тип данных
+        if (paramSpec instanceof DSAParameterSpec)
+        {
+            // выполнить преобразование типа
+            if (paramSpec instanceof IDHParameters) return (IDHParameters)paramSpec; 
+            
+            // выполнить преобразование типа
+            DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
+            
+            // создать параметры ключа
+            return new DHParameters(dsaParamSpec.getP(), 
+                dsaParamSpec.getQ(), dsaParamSpec.getG(), null
+            ); 
+        }
+        // тип параметров не поддерживается 
+        throw new InvalidParameterSpecException(); 
     }
-*/
+    // параметры проверки
+    private final AlgorithmIdentifier validationParameters;   
+
     // конструктор 
     public DHParameters(BigInteger p, BigInteger q, BigInteger a, 
         AlgorithmIdentifier validationParameters)
@@ -41,6 +54,21 @@ public class DHParameters extends DSAParameterSpec implements IDHParameters
     }
     @Override public AlgorithmIdentifier validationParameters() { return validationParameters; }
     
-    // параметры проверки
-    private final AlgorithmIdentifier validationParameters;   
+    @SuppressWarnings({"unchecked"}) 
+    @Override public <T extends AlgorithmParameterSpec> 
+        T getParameterSpec(Class<T> specType) 
+            throws InvalidParameterSpecException
+    {
+        // вернуть параметры 
+        if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this; 
+        
+        // в зависимости от типа данных
+        if (specType.isAssignableFrom(DHParameterSpec.class))
+        {
+            // вернуть параметры алгоритма
+            return (T)new DHParameterSpec(getP(), getG()); 
+        }
+        // тип параметров не поддерживается 
+        throw new InvalidParameterSpecException(); 
+    }
 }

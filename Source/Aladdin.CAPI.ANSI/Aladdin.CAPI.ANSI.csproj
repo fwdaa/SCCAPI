@@ -99,6 +99,7 @@
     <Compile Include="ASN1\ANSI\X962\Pentanomial.cs" />
     <Compile Include="ASN1\ANSI\X962\SpecifiedMultiple.cs" />
     <Compile Include="ASN1\ANSI\X962\SpecifiedMultiples.cs" />
+    <Compile Include="CAPI\ANSI\Aliases.cs" />
     <Compile Include="CAPI\ANSI\Cipher\AES.cs" />
     <Compile Include="CAPI\ANSI\Cipher\BlockCipher.cs" />
     <Compile Include="CAPI\ANSI\Cipher\DES.cs" />

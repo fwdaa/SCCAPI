@@ -19,6 +19,24 @@ public class TDES extends SecretKeyFactory
     @Override public SecretKeyFactory narrow(int[] keySizes) { return new TDES(keySizes); }
     
     // создать ключ
+    @Override public ISecretKey create(KeySpec keySpec) throws InvalidKeySpecException
+    {
+        // проверить тип данных
+        if (keySpec instanceof DESedeKeySpec)
+        {
+            // получить значение ключа
+            byte[] value = ((DESedeKeySpec)keySpec).getKey(); 
+            
+            // проверить наличие значения 
+            if (value == null) throw new InvalidKeySpecException(); 
+            
+            // создать ключ
+            return create(value); 
+        }
+        // вызвать базовую функцию
+        return super.create(keySpec); 
+    }
+    // создать ключ
     @Override public ISecretKey create(byte[] value) 
     { 
         // создать копию значения
@@ -66,8 +84,9 @@ public class TDES extends SecretKeyFactory
         return new SecretKey(this, value); 
     }
     // извлечь данные ключа
-    @Override public KeySpec getSpec(String algorithm, byte[] value, 
-        Class<? extends KeySpec> specType) throws InvalidKeyException
+    @Override public KeySpec getSpec(String algorithm, 
+        byte[] value, Class<? extends KeySpec> specType) 
+            throws InvalidKeyException
     {
         // в зависимости от типа
         if (specType.isAssignableFrom(DESedeKeySpec.class))

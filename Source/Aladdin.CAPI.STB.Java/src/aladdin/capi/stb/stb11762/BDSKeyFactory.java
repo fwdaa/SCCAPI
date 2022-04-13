@@ -188,52 +188,9 @@ public class BDSKeyFactory extends KeyFactory
         AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException, IOException 
     { 
-        // в зависимости от типа данных
-        if (paramSpec instanceof DSAParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-            
-            // выполнить преобразование типа
-            DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
-            
-            // вычислить параметры L и R
-            int l = dsaParamSpec.getP().bitLength(); 
-            int r = dsaParamSpec.getQ().bitLength(); 
-            
-            // создать параметры ключа
-            return new BDSParameters(l, r, dsaParamSpec.getP(), 
-                dsaParamSpec.getQ(), dsaParamSpec.getG(), new byte[32], null
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.createParameters(paramSpec); 
+        // создать параметры
+        return BDSParameters.getInstance(paramSpec); 
     }
-    // извлечь параметры
-    @Override public AlgorithmParameterSpec getParametersSpec(
-        aladdin.capi.IParameters parameters, 
-        Class<? extends AlgorithmParameterSpec> specType) 
-    { 
-        // выполнить преобразование типа
-        IBDSParameters bdsParameters = (IBDSParameters)parameters; 
-        
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DSAParameterSpec.class))
-        {
-            // в зависимости от типа данных
-            if (bdsParameters instanceof DSAParameterSpec)
-            {
-                // выполнить преобразование типа
-                return (DSAParameterSpec)bdsParameters; 
-            }
-            // вернуть параметры ключа
-            return new DSAParameterSpec(bdsParameters.bdsP(), 
-                bdsParameters.bdsQ(), bdsParameters.bdsA()
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.getParametersSpec(parameters, specType); 
-    } 
     // создать открытый ключ
     @Override public aladdin.capi.IPublicKey createPublicKey(KeySpec keySpec) 
         throws InvalidKeySpecException, IOException
@@ -262,6 +219,7 @@ public class BDSKeyFactory extends KeyFactory
     // извлечь данные открытого ключа
     @Override public KeySpec getPublicKeySpec(
         aladdin.capi.IPublicKey publicKey, Class<? extends KeySpec> specType)
+        throws InvalidKeySpecException
     {
         // выполнить преобразование типа
         IBDSParameters parameters = (IBDSParameters)publicKey.parameters(); 
@@ -310,8 +268,8 @@ public class BDSKeyFactory extends KeyFactory
     }
     // извлечь данные личного ключа
     @Override public KeySpec getPrivateKeySpec(
-        aladdin.capi.IPrivateKey privateKey, 
-        Class<? extends KeySpec> specType) throws IOException
+        aladdin.capi.IPrivateKey privateKey, Class<? extends KeySpec> specType) 
+        throws InvalidKeySpecException, IOException
     {
         // выполнить преобразование типа
         IBDSParameters parameters = (IBDSParameters)privateKey.parameters(); 

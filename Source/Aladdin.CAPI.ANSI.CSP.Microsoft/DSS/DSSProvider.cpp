@@ -417,9 +417,6 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::DSS::Provider::CreateGenerator(
 	Factory^ factory, SecurityObject^ scope, 
 	IRand^ rand, String^ keyOID, IParameters^ parameters)
 {$
-	// указать идентификатор алгоритма
-	keyOID = CAPI::ANSI::Factory::RedirectKeyName(keyOID); 
-
 	// проверить тип параметров
 	if (keyOID == ASN1::ANSI::OID::x957_dsa) 
 	{

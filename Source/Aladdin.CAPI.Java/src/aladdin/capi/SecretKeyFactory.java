@@ -10,11 +10,8 @@ import java.io.*;
 public class SecretKeyFactory 
 {
     // произвольный ключ
-    public final static SecretKeyFactory GENERIC = new SecretKeyFactory(); 
+    public final static SecretKeyFactory GENERIC = new SecretKeyFactory(KeySizes.UNRESTRICTED); 
 
-    // конструктор
-    public SecretKeyFactory() { this(KeySizes.UNRESTRICTED); }
-        
     // конструктор
     public SecretKeyFactory(int[] keySizes) 
         
@@ -47,6 +44,18 @@ public class SecretKeyFactory
     // размер ключей
     public final int[] keySizes () { return keySizes; }
     
+    // создать ключ
+    public ISecretKey create(KeySpec keySpec) throws InvalidKeySpecException
+    {
+        // проверить тип данных
+        if (!(keySpec instanceof SecretKeySpec)) throw new InvalidKeySpecException(); 
+        
+        // получить значение ключа
+        byte[] value = ((SecretKeySpec)keySpec).getEncoded(); 
+        
+        // создать ключ
+        if (value == null) throw new InvalidKeySpecException(); return create(value); 
+    }
     // создать ключ
     public ISecretKey create(byte[] value) 
     { 
@@ -82,7 +91,7 @@ public class SecretKeyFactory
         if (!KeySizes.contains(keySizes(), value.length)) 
         {
             // при ошибке выбросить исключение
-            throw new IllegalArgumentException();
+            throw new InvalidKeyException();
         } 
         // в зависимости от требуемого формата
         if (specType.isAssignableFrom(SecretKeySpec.class))

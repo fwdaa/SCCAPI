@@ -307,56 +307,9 @@ public class DHKeyFactory extends KeyFactory
         AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException, IOException 
     { 
-        // проверить требуемый тип данных
-        if (paramSpec instanceof DSAParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-            
-            // выполнить преобразование типа
-            DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
-            
-            // создать параметры ключа
-            return new DHParameters(dsaParamSpec.getP(), 
-                dsaParamSpec.getQ(), dsaParamSpec.getG(), null
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.createParameters(paramSpec); 
+        // создать параметры
+        return DHParameters.getInstance(paramSpec); 
     }
-    // извлечь параметры
-    @Override public AlgorithmParameterSpec getParametersSpec(
-        aladdin.capi.IParameters parameters, 
-        Class<? extends AlgorithmParameterSpec> specType) 
-    { 
-        // выполнить преобразование типа
-        IDHParameters dhParameters = (IDHParameters)parameters; 
-        
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DSAParameterSpec.class))
-        {
-            // в зависимости от типа данных
-            if (dhParameters instanceof DSAParameterSpec)
-            {
-                // выполнить преобразование типа
-                return (DSAParameterSpec)dhParameters; 
-            }
-            // вернуть параметры ключа
-            return new DSAParameterSpec(dhParameters.getP(), 
-                dhParameters.getQ(), dhParameters.getG()
-            ); 
-        }
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DHParameterSpec.class))
-        {
-            // вернуть параметры алгоритма
-            return new DHParameterSpec(
-                dhParameters.getP(), dhParameters.getG()
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.getParametersSpec(parameters, specType); 
-    } 
     // создать открытый ключ
     @Override public aladdin.capi.IPublicKey createPublicKey(KeySpec keySpec) 
         throws InvalidKeySpecException, IOException
@@ -380,6 +333,7 @@ public class DHKeyFactory extends KeyFactory
     // извлечь данные открытого ключа
     @Override public KeySpec getPublicKeySpec(
         aladdin.capi.IPublicKey publicKey, Class<? extends KeySpec> specType)
+        throws InvalidKeySpecException
     {
         // выполнить преобразование типа
         IDHParameters parameters = (IDHParameters)publicKey.parameters();
@@ -429,8 +383,8 @@ public class DHKeyFactory extends KeyFactory
     }
     // извлечь данные личного ключа
     @Override public KeySpec getPrivateKeySpec(
-        aladdin.capi.IPrivateKey privateKey, 
-        Class<? extends KeySpec> specType) throws IOException
+        aladdin.capi.IPrivateKey privateKey, Class<? extends KeySpec> specType) 
+        throws InvalidKeySpecException, IOException
     {
         // выполнить преобразование типа
         IDHParameters parameters = (IDHParameters)privateKey.parameters();

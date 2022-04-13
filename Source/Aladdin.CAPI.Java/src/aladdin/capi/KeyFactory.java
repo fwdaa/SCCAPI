@@ -45,24 +45,27 @@ public abstract class KeyFactory
 
     // создать параметры
     public IParameters createParameters(AlgorithmParameterSpec paramSpec) 
-        throws InvalidParameterSpecException, IOException { return null; }
-    // извлечь параметры
-    public AlgorithmParameterSpec getParametersSpec(
-        IParameters parameters, Class<? extends AlgorithmParameterSpec> specType) { return null; } 
-    
+        throws InvalidParameterSpecException, IOException 
+    { 
+        // операция не поддерживается 
+        throw new InvalidParameterSpecException(); 
+    }
     // создать открытый ключ
     public IPublicKey createPublicKey(KeySpec keySpec) 
         throws InvalidKeySpecException, IOException
     {
         // проверить тип данных
-        if (!(keySpec instanceof EncodedKeySpec)) return null; 
+        if (!(keySpec instanceof EncodedKeySpec)) throw new InvalidKeySpecException(); 
         
         // выполнить преобразование типа
         EncodedKeySpec encodedKeySpec = (EncodedKeySpec)keySpec; 
             
         // проверить формат данных
-        if (!encodedKeySpec.getFormat().equals("X.509")) return null; 
-        
+        if (!encodedKeySpec.getFormat().equals("X.509")) 
+        {
+            // при ошибке выбросить исключение
+            throw new InvalidKeySpecException();         
+        }
         // раскодировать данные
         SubjectPublicKeyInfo publicKeyInfo = new SubjectPublicKeyInfo(
             Encodable.decode(encodedKeySpec.getEncoded())
@@ -71,14 +74,14 @@ public abstract class KeyFactory
         String keyOID = publicKeyInfo.algorithm().algorithm().value(); 
         
         // проверить совпадение идентификатора
-        if (!keyOID.equals(keyOID())) throw new UnsupportedOperationException(); 
+        if (!keyOID.equals(keyOID())) throw new InvalidKeySpecException(); 
             
         // раскодировать открытый ключ
         return decodePublicKey(publicKeyInfo); 
     }
     // извлечь данные открытого ключа
-    public KeySpec getPublicKeySpec(
-        IPublicKey publicKey, Class<? extends KeySpec> specType)
+    public KeySpec getPublicKeySpec(IPublicKey publicKey, 
+        Class<? extends KeySpec> specType) throws InvalidKeySpecException
     {
         // получить закодированное представление
         SubjectPublicKeyInfo publicKeyInfo = publicKey.encoded(); 
@@ -92,21 +95,25 @@ public abstract class KeyFactory
             // вернуть закодированное представление
             return new X509EncodedKeySpec(publicKeyInfo.encoded()); 
         }
-        return null; 
+        // при ошибке выбросить исключение
+        throw new InvalidKeySpecException(); 
     }
     // создать личный ключ
     public IPrivateKey createPrivateKey(Factory factory, KeySpec keySpec) 
         throws InvalidKeySpecException, IOException
     {
         // проверить тип данных
-        if (!(keySpec instanceof EncodedKeySpec)) return null; 
+        if (!(keySpec instanceof EncodedKeySpec)) throw new InvalidKeySpecException(); 
         
         // выполнить преобразование типа
         EncodedKeySpec encodedKeySpec = (EncodedKeySpec)keySpec; 
             
         // проверить формат данных
-        if (!encodedKeySpec.getFormat().equals("PKCS#8")) return null; 
-        
+        if (!encodedKeySpec.getFormat().equals("PKCS#8")) 
+        {
+            // при ошибке выбросить исключение
+            throw new InvalidKeySpecException(); 
+        }
         // раскодировать данные
         PrivateKeyInfo privateKeyInfo = new PrivateKeyInfo(
             Encodable.decode(encodedKeySpec.getEncoded())
@@ -115,14 +122,14 @@ public abstract class KeyFactory
         String keyOID = privateKeyInfo.privateKeyAlgorithm().algorithm().value(); 
             
         // проверить совпадение идентификатора
-        if (!keyOID.equals(keyOID())) throw new UnsupportedOperationException(); 
+        if (!keyOID.equals(keyOID())) throw new InvalidKeySpecException(); 
         
         // раскодировать личный ключ
         return decodePrivateKey(factory, privateKeyInfo); 
     }
     // извлечь данные личного ключа
-    public KeySpec getPrivateKeySpec(
-        IPrivateKey privateKey, Class<? extends KeySpec> specType) throws IOException
+    public KeySpec getPrivateKeySpec(IPrivateKey privateKey, 
+        Class<? extends KeySpec> specType) throws InvalidKeySpecException, IOException 
     {
         // получить закодированное представление
         PrivateKeyInfo privateKeyInfo = encodePrivateKey(privateKey, null); 
@@ -136,6 +143,7 @@ public abstract class KeyFactory
             // вернуть закодированное представление
             return new PKCS8EncodedKeySpec(privateKeyInfo.encoded()); 
         }
-        return null; 
+        // при ошибке выбросить исключение
+        throw new InvalidKeySpecException(); 
     }
 }

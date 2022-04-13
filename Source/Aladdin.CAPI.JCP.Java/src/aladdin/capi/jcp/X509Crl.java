@@ -242,7 +242,7 @@ public final class X509Crl extends java.security.cert.X509CRL
 		throws NoSuchAlgorithmException, InvalidKeyException, SignatureException 
 	{
 		// преобразовать тип ключа
-		IPublicKey key = (IPublicKey)new KeyFactorySpi(provider).engineTranslateKey(publicKey); 
+		IPublicKey nativeKey = provider.translatePublicKey(publicKey); 
 		
 		// определить идентификатор алгоритма подписи
 		AlgorithmIdentifier signParameters = crl.signatureAlgorithm(); 
@@ -261,7 +261,7 @@ public final class X509Crl extends java.security.cert.X509CRL
 			if (verifyAlgorithm == null) throw new NoSuchAlgorithmException(); 
 		
 			// проверить подпись сертификата
-			verifyAlgorithm.verify(key, data, 0, data.length, signature); 
+			verifyAlgorithm.verify(nativeKey, data, 0, data.length, signature); 
 		}
 		// обработать возможную ошибку
 		catch (IOException e) { throw new RuntimeException(e); }

@@ -13,12 +13,14 @@ public final class AlgorithmParametersSpi extends java.security.AlgorithmParamet
 {
     // фабрика алгоритмов и область видимости
     private final Factory factory; private SecurityStore scope; 
+    // имя алгоритма и его параметры
+    private final String algorithm; private IParameters parameters; 
     // закодированное представление параметров
-    private final String algorithm; private IEncodable encodable; private byte[] iv; 
+    private IEncodable encodable; private byte[] iv; 
     
     // конструктор
-    public static AlgorithmParametersSpi getInstance(Provider provider,
-        String algorithm, java.security.AlgorithmParameters parameters) 
+    public static AlgorithmParametersSpi getInstance(
+        Provider provider, String algorithm, java.security.AlgorithmParameters parameters) 
             throws InvalidAlgorithmParameterException
     {
         try { 
@@ -97,24 +99,25 @@ public final class AlgorithmParametersSpi extends java.security.AlgorithmParamet
                 // сохранить синхропосылку
                 iv = encodedParameterSpec.getIV(); 
             }
-            // в зависимости от типа параметров
-            else if (paramSpec instanceof IvParameterSpec)
-            {
-                // сохранить синхропосылку
-                iv = ((IvParameterSpec)paramSpec).getIV(); 
-            }
             else {
                 // найти фабрику кодирования 
                 aladdin.capi.KeyFactory keyFactory = factory.getKeyFactory(algorithm); 
 
-                // при указании параметров ключа
-                if (keyFactory == null) throw new InvalidParameterSpecException();
+                // создать параметры ключа
+                if (keyFactory != null) { parameters = keyFactory.createParameters(paramSpec); 
+                
+                    // закодировать параметры алгоритма
+                    try { encodable = keyFactory.encodeParameters(parameters); } catch (Throwable e) {}
+                }
+                // сохранить синхропосылку
+                else if (paramSpec instanceof IvParameterSpec) iv = ((IvParameterSpec)paramSpec).getIV(); 
+                else {
+                    // создать параметры алгоритма
+                    parameters = factory.createParameters(paramSpec); 
 
-                // создать параметры алгоритма
-                IParameters parameters = keyFactory.createParameters(paramSpec); 
-
-                // получить закодированное представление
-                encodable = (parameters != null) ? keyFactory.encodeParameters(parameters) : null; 
+                    // закодировать параметры алгоритма
+                    try { encodable = ((IEncodedParameters)parameters).encode(); } catch (Throwable e) {}
+                }
             }
         }
         // обработать возможное исключение
@@ -161,30 +164,16 @@ public final class AlgorithmParametersSpi extends java.security.AlgorithmParamet
             return (T)new EncodedParameterSpec(encoded, iv); 
         }
         // при запросе синхропосылки
-        else if (specType.isAssignableFrom(IvParameterSpec.class))
+        if (specType.isAssignableFrom(IvParameterSpec.class))
         {
             // проверить наличие синхропосылки
-            if (iv == null) throw new InvalidParameterSpecException(); 
+            if (iv != null) return (T)new IvParameterSpec(iv); 
+        }
+        // проверить наличие параметров
+        if (parameters == null) throw new InvalidParameterSpecException(); 
             
-            // вернуть синхропосылку
-            return (T)new IvParameterSpec(iv); 
-        }
-        else {
-            // найти фабрику кодирования 
-            aladdin.capi.KeyFactory keyFactory = factory.getKeyFactory(algorithm); 
-           
-            // проверить наличие фабрики
-            if (keyFactory == null) throw new InvalidParameterSpecException();
-            try { 
-                // раскодировать параметры
-                IParameters parameters = keyFactory.decodeParameters(encodable); 
-
-                // извлечь параметры алгоритма
-                return (T)keyFactory.getParametersSpec(parameters, specType); 
-            }
-            // обработать возможное исключение
-            catch (IOException e) { throw new InvalidParameterSpecException(e.getMessage()); }
-        }
+        // извлечь параметры алгоритма
+        return parameters.getParameterSpec(specType); 
 	}
 	@Override protected final byte[] engineGetEncoded()  
 	{

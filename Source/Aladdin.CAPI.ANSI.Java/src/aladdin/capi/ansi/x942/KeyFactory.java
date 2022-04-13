@@ -158,40 +158,13 @@ public class KeyFactory extends aladdin.capi.KeyFactory
         AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException, IOException 
     { 
-        // в зависимости от типа данных
-        if (paramSpec instanceof DHParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-        }
-        // вызвать базовую функцию
-        return super.createParameters(paramSpec); 
+        // создать параметры
+        return Parameters.getInstance(paramSpec); 
     }
-    // извлечь параметры
-    @Override public AlgorithmParameterSpec getParametersSpec(
-        aladdin.capi.IParameters parameters, 
-        Class<? extends AlgorithmParameterSpec> specType) 
-    { 
-        // выполнить преобразование типа
-        IParameters dhParameters = (IParameters)parameters; 
-        
-        // в зависимости от типа данных
-        if (specType.isAssignableFrom(DHParameterSpec.class))
-        {
-            // выполнить преобразование типа
-            if (dhParameters instanceof DHParameterSpec) return dhParameters; 
-            
-            // вернуть параметры ключа
-            return new DHParameterSpec(
-                dhParameters.getP(), dhParameters.getG()
-            ); 
-        }
-        // вызвать базовую функцию
-        return super.getParametersSpec(parameters, specType); 
-    } 
     // извлечь данные открытого ключа
     @Override public KeySpec getPublicKeySpec(
         aladdin.capi.IPublicKey publicKey, Class<? extends KeySpec> specType)
+        throws InvalidKeySpecException
     {
         // выполнить преобразование типа
         IParameters parameters = (IParameters)publicKey.parameters(); 
@@ -212,8 +185,8 @@ public class KeyFactory extends aladdin.capi.KeyFactory
     }
     // извлечь данные личного ключа
     @Override public KeySpec getPrivateKeySpec(
-        aladdin.capi.IPrivateKey privateKey, 
-        Class<? extends KeySpec> specType) throws IOException
+        aladdin.capi.IPrivateKey privateKey, Class<? extends KeySpec> specType) 
+        throws InvalidKeySpecException, IOException
     {
         // выполнить преобразование типа
         IParameters parameters = (IParameters)privateKey.parameters(); 
