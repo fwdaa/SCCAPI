@@ -6,6 +6,64 @@ namespace Aladdin.CAPI
 {
 	public static class PKI
 	{
+	    ///////////////////////////////////////////////////////////////////////
+	    // Признак самоподписанного сертификата
+	    ///////////////////////////////////////////////////////////////////////
+        public static bool IsSelfSignedCertificate(Certificate certificate)
+        {
+            // признак самоподписанного сертификата
+            return IsIssuedByCA(certificate, certificate); 
+        }
+        private static bool IsIssuedByCA(Certificate certificate, Certificate parent)
+        {
+            // проверить совпадение издателя
+            if (!parent.Issuer.Equals(certificate.Subject)) return false; 
+
+            // найти расширение номера ключа издателя
+            ASN1.OctetString authorityKeyIdentifier = certificate.IssuerKeyIdentifier; 
+            
+            // найти расширение номера субъекта
+            ASN1.OctetString subjectKeyIdentifierCA = parent.SubjectKeyIdentifier; 
+            
+            // при наличии расширений
+            if (authorityKeyIdentifier != null && subjectKeyIdentifierCA != null)
+            {
+                // проверить совпадение номеров
+                if (!authorityKeyIdentifier.Equals(subjectKeyIdentifierCA)) return false; 
+            }
+            return true; 
+        }
+	    ///////////////////////////////////////////////////////////////////////
+	    // Создать цепочку сертификатов
+	    ///////////////////////////////////////////////////////////////////////
+        public static Certificate[] CreateCertificateChain(
+            Certificate certificate, IEnumerable<Certificate> certificates)
+        {
+            // инициализировать цепочку сертификатов
+            List<Certificate> certificateChain = new List<Certificate>(
+                new Certificate[] { certificate }
+            ); 
+            // до появления самоподписанного сертификата
+            while (!IsSelfSignedCertificate(certificate))
+            {
+                // сохранить текущий сертификат
+                Certificate current = certificate; 
+
+                // для всех сертификатов
+                foreach (Certificate parent in certificates)
+                {
+                    // проверить нахождение издателя
+                    if (!IsIssuedByCA(certificate, parent)) continue; 
+
+                    // добавить сертификат издателя в список
+                    certificateChain.Add(parent); certificate = parent; break; 
+                }
+                // проверить успешность поиска
+                if (Object.ReferenceEquals(current, certificate)) break; 
+            }
+            // вернуть цепочку сертификатов
+            return certificateChain.ToArray(); 
+        }
 		///////////////////////////////////////////////////////////////////////
 		// Объединить расширения
 		///////////////////////////////////////////////////////////////////////
@@ -336,34 +394,9 @@ namespace Aladdin.CAPI
 	    public static void VerifyCertificate(Factory factory, 
             SecurityStore scope, Certificate certificate, Certificate certificateCA) 
         {
-		    // извлечь закодированный сертификат
-		    ASN1.ISO.PKIX.Certificate decoded = certificate.Decoded; 
-        
-            // извлечь подписываемую часть
-            ASN1.ISO.PKIX.TBSCertificate tbsCertificate = decoded.TBSCertificate; 
-        
             // проверить соответствие издателя
-            if (!tbsCertificate.Issuer.Equals(certificateCA.Subject)) 
-            {
-                // при ошибке выбросить исключение
-                throw new InvalidDataException();
-            }
-            // найти расширение номера ключа издателя
-            ASN1.OctetString authorityKeyIdentifier = certificate.IssuerKeyIdentifier; 
-            
-            // найти расширение номера субъекта
-            ASN1.OctetString subjectKeyIdentifierCA = certificateCA.SubjectKeyIdentifier; 
-            
-            // при наличии расширений
-            if (authorityKeyIdentifier != null && subjectKeyIdentifierCA != null)
-            {
-                // проверить совпадение номеров
-                if (!Arrays.Equals(authorityKeyIdentifier.Value, subjectKeyIdentifierCA.Value))
-                {
-                    // при ошибке выбросить исключение
-                    throw new InvalidDataException();
-                }
-            }
+            if (!IsIssuedByCA(certificate, certificateCA)) throw new InvalidDataException();
+
             // раскодировать открытый ключ издателя
 		    IPublicKey publicKeyCA = certificateCA.GetPublicKey(factory);
         

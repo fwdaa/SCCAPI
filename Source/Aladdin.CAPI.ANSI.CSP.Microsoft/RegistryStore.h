@@ -14,11 +14,17 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 			: CAPI::CSP::RegistryStore(provider, scope, CAPI::CSP::Container::typeid, 0) {} 
 
 		// получить сертификат открытого ключа
-		public protected: virtual Certificate^ GetCertificate(CAPI::CSP::KeyHandle^ hKeyPair, 
+		public protected: virtual Certificate^ GetCertificate(
+			CAPI::CSP::KeyHandle^ hKeyPair, 
 			ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo) override;  
 
-		// сохранить сертификат открытого ключа
-		public protected: virtual void SetCertificate(
-			CAPI::CSP::KeyHandle^ hKeyPair, Certificate^ certificate) override; 
+		// получить цепь сертификатов
+		public protected: virtual array<Certificate^>^ GetCertificateChain(
+			Certificate^ certificate) override;   
+		
+		// сохранить цепь сертификатов
+		public protected: virtual void SetCertificateChain(
+			CAPI::CSP::KeyHandle^ hKeyPair, 
+			array<Certificate^>^ certificateChain) override; 
 	}; 
 }}}}}

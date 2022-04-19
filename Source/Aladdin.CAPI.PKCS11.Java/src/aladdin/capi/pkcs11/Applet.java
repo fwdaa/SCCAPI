@@ -446,6 +446,25 @@ public class Applet extends ContainerStore implements IRandFactory
 		// вернуть найденные объекты
 		return keyIDs.values().toArray(new byte[keyIDs.size()][]); 
 	}
+	// найти объекты
+	public final Certificate[] enumerateAllCertificates(Session session, String label) throws IOException
+    {
+        // указать фильтр поиска
+        Attribute[] attributes = new Attribute[] { 
+            new Attribute(API.CKA_CLASS, API.CKO_CERTIFICATE) 
+        }; 
+        // создать список сертификатов
+        List<Certificate> certificates = new ArrayList<Certificate>(); 
+        
+		// для каждого найденного объекта
+		for (SessionObject obj : session.findTokenObjects(label, attributes))		
+        try { 
+            // добавить сертификат в список
+            certificates.add(new Certificate(obj.getValue())); 
+        }
+        // вернуть список сертификатов
+        catch (Throwable e) {} return certificates.toArray(new Certificate[certificates.size()]); 
+    }
     ///////////////////////////////////////////////////////////////////////
     // Подготовится к генерации/записи ключевой пары
     ///////////////////////////////////////////////////////////////////////

@@ -1115,7 +1115,7 @@ namespace Aladdin.CAPI
 			return new ASN1.ISO.PKCS.PKCS7.RecipientInfos(listRecipientInfos.ToArray());
         }
         public static ASN1.ISO.PKCS.PKCS7.RecipientInfos KeyxEncryptKey(
-            IRand rand, IPrivateKey privateKey, Certificate certificate, ISecretKey key, 
+            IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, ISecretKey key, 
             Certificate[] recipientCertificates, ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
             out ASN1.ISO.PKCS.PKCS7.OriginatorInfo originatorInfo)
         {
@@ -1152,7 +1152,7 @@ namespace Aladdin.CAPI
                 if ((keyUsage & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) != KeyUsage.None)
                 {
                     // получить способ использования ключа
-                    keyUsage = certificate.KeyUsage; 
+                    keyUsage = certificateChain[0].KeyUsage; 
 
                     // проверить допустимость операции
                     if ((keyUsage & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) == KeyUsage.None)
@@ -1167,18 +1167,26 @@ namespace Aladdin.CAPI
                     // при наличии алгоритма согласования ключа
                     if (algorithm != null) { RefObject.Release(algorithm); 
             
+                        // создать список закодированных представлений
+                        ASN1.IEncodable[] encodables = new ASN1.IEncodable[certificateChain.Length]; 
+
+                        // для каждого сертификата
+                        for (int j = 0; j < certificateChain.Length; j++) 
+                        {
+                            // сохранить закодированное представление
+                            encodables[j] = certificateChain[j].Decoded; 
+                        }
                         // указать набор сертификатов отправителя
-                        ASN1.ISO.CertificateSet certificates = new ASN1.ISO.CertificateSet(
-                            new ASN1.Encodable[] { certificate.Decoded }
-                        ); 
+                        ASN1.ISO.CertificateSet certificates = new ASN1.ISO.CertificateSet(encodables); 
+
                         // указать отправителя
                         originatorInfo = new ASN1.ISO.PKCS.PKCS7.OriginatorInfo(certificates, null); 
             
                         // зашифровать ключ шифрования данных
                         ASN1.ISO.PKCS.PKCS7.KeyAgreeRecipientInfo recipientInfo = 
-                            CMS.AgreementEncryptKey(rand, privateKey, certificate, 
-                                ASN1.Tag.Any, keyxParameters[i], 
-                                new Certificate[] { recipientCertificates[i] }, key
+                            CMS.AgreementEncryptKey(rand, privateKey, 
+                            certificateChain[0], ASN1.Tag.Any, keyxParameters[i], 
+                            new Certificate[] { recipientCertificates[i] }, key
                         );
                         // поместить зашифрованный ключ в список
                         listRecipientInfos.Add(ASN1.Encodable.Encode(
@@ -1362,7 +1370,7 @@ namespace Aladdin.CAPI
             }
         }
         public static ASN1.ISO.PKCS.PKCS9.AuthenticatedData KeyxMacData(IRand rand, 
-            IPrivateKey privateKey, Certificate certificate, Certificate[] recipientCertificates, 
+            IPrivateKey privateKey, Certificate[] certificateChain, Certificate[] recipientCertificates, 
 		    ASN1.ISO.AlgorithmIdentifier[] keyxParameters, ASN1.ISO.AlgorithmIdentifier macParameters, 
             ASN1.ISO.AlgorithmIdentifier hashParameters, CMSData data, 
             ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
@@ -1451,7 +1459,7 @@ namespace Aladdin.CAPI
             
                     // разделить ключ между получателями
                     ASN1.ISO.PKCS.PKCS7.RecipientInfos recipientInfos = KeyxEncryptKey(
-                        rand, privateKey, certificate, key, recipientCertificates, 
+                        rand, privateKey, certificateChain, key, recipientCertificates, 
                         keyxParameters, out originatorInfo
                     ); 
                     // вычислить имитовстаку
@@ -1639,7 +1647,7 @@ namespace Aladdin.CAPI
             }
 		}
         public static ASN1.ISO.PKCS.PKCS7.EnvelopedData KeyxEncryptData(
-            IRand rand, IPrivateKey privateKey, Certificate certificate, 
+            IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
             Certificate[] recipientCertificates, 
             ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
             ASN1.ISO.AlgorithmIdentifier cipherParameters, 
@@ -1669,7 +1677,7 @@ namespace Aladdin.CAPI
 
 		            // разделить ключ между получателями
                     ASN1.ISO.PKCS.PKCS7.RecipientInfos recipientInfos = KeyxEncryptKey(
-                        rand, privateKey, certificate, CEK, 
+                        rand, privateKey, certificateChain, CEK, 
                         recipientCertificates, keyxParameters, out originatorInfo
                     ); 
                     // зашифровать данные
@@ -1817,7 +1825,7 @@ namespace Aladdin.CAPI
 		// Подписать данные
 		///////////////////////////////////////////////////////////////////////
 		public static ASN1.ISO.PKCS.PKCS7.SignedData SignData(IRand rand, 
-			IPrivateKey[] privateKeys, Certificate[] certificates,   
+			IPrivateKey[] privateKeys, Certificate[][] certificatesChains,   
 			ASN1.ISO.AlgorithmIdentifier[] hashParameters, 
 			ASN1.ISO.AlgorithmIdentifier[] signHashParameters, CMSData data, 
 			ASN1.ISO.Attributes[] authAttributes, ASN1.ISO.Attributes[] unauthAttributes)
@@ -1844,28 +1852,25 @@ namespace Aladdin.CAPI
 			// для каждого подписывающего лица
 			for (int i = 0; i < privateKeys.Length; i++)
 			{
-				// для всех алгоритмов хэширования
-				bool findHash = false; foreach (ASN1.ISO.AlgorithmIdentifier hashAlgorithm in listHashAlgorithms)
-				{
-					// проверить наличие указанного алгоритма
-					if (Arrays.Equals(hashParameters[i].Encoded, hashAlgorithm.Encoded)) { findHash = true; break; }
-				}
-				// добавить указанный алгоритм в список
-				if (!findHash) listHashAlgorithms.Add(hashParameters[i]); 
-
-				// для каждого сертификата
-				bool findCert = false; foreach (ASN1.ISO.PKIX.Certificate cert in listCertificates)
-				{
-					// проверить наличие указанного сертификата
-					if (Arrays.Equals(certificates[i].Encoded, cert.Encoded)) { findCert = true; break; }
-				}
-				// добавить указанный сертификат в список
-				if (!findCert) listCertificates.Add(new ASN1.ISO.PKIX.Certificate(
-                    ASN1.Encodable.Decode(certificates[i].Encoded)
-                )); 
+                // при отсутствии алгоритма хэширования
+                if (!listHashAlgorithms.Contains(hashParameters[i]))
+                {
+                    // добавить указанный алгоритм в список
+                    listHashAlgorithms.Add(hashParameters[i]); 
+                }
+                // для всех сертификатов цепочки
+                foreach (Certificate certificate in certificatesChains[i])
+                {
+                    // при отсутствиии сертификата
+                    if (!listCertificates.Contains(certificate.Decoded))
+                    {
+                        // добавить сертификат в список
+                        listCertificates.Add(certificate.Decoded); 
+                    }
+                }
 				// подписать данные
 				ASN1.ISO.PKCS.PKCS7.SignerInfo signerInfo = SignData( 
-					rand, privateKeys[i], certificates[i], 
+					rand, privateKeys[i], certificatesChains[i][0], 
 					hashParameters[i], signHashParameters[i], encapContentInfo, 
 					authAttributes[i], unauthAttributes[i]
 				); 

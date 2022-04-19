@@ -19,7 +19,7 @@ namespace Aladdin.CAPI.COM
 		private CultureInfo				cultureInfo;	// локализация
 		private CryptoProvider			provider;		// криптопровайдер
 		private SecurityInfo			containerInfo;	// информация контейнера
-        private CAPI.Certificate		certificate;    // сертификат ключа
+        private CAPI.Certificate		certificate;	// сертификат ключа
 		private Authentication			authentication; // способ аутентификации
 
 		// конструктор

@@ -419,6 +419,25 @@ namespace Aladdin.CAPI.PKCS11
 			// вернуть найденные объекты
 			Byte[][] ids = new Byte[keyIDs.Count][]; keyIDs.Values.CopyTo(ids, 0); return ids;
         }
+		// перечислить все сертификаты
+		public Certificate[] EnumerateAllCertificates(Session session, string label)
+		{
+			// указать фильтр поиска
+			Attribute[] attributes = new Attribute[] { 
+				Store.Provider.CreateAttribute(API.CKA_CLASS, API.CKO_CERTIFICATE) 
+			}; 
+			// создать список сертификатов
+			List<Certificate> certificates = new List<Certificate>(); 
+        
+			// для каждого найденного объекта
+			foreach (SessionObject obj in session.FindTokenObjects(label, attributes))		
+			try { 
+				// добавить сертификат в список
+				certificates.Add(new Certificate(obj.GetValue())); 
+			}
+			// вернуть список сертификатов
+			catch {} return certificates.ToArray(); 
+		}
         ///////////////////////////////////////////////////////////////////////
         // Подготовится к генерации/записи ключевой пары
         ///////////////////////////////////////////////////////////////////////

@@ -262,6 +262,14 @@ public class Container extends aladdin.capi.software.Container
         // вернуть список сертификатов
         catch (Throwable e) {} return certificates.toArray(new aladdin.capi.Certificate[certificates.size()]);
     }
+    @Override public aladdin.capi.Certificate[] getCertificateChain(aladdin.capi.Certificate certificate) 
+    {
+        // перечислить все сертификаты
+        aladdin.capi.Certificate[] certificates = enumerateAllCertificates(); 
+        
+        // получить цепь сертификатов
+        return PKI.createCertificateChain(certificate, Arrays.asList(certificates)); 
+    }
 	@Override public aladdin.capi.Certificate getCertificate(byte[] keyID) throws IOException
 	{
         PfxSafeBag item; 
@@ -637,13 +645,27 @@ public class Container extends aladdin.capi.software.Container
 	///////////////////////////////////////////////////////////////////////////
 	// Функции установки
 	///////////////////////////////////////////////////////////////////////////
-	@Override public void setCertificate(byte[] keyID, 
-        aladdin.capi.Certificate certificate) throws IOException
+	@Override public void setCertificateChain(byte[] keyID, 
+        aladdin.capi.Certificate[] certificateChain) throws IOException
 	{
+        authenticate(); 
+        
+        // перечислить все сертификаты
+        List<aladdin.capi.Certificate> certificates = Arrays.asList(enumerateCertificates()); 
+        
+        // создать список добавляемых сертификатов
+        List<aladdin.capi.Certificate> newCertificates = new ArrayList<aladdin.capi.Certificate>(); 
+        
+        // для всех сертификатов цепочки, кроме целевого
+        for (int i = 1; i < certificateChain.length; i++)
+        {
+            // при отсутствии сертификата добавить сертификат в список
+            if (!certificates.contains(certificateChain[i])) newCertificates.add(certificateChain[i]);
+        }
 		// закодировать сертификат
 		CertBag certBag = new CertBag(
 			new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs9.OID.CERT_TYPES_X509), 
-            new OctetString(certificate.getEncoded())
+            new OctetString(certificateChain[0].getEncoded())
 		); 
 		// найти сертификат по идентификатору
 		PfxSafeBag item = findCertificateBag(keyID, false); if (item != null) 
@@ -676,6 +698,22 @@ public class Container extends aladdin.capi.software.Container
 			SafeBag bag = new SafeBag(
                 new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs12.OID.BT_CERT), 
                 certBag, attributes
+            ); 
+            // добавить новый элемент в контейнер
+            container.addObjects(null, new SafeBag[] { bag }, new PBECulture[] { null }); 
+        }
+        // для всех добавляемых сертификатов
+        for (aladdin.capi.Certificate certificate : newCertificates)
+        {
+            // закодировать сертификат
+            certBag = new CertBag(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs9.OID.CERT_TYPES_X509), 
+                new OctetString(certificate.getEncoded())
+            ); 
+            // создать элемент для запроса на сертификат
+			SafeBag bag = new SafeBag(
+                new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs12.OID.BT_CERT), 
+                certBag, null
             ); 
             // добавить новый элемент в контейнер
             container.addObjects(null, new SafeBag[] { bag }, new PBECulture[] { null }); 

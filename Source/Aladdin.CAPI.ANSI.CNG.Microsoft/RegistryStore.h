@@ -18,8 +18,13 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 			CAPI::CNG::NKeyHandle^ hPrivateKey, 
 			ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo) override;  
 
+		// получить цепь сертификатов
+		public protected: virtual array<Certificate^>^ GetCertificateChain(
+			Certificate^ certificate) override; 
+		
 		// сохранить сертификат открытого ключа
-		public protected: virtual void SetCertificate(
-			CAPI::CNG::NKeyHandle^ hPrivateKey, Certificate^ certificate) override; 
+		public protected: virtual void SetCertificateChain(
+			CAPI::CNG::NKeyHandle^ hPrivateKey, 
+			array<Certificate^>^ certificateChain) override; 
 	}; 
 }}}}}

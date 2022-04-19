@@ -102,22 +102,66 @@ public class Session extends RefObject
     }
 	// создать пару ассиметричных ключей
 	public final SessionObject[] generateKeyPair(Mechanism parameters, 
-		Attribute[] publicAttributes, Attribute[] privateAttributes) throws Exception			
+		Attribute[] requiredPublicAttributes, Attribute[] requiredPrivateAttributes, 
+        Attribute[] optionalPublicAttributes, Attribute[] optionalPrivateAttributes) 
+        throws Exception			
 	{
+        // проверить наличие атрибутов
+        if (optionalPublicAttributes  == null) optionalPublicAttributes  = new Attribute[0]; 
+        if (optionalPrivateAttributes == null) optionalPrivateAttributes = new Attribute[0]; 
+
+		// создать список атрибутов
+		List<Attribute> publicAttributes  = new ArrayList<Attribute>(); 
+		List<Attribute> privateAttributes = new ArrayList<Attribute>(); 
+        
+		// указать обязательные атрибуты
+		publicAttributes .addAll(Arrays.asList(requiredPublicAttributes )); 
+		privateAttributes.addAll(Arrays.asList(requiredPrivateAttributes)); 
+        
+		// указать необязательные атрибуты
+		publicAttributes .addAll(Arrays.asList(optionalPublicAttributes )); 
+		privateAttributes.addAll(Arrays.asList(optionalPrivateAttributes)); 
+        
 		// выделить память для результата
 		SessionObject[] objects = new SessionObject[2]; 
+        try { 
+            // преобразовать атрибуты
+            CK_ATTRIBUTE[] publicAttrs  = Attribute.convert(
+                publicAttributes.toArray(new Attribute[publicAttributes.size()])
+            ); 
+            // преобразовать атрибуты
+            CK_ATTRIBUTE[] privateAttrs = Attribute.convert(
+                privateAttributes.toArray(new Attribute[privateAttributes.size()])
+            ); 
+            // создать пару ассиметричных ключей
+            long[] hObjects = module.generateKeyPair(
+                hSession, parameters.convert(), publicAttrs, privateAttrs); 
 
-        // преобразовать атрибуты
-        CK_ATTRIBUTE[] publicAttrs  = Attribute.convert(publicAttributes ); 
-        CK_ATTRIBUTE[] privateAttrs = Attribute.convert(privateAttributes); 
-        
-		// создать пару ассиметричных ключей
-		long[] hObjects = module.generateKeyPair(
-			hSession, parameters.convert(), publicAttrs, privateAttrs); 
-        
-        // вернуть созданные объекты
-        objects[0] = new SessionObject(this, hObjects[0]); 
-        objects[1] = new SessionObject(this, hObjects[1]); return objects; 
+            // вернуть созданные объекты
+            objects[0] = new SessionObject(this, hObjects[0]); 
+            objects[1] = new SessionObject(this, hObjects[1]); return objects; 
+        }
+        catch (aladdin.pkcs11.Exception e)
+        {
+            // проверить код ошибки
+            if (e.getErrorCode() != API.CKR_ATTRIBUTE_TYPE_INVALID) throw e; 
+
+			// проверить наличие необязательных атрибутов
+			if (optionalPublicAttributes .length == 0 && 
+				optionalPrivateAttributes.length == 0) throw e; 
+
+            // преобразовать атрибуты
+            CK_ATTRIBUTE[] publicAttrs  = Attribute.convert(requiredPublicAttributes ); 
+            CK_ATTRIBUTE[] privateAttrs = Attribute.convert(requiredPrivateAttributes); 
+            
+            // создать пару ассиметричных ключей
+            long[] hObjects = module.generateKeyPair(
+                hSession, parameters.convert(), publicAttrs, privateAttrs); 
+
+            // вернуть созданные объекты
+            objects[0] = new SessionObject(this, hObjects[0]); 
+            objects[1] = new SessionObject(this, hObjects[1]); return objects; 
+        }
 	}
     // сгенерировать пару ключей
 	public final SessionObject[] generateKeyPair(Mechanism parameters,
@@ -160,26 +204,22 @@ public class Session extends RefObject
         publicAttributes  = pubAttributes .toArray(new Attribute[pubAttributes .size()]); 
         privateAttributes = privAttributes.toArray(new Attribute[privAttributes.size()]);
         
+		// создать необязательные атрибуты
+		List<Attribute> optionalPubAttributes  = new ArrayList<Attribute>(); 
+		List<Attribute> optionalPrivAttributes = new ArrayList<Attribute>(); 
+        
         // в зависимости от использования ключа
         if ((keyUsage.contains(KeyUsage.DATA_ENCIPHERMENT))) 
-        try { 
-            // указать значения атрибутов
-            privAttributes.add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE)); 
-            pubAttributes .add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
-            
-            // сгенерировать пару ключей
-            return generateKeyPair(parameters, 
-                pubAttributes .toArray(new Attribute[pubAttributes .size()]), 
-                privAttributes.toArray(new Attribute[privAttributes.size()])
-            );
-        }
-        catch (aladdin.pkcs11.Exception e)
         {
-            // проверить код ошибки
-            if (e.getErrorCode() != API.CKR_ATTRIBUTE_TYPE_INVALID) throw e; 
+            // указать значения атрибутов
+            optionalPubAttributes .add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
+            optionalPrivAttributes.add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE)); 
         }
         // сгенерировать пару ключей
-        return generateKeyPair(parameters, publicAttributes, privateAttributes);
+        return generateKeyPair(parameters, publicAttributes, privateAttributes, 
+            optionalPubAttributes .toArray(new Attribute[optionalPubAttributes .size()]), 
+            optionalPrivAttributes.toArray(new Attribute[optionalPrivAttributes.size()])
+        );
     }
 	///////////////////////////////////////////////////////////////////////////
 	// Управление объектами
@@ -221,51 +261,76 @@ public class Session extends RefObject
         publicAttributes  = pubAttributes .toArray(new Attribute[pubAttributes .size()]); 
         privateAttributes = privAttributes.toArray(new Attribute[privAttributes.size()]);
         
-        // выделить буфер требуемого размера
-        SessionObject[] objs = new SessionObject[2]; 
-        
+		// создать необязательные атрибуты
+		List<Attribute> optionalPubAttributes  = new ArrayList<Attribute>(); 
+		List<Attribute> optionalPrivAttributes = new ArrayList<Attribute>(); 
+
         // в зависимости от использования ключа
         if ((keyUsage.contains(KeyUsage.DATA_ENCIPHERMENT))) 
-        try { 
+        {
             // указать значения атрибутов
-            privAttributes.add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE)); 
-            pubAttributes .add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
+            optionalPubAttributes .add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
+            optionalPrivAttributes.add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE)); 
+        }
+        // выделить буфер требуемого размера
+        SessionObject[] objs = new SessionObject[2]; 
             
-            // сохранить открытый ключ на смарт-карту
-            objs[0] = createObject(pubAttributes.toArray(new Attribute[pubAttributes.size()])); 
-            try { 
-                // сохранить личный ключ на смарт-карту
-                objs[1] = createObject(privAttributes.toArray(new Attribute[privAttributes.size()])); 
-            }
-            // при ошибке удалить личный ключ
-            catch (IOException e) { destroyObject(objs[0]); throw e; } return objs; 
+        // сохранить открытый ключ на смарт-карту
+        objs[0] = createObject(publicAttributes, 
+            optionalPubAttributes.toArray(new Attribute[optionalPubAttributes.size()])
+        ); 
+        try { 
+            // сохранить личный ключ на смарт-карту
+            objs[1] = createObject(privateAttributes, 
+                optionalPrivAttributes.toArray(new Attribute[optionalPrivAttributes.size()])
+            ); 
+        }
+        // при ошибке удалить личный ключ
+        catch (IOException e) { destroyObject(objs[0]); throw e; } return objs; 
+    }
+	// создать объект
+	public final SessionObject createObject(
+        Attribute[] requiredAttributes, Attribute[] optionalAttributes)
+		throws Exception			
+	{
+        // проверить наличие атрибутов
+        if (requiredAttributes == null) requiredAttributes = new Attribute[0]; 
+        if (optionalAttributes == null) optionalAttributes = new Attribute[0]; 
+        
+		// создать список атрибутов
+		List<Attribute> attributes = new ArrayList<Attribute>(); 
+
+		// объединить атрибуты
+        attributes.addAll(Arrays.asList(requiredAttributes)); 
+		attributes.addAll(Arrays.asList(optionalAttributes)); 
+        try {
+            // преобразовать атрибуты
+            CK_ATTRIBUTE[] attrs = Attribute.convert(
+                attributes.toArray(new Attribute[attributes.size()])
+            ); 
+            // создать объект с указанными атрибутами
+            long hObject = module.createObject(hSession, attrs);  
+
+            // вернуть созданный объект
+            return new SessionObject(this, hObject); 
         }
         catch (aladdin.pkcs11.Exception e)
         {
             // проверить код ошибки
             if (e.getErrorCode() != API.CKR_ATTRIBUTE_TYPE_INVALID) throw e; 
+            
+    		// проверить наличие необязательных атрибутов
+			if (optionalAttributes.length == 0) throw e; 
+
+            // преобразовать атрибуты
+            CK_ATTRIBUTE[] attrs = Attribute.convert(requiredAttributes); 
+            
+            // создать объект с указанными атрибутами
+            long hObject = module.createObject(hSession, attrs);  
+
+            // вернуть созданный объект
+            return new SessionObject(this, hObject); 
         }
-        // сохранить открытый ключ на смарт-карту
-        objs[0] = createObject(publicAttributes); 
-        try { 
-            // сохранить личный ключ на смарт-карту
-            objs[1] = createObject(privateAttributes); return objs; 
-        }
-        // при ошибке удалить личный ключ
-        catch (IOException e) { destroyObject(objs[0]); throw e; } 
-    }
-	// создать объект
-	public final SessionObject createObject(Attribute[] attributes)
-		throws Exception			
-	{
-        // преобразовать атрибуты
-        CK_ATTRIBUTE[] attrs = Attribute.convert(attributes); 
-        
-		// создать объект с указанными атрибутами
-		long hObject = module.createObject(hSession, attrs);  
-		
-		// вернуть созданный объект
-		return new SessionObject(this, hObject); 
     }
 	// найти объекты с указанными атрибутами
 	public final SessionObject[] findObjects(Attribute[] attributes)
@@ -307,8 +372,8 @@ public class Session extends RefObject
 		return new SessionObject(this, handles[0]); 
 	}
 	// создать объект на токене
-	public final SessionObject createTokenObject(
-        String label, Attribute[] attributes) throws Exception			
+	public final SessionObject createTokenObject(String label, 
+        Attribute[] requiredAttributes, Attribute[] optionalAttributes) throws Exception			
 	{
 		// выделить память для атрибутов
 		Attribute[] attrs = new Attribute[] {
@@ -320,7 +385,9 @@ public class Session extends RefObject
             new Attribute(API.CKA_LABEL, label)
         }; 
 		// создать объект на токене
-		return createObject(Attribute.join(attributes, attrs)); 
+		return createObject(
+            Attribute.join(requiredAttributes, attrs), optionalAttributes
+        ); 
 	}
 	// найти объекты с указанными атрибутами
 	public final SessionObject[] findTokenObjects(

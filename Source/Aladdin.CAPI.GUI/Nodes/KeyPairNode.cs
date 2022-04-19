@@ -29,7 +29,7 @@ namespace Aladdin.CAPI.GUI.Nodes
 		public override string Label { get 
         { 
             // вернуть имя субъекта сертификата
-            if (keyPair.Certificate != null) return keyPair.Certificate.SubjectName; 
+            if (keyPair.CertificateChain != null) return keyPair.CertificateChain[0].SubjectName; 
 
             // обработать исключительный случай
             if (keyPair.KeyID == null) return "?"; 
@@ -53,13 +53,10 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
             // при наличии сертификата
-            if (keyPair.Certificate != null)
+            if (keyPair.CertificateChain != null)
             { 
-			    // создать объект сертификата
-			    X509Certificate2 cert = new X509Certificate2(keyPair.Certificate.Encoded); 
-
 			    // отобразить сертификат
-			    X509Certificate2UI.DisplayCertificate(cert, node.MainForm.Handle); 
+				CertificateDialog.Show(node.MainForm.Handle, keyPair.CertificateChain); 
             }
             else { 
 				// указать способ аутентификации
@@ -122,7 +119,7 @@ namespace Aladdin.CAPI.GUI.Nodes
                         delegate (object sender, EventArgs e) { OnCreateCertificate(node, sender, e); }
                     ));
                     // при наличии сертификата 
-                    if (keyPair.Certificate != null) 
+                    if (keyPair.CertificateChain != null) 
                     {
                         // указать возможность создания запроса на сертификат
                         items.Add(new ToolStripMenuItem(Resource.MenuCreateRequest, null,        
@@ -171,8 +168,11 @@ namespace Aladdin.CAPI.GUI.Nodes
 							rand, keyPair.KeyID, dialog.Subject, signParameters, dialog.NotBefore, dialog.NotAfter,   
 							dialog.KeyUsage, dialog.ExtendedKeyUsage, dialog.BasicConstraints, null, null
 						); 
+						// создать цепочку сертификатов
+						Certificate[] certificateChain = new Certificate[] { certificate }; 
+
 						// сохранить измененную информацию
-						keyPair = new ContainerKeyPair(keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificate); 
+						keyPair = new ContainerKeyPair(keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificateChain); 
 					}
                 }
 				// получить сообщение о завершении
@@ -191,7 +191,7 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 			try { 
                 // получить расширения сертификата
-                ASN1.ISO.PKIX.Extensions extensions = keyPair.Certificate.Extensions; 
+                ASN1.ISO.PKIX.Extensions extensions = keyPair.CertificateChain[0].Extensions; 
 
                 // указать специальные расширения
                 ASN1.ISO.PKIX.CE.BasicConstraints basicConstraints = 
@@ -221,8 +221,8 @@ namespace Aladdin.CAPI.GUI.Nodes
 
 						// создать запрос на сертификат
 						CertificateRequest request = container.CreateCertificateRequest( 
-							rand, keyPair.KeyID, keyPair.Certificate.Subject, 
-							signParameters, keyPair.Certificate.Extensions
+							rand, keyPair.KeyID, keyPair.CertificateChain[0].Subject, 
+							signParameters, keyPair.CertificateChain[0].Extensions
 						); 
 						// сохранить запрос на сертификат в файл
 						File.WriteAllBytes(fileName, request.Encoded); 
@@ -249,6 +249,9 @@ namespace Aladdin.CAPI.GUI.Nodes
                 // проверить выбор сертификата
                 if (certificate == null) return; 
 
+				// создать цепочку сертификатов
+				Certificate[] certificateChain = new Certificate[] { certificate }; 
+
 				// указать способ аутентификации
 				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
 
@@ -269,10 +272,10 @@ namespace Aladdin.CAPI.GUI.Nodes
 							mainForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error); return; 
 					}
 					// изменить сертификат контейнера
-					container.SetCertificate(keyPair.KeyID, certificate); 
+					container.SetCertificateChain(keyPair.KeyID, certificateChain); 
                 }
                 // сохранить измененную информацию
-                keyPair = new ContainerKeyPair(keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificate); 
+                keyPair = new ContainerKeyPair(keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificateChain); 
 
 				// получить сообщение о завершении
 				string message = Resource.StatusSetCertificate; node.Refresh(); 

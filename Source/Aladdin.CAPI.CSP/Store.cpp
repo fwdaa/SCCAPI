@@ -150,11 +150,11 @@ Aladdin::CAPI::CSP::ProviderStore::GetCertificate(KeyHandle^ hKeyPair,
 	catch (Exception^) { return nullptr; } 
 }
 
-void Aladdin::CAPI::CSP::ProviderStore::SetCertificate(
-	KeyHandle^ hKeyPair, Certificate^ certificate)
+void Aladdin::CAPI::CSP::ProviderStore::SetCertificateChain(
+	KeyHandle^ hKeyPair, array<Certificate^>^ certificateChain)
 {$
 	// установить сертификат
-	hKeyPair->SetParam(KP_CERTIFICATE, certificate->Encoded, 0); 
+	hKeyPair->SetParam(KP_CERTIFICATE, certificateChain[0]->Encoded, 0); 
 }
 
 ///////////////////////////////////////////////////////////////////////////

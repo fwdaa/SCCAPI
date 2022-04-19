@@ -31,7 +31,7 @@ public abstract class PrivateKey extends aladdin.capi.PrivateKey
         if (tokenAttribute == null || (Byte)tokenAttribute.value() == API.CK_FALSE)
         {
             // создать сеансовый объект
-            return session.createObject(keyAttributes.join(attributes).toArray()); 
+            return session.createObject(keyAttributes.join(attributes).toArray(), null); 
         }
         else {
             // выделить память для атрибутов поиска

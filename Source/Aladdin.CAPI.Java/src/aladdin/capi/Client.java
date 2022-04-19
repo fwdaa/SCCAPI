@@ -15,6 +15,8 @@ public final class Client extends RefObject implements IClient
 {
     // сертификаты и личные ключи клиента
     private final Map<Certificate, IPrivateKey> keyPairs; 
+    // сертификаты и цепочки сертификатов
+    private final Map<Certificate, Certificate[]> certChains; 
 
 	// раскодировать контейнер в памяти
 	public Client(aladdin.capi.software.CryptoProvider provider, 
@@ -22,6 +24,9 @@ public final class Client extends RefObject implements IClient
 	{
         // выделить списки для сертификатов и личных ключей
         keyPairs = new HashMap<Certificate, IPrivateKey>();
+        
+        // выделить память для цепочек сертификатов
+        certChains = new HashMap<Certificate, Certificate[]>(); 
         
         // указать поток для обработки
         MemoryStream stream = new MemoryStream(encodedStore);  
@@ -38,8 +43,14 @@ public final class Client extends RefObject implements IClient
                 // при отсутствии сертификата в списке
                 if (certificate != null && !keyPairs.containsKey(certificate))
                 { 
+                    // получить цепь сертификатов
+                    Certificate[] certificateChain = container.getCertificateChain(certificate); 
+                        
                     // добавить личный ключ в список
                     keyPairs.put(certificate, container.getPrivateKey(keyID)); 
+
+                    // добавить цепочку сертификатов
+                    certChains.put(certificate, certificateChain); 
                 }
             }
         }
@@ -47,13 +58,19 @@ public final class Client extends RefObject implements IClient
         if (keyPairs.isEmpty()) throw new NoSuchElementException();
     }
 	// конструктор
-	public Client(IPrivateKey privateKey, Certificate certificate)
+	public Client(IPrivateKey privateKey, Certificate[] certificateChain)
     {
         // выделить списки для сертификатов и личных ключей
         keyPairs = new HashMap<Certificate, IPrivateKey>(); 
         
         // добавить пару ключей в список
-        keyPairs.put(certificate, RefObject.addRef(privateKey)); 
+        keyPairs.put(certificateChain[0], RefObject.addRef(privateKey)); 
+        
+        // выделить память для цепочек сертификатов
+        certChains = new HashMap<Certificate, Certificate[]>(); 
+        
+        // добавить цепочку сертификатов
+        certChains.put(certificateChain[0], certificateChain); 
     }
     @Override protected void onClose() throws IOException
     {
@@ -99,9 +116,13 @@ public final class Client extends RefObject implements IClient
         // проверить наличие ключа
         if (privateKey == null) throw new NoSuchElementException(); 
         
+        // найти цепочку сертификатов
+        Certificate[] certificateChain = certChains.get(certificate); 
+        
         // зашифровать данные
-        ContentInfo contentInfo = Culture.keyxEncryptData(culture, rand, 
-            privateKey, certificate, recipientCertificates, null, data, attributes
+        ContentInfo contentInfo = Culture.keyxEncryptData(
+            culture, rand, privateKey, certificateChain, 
+            recipientCertificates, null, data, attributes
         ); 
         // вернуть зашифрованные данные
         return contentInfo.encoded(); 
@@ -139,9 +160,13 @@ public final class Client extends RefObject implements IClient
         // проверить наличие ключа
         if (privateKey == null) throw new NoSuchElementException(); 
         
+        // найти цепочку сертификатов
+        Certificate[] certificateChain = certChains.get(certificate); 
+        
         // подписать данные
-        ContentInfo contentInfo = Culture.signData(culture, rand, 
-            privateKey, certificate, data, authAttributes, unauthAttributes
+        ContentInfo contentInfo = Culture.signData(
+            culture, rand, privateKey, certificateChain, 
+            data, authAttributes, unauthAttributes
         ); 
         // вернуть подписанные данные
         return contentInfo.encoded(); 

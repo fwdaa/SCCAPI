@@ -14,6 +14,66 @@ import java.util.*;
 public abstract class PKI
 {
 	///////////////////////////////////////////////////////////////////////
+	// Признак самоподписанного сертификата
+	///////////////////////////////////////////////////////////////////////
+    public static boolean isSelfSignedCertificate(Certificate certificate)
+    {
+        // признак самоподписанного сертификата
+        return isIssuedByCA(certificate, certificate); 
+    }
+    private static boolean isIssuedByCA(Certificate certificate, Certificate parent)
+    {
+        // проверить совпадение издателя
+        if (!parent.issuer().equals(certificate.subject())) return false; 
+
+        // найти расширение номера ключа издателя
+        OctetString authorityKeyIdentifier = certificate.issuerKeyIdentifier(); 
+            
+        // найти расширение номера субъекта
+        OctetString subjectKeyIdentifierCA = parent.subjectKeyIdentifier(); 
+            
+        // при наличии расширений
+        if (authorityKeyIdentifier != null && subjectKeyIdentifierCA != null)
+        {
+            // проверить совпадение номеров
+            if (!authorityKeyIdentifier.equals(subjectKeyIdentifierCA)) return false; 
+        }
+        return true; 
+    }
+	///////////////////////////////////////////////////////////////////////
+	// Создать цепочку сертификатов
+	///////////////////////////////////////////////////////////////////////
+    public static Certificate[] createCertificateChain(
+        Certificate certificate, Iterable<Certificate> certificates)
+    {
+        // инициализировать цепочку сертификатов
+        List<Certificate> certificateChain = new ArrayList<Certificate>(); 
+        
+        // добавить исходный сертификат
+        certificateChain.add(certificate); 
+        
+        // до появления самоподписанного сертификата
+        while (!isSelfSignedCertificate(certificate))
+        {
+            // сохранить текущий сертификат
+            Certificate current = certificate; 
+
+            // для всех сертификатов
+            for (Certificate parent : certificates)
+            {
+                // проверить нахождение издателя
+                if (!isIssuedByCA(certificate, parent)) continue; 
+
+                // добавить сертификат издателя в список
+                certificateChain.add(parent); certificate = parent; break; 
+            }
+            // проверить успешность поиска
+            if (current == certificate) break; 
+        }
+        // вернуть цепочку сертификатов
+        return certificateChain.toArray(new Certificate[certificateChain.size()]); 
+    }
+	///////////////////////////////////////////////////////////////////////
 	// Объединить расширения
 	///////////////////////////////////////////////////////////////////////
     public static Extensions addExtensions(Extensions extensions, 
@@ -343,31 +403,9 @@ public abstract class PKI
         SecurityStore scope, Certificate certificate, Certificate certificateCA) 
         throws SignatureException, IOException
     {
-		// извлечь закодированный сертификат
-		aladdin.asn1.iso.pkix.Certificate decoded = certificate.decoded(); 
-        
-        // извлечь подписываемую часть
-        TBSCertificate tbsCertificate = decoded.tbsCertificate(); 
-        
         // проверить соответствие издателя
-        if (!tbsCertificate.issuer().equals(certificateCA.subject())) throw new IOException(); 
+        if (!isIssuedByCA(certificate, certificateCA)) throw new IOException();
         
-        // найти расширение номера ключа издателя
-        OctetString authorityKeyIdentifier = certificate.issuerKeyIdentifier(); 
-            
-        // найти расширение номера субъекта
-        OctetString subjectKeyIdentifierCA = certificateCA.subjectKeyIdentifier(); 
-            
-        // при наличии расширений
-        if (authorityKeyIdentifier != null && subjectKeyIdentifierCA != null)
-        {
-            // проверить совпадение номеров
-            if (!Arrays.equals(authorityKeyIdentifier.value(), subjectKeyIdentifierCA.value())) 
-            {
-                // при ошибке выбросить исключение
-                throw new IOException(); 
-            }
-        }
         // раскодировать открытый ключ издателя
 		IPublicKey publicKeyCA = certificateCA.getPublicKey(factory);
         

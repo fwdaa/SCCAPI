@@ -74,8 +74,28 @@ namespace Aladdin.CAPI
         // все сертификаты контейнера
         public virtual Certificate[] EnumerateAllCertificates()
         {
-            // вернуть сертификаты пользователя
-            return EnumerateCertificates(); 
+            // создать список сертификатов пользователя
+            List<Certificate> certificates = new List<Certificate>(); 
+
+            // для всех ключей
+            foreach (byte[] keyID in GetKeyIDs())
+            { 
+                // получить сертификат для ключа
+                Certificate certificate = GetCertificate(keyID); 
+
+                // при отсутствии сертификата в списке
+                if (certificate != null && !certificates.Contains(certificate))
+                { 
+                    // для всех сертификатов цепочки
+                    foreach (Certificate item in GetCertificateChain(certificate))
+                    {
+                        // добавить сертификат в список
+                        if (!certificates.Contains(item)) certificates.Add(item); 
+                    }
+                }
+            }
+            // вернуть список сертификатов
+            return certificates.ToArray(); 
         }
         // сертификаты пользователя
         public Certificate[] EnumerateCertificates()
@@ -102,8 +122,14 @@ namespace Aladdin.CAPI
 		// получить сертификат открытого ключа
 		public abstract Certificate GetCertificate(byte[] keyID); 
 
+        // получить цепь сертификатов
+	    public virtual Certificate[] GetCertificateChain(Certificate certificate) 
+        {
+            // вернуть тривиальную цепь
+            return new Certificate[] { certificate }; 
+        }
 		// сохранить сертификат открытого ключа
-		public abstract void SetCertificate(byte[] keyID, Certificate certificate); 
+		public abstract void SetCertificateChain(byte[] keyID, Certificate[] certificateChain); 
 
         // найти пару ключей
         public byte[] GetKeyPair(Certificate certificate)
@@ -182,12 +208,15 @@ namespace Aladdin.CAPI
             // проверить наличие пары ключей
             if (keyID == null) throw new NotFoundException(); 
 
+            // получить цепь сертификатов
+            Certificate[] certificateChain = GetCertificateChain(certificate); 
+        
             // получить личный ключ
             using (IPrivateKey privateKey = GetPrivateKey(keyID))  
             {
                 // зашифровать данные
                 ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.KeyxEncryptData(
-                    culture, rand, privateKey, certificate, 
+                    culture, rand, privateKey, certificateChain, 
                     recipientCertificates, null, data, attributes
                 ); 
                 // вернуть зашифрованные данные
@@ -251,12 +280,15 @@ namespace Aladdin.CAPI
             // проверить наличие ключей
             if (keyID == null) throw new NotFoundException();
 
+            // получить цепь сертификатов
+            Certificate[] certificateChain = GetCertificateChain(certificate); 
+
             // получить личный ключ
             using (IPrivateKey privateKey = GetPrivateKey(keyID))  
             {
                 // подписать данные
                 ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.SignData(
-                    culture, rand, privateKey, certificate, 
+                    culture, rand, privateKey, certificateChain, 
                     data, authAttributes, unauthAttributes
                 ); 
                 // вернуть подписанные данные

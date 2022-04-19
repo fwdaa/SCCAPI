@@ -291,8 +291,8 @@ Aladdin::CAPI::CSP::Container::GetCertificate(array<BYTE>^ keyID)
 	return Store->GetCertificate(hKeyPair.Get(), publicKeyInfo); 
 }
 
-void Aladdin::CAPI::CSP::Container::SetCertificate(
-	array<BYTE>^ keyID, Certificate^ certificate)
+void Aladdin::CAPI::CSP::Container::SetCertificateChain(
+	array<BYTE>^ keyID, array<Certificate^>^ certificateChain)
 {$
 	// получить описатель пары ключей
 	DWORD keyType; Using<KeyHandle^> hKeyPair(GetUserKey(keyID, OUT keyType)); 
@@ -300,8 +300,8 @@ void Aladdin::CAPI::CSP::Container::SetCertificate(
 	// проверить наличие открытого ключа
 	if (hKeyPair.Get() == nullptr) throw gcnew Win32Exception(NTE_NO_KEY); 
 
-	// получить сертификат открытого ключа
-	return Store->SetCertificate(hKeyPair.Get(), certificate); 
+	// установить сертификат открытого ключа
+	return Store->SetCertificateChain(hKeyPair.Get(), certificateChain); 
 }
 
 array<BYTE>^ Aladdin::CAPI::CSP::Container::SetKeyPair(

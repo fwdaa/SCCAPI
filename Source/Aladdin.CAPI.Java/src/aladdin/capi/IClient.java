@@ -13,7 +13,7 @@ public interface IClient extends IRefObject
     
     // сертификаты пользователя
     Certificate[] enumerateCertificates() throws IOException; 
-       
+    
     // личный ключ пользователя
     byte[] getPrivateKey(
         Certificate certificate, Attributes attributes) 

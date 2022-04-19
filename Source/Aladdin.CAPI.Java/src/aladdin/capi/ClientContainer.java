@@ -123,7 +123,17 @@ public class ClientContainer extends RefObject implements IClient
             return container.getCertificate(keyID);
         }
     }
-    public void setCertificate(byte[] keyID, Certificate certificate) throws IOException
+    public Certificate[] getCertificateChain(Certificate certificate) throws IOException
+    {
+        // открыть контейнер
+        try (Container container = (Container)selector.openObject(
+            provider, info.scope, info.fullName(), "r"))
+        {
+            // получить цепочку сертификатов из контейнера
+            return container.getCertificateChain(certificate);
+        }
+    }
+    public void setCertificateChain(byte[] keyID, Certificate[] certificateChain) throws IOException
     {
         // открыть контейнер
         try (Container container = (Container)selector.openObject(
@@ -139,10 +149,10 @@ public class ClientContainer extends RefObject implements IClient
             SubjectPublicKeyInfo keyInfo = publicKey.encoded(); 
 
             // проверить совпадение открытых ключей
-            if (!certificate.publicKeyInfo().equals(keyInfo)) throw new IOException();
+            if (!certificateChain[0].publicKeyInfo().equals(keyInfo)) throw new IOException();
             
             // записать сертификат в контейнер
-            container.setCertificate(keyID, certificate);
+            container.setCertificateChain(keyID, certificateChain);
         }
     }
     ///////////////////////////////////////////////////////////////////////
@@ -164,13 +174,21 @@ public class ClientContainer extends RefObject implements IClient
                 Certificate certificate = container.getCertificate(id); String keyOID;
 
                 // указать идентификатор ключа
-                if (certificate == null) keyOID = container.getPublicKey(id).keyOID();
-
-                // указать идентификатор ключа
-                else keyOID = certificate.publicKeyInfo().algorithm().algorithm().value();
+                if (certificate == null) { keyOID = container.getPublicKey(id).keyOID();
                 
-                // добавить пару ключей в список
-                keyPairs.add(new ContainerKeyPair(info, id, keyOID, certificate));
+                    // добавить пару ключей в список
+                    keyPairs.add(new ContainerKeyPair(info, id, keyOID, null));
+                }
+                else { 
+                    // указать идентификатор ключа
+                    keyOID = certificate.publicKeyInfo().algorithm().algorithm().value();
+                    
+                    // получить цепь сертификатов
+                    Certificate[] certificateChain = container.getCertificateChain(certificate); 
+                    
+                    // добавить пару ключей в список
+                    keyPairs.add(new ContainerKeyPair(info, id, keyOID, certificateChain));
+                }
             }
             // вернуть описание ключей
             catch (Throwable e) {} return keyPairs.toArray(new ContainerKeyPair[0]);
@@ -190,9 +208,13 @@ public class ClientContainer extends RefObject implements IClient
 
             // проверить наличие ключевой пары
             if (id == null) return null; 
+            
+            // получить цепь сертификатов 
+            Certificate[] certificateChain = 
+                container.getCertificateChain(certificate); 
 
             // вернуть найденную ключевую пару
-            return new ContainerKeyPair(info, id, keyOID, certificate); 
+            return new ContainerKeyPair(info, id, keyOID, certificateChain); 
         }
     }
     public void deleteKeyPair(byte[] keyID) throws IOException
@@ -235,7 +257,7 @@ public class ClientContainer extends RefObject implements IClient
 	// Импортировать/экспортировать пару ключей
 	///////////////////////////////////////////////////////////////////////
 	public ContainerKeyPair importKeyPair(IRand rand, IPublicKey publicKey, 
-        IPrivateKey privateKey, Certificate certificate, 
+        IPrivateKey privateKey, Certificate[] certificateChain, 
         KeyUsage keyUsage, KeyFlags keyFlags) throws IOException
     {
         // открыть исходный контейнер
@@ -249,10 +271,10 @@ public class ClientContainer extends RefObject implements IClient
 	            try (KeyPair keyPair = container.importKeyPair(rebindRand, publicKey, privateKey, keyUsage, keyFlags)) 
                 { 
                     // записать сертификат в контейнер
-                    if (certificate != null) container.setCertificate(keyPair.keyID, certificate);
+                    if (certificateChain != null) container.setCertificateChain(keyPair.keyID, certificateChain);
                             
                     // вернуть описание пары ключей контейнера
-                    return new ContainerKeyPair(info, keyPair.keyID, publicKey.keyOID(), certificate); 
+                    return new ContainerKeyPair(info, keyPair.keyID, publicKey.keyOID(), certificateChain); 
                 }
             }
         }
@@ -273,7 +295,13 @@ public class ClientContainer extends RefObject implements IClient
 
             // получить сертификат
             Certificate certificate = container.getCertificate(keyID);
-
+            
+            // при наличии сертификата 
+            Certificate[] certificateChain = null; if (certificate != null)
+            {
+                // получить цепь сертификатов
+                certificateChain = container.getCertificateChain(certificate); 
+            }
             // получить личный ключ
             try (IPrivateKey privateKey = container.getPrivateKey(keyID))
             {
@@ -281,7 +309,9 @@ public class ClientContainer extends RefObject implements IClient
                 try (ClientContainer containerTo = new ClientContainer(providerTo, infoTo, selector))
                 { 
                     // импортировать пару ключей
-                    return containerTo.importKeyPair(rand, publicKey, privateKey, certificate, keyUsage, keyFlags); 
+                    return containerTo.importKeyPair(rand, 
+                        publicKey, privateKey, certificateChain, keyUsage, keyFlags
+                    ); 
                 }
             }
         }
@@ -317,8 +347,11 @@ public class ClientContainer extends RefObject implements IClient
                         notBefore, notAfter, keyUsage, extKeyUsages, 
                         basicConstraints, policies, extensions
                     ); 
+                    // создать цепь сертификатов
+                    Certificate[] certificateChain = new Certificate[] {certificate}; 
+                    
                     // записать сертификат в контейнер
-                    container.setCertificate(keyID, certificate); return certificate; 
+                    container.setCertificateChain(keyID, certificateChain); return certificate; 
                 }
             }
         }

@@ -63,7 +63,6 @@ public final class X509CertPath extends java.security.cert.CertPath
         // обработать возможное исключение
         catch (IOException e) { throw new CertificateEncodingException(); }
         
-        
 		// закодировать сертификаты
 		return new Sequence<aladdin.asn1.iso.pkix.Certificate>(
             aladdin.asn1.iso.pkix.Certificate.class, certs).encoded(); 

@@ -284,11 +284,11 @@ namespace Aladdin.CAPI.COM
                 Predicate<ContainerKeyPair> keyFilter = delegate(ContainerKeyPair keyPair)
                 {
                     // проверить наличие сертификата
-                    if (keyPair.Certificate == null) return false; 
+                    if (keyPair.CertificateChain == null) return false; 
 
                     // создать объект сертификата
                     using (Certificate certificate = new Certificate(
-                        environment, cultureInfo, keyPair.Certificate))
+                        environment, cultureInfo, keyPair.CertificateChain[0]))
                     {
 						// получить способ использования сертификата
 						KeyUsage keyUsage = certificate.KeyUsage;
@@ -303,7 +303,7 @@ namespace Aladdin.CAPI.COM
                 {
                     // создать объект личного ключа
                     return new PrivateKey(environment, cultureInfo, 
-                        provider.Name, keyPair.Info, keyPair.Certificate
+                        provider.Name, keyPair.Info, keyPair.CertificateChain[0]
                     ); 
                 }; 
 				// указать используемое окно
@@ -347,17 +347,17 @@ namespace Aladdin.CAPI.COM
 							foreach (ContainerKeyPair keyPair in container.EnumerateKeyPairs())
 							{
 								// проверить наличие сертификата
-								if (keyPair.Certificate == null) continue; 
+								if (keyPair.CertificateChain == null) continue; 
 
 								// получить способ использования ключа
-								CAPI.KeyUsage usage = keyPair.Certificate.KeyUsage; 
+								CAPI.KeyUsage usage = keyPair.CertificateChain[0].KeyUsage; 
 
 								// проверить способ использования ключа
 								if (((int)usage & (int)keyUsage) != (int)keyUsage) continue; 
 
 								// создать объект сертификата
 								using (Certificate certificate = new Certificate(
-									environment, cultureInfo, keyPair.Certificate))
+									environment, cultureInfo, keyPair.CertificateChain[0]))
 								{ 
 									// закодировать сертификат
 									string encodedCertificate = certificate.Encoded; 

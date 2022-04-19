@@ -10,54 +10,52 @@
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////
+// Отображения хранилищ CAPI и MMC Certificates
+// Root  - Trusted Root Certification Authorities
+// Trust - Third-Party Root Certification Authorities
+// CA    - Intermediate Certification Authorities
+// My    - Personal
+///////////////////////////////////////////////////////////////////////////
+ 
+///////////////////////////////////////////////////////////////////////////
 // Хранилище контейнеров в реестре
 ///////////////////////////////////////////////////////////////////////////
 Aladdin::CAPI::Certificate^ 
 Aladdin::CAPI::ANSI::CSP::Microsoft::RegistryStore::GetCertificate(
 	CAPI::CSP::KeyHandle^ hKeyPair, ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo)
 {$
-	// для контейнера локального компьютера
-	if (Mode & CRYPT_MACHINE_KEYSET)
-	{
-		// указать хранилище
-		CertificateStore store("System", "My", CERT_SYSTEM_STORE_LOCAL_MACHINE);
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Mode & CRYPT_MACHINE_KEYSET) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
 
-		// получить содержимое сертификата
-		array<BYTE>^ content = store.Find(publicKeyInfo); 
-			
-		// вернуть сертификат открытого ключа
-		return (content != nullptr) ? gcnew Certificate(content) : nullptr; 
-	}
-	else {
-		// указать хранилище
-		CertificateStore store("System", "My", CERT_SYSTEM_STORE_CURRENT_USER);
+	// указать хранилище
+	CertificateStore store("System", "My", location);
 
-		// получить содержимое сертификата
-		array<BYTE>^ content = store.Find(publicKeyInfo); 
+	// получить содержимое сертификата
+	array<BYTE>^ content = store.Find(publicKeyInfo); 
 			
-		// вернуть сертификат открытого ключа
-		return (content != nullptr) ? gcnew Certificate(content) : nullptr; 
-	}
-	return nullptr; 
+	// вернуть сертификат открытого ключа
+	return (content != nullptr) ? gcnew Certificate(content) : nullptr; 
 }
 
-void Aladdin::CAPI::ANSI::CSP::Microsoft::RegistryStore::SetCertificate(
-	CAPI::CSP::KeyHandle^ hKeyPair, Certificate^ certificate)
+array<Aladdin::CAPI::Certificate^>^ 
+Aladdin::CAPI::ANSI::CSP::Microsoft::RegistryStore::GetCertificateChain(Certificate^ certificate) 
 {$
-	// для контейнера локального компьютера
-	if (Mode & CRYPT_MACHINE_KEYSET)
-	{
-		// указать хранилище
-		CertificateStore store("System", "My", CERT_SYSTEM_STORE_LOCAL_MACHINE);
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Mode & CRYPT_MACHINE_KEYSET) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
 
-		// сохранить сертификат открытого ключа
-		store.Write(certificate->Encoded); 
-	}
-	else {
-		// указать хранилище
-		CertificateStore store("System", "My", CERT_SYSTEM_STORE_CURRENT_USER);
+	// получить цепочку сертификатов
+	return CertificateStore::GetCertificateChain("System", location, certificate); 
+}
 
-		// сохранить сертификат открытого ключа
-		store.Write(certificate->Encoded); 
-	}
+void Aladdin::CAPI::ANSI::CSP::Microsoft::RegistryStore::SetCertificateChain(
+	CAPI::CSP::KeyHandle^ hKeyPair, array<Certificate^>^ certificateChain)
+{$
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Mode & CRYPT_MACHINE_KEYSET) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
+
+	// сохранить цепочку сертификатов
+	CertificateStore::SetCertificateChain("System", location, certificateChain); 
 }

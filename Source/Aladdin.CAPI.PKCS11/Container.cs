@@ -34,6 +34,25 @@ namespace Aladdin.CAPI.PKCS11
 	            return Store.GetKeyIDs(session, Name.ToString()); 
             }
         }
+		// перечислить все сертификаты
+		public override Certificate[] EnumerateAllCertificates()
+        {
+	        // открыть сеанс
+	        using (Session session = Store.OpenSession(API.CKS_RO_PUBLIC_SESSION))
+            { 
+				// перечислить все сертификаты
+				return Store.EnumerateAllCertificates(session, Name.ToString()); 
+			}
+        }
+        // получить цепь сертификатов
+	    public override Certificate[] GetCertificateChain(Certificate certificate) 
+        {
+            // перечислить все сертификаты
+            Certificate[] certificates = EnumerateAllCertificates(); 
+        
+            // получить цепь сертификатов
+            return PKI.CreateCertificateChain(certificate, certificates); 
+        }
 		// получить открытый ключ
 		public override IPublicKey GetPublicKey(byte[] keyID)
         {
@@ -129,56 +148,61 @@ namespace Aladdin.CAPI.PKCS11
 	        catch { return null; }
         }
 		// сохранить сертификат открытого ключа
-		public override void SetCertificate(byte[] keyID, Certificate certificate)
+		public override void SetCertificateChain(byte[] keyID, Certificate[] certificateChain)
         {
+			// перечислить все сертификаты
+			List<Certificate> certificates = new List<Certificate>(EnumerateCertificates()); 
+        
+			// создать список добавляемых сертификатов
+			List<Certificate> newCertificates = new List<Certificate>(); 
+        
+			// добавить целевой сертификат
+			newCertificates.Add(certificateChain[0]); 
+        
+			// для всех сертификатов цепочки, кроме целевого
+			for (int i = 1; i < certificateChain.Length; i++)
+			{
+				// при отсутствии сертификата 
+				if (!certificates.Contains(certificateChain[i])) 
+				{
+					// добавить сертификат в список
+					newCertificates.Add(certificateChain[i]); 
+				}
+			}
             // указать требуемое состояние сеанса
             ulong state = (mode == 0) ? API.CKS_RO_USER_FUNCTIONS : API.CKS_RW_USER_FUNCTIONS; 
 
-	        // выделить память для атрибутов поиска
-	        Attribute[] attributes = new Attribute[] { 
-
-		        // указать тип объекта
-		        Store.Provider.CreateAttribute(API.CKA_CLASS, API.CKO_CERTIFICATE),
-
-		        // указать тип сертификата
-		        Store.Provider.CreateAttribute(API.CKA_CERTIFICATE_TYPE, API.CKC_X_509),
-
-		        // указать субъект сертификата
-		        Store.Provider.CreateAttribute(API.CKA_SUBJECT, certificate.Subject.Encoded),
-
-		        // указать значение сертификата
-		        Store.Provider.CreateAttribute(API.CKA_VALUE, certificate.Encoded),
-
-		        // определить идентификатор сертификата
-		        Store.Provider.CreateAttribute(API.CKA_ID, keyID)
-	        }; 
 	        // открыть сеанс
 	        using (Session session = Store.OpenSession(state))
             { 
-	            // создать сертификат на смарт-карте
-	            try { session.CreateTokenObject(Name.ToString(), attributes); }
+				// для всех добавляемых сертификатов
+				for (int i = 0; i < newCertificates.Count; i++)
+				{
+					// указать сертификат
+					Certificate certificate = newCertificates[i]; 
 
-                // при возникновении ошибки
-                catch (Aladdin.PKCS11.Exception e) 
-                {
-                    // проверить код ошибки
-                    if (e.ErrorCode != API.CKR_ATTRIBUTE_TYPE_INVALID) throw; 
+					// выделить память для атрибутов 
+					List<Attribute> requiredAttributes = new List<Attribute>();  
+					List<Attribute> optionalAttributes = new List<Attribute>();  
 
-	                // выделить память для атрибутов поиска
-	                attributes = new Attribute[] { 
+					// указать тип объекта
+					requiredAttributes.Add(Store.Provider.CreateAttribute(API.CKA_CLASS, API.CKO_CERTIFICATE));
 
-		                // указать тип объекта
-		                Store.Provider.CreateAttribute(API.CKA_CLASS, API.CKO_CERTIFICATE),
+					// указать значение сертификата
+					requiredAttributes.Add(Store.Provider.CreateAttribute(API.CKA_VALUE, certificate.Encoded)); 
 
-		                // указать значение сертификата
-		                Store.Provider.CreateAttribute(API.CKA_VALUE, certificate.Encoded),
+					// указать тип сертификата
+					optionalAttributes.Add(Store.Provider.CreateAttribute(API.CKA_CERTIFICATE_TYPE, API.CKC_X_509)); 
 
-		                // определить идентификатор сертификата
-		                Store.Provider.CreateAttribute(API.CKA_ID, keyID)
-	                }; 
-	                // создать сертификат на смарт-карте
-	                session.CreateTokenObject(Name.ToString(), attributes); 
-                }
+					// указать субъект сертификата
+					optionalAttributes.Add(Store.Provider.CreateAttribute(API.CKA_SUBJECT, certificate.Subject.Encoded)); 
+
+					// определить идентификатор сертификата
+					if (i == 0) requiredAttributes.Add(Store.Provider.CreateAttribute(API.CKA_ID, keyID)); 
+	         
+					// создать сертификат на смарт-карте
+					session.CreateTokenObject(Name.ToString(), requiredAttributes.ToArray(), optionalAttributes.ToArray()); 
+				}
             }
         }
         // импортировать пару ключей

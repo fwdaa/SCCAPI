@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Aladdin.CAPI.GUI
 {
 	///////////////////////////////////////////////////////////////////////////
-	// Окно отображения контейнеров
+	// Окно отображения сертификатов
 	///////////////////////////////////////////////////////////////////////////
 	public partial class CertificatesDialog : Form
 	{
@@ -80,11 +80,8 @@ namespace Aladdin.CAPI.GUI
     	    // получить выделенный элемент
 		    Certificate certificate = (Certificate)item.Tag; 
 
-		    // создать объект сертификата
-		    X509Certificate2 cert = new X509Certificate2(certificate.Encoded); 
-
 		    // отобразить сертификат
-		    X509Certificate2UI.DisplayCertificate(cert, Handle); 
+		    CertificateDialog.Show(Handle, new Certificate[] { certificate }); 
 		}
         public Certificate[] Certificates { get
         { 

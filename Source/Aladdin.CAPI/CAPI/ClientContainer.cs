@@ -126,7 +126,7 @@ namespace Aladdin.CAPI
                 return container.EnumerateCertificates(); 
             }
         }
-        public Certificate GetCertificate(byte[] keyID, bool useSelector)
+        public Certificate GetCertificate(byte[] keyID)
         {
             // открыть контейнер
             using (Container container = (Container)selector.OpenObject(
@@ -136,7 +136,17 @@ namespace Aladdin.CAPI
                 return container.GetCertificate(keyID);
             }
         }
-        public void SetCertificate(byte[] keyID, Certificate certificate)
+        public Certificate[] GetCertificateChain(Certificate certificate)
+        {
+            // открыть контейнер
+            using (Container container = (Container)selector.OpenObject(
+                provider, info.Scope, info.FullName, FileAccess.Read))
+            {
+                // получить цепочку сертификатов из контейнера
+                return container.GetCertificateChain(certificate);
+            }
+        }
+        public void SetCertificateChain(byte[] keyID, Certificate[] certificateChain)
         {
             // открыть контейнер
             using (Container container = (Container)selector.OpenObject(
@@ -152,13 +162,13 @@ namespace Aladdin.CAPI
                 ASN1.ISO.PKIX.SubjectPublicKeyInfo keyInfo = publicKey.Encoded; 
 
                 // проверить совпадение открытых ключей
-                if (!certificate.PublicKeyInfo.Equals(keyInfo)) 
+                if (!certificateChain[0].PublicKeyInfo.Equals(keyInfo)) 
                 {
                     // при ошибке выбросить исключение
                     throw new InvalidDataException(); 
                 }
                 // записать сертификат в контейнер
-                container.SetCertificate(keyID, certificate);
+                container.SetCertificateChain(keyID, certificateChain);
             }
         }
         ///////////////////////////////////////////////////////////////////////
@@ -180,13 +190,20 @@ namespace Aladdin.CAPI
                     Certificate certificate = container.GetCertificate(id); string keyOID = null;
 
                     // указать идентификатор ключа
-                    if (certificate == null) keyOID = container.GetPublicKey(id).KeyOID;
+                    if (certificate == null) { keyOID = container.GetPublicKey(id).KeyOID;
 
+                        // добавить пару ключей в список
+                        keyPairs.Add(new ContainerKeyPair(info, id, keyOID, null));
+                    }
                     // указать идентификатор ключа
-                    else keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value;
+                    else { keyOID = certificate.PublicKeyInfo.Algorithm.Algorithm.Value;
 
-                    // добавить пару ключей в список
-                    keyPairs.Add(new ContainerKeyPair(info, id, keyOID, certificate));
+                        // получить цепь сертификатов
+                        Certificate[] certificateChain = container.GetCertificateChain(certificate); 
+
+                        // добавить пару ключей в список
+                        keyPairs.Add(new ContainerKeyPair(info, id, keyOID, certificateChain));
+                    }
                 }
                 // вернуть описание ключей
                 catch {} return keyPairs.ToArray();
@@ -207,8 +224,11 @@ namespace Aladdin.CAPI
                 // проверить наличие ключевой пары
                 if (keyID == null) return null; 
 
+                // получить цепь сертификатов 
+                Certificate[] certificateChain = container.GetCertificateChain(certificate); 
+
                 // вернуть найденную ключевую пару
-                return new ContainerKeyPair(info, keyID, keyOID, certificate); 
+                return new ContainerKeyPair(info, keyID, keyOID, certificateChain); 
             }
         }
         public void DeleteKeyPair(byte[] keyID)
@@ -251,7 +271,7 @@ namespace Aladdin.CAPI
 		// Импортировать/экспортировать пару ключей
 		///////////////////////////////////////////////////////////////////////
 		public ContainerKeyPair ImportKeyPair(IRand rand, IPublicKey publicKey, 
-            IPrivateKey privateKey, Certificate certificate, KeyUsage keyUsage, KeyFlags keyFlags)
+            IPrivateKey privateKey, Certificate[] certificateChain, KeyUsage keyUsage, KeyFlags keyFlags)
         {
             // открыть исходный контейнер
             using (Container container = (Container)selector.OpenObject(
@@ -264,10 +284,10 @@ namespace Aladdin.CAPI
 			        using (KeyPair keyPair = container.ImportKeyPair(rebindRand, publicKey, privateKey, keyUsage, keyFlags)) 
                     { 
                         // записать сертификат в контейнер
-                        if (certificate != null) container.SetCertificate(keyPair.KeyID, certificate);
+                        if (certificateChain != null) container.SetCertificateChain(keyPair.KeyID, certificateChain);
                             
                         // вернуть описание пары ключей контейнера
-                        return new ContainerKeyPair(info, keyPair.KeyID, publicKey.KeyOID, certificate); 
+                        return new ContainerKeyPair(info, keyPair.KeyID, publicKey.KeyOID, certificateChain); 
                     }
                 }
             }
@@ -288,6 +308,12 @@ namespace Aladdin.CAPI
                 // получить сертификат
                 Certificate certificate = container.GetCertificate(keyID);
 
+                // при наличии сертификата 
+                Certificate[] certificateChain = null; if (certificate != null)
+                {
+                    // получить цепь сертификатов
+                    certificateChain = container.GetCertificateChain(certificate); 
+                }
                 // получить личный ключ
                 using (IPrivateKey privateKey = container.GetPrivateKey(keyID))
                 {
@@ -295,7 +321,9 @@ namespace Aladdin.CAPI
                     using (ClientContainer containerTo = new ClientContainer(providerTo, infoTo, selector))
                     { 
                         // импортировать пару ключей
-                        return containerTo.ImportKeyPair(rand, publicKey, privateKey, certificate, keyUsage, keyFlags); 
+                        return containerTo.ImportKeyPair(rand, 
+                            publicKey, privateKey, certificateChain, keyUsage, keyFlags
+                        ); 
                     }
                 }
             }
@@ -331,8 +359,11 @@ namespace Aladdin.CAPI
                             notBefore, notAfter, keyUsage, extKeyUsages, 
                             basicConstraints, policies, extensions
                         ); 
+                        // создать цепь сертификатов
+                        Certificate[] certificateChain = new Certificate[] {certificate}; 
+
                         // записать сертификат в контейнер
-                        container.SetCertificate(keyID, certificate); return certificate; 
+                        container.SetCertificateChain(keyID, certificateChain); return certificate; 
                     }
                 }
             }

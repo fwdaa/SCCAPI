@@ -76,9 +76,15 @@ namespace Aladdin { namespace CAPI { namespace CNG
 		public protected: virtual Certificate^ GetCertificate(NKeyHandle^ hPrivateKey, 
 			ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo
 		);
+		// получить цепь сертификатов
+		public protected: virtual array<Certificate^>^ GetCertificateChain(Certificate^ certificate)
+		{
+			// получить цепь сертификатов
+			return gcnew array<Certificate^> { certificate }; 
+		}
 		// сохранить сертификат открытого ключа
-		public protected: virtual void SetCertificate(
-			NKeyHandle^ hPrivateKey, Certificate^ certificate
+		public protected: virtual void SetCertificateChain(
+			NKeyHandle^ hPrivateKey, array<Certificate^>^ certificateChain
 		); 
 	};
 	///////////////////////////////////////////////////////////////////////////

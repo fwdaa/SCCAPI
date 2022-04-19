@@ -248,6 +248,15 @@ namespace Aladdin.CAPI.PKCS12
             // вернуть список сертификатов
             catch {} return certificates.ToArray();
         }
+        // получить цепь сертификатов
+	    public override Certificate[] GetCertificateChain(Certificate certificate) 
+        {
+            // перечислить все сертификаты
+            Certificate[] certificates = EnumerateAllCertificates(); 
+        
+            // получить цепь сертификатов
+            return PKI.CreateCertificateChain(certificate, certificates); 
+        }
 		public override Certificate GetCertificate(byte[] keyID)
 		{
             PfxSafeBag item = null; 
@@ -625,15 +634,27 @@ namespace Aladdin.CAPI.PKCS12
 		///////////////////////////////////////////////////////////////////////////
 		// Функции установки
 		///////////////////////////////////////////////////////////////////////////
-		public override void SetCertificate(byte[] keyID, Certificate certificate)
+		public override void SetCertificateChain(byte[] keyID, Certificate[] certificateChain)
 		{
             // выполнить аутентификацию
             Authenticate();
 
+            // перечислить все сертификаты
+            List<Certificate> certificates = new List<Certificate>(EnumerateCertificates()); 
+        
+            // создать список добавляемых сертификатов
+            List<Certificate> newCertificates = new List<Certificate>(); 
+        
+            // для всех сертификатов цепочки, кроме целевого
+            for (int i = 1; i < certificateChain.Length; i++)
+            {
+                // при отсутствии сертификата добавить сертификат в список
+                if (!certificates.Contains(certificateChain[i])) newCertificates.Add(certificateChain[i]);
+            }
 			// закодировать сертификат
 			ASN1.ISO.PKCS.PKCS12.CertBag certBag = new ASN1.ISO.PKCS.PKCS12.CertBag(
 				new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS9.OID.certTypes_x509), 
-                new ASN1.OctetString(certificate.Encoded)
+                new ASN1.OctetString(certificateChain[0].Encoded)
 			); 
 			// найти сертификат по идентификатору
 			PfxSafeBag item = FindCertificateBag(keyID, false); if (item != null) 
@@ -668,6 +689,24 @@ namespace Aladdin.CAPI.PKCS12
 				ASN1.ISO.PKCS.PKCS12.SafeBag bag = new ASN1.ISO.PKCS.PKCS12.SafeBag(
 					new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS12.OID.bt_cert), 
                     certBag, attributes
+				); 
+				// добавить новый элемент в контейнер
+                container.AddObjects(null, new ASN1.ISO.PKCS.PKCS12.SafeBag[] { bag }, 
+                    new PBE.PBECulture[] { null }
+                 ); 
+            }
+            // для всех добавляемых сертификатов
+            foreach (Certificate certificate in newCertificates)
+            {
+                // закодировать сертификат
+                certBag = new ASN1.ISO.PKCS.PKCS12.CertBag(
+				    new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS9.OID.certTypes_x509), 
+                    new ASN1.OctetString(certificate.Encoded)
+			    ); 
+                // создать элемент для запроса на сертификат
+				ASN1.ISO.PKCS.PKCS12.SafeBag bag = new ASN1.ISO.PKCS.PKCS12.SafeBag(
+					new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS12.OID.bt_cert), 
+                    certBag, null
 				); 
 				// добавить новый элемент в контейнер
                 container.AddObjects(null, new ASN1.ISO.PKCS.PKCS12.SafeBag[] { bag }, 

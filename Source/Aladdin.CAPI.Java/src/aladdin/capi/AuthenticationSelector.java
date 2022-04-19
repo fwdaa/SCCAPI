@@ -338,7 +338,13 @@ public class AuthenticationSelector
 
             // получить сертификат
             Certificate certificate = containerFrom.getCertificate(keyID);
-                    
+            
+            // при наличии сертификата
+            Certificate[] certificateChain = null; if (certificate != null)
+            {
+                // получить цепь сертификатов
+                certificateChain = containerFrom.getCertificateChain(certificate); 
+            }
             // получить личный ключ
             try (IPrivateKey privateKey = containerFrom.getPrivateKey(keyID))
             {
@@ -346,7 +352,9 @@ public class AuthenticationSelector
                 try (ClientContainer clientContainerTo = new ClientContainer(providerTo, infoTo, this))
                 {
                     // импортировать пару ключей
-                    return clientContainerTo.importKeyPair(rand, publicKey, privateKey, certificate, keyUsage, keyFlags); 
+                    return clientContainerTo.importKeyPair(rand, 
+                        publicKey, privateKey, certificateChain, keyUsage, keyFlags
+                    ); 
                 }
                 // при отсутствии контейнера
                 catch (Throwable e) { Container containerTo = null; 
@@ -375,10 +383,10 @@ public class AuthenticationSelector
 			                    try (KeyPair keyPair = containerTo.importKeyPair(rand, publicKey, privateKey, keyUsage, keyFlags)) 
                                 { 
                                     // записать сертификат в контейнер
-                                    if (certificate != null) containerTo.setCertificate(keyPair.keyID, certificate);
+                                    if (certificateChain != null) containerTo.setCertificateChain(keyPair.keyID, certificateChain);
                                             
                                     // вернуть описание пары ключей контейнера
-                                    return new ContainerKeyPair(infoTo, keyPair.keyID, publicKey.keyOID(), certificate); 
+                                    return new ContainerKeyPair(infoTo, keyPair.keyID, publicKey.keyOID(), certificateChain); 
                                 }
                             }
                             // освободить выделенные ресурсы

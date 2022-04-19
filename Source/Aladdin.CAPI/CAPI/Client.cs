@@ -13,12 +13,17 @@ namespace Aladdin.CAPI
     {
         // сертификаты и личные ключи клиента
         private Dictionary<Certificate, IPrivateKey> keyPairs; 
+        // сертификаты и цепочки сертификатов
+        private Dictionary<Certificate, Certificate[]> certChains; 
 
 		// раскодировать контейнер в памяти
 		public Client(Software.CryptoProvider provider, byte[] encodedStore, string password)
 		{
             // выделить списки для сертификатов и личных ключей
             keyPairs = new Dictionary<Certificate, IPrivateKey>(); 
+
+            // выделить память для цепочек сертификатов
+            certChains = new Dictionary<Certificate, Certificate[]>(); 
 
             // указать поток для обработки
             using (MemoryStream stream = new MemoryStream(encodedStore))
@@ -35,8 +40,14 @@ namespace Aladdin.CAPI
                         // при отсутствии сертификата в списке
                         if (certificate != null && !keyPairs.ContainsKey(certificate))
                         try { 
+                            // получить цепь сертификатов
+                            Certificate[] certificateChain = container.GetCertificateChain(certificate); 
+
                             // добавить личный ключ в список
                             keyPairs.Add(certificate, container.GetPrivateKey(keyID)); 
+
+                            // добавить цепочку сертификатов
+                            certChains.Add(certificate, certificateChain); 
                         }
                         // обработать возможную ошибку
                         catch (NotFoundException) {}
@@ -47,13 +58,19 @@ namespace Aladdin.CAPI
             if (keyPairs.Count == 0) throw new NotFoundException();
         }
 	    // конструктор
-	    public Client(IPrivateKey privateKey, Certificate certificate)
+	    public Client(IPrivateKey privateKey, Certificate[] certificateChain)
         {
             // выделить списки для сертификатов и личных ключей
             keyPairs = new Dictionary<Certificate, IPrivateKey>(); 
         
             // добавить пару ключей в список
-            keyPairs.Add(certificate, RefObject.AddRef(privateKey)); 
+            keyPairs.Add(certificateChain[0], RefObject.AddRef(privateKey)); 
+
+            // выделить память для цепочек сертификатов
+            certChains = new Dictionary<Certificate, Certificate[]>(); 
+
+            // добавить цепочку сертификатов
+            certChains.Add(certificateChain[0], certificateChain); 
         }
         // освободить выделенные ресурсы
         protected override void OnDispose()
@@ -99,9 +116,12 @@ namespace Aladdin.CAPI
             // указать используемый личный ключ
             IPrivateKey privateKey = keyPairs[certificate]; 
 
+            // найти цепочку сертификатов
+            Certificate[] certificateChain = certChains[certificate]; 
+
             // зашифровать данные
             ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.KeyxEncryptData(
-                culture, rand, privateKey, certificate, 
+                culture, rand, privateKey, certificateChain, 
                 recipientCertificates, null, data, attributes
             ); 
             // вернуть зашифрованные данные
@@ -144,9 +164,12 @@ namespace Aladdin.CAPI
             // найти подходящий личный ключ
             IPrivateKey privateKey = keyPairs[certificate]; 
 
+            // найти цепочку сертификатов
+            Certificate[] certificateChain = certChains[certificate]; 
+
             // подписать данные
             ASN1.ISO.PKCS.ContentInfo contentInfo = Culture.SignData(
-                culture, rand, privateKey, certificate, 
+                culture, rand, privateKey, certificateChain, 
                 data, authAttributes, unauthAttributes
             ); 
             // вернуть подписанные данные

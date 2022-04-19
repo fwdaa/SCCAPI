@@ -339,6 +339,12 @@ namespace Aladdin.CAPI
                 // получить сертификат
                 Certificate certificate = containerFrom.GetCertificate(keyID);
 
+                // при наличии сертификата
+                Certificate[] certificateChain = null; if (certificate != null)
+                {
+                    // получить цепь сертификатов
+                    certificateChain = containerFrom.GetCertificateChain(certificate); 
+                }
                 // получить личный ключ
                 using (IPrivateKey privateKey = containerFrom.GetPrivateKey(keyID))
                 {
@@ -346,7 +352,9 @@ namespace Aladdin.CAPI
                     using (ClientContainer clientContainerTo = new ClientContainer(providerTo, infoTo, this))
                     try { 
                         // импортировать пару ключей
-                        return clientContainerTo.ImportKeyPair(rand, publicKey, privateKey, certificate, keyUsage, keyFlags); 
+                        return clientContainerTo.ImportKeyPair(rand, 
+                            publicKey, privateKey, certificateChain, keyUsage, keyFlags
+                        ); 
                     }
                     catch { Container containerTo = null; 
 
@@ -373,10 +381,10 @@ namespace Aladdin.CAPI
 			                        using (KeyPair keyPair = containerTo.ImportKeyPair(rebindRand, publicKey, privateKey, keyUsage, keyFlags)) 
                                     { 
                                         // записать сертификат в контейнер
-                                        if (certificate != null) containerTo.SetCertificate(keyPair.KeyID, certificate);
+                                        if (certificateChain != null) containerTo.SetCertificateChain(keyPair.KeyID, certificateChain);
 
                                         // вернуть описание пары ключей контейнера
-                                        return new ContainerKeyPair(infoTo, keyPair.KeyID, publicKey.KeyOID, certificate); 
+                                        return new ContainerKeyPair(infoTo, keyPair.KeyID, publicKey.KeyOID, certificateChain); 
                                     }
                                 }
                                 // освободить выделенные ресурсы

@@ -140,9 +140,15 @@ namespace Aladdin { namespace CAPI { namespace CSP
 		// получить сертификат открытого ключа
 		public: virtual Certificate^ GetCertificate(array<BYTE>^ keyID) override; 
 
+		// получить цепь сертификатов
+		public: virtual array<Certificate^>^ GetCertificateChain(Certificate^ certificate) override
+		{
+			// получить цепь сертификатов
+			return Store->GetCertificateChain(certificate); 
+		}
 		// сохранить сертификат открытого ключа
-		public: virtual void SetCertificate(
-			array<BYTE>^ keyID, Certificate^ certificate) override; 
+		public: virtual void SetCertificateChain(
+			array<BYTE>^ keyID, array<Certificate^>^ certificateChain) override; 
 
 		// связать сертификат с ключом
 		public: void SetCertificateContext(PCCERT_CONTEXT pCertificateContext);

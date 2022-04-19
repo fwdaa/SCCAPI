@@ -290,11 +290,14 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
             // выполнить аутентификацию
             container.setPassword(new String(password)); 
 		}
-        // указать начальные условия
-        aladdin.capi.Certificate certificate = null; KeyFlags keyFlags = KeyFlags.NONE; 
+        // создать список сертификатов
+        aladdin.capi.Certificate[] nativeCertificates = new aladdin.capi.Certificate[certificates.length]; 
+        
+        // для всех сертификатов
+        for (int i = 0; i < certificates.length; i++)
         try {
             // раскодировать сертификат
-            certificate = new aladdin.capi.Certificate(certificates[0].getEncoded()); 
+            nativeCertificates[i] = new aladdin.capi.Certificate(certificates[i].getEncoded()); 
         }
         // при ошибке выбросить исключение
         catch (CertificateEncodingException e) { throw new RuntimeException(e); }
@@ -312,12 +315,12 @@ public final class KeyStoreSpi extends java.security.KeyStoreSpi implements Clos
                 try (IRand rand = container.provider().createRand(container, null))
                 {
                     // записать пару ключей в контейнер
-                    keyID = container.setKeyPair(rand, keyPair, certificate.keyUsage(), keyFlags); 
+                    keyID = container.setKeyPair(rand, keyPair, nativeCertificates[0].keyUsage(), KeyFlags.NONE); 
                 }
             }
         }
         // записать сертификат в контейнер
-        container.setCertificate(keyID, certificate);
+        container.setCertificateChain(keyID, nativeCertificates);
 	}
 	// обработать возможное исключение
 	catch (IOException         e) { throw new KeyStoreException(e.getMessage()); }

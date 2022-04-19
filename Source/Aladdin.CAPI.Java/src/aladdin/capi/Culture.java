@@ -129,8 +129,9 @@ public abstract class Culture
         return new ContentInfo(dataType, envelopedData); 
     }
 	public static ContentInfo keyxEncryptData(Culture culture, IRand rand, 
-        IPrivateKey privateKey, Certificate certificate, Certificate[] recipientCertificates, 
-        Culture[] cultures, CMSData data, Attributes attributes) throws IOException
+        IPrivateKey privateKey, Certificate[] certificateChain, 
+        Certificate[] recipientCertificates, Culture[] cultures, 
+        CMSData data, Attributes attributes) throws IOException
 	{
         // указать идентификатор типа 
         ObjectIdentifier dataType = new ObjectIdentifier(
@@ -159,7 +160,7 @@ public abstract class Culture
         }
         // зашифровать данные
         EnvelopedData envelopedData = CMS.keyxEncryptData( 
-            rand, privateKey, certificate, recipientCertificates, 
+            rand, privateKey, certificateChain, recipientCertificates, 
             keyxParameters, cipherParameters, data, attributes
         ); 
         // вернуть закодированную структуру
@@ -170,17 +171,17 @@ public abstract class Culture
     // Национальные особенности выбираются согласно сертификату
 	///////////////////////////////////////////////////////////////////////
 	public static ContentInfo signData(Culture culture, IRand rand, 
-        IPrivateKey privateKey, Certificate certificate, CMSData data, 
+        IPrivateKey privateKey, Certificate[] certificateChain, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
     {
         // подписать данные
         return Culture.signData(new Culture[] { culture }, rand, 
-            new IPrivateKey[] { privateKey }, new Certificate[] { certificate }, 
+            new IPrivateKey[] { privateKey }, new Certificate[][] { certificateChain }, 
             data, authAttributes, unauthAttributes
         ); 
     }
 	public static ContentInfo signData(Culture[] cultures, IRand rand, 
-        IPrivateKey[] privateKeys, Certificate[] certificates, CMSData data, 
+        IPrivateKey[] privateKeys, Certificate[][] certificatesChains, CMSData data, 
         Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
 	{
         // указать идентификатор типа 
@@ -213,7 +214,7 @@ public abstract class Culture
         }
         // подписать данные
         SignedData signedData = CMS.signData(rand, 
-            privateKeys, certificates, hashParameters, 
+            privateKeys, certificatesChains, hashParameters, 
             signHashParameters, data, authAttributes, unauthAttributes
         ); 
         // вернуть закодированную структуру

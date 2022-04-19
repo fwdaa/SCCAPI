@@ -34,6 +34,26 @@ public class Container extends aladdin.capi.Container
             return store().getKeyIDs(session, name().toString()); 
         }
     }
+    // перечислить все сертификаты
+    @Override public aladdin.capi.Certificate[] enumerateAllCertificates() throws IOException
+    {
+        // открыть сеанс
+        try (Session session = store().openSession(API.CKS_RO_PUBLIC_SESSION))
+        {
+            // перечислить сертификаты
+            return store().enumerateAllCertificates(session, name().toString()); 
+        }
+    }
+    // получить цепочку сертификатов
+    @Override public aladdin.capi.Certificate[] getCertificateChain(
+        aladdin.capi.Certificate certificate) throws IOException
+    {
+        // перечислить все сертификаты
+        aladdin.capi.Certificate[] certificates = enumerateAllCertificates(); 
+        
+        // получить цепь сертификатов
+        return PKI.createCertificateChain(certificate, Arrays.asList(certificates)); 
+    }
     @Override
 	public final IPublicKey getPublicKey(byte[] keyID) throws IOException
 	{ 
@@ -143,58 +163,62 @@ public class Container extends aladdin.capi.Container
 	}
 	// сохранить сертификаты открытых ключей
 	@Override
-	public final void setCertificate(byte[] keyID, 
-        Certificate certificate) throws IOException
+	public final void setCertificateChain(byte[] keyID, 
+        Certificate[] certificateChain) throws IOException
 	{
-        // выделить память для атрибутов поиска
-		Attribute[] attributes = new Attribute[] { 
-
-            // указать тип объекта
-            new Attribute(API.CKA_CLASS, API.CKO_CERTIFICATE), 
-            
-		    // указать тип сертификата
-		    new Attribute(API.CKA_CERTIFICATE_TYPE, API.CKC_X_509),
-            
-            // указать субъект сертификата
-	        new Attribute(API.CKA_SUBJECT, certificate.subject().encoded()),
-
-            // указать значение сертификата
-            new Attribute(API.CKA_VALUE, certificate.getEncoded()), 
-
-            // определить идентификатор сертификата
-            new Attribute(API.CKA_ID, keyID)
-        };
+        // перечислить все сертификаты
+        List<Certificate> certificates = Arrays.asList(enumerateCertificates()); 
+        
+        // создать список добавляемых сертификатов
+        List<Certificate> newCertificates = new ArrayList<Certificate>(); 
+        
+        // добавить целевой сертификат
+        newCertificates.add(certificateChain[0]); 
+        
+        // для всех сертификатов цепочки, кроме целевого
+        for (int i = 1; i < certificateChain.length; i++)
+        {
+            // при отсутствии сертификата добавить сертификат в список
+            if (!certificates.contains(certificateChain[i])) newCertificates.add(certificateChain[i]); 
+        }
         // указать требуемое состояние сеанса
         long state = (mode == 0) ? API.CKS_RO_USER_FUNCTIONS : API.CKS_RW_USER_FUNCTIONS; 
         
 		// открыть сеанс
         try (Session session = store().openSession(state))  
 		{ 
-            // создать сертификат на смарт-карте
-            try { session.createTokenObject(name().toString(), attributes); }
-            
-            // при возникновении ошибки
-            catch (aladdin.pkcs11.Exception e) 
+            // для всех добавляемых сертификатов
+            for (int i = 0; i < newCertificates.size(); i++)
             {
-                // проверить код ошибки
-                if (e.getErrorCode() != API.CKR_ATTRIBUTE_TYPE_INVALID) throw e; 
+                // указать сертификат
+                Certificate certificate = newCertificates.get(i); 
 
-	            // выделить память для атрибутов поиска
-	            attributes = new Attribute[] { 
+                // выделить память для атрибутов
+                List<Attribute> requiredAttributes = new ArrayList<Attribute>();  
+                List<Attribute> optionalAttributes = new ArrayList<Attribute>();  
 
-                    // указать тип объекта
-                    new Attribute(API.CKA_CLASS, API.CKO_CERTIFICATE), 
-            
-                    // указать значение сертификата
-                    new Attribute(API.CKA_VALUE, certificate.getEncoded()), 
+                // указать тип объекта
+                requiredAttributes.add(new Attribute(API.CKA_CLASS, API.CKO_CERTIFICATE)); 
 
-                    // определить идентификатор сертификата
-                    new Attribute(API.CKA_ID, keyID)
-                }; 
+                // указать значение сертификата
+                requiredAttributes.add(new Attribute(API.CKA_VALUE, certificate.getEncoded())); 
+                
+                // указать тип сертификата
+                optionalAttributes.add(new Attribute(API.CKA_CERTIFICATE_TYPE, API.CKC_X_509));
+
+                // указать субъект сертификата
+                optionalAttributes.add(new Attribute(API.CKA_SUBJECT, certificate.subject().encoded()));
+
+                // определить идентификатор сертификата
+                if (i == 0) requiredAttributes.add(new Attribute(API.CKA_ID, keyID)); 
+                
                 // создать сертификат на смарт-карте
-                session.createTokenObject(name().toString(), attributes); 
+                session.createTokenObject(name().toString(), 
+                    requiredAttributes.toArray(new Attribute[requiredAttributes.size()]), 
+                    optionalAttributes.toArray(new Attribute[optionalAttributes.size()])
+                ); 
             }
-		}
+        }
 	}
     // импортировать пару ключей
     @Override public KeyPair importKeyPair(IRand rand, IPublicKey publicKey, 

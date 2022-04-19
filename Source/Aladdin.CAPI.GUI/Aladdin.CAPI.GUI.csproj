@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationSelector.cs" />
+    <Compile Include="CertificateDialog.cs" />
     <Compile Include="CertificatesDialog.cs">
       <SubType>Form</SubType>
     </Compile>

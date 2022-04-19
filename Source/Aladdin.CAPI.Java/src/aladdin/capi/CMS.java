@@ -1104,7 +1104,7 @@ public final class CMS
         return new RecipientInfos(listRecipientInfos.toArray(new IEncodable[0]));
     }
     public static RecipientInfos keyxEncryptKey(IRand rand, 
-        IPrivateKey privateKey, Certificate certificate, ISecretKey key, 
+        IPrivateKey privateKey, Certificate[] certificateChain, ISecretKey key, 
         Certificate[] recipientCertificates, AlgorithmIdentifier[] keyxParameters, 
         OriginatorInfo[] originatorInfo) throws IOException, InvalidKeyException
     {
@@ -1140,7 +1140,7 @@ public final class CMS
             if (keyUsage.containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
             {
                 // получить способ использования ключа
-                keyUsage = certificate.keyUsage(); 
+                keyUsage = certificateChain[0].keyUsage(); 
 
                 // проверить допустимость операции
                 if (!keyUsage.containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
@@ -1155,16 +1155,24 @@ public final class CMS
                 // при наличии алгоритма согласования ключа
                 if (algorithm != null) { RefObject.release(algorithm); 
 
+                    // создать список закодированных представлений
+                    IEncodable[] encodables = new IEncodable[certificateChain.length]; 
+                    
+                    // для каждого сертификата
+                    for (int j = 0; j < certificateChain.length; j++) 
+                    {
+                        // сохранить закодированное представление
+                        encodables[j] = certificateChain[j].decoded(); 
+                    }
                     // указать набор сертификатов отправителя
-                    CertificateSet certificates = new CertificateSet(
-                        new Encodable[] { certificate.decoded() }
-                    ); 
+                    CertificateSet certificates = new CertificateSet(encodables); 
+                    
                     // указать отправителя
                     originatorInfo[0] = new OriginatorInfo(certificates, null); 
                          
                     // зашифровать ключ шифрования данных
                     KeyAgreeRecipientInfo recipientInfo = CMS.agreementEncryptKey(
-                        rand, privateKey, certificate, Tag.ANY, keyxParameters[i], 
+                        rand, privateKey, certificateChain[0], Tag.ANY, keyxParameters[i], 
                         new Certificate[] { recipientCertificates[i] }, key 
                     );
                     // поместить зашифрованный ключ в список
@@ -1354,7 +1362,7 @@ public final class CMS
         }
     }
     public static AuthenticatedData keyxMacData(IRand rand, IPrivateKey privateKey, 
-        Certificate certificate, Certificate[] recipientCertificates, 
+        Certificate[] certificateChain, Certificate[] recipientCertificates, 
 		AlgorithmIdentifier[] keyxParameters, AlgorithmIdentifier macParameters, 
         AlgorithmIdentifier hashParameters, CMSData data, 
         Attributes authAttributes, Attributes unauthAttributes) throws IOException
@@ -1444,7 +1452,7 @@ public final class CMS
             
                 // разделить ключ между получателями
                 RecipientInfos recipientInfos = keyxEncryptKey(
-                    rand, privateKey, certificate, key, 
+                    rand, privateKey, certificateChain, key, 
                     recipientCertificates, keyxParameters, originatorInfo
                 ); 
                 // вычислить имитовстаку
@@ -1638,7 +1646,7 @@ public final class CMS
         }
 	}
     public static EnvelopedData keyxEncryptData(
-        IRand rand, IPrivateKey privateKey, Certificate certificate, 
+        IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
         Certificate[] recipientCertificates, AlgorithmIdentifier[] keyxParameters,
         AlgorithmIdentifier cipherParameters, 
         CMSData data, Attributes attributes) throws IOException
@@ -1667,7 +1675,7 @@ public final class CMS
             
                 // разделить ключ между получателями
                 RecipientInfos recipientInfos = keyxEncryptKey(
-                    rand, privateKey, certificate, CEK, 
+                    rand, privateKey, certificateChain, CEK, 
                     recipientCertificates, keyxParameters, originatorInfo
                 ); 
                 // зашифровать данные
@@ -1819,7 +1827,7 @@ public final class CMS
 	// Подписать данные
 	///////////////////////////////////////////////////////////////////////
 	public static SignedData signData(IRand rand, 
-        IPrivateKey[] privateKeys, Certificate[] certificates,   
+        IPrivateKey[] privateKeys, Certificate[][] certificatesChains,   
 		AlgorithmIdentifier[] hashParameters, 
 		AlgorithmIdentifier[] signHashParameters, CMSData data, 
 		Attributes[] authAttributes, Attributes[] unauthAttributes) throws IOException
@@ -1844,27 +1852,25 @@ public final class CMS
 		// для каждого подписывающего лица
 		for (int i = 0; i < privateKeys.length; i++)
 		{
-			// для всех алгоритмов хэширования
-			boolean findHash = false; for (AlgorithmIdentifier hashAlgorithm : listHashAlgorithms)
-			{
-				// проверить наличие указанного алгоритма
-				if (Arrays.equals(hashParameters[i].encoded(), hashAlgorithm.encoded())) { findHash = true; break; }
-			}
-			// добавить указанный алгоритм в список
-			if (!findHash) listHashAlgorithms.add(hashParameters[i]); 
-            
-			// для каждого сертификата
-			boolean findCert = false; for (IEncodable cert : listCertificates)
-			{
-				// проверить наличие указанного сертификата
-				if (Arrays.equals(certificates[i].getEncoded(), cert.encoded())) { findCert = true; break; }
-			}
-			// добавить указанный сертификат в список
-			if (!findCert) listCertificates.add(certificates[i].decoded()); 
-            
+            // при отсутствии алгоритма хэширования
+            if (!listHashAlgorithms.contains(hashParameters[i]))
+            {
+                // добавить указанный алгоритм в список
+                listHashAlgorithms.add(hashParameters[i]); 
+            }
+            // для всех сертификатов цепочки
+            for (Certificate certificate : certificatesChains[i])
+            {
+                // при отсутствиии сертификата
+                if (!listCertificates.contains(certificate.decoded()))
+                {
+                    // добавить сертификат в список
+                    listCertificates.add(certificate.decoded()); 
+                }
+            }
 			// подписать данные
 			SignerInfo signerInfo = CMS.signData(rand, privateKeys[i], 
-                certificates[i], hashParameters[i], signHashParameters[i], 
+                certificatesChains[i][0], hashParameters[i], signHashParameters[i], 
                 encapContentInfo, authAttributes[i], unauthAttributes[i]
 			); 
 			// добавить подписанные данные в список

@@ -118,7 +118,7 @@ namespace Aladdin.CAPI
         }
 	    public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(
             Culture culture, IRand rand, IPrivateKey privateKey, 
-            Certificate certificate, Certificate[] recipientCertificates, 
+            Certificate[] certificateChain, Certificate[] recipientCertificates, 
             Culture[] cultures, CMSData data, ASN1.ISO.Attributes attributes) 
 	    {
             // указать идентификатор типа 
@@ -148,7 +148,7 @@ namespace Aladdin.CAPI
             }
             // зашифровать данные
             ASN1.ISO.PKCS.PKCS7.EnvelopedData envelopedData = CMS.KeyxEncryptData( 
-                rand, privateKey, certificate, recipientCertificates, 
+                rand, privateKey, certificateChain, recipientCertificates, 
                 keyxParameters, cipherParameters, data, attributes
             ); 
             // вернуть закодированную структуру
@@ -158,7 +158,7 @@ namespace Aladdin.CAPI
 		// Подписать данные на личном ключе
 		///////////////////////////////////////////////////////////////////////
 		public static ASN1.ISO.PKCS.ContentInfo SignData(Culture[] cultures, IRand rand, 
-            IPrivateKey[] privateKeys, Certificate[] certificates, CMSData data, 
+            IPrivateKey[] privateKeys, Certificate[][] certificatesChains, CMSData data, 
             ASN1.ISO.Attributes[] authAttributes, ASN1.ISO.Attributes[] unauthAttributes)
 		{
             // скорректировать переданные параметры
@@ -195,20 +195,20 @@ namespace Aladdin.CAPI
             }
             // подписать данные
             ASN1.ISO.PKCS.PKCS7.SignedData signedData = CMS.SignData(
-                rand, privateKeys, certificates, hashParameters, 
+                rand, privateKeys, certificatesChains, hashParameters, 
                 signHashParameters, data, authAttributes, unauthAttributes
 		    ); 
 		    // вернуть закодированную структуру
 		    return new ASN1.ISO.PKCS.ContentInfo(dataType, signedData); 
 		}
 		public static ASN1.ISO.PKCS.ContentInfo SignData(
-            Culture culture, IRand rand, IPrivateKey privateKey, Certificate certificate, 
+            Culture culture, IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
             CMSData data, ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
 		{
             // подписать данные
             return Culture.SignData(new Culture[] { culture }, rand, 
-                new IPrivateKey[] { privateKey  }, 
-                new Certificate[] { certificate }, data, 
+                new IPrivateKey[]   { privateKey       }, 
+                new Certificate[][] { certificateChain }, data, 
                 new ASN1.ISO.Attributes[] { authAttributes   },
                 new ASN1.ISO.Attributes[] { unauthAttributes }
             ); 

@@ -99,11 +99,11 @@ Aladdin::CAPI::CNG::ProviderStore::GetCertificate(NKeyHandle^ hPrivateKey,
 	return (encoded != nullptr) ? gcnew Certificate(encoded) : nullptr; 
 }
 
-void Aladdin::CAPI::CNG::ProviderStore::SetCertificate(
-	NKeyHandle^ hPrivateKey, Certificate^ certificate)
+void Aladdin::CAPI::CNG::ProviderStore::SetCertificateChain(
+	NKeyHandle^ hPrivateKey, array<Certificate^>^ certificateChain)
 {$
 	// получить закодированное представление сертификата
-	array<BYTE>^ encoded = certificate->Encoded; 
+	array<BYTE>^ encoded = certificateChain[0]->Encoded; 
 
 	// установить сертификат
 	hPrivateKey->SetParam(NCRYPT_CERTIFICATE_PROPERTY, encoded, 0); 

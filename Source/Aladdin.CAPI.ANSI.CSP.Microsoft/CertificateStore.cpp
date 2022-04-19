@@ -41,6 +41,35 @@ Aladdin::CAPI::ANSI::CSP::Microsoft::CertificateStore::~CertificateStore()
 	::CertCloseStore(hCertStore, 0); 
 }
 
+array<BYTE>^ Aladdin::CAPI::ANSI::CSP::Microsoft::CertificateStore::FindIssuer(
+	array<BYTE>^ certificate)
+{$
+	// получить адрес сертификата
+	pin_ptr<BYTE> ptrCertificate = &certificate[0]; 
+
+	// создать контекст сертификата
+	PCCERT_CONTEXT hCertContext = ::CertCreateCertificateContext(
+		X509_ASN_ENCODING, ptrCertificate, certificate->Length
+	); 
+	// проверить отсутствие ошибок
+	AE_CHECK_WINAPI(hCertContext != 0);
+
+	// найти сертификат в хранилище
+	PCCERT_CONTEXT hCertIssuer = ::CertFindCertificateInStore(hCertStore, 
+		X509_ASN_ENCODING, 0, CERT_FIND_ISSUER_OF, hCertContext, 0
+	); 
+	// проверить наличие сертификата
+	if (hCertIssuer == 0) return nullptr; 
+
+	// выделить буфер для сертификата
+	array<BYTE>^ encoded = gcnew array<BYTE>(hCertIssuer->cbCertEncoded); 
+
+	// скопировать закодированное представление
+	Marshal::Copy(IntPtr(hCertIssuer->pbCertEncoded), encoded, 0, encoded->Length); 
+	
+	return encoded; 
+}
+
 array<BYTE>^ Aladdin::CAPI::ANSI::CSP::Microsoft::CertificateStore::Find(
 	PCERT_PUBLIC_KEY_INFO pInfo)
 {$
@@ -107,4 +136,88 @@ void Aladdin::CAPI::ANSI::CSP::Microsoft::CertificateStore::Write(array<BYTE>^ c
 	}
 	// закрыть контекст сертификата
 	finally { ::CertFreeCertificateContext(hCertContext);  }
+}
+
+array<Aladdin::CAPI::Certificate^>^ 
+Aladdin::CAPI::ANSI::CSP::Microsoft::CertificateStore::GetCertificateChain(
+	String^ provider, DWORD location, Certificate^ certificate)
+{$
+    // инициализировать цепочку сертификатов
+    List<Certificate^>^ certificateChain = gcnew List<Certificate^>(
+		gcnew array<Certificate^> { certificate }
+    ); 
+	// указать хранилище
+	CertificateStore storeCA(provider, "CA", location);
+
+    // до появления самоподписанного сертификата
+    while (!PKI::IsSelfSignedCertificate(certificate))
+    {
+		// найти сертификат издателя
+		array<BYTE>^ encoded = storeCA.FindIssuer(certificate->Encoded); 
+
+		// при отсутствии сертификата
+		if (encoded == nullptr) 
+		{
+			// указать хранилище
+			CertificateStore storeTrust(provider, "Trust", location);
+
+			// найти сертификат издателя
+			encoded = storeTrust.FindIssuer(certificate->Encoded); 
+		}
+		// при отсутствии сертификата
+		if (encoded == nullptr) 
+		{
+			// указать хранилище
+			CertificateStore storeRoot(provider, "Root", location);
+
+			// найти сертификат издателя
+			encoded = storeRoot.FindIssuer(certificate->Encoded); 
+		}
+		// проверить наличие сертификата
+		if (encoded == nullptr) break; 
+
+        // добавить сертификат издателя в список
+        certificateChain->Add(gcnew Certificate(encoded)); 
+    }
+    // вернуть цепочку сертификатов
+    return certificateChain->ToArray(); 
+
+}
+
+void Aladdin::CAPI::ANSI::CSP::Microsoft::CertificateStore::SetCertificateChain(
+	String^ provider, DWORD location, array<Certificate^>^ certificateChain)
+{$
+	// указать хранилище
+	CertificateStore storeMy(provider, "My", location);
+	CertificateStore storeCA(provider, "CA", location);
+
+	// сохранить сертификат открытого ключа
+	storeMy.Write(certificateChain[0]->Encoded); 
+
+	// для оставшихся сертификатов
+	for (int i = 1; i < certificateChain->Length - 1; i++)
+	{
+		// сохранить сертификат открытого ключа
+		storeCA.Write(certificateChain[i]->Encoded); 
+	}
+	// для последнего сертификата
+	if (certificateChain->Length > 1)
+	{
+		// указать сертификат
+		Certificate^ certificate = certificateChain[certificateChain->Length - 1]; 
+
+		// для несамоподписанного сертификата
+		if (!PKI::IsSelfSignedCertificate(certificate))
+		{
+			// сохранить сертификат открытого ключа
+			storeCA.Write(certificate->Encoded); 
+		}
+		else {
+			// указать хранилище
+			CertificateStore storeTrust(provider, "Trust", location);
+
+			// сохранить сертификат открытого ключа
+			storeTrust.Write(certificate->Encoded); 
+		}
+	}
 }

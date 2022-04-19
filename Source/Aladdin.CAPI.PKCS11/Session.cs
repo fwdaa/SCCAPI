@@ -92,18 +92,50 @@ namespace Aladdin.CAPI.PKCS11
         }
 	    // создать пару ассиметричных ключей
 	    public SessionObject[] GenerateKeyPair(Mechanism parameters, 
-            Attribute[] publicAttributes, Attribute[] privateAttributes)
+            Attribute[] requiredPublicAttributes, Attribute[] requiredPrivateAttributes, 
+			Attribute[] optionalPublicAttributes, Attribute[] optionalPrivateAttributes)
         {
+	        // проверить наличие атрибутов
+	        if (optionalPublicAttributes  == null) optionalPublicAttributes  = new Attribute[0]; 
+	        if (optionalPrivateAttributes == null) optionalPrivateAttributes = new Attribute[0]; 
+
+			// создать список атрибутов
+			List<Attribute> publicAttributes  = new List<Attribute>(requiredPublicAttributes ); 
+			List<Attribute> privateAttributes = new List<Attribute>(requiredPrivateAttributes); 
+
+			// указать необязательные атрибуты
+			publicAttributes .AddRange(optionalPublicAttributes ); 
+			privateAttributes.AddRange(optionalPrivateAttributes); 
+
 	        // выделить память для результата
 	        SessionObject[] objects = new SessionObject[2]; 
-	
-	        // создать пару ассиметричных ключей
-	        UInt64[] hObjects = module.GenerateKeyPair(
-		        hSession, parameters, publicAttributes, privateAttributes
-	        ); 
-	        // вернуть созданные объекты
-	        objects[0] = new SessionObject(this, hObjects[0]); 
-	        objects[1] = new SessionObject(this, hObjects[1]); return objects; 
+			try {  	
+				// создать пару ассиметричных ключей
+				UInt64[] hObjects = module.GenerateKeyPair(hSession, parameters, 
+					publicAttributes.ToArray(), privateAttributes.ToArray()
+				); 
+				// вернуть созданные объекты
+				objects[0] = new SessionObject(this, hObjects[0]); 
+				objects[1] = new SessionObject(this, hObjects[1]); return objects; 
+			}
+			// при возникновении ошибки
+			catch (Aladdin.PKCS11.Exception e) 
+			{
+				// проверить код ошибки
+				if (e.ErrorCode != API.CKR_ATTRIBUTE_TYPE_INVALID) throw; 
+
+				// проверить наличие необязательных атрибутов
+				if (optionalPublicAttributes .Length == 0 && 
+					optionalPrivateAttributes.Length == 0) throw; 
+
+				// создать пару ассиметричных ключей
+				UInt64[] hObjects = module.GenerateKeyPair(hSession, parameters, 
+					requiredPublicAttributes, requiredPrivateAttributes
+				); 
+				// вернуть созданные объекты
+				objects[0] = new SessionObject(this, hObjects[0]); 
+				objects[1] = new SessionObject(this, hObjects[1]); return objects; 
+			}
         }
 		// сгенерировать пару ключей
 		public SessionObject[] GenerateKeyPair(Mechanism parameters, KeyUsage keyUsage, 
@@ -135,27 +167,21 @@ namespace Aladdin.CAPI.PKCS11
 	            privAttributes.Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
 	            pubAttributes .Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
             }
-            // сохранить списки атрибутов
-            publicAttributes = pubAttributes.ToArray(); privateAttributes = privAttributes.ToArray();
+			// создать необязательные атрибуты
+			List<Attribute> optionalPubAttributes  = new List<Attribute>(); 
+			List<Attribute> optionalPrivAttributes = new List<Attribute>(); 
 
             // определить значения атрибутов
             if (KeyUsage.None != (keyUsage &  KeyUsage.DataEncipherment))
-            try {  
+            {  
                 // указать значения атрибутов
-                privAttributes.Add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
-                pubAttributes .Add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
-
-	            // сгенерировать пару ключей
-	            return GenerateKeyPair(parameters, pubAttributes.ToArray(), privAttributes.ToArray());
-            }
-            // при возникновении ошибки
-            catch (Aladdin.PKCS11.Exception e)
-            {
-                // проверить код ошибки
-                if (e.ErrorCode != API.CKR_ATTRIBUTE_TYPE_INVALID) throw; 
-            }
+                optionalPubAttributes .Add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
+                optionalPrivAttributes.Add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
+			}
             // сгенерировать пару ключей
-	        return GenerateKeyPair(parameters, publicAttributes, privateAttributes);
+            return GenerateKeyPair(parameters, pubAttributes.ToArray(), privAttributes.ToArray(), 
+				optionalPubAttributes.ToArray(), optionalPrivAttributes.ToArray()
+			);
         }
 	    ///////////////////////////////////////////////////////////////////////////
 	    // Управление объектами
@@ -192,50 +218,42 @@ namespace Aladdin.CAPI.PKCS11
 	            pubAttributes .Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
             }
             // сохранить списки атрибутов
-            publicAttributes = pubAttributes.ToArray(); privateAttributes = privAttributes.ToArray();
+            publicAttributes  = pubAttributes.ToArray(); 
+			privateAttributes = privAttributes.ToArray();
 
-            // выделить буфер требуемого размера
-            SessionObject[] objs = new SessionObject[2]; 
+			// создать необязательные атрибуты
+			List<Attribute> optionalPubAttributes  = new List<Attribute>(); 
+			List<Attribute> optionalPrivAttributes = new List<Attribute>(); 
 
             // определить значения атрибутов
             if (KeyUsage.None != (keyUsage &  KeyUsage.DataEncipherment))
-            try {  
+            {  
                 // указать значения атрибутов
-                privAttributes.Add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
-                pubAttributes .Add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
+                optionalPubAttributes .Add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
+                optionalPrivAttributes.Add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
+			}
+            // выделить буфер требуемого размера
+            SessionObject[] objs = new SessionObject[2]; 
 
-                // сохранить открытый ключ на смарт-карту
-                objs[0] = CreateObject(pubAttributes.ToArray()); 
-                try { 
-                    // сохранить личный ключ на смарт-карту
-                    objs[1] = CreateObject(privAttributes.ToArray()); return objs; 
-                }
-                // при ошибке удалить личный ключ
-                catch { DestroyObject(objs[0]); throw; }
-            }
-            // при возникновении ошибки
-            catch (Aladdin.PKCS11.Exception e)
-            {
-                // проверить код ошибки
-                if (e.ErrorCode != API.CKR_ATTRIBUTE_TYPE_INVALID) throw; 
-            }
             // сохранить открытый ключ на смарт-карту
-            objs[0] = CreateObject(publicAttributes); 
+            objs[0] = CreateObject(publicAttributes, optionalPubAttributes.ToArray()); 
             try { 
                 // сохранить личный ключ на смарт-карту
-                objs[1] = CreateObject(privateAttributes); return objs; 
+                objs[1] = CreateObject(privateAttributes, optionalPrivAttributes.ToArray()); 
             }
             // при ошибке удалить личный ключ
-            catch { DestroyObject(objs[0]); throw; }
+            catch { DestroyObject(objs[0]); throw; } return objs; 
         }
 	    // создать объект
-	    public SessionObject CreateObject(Attribute[] attributes)
+	    public SessionObject CreateObject(
+			Attribute[] requiredAttributes, Attribute[] optionalAttributes)
         {
 	        // проверить наличие атрибутов
-	        if (attributes == null) attributes = new Attribute[0]; 
+	        if (requiredAttributes == null) requiredAttributes = new Attribute[0]; 
+	        if (optionalAttributes == null) optionalAttributes = new Attribute[0]; 
 
 	        // для всех атрибутов 
-	        foreach (Attribute attribute in attributes)
+	        foreach (Attribute attribute in requiredAttributes)
 	        {
 		        // проверить наличие значения
 		        if (attribute.Value != null) continue; 
@@ -243,11 +261,42 @@ namespace Aladdin.CAPI.PKCS11
 		        // при ошибке выбросить исключение
 		        throw new Aladdin.PKCS11.Exception(API.CKR_KEY_UNEXTRACTABLE);
 	        }
-	        // создать объект с указанными атрибутами
-	        UInt64 hObject = module.CreateObject(hSession, attributes);  
+	        // для всех атрибутов 
+	        foreach (Attribute attribute in optionalAttributes)
+	        {
+		        // проверить наличие значения
+		        if (attribute.Value != null) continue; 
+				
+		        // при ошибке выбросить исключение
+		        throw new Aladdin.PKCS11.Exception(API.CKR_KEY_UNEXTRACTABLE);
+	        }
+			// создать список атрибутов
+			List<Attribute> attributes = new List<Attribute>(requiredAttributes); 
+
+			// указать необязательные атрибуты
+			attributes.AddRange(optionalAttributes); 
+			try {  
+				// создать объект с указанными атрибутами
+				UInt64 hObject = module.CreateObject(hSession, attributes.ToArray());  
 	 
-	        // вернуть созданный объект
-	        return new SessionObject(this, hObject); 
+				// вернуть созданный объект
+				return new SessionObject(this, hObject); 
+			}
+			// при возникновении ошибки
+			catch (Aladdin.PKCS11.Exception e) 
+			{
+				// проверить код ошибки
+				if (e.ErrorCode != API.CKR_ATTRIBUTE_TYPE_INVALID) throw; 
+
+				// проверить наличие необязательных атрибутов
+				if (optionalAttributes.Length == 0) throw; 
+
+				// создать объект с указанными атрибутами
+				UInt64 hObject = module.CreateObject(hSession, requiredAttributes);  
+	 
+				// вернуть созданный объект
+				return new SessionObject(this, hObject); 
+			}
         }
 	    // найти объекты с указанными атрибутами
 	    public SessionObject[] FindObjects(Attribute[] attributes)
@@ -282,7 +331,8 @@ namespace Aladdin.CAPI.PKCS11
 	        return new SessionObject(this, handles[0]); 
         }
 	    // создать объект на токене
-	    public SessionObject CreateTokenObject(string label, Attribute[] attributes)
+	    public SessionObject CreateTokenObject(string label, 
+			Attribute[] requiredAttributes, Attribute[] optionalAttributes)
         {
 	        // выделить память для атрибутов
 	        Attribute[] attrs = new Attribute[] {
@@ -294,7 +344,9 @@ namespace Aladdin.CAPI.PKCS11
 	            new Attribute(API.CKA_LABEL, label)
             }; 
 	        // создать объект на токене
-	        return CreateObject(Attribute.Join(attributes, attrs)); 
+	        return CreateObject(
+				Attribute.Join(requiredAttributes, attrs), optionalAttributes
+			); 
         }
 	    // найти объекты с указанными атрибутами
 	    public SessionObject[] FindTokenObjects(string label, Attribute[] attributes)

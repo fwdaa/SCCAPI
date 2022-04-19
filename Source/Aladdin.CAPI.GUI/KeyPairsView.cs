@@ -80,10 +80,10 @@ namespace Aladdin.CAPI.GUI
 		    string notBefore = "N/A"; string notAfter = "N/A";
 
             // при наличии сертификата
-            if (keyPair.Certificate != null)
+            if (keyPair.CertificateChain != null)
             {
                 // извлечь сертификат
-                Certificate certificate = keyPair.Certificate; subject = certificate.SubjectName;
+                Certificate certificate = keyPair.CertificateChain[0]; subject = certificate.SubjectName;
 
 			    // определить начало срока действия
 			    notBefore = certificate.NotBefore.ToString("d", CultureInfo.CurrentUICulture); 
@@ -134,13 +134,10 @@ namespace Aladdin.CAPI.GUI
 			ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 
             // при наличии сертификата
-            if (keyPair.Certificate != null)
+            if (keyPair.CertificateChain != null)
             { 
-			    // создать объект сертификата
-			    X509Certificate2 cert = new X509Certificate2(keyPair.Certificate.Encoded); 
-
 			    // отобразить сертификат
-			    X509Certificate2UI.DisplayCertificate(cert, Handle); 
+			    CertificateDialog.Show(Handle, keyPair.CertificateChain); 
             }
             else { 
 				// указать способ аутентификации

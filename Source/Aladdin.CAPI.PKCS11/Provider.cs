@@ -292,7 +292,7 @@ namespace Aladdin.CAPI.PKCS11
 	            CreateAttribute(API.CKA_VALUE, key.Value) 
             }; 
             // создать сеансовый объект
-            return session.CreateObject(Attribute.Join(attributes, keyAttributes)); 
+            return session.CreateObject(Attribute.Join(attributes, keyAttributes), null); 
         }
 		public SessionObject ToSessionObject(Session session, 
             IPublicKey publicKey, MechanismInfo info, Attribute[] keyAttributes)
@@ -312,7 +312,7 @@ namespace Aladdin.CAPI.PKCS11
 	        attributes = Attribute.Join(attributes, publicKeyAttributes); 
 
             // создать сеансовый объект
-            return session.CreateObject(Attribute.Join(attributes, keyAttributes)); 
+            return session.CreateObject(Attribute.Join(attributes, keyAttributes), null); 
         }
 		public SessionObject ToSessionObject(Session session, 
             IPrivateKey privateKey, MechanismInfo info, Attribute[] keyAttributes)
@@ -338,7 +338,7 @@ namespace Aladdin.CAPI.PKCS11
             attributes = Attribute.Join(attributes, privateKeyAttributes); 
 
             // создать сеансовый объект
-            return session.CreateObject(Attribute.Join(attributes, keyAttributes)); 
+            return session.CreateObject(Attribute.Join(attributes, keyAttributes), null); 
         }
 		// атрибуты открытого ключа
 		public abstract Attribute[] PublicKeyAttributes(

@@ -15,6 +15,9 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 		// деструктор
 		public: virtual ~CertificateStore(); 
 
+		// найти сертификат издателя
+		public: array<BYTE>^ FindIssuer(array<BYTE>^ certificate); 
+
 		// найти сертификат
 		public: array<BYTE>^ Find(ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo); 
 		// найти сертификат
@@ -22,5 +25,14 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 
 		// записать сертификат
 		public: void Write(array<BYTE>^ certificate); 
+
+		// получить цепочку сертификатов открытого ключа
+		public: static array<Certificate^>^ GetCertificateChain(
+			String^ provider, DWORD location, Certificate^ certificate
+		); 
+		// сохранить цепочку сертификатов открытого ключа
+		public: static void SetCertificateChain(
+			String^ provider, DWORD location, array<Certificate^>^ certificateChain
+		); 
 	}; 
 }}}}}

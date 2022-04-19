@@ -362,8 +362,8 @@ Aladdin::CAPI::CNG::Container::GetCertificate(array<BYTE>^ keyID)
 	return Store->GetCertificate(hKeyPair.Get(), publicKeyInfo); 
 }
 
-void Aladdin::CAPI::CNG::Container::SetCertificate(
-	array<BYTE>^ keyID, Certificate^ certificate)
+void Aladdin::CAPI::CNG::Container::SetCertificateChain(
+	array<BYTE>^ keyID, array<Certificate^>^ certificateChain)
 {$
 	// проверить наличие параметров
 	if (keyID == nullptr) throw gcnew ArgumentException(); 
@@ -372,7 +372,7 @@ void Aladdin::CAPI::CNG::Container::SetCertificate(
 	if (hKeyPair.Get() == nullptr || keyType != keyID[0]) gcnew Win32Exception(NTE_NO_KEY); 
 
 	// сохранить сертификат в контейнер
-	Store->SetCertificate(hKeyPair.Get(), certificate); 
+	Store->SetCertificateChain(hKeyPair.Get(), certificateChain); 
 }
 
 array<BYTE>^ Aladdin::CAPI::CNG::Container::SetKeyPair(

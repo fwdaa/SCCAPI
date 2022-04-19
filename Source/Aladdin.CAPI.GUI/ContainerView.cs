@@ -72,10 +72,10 @@ namespace Aladdin.CAPI.GUI
 		    string subject = "?"; string notBefore = "N/A"; string notAfter = "N/A";
 
             // при наличии сертификата
-            string keyUsage = String.Empty; if (keyPair.Certificate != null)
+            string keyUsage = String.Empty; if (keyPair.CertificateChain != null)
             {
                 // извлечь сертификат
-                Certificate certificate = keyPair.Certificate; subject = certificate.SubjectName;
+                Certificate certificate = keyPair.CertificateChain[0]; subject = certificate.SubjectName;
 
 			    // определить начало срока действия
 			    notBefore = certificate.NotBefore.ToString("d", CultureInfo.CurrentUICulture); 
@@ -139,7 +139,7 @@ namespace Aladdin.CAPI.GUI
 						listView.ContextMenuStrip.Items[2].Enabled = false; 
 					}
 					// при отсутствии сертификата
-					else if (keyPair.Certificate == null)
+					else if (keyPair.CertificateChain == null)
 					{
 						// сделать контекстное меню доступным
 						listView.ContextMenuStrip.Items[1].Enabled = true; 
@@ -162,13 +162,10 @@ namespace Aladdin.CAPI.GUI
 		    ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 
             // при наличии сертификата
-            if (keyPair.Certificate != null)
+            if (keyPair.CertificateChain != null)
             { 
-			    // создать объект сертификата
-			    X509Certificate2 cert = new X509Certificate2(keyPair.Certificate.Encoded); 
-
 			    // отобразить сертификат
-			    X509Certificate2UI.DisplayCertificate(cert, Handle); 
+			    CertificateDialog.Show(Handle, keyPair.CertificateChain); 
             }
             else { 
 				// указать способ аутентификации
@@ -222,9 +219,12 @@ namespace Aladdin.CAPI.GUI
 							keyPair.KeyID, dialog.Subject, signParameters, dialog.NotBefore, dialog.NotAfter,  
 							dialog.KeyUsage, dialog.ExtendedKeyUsage, dialog.BasicConstraints, null, null
 						); 
+						// создать цепочку сертификатов
+						Certificate[] certificateChain = new Certificate[] { certificate }; 
+
 						// сохранить измененную информацию
 						listView.SelectedItems[0].Tag = new ContainerKeyPair(
-							keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificate 
+							keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificateChain
 						);
 					}
                 }
@@ -263,8 +263,8 @@ namespace Aladdin.CAPI.GUI
 
 						// сгенерировать запрос на сертификат
 						CertificateRequest request = container.CreateCertificateRequest( 
-							rand, keyPair.KeyID, keyPair.Certificate.Subject, 
-							signParameters, keyPair.Certificate.Extensions
+							rand, keyPair.KeyID, keyPair.CertificateChain[0].Subject, 
+							signParameters, keyPair.CertificateChain[0].Extensions
 						); 
 						// сохранить запрос на сертификат в файл
 						File.WriteAllBytes(file, request.Encoded); 
@@ -291,6 +291,9 @@ namespace Aladdin.CAPI.GUI
                 // проверить выбор сертификата
                 if (certificate == null) return; 
 
+				// указать цепочку сертификатов
+				Certificate[] certificateChain = new Certificate[] { certificate }; 
+
 				// указать способ аутентификации
 				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
 
@@ -311,11 +314,11 @@ namespace Aladdin.CAPI.GUI
 							Text, MessageBoxButtons.OK, MessageBoxIcon.Error); return; 
 					}
 					// изменить сертификат в контейнере
-					container.SetCertificate(keyPair.KeyID, certificate); 
+					container.SetCertificateChain(keyPair.KeyID, certificateChain); 
                 }
                 // сохранить измененную информацию
                 listView.SelectedItems[0].Tag = new ContainerKeyPair(
-                    keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificate 
+                    keyPair.Info, keyPair.KeyID, keyPair.KeyOID, certificateChain 
                 ); 
 				// получить сообщение о завершении
 				string message = Resource.StatusSetCertificate; Refresh(); 

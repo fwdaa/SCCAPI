@@ -75,8 +75,28 @@ public abstract class Container extends SecurityObject implements IClient
     // все сертификаты контейнера
     public Certificate[] enumerateAllCertificates() throws IOException
     {
-        // вернуть сертификаты пользователя
-        return enumerateCertificates(); 
+        // создать список сертификатов пользователя
+        List<Certificate> certificates = new ArrayList<Certificate>(); 
+
+        // для всех ключей
+        for (byte[] keyID : getKeyIDs())
+        { 
+            // получить сертификат для ключа
+            Certificate certificate = getCertificate(keyID); 
+
+            // при отсутствии сертификата в списке
+            if (certificate != null && !certificates.contains(certificate))
+            { 
+                // для всех сертификатов цепочки
+                for (Certificate item : getCertificateChain(certificate))
+                {
+                    // добавить сертификат в список
+                    if (!certificates.contains(item)) certificates.add(item); 
+                }
+            }
+        }
+        // вернуть список сертификатов
+        return certificates.toArray(new Certificate[certificates.size()]); 
     }
     // сертификаты пользователя
     @Override public Certificate[] enumerateCertificates() throws IOException
@@ -103,8 +123,14 @@ public abstract class Container extends SecurityObject implements IClient
 	// получить сертификат открытого ключа
 	public abstract Certificate getCertificate(byte[] keyID) throws IOException; 
 
+    // получить цепь сертификатов
+	public Certificate[] getCertificateChain(Certificate certificate) throws IOException
+    {
+        // вернуть тривиальную цепь
+        return new Certificate[] { certificate }; 
+    }
 	// сохранить сертификат открытого ключа
-	public abstract void setCertificate(byte[] keyID, Certificate certificate) 
+	public abstract void setCertificateChain(byte[] keyID, Certificate[] certificateChain) 
         throws IOException; 
     
     // найти пару ключей
@@ -184,12 +210,16 @@ public abstract class Container extends SecurityObject implements IClient
         // проверить наличие пары ключей
         if (keyID == null) throw new NoSuchElementException(); 
         
+        // получить цепь сертификатов
+        Certificate[] certificateChain = getCertificateChain(certificate); 
+        
         // получить личный ключ
         try (IPrivateKey privateKey = getPrivateKey(keyID))  
         {
             // зашифровать данные
-            ContentInfo contentInfo = Culture.keyxEncryptData(culture, rand, 
-                privateKey, certificate, recipientCertificates, null, data, attributes
+            ContentInfo contentInfo = Culture.keyxEncryptData(
+                culture, rand, privateKey, certificateChain, 
+                recipientCertificates, null, data, attributes
             ); 
             // вернуть зашифрованные данные
             return contentInfo.encoded(); 
@@ -248,12 +278,16 @@ public abstract class Container extends SecurityObject implements IClient
         // проверить наличие пары ключей
         if (keyID == null) throw new NoSuchElementException();
 
+        // получить цепь сертификатов
+        Certificate[] certificateChain = getCertificateChain(certificate); 
+        
         // получить личный ключ
         try (IPrivateKey privateKey = getPrivateKey(keyID))  
         {
             // подписать данные
-            ContentInfo contentInfo = Culture.signData(culture, rand, 
-                privateKey, certificate, data, authAttributes, unauthAttributes
+            ContentInfo contentInfo = Culture.signData(
+                culture, rand, privateKey, certificateChain, 
+                data, authAttributes, unauthAttributes
             ); 
             // вернуть подписанные данные
             return contentInfo.encoded(); 

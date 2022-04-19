@@ -65,7 +65,7 @@ namespace Aladdin.CAPI.PKCS11
 			if (tokenAttribute == null || tokenAttribute.GetByte() == API.CK_FALSE)			
 			{
 				// создать сеансовый объект
-				return session.CreateObject(keyAttributes.Join(attributes).ToArray()); 
+				return session.CreateObject(keyAttributes.Join(attributes).ToArray(), null); 
 			}
 			else {
 				// выделить память для атрибутов поиска

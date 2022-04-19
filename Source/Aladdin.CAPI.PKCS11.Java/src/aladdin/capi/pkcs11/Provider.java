@@ -269,7 +269,7 @@ public abstract class Provider extends aladdin.capi.CryptoProvider
         attributes = Attribute.join(attributes, keyAttributes); 
         
         // создать сеансовый объект
-        return session.createObject(attributes); 
+        return session.createObject(attributes, null); 
     }
 	public final SessionObject toSessionObject(Session session, 
         IPublicKey publicKey, MechanismInfo info, Attribute[] keyAttributes) throws IOException
@@ -291,7 +291,7 @@ public abstract class Provider extends aladdin.capi.CryptoProvider
         attributes = Attribute.join(attributes, keyAttributes); 
         
         // создать сеансовый объект
-        return session.createObject(attributes); 
+        return session.createObject(attributes, null); 
     }
 	public final SessionObject toSessionObject(Session session, 
         IPrivateKey privateKey, MechanismInfo info, Attribute[] keyAttributes) throws IOException
@@ -319,7 +319,7 @@ public abstract class Provider extends aladdin.capi.CryptoProvider
         attributes = Attribute.join(attributes, keyAttributes); 
         
         // создать сеансовый объект
-        return session.createObject(attributes); 
+        return session.createObject(attributes, null); 
     }
 	// атрибуты открытого и личного ключа
 	public abstract Attribute[] publicKeyAttributes(
