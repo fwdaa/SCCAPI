@@ -73,18 +73,6 @@ public class Provider extends aladdin.capi.pkcs11.Provider
         // тип структуры передачи параметров механизма PBKDF2
         return aladdin.capi.pkcs11.pbe.PBKDF2.ParametersType.PARAMS2; 
     }
-    // получить идентификатор ключа
-    @Override public String convertKeyName(String name) 
-    { 
-        // получить идентификатор ключа
-        return aladdin.capi.ansi.Aliases.convertKeyName(name); 
-    } 
-    // получить идентификатор алгоритма
-    @Override public String convertAlgorithmName(String name) 
-    { 
-        // получить идентификатор ключа
-        return aladdin.capi.ansi.Aliases.convertAlgorithmName(name); 
-    } 
 	// поддерживаемые фабрики кодирования ключей
 	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     

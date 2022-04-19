@@ -182,9 +182,8 @@ public class BDHKeyFactory extends KeyFactory
     } 
     // создать параметры
     @Override public aladdin.capi.IParameters createParameters(
-        AlgorithmParameterSpec paramSpec) 
-        throws InvalidParameterSpecException, IOException 
-    { 
+        AlgorithmParameterSpec paramSpec) throws InvalidParameterSpecException
+    {
         // создать параметры
         return BDHParameters.getInstance(paramSpec); 
     }

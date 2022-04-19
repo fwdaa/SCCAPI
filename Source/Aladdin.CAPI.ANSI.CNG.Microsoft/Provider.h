@@ -18,18 +18,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// Управление алгоритмами
 		///////////////////////////////////////////////////////////////////////
 
-        // получить идентификатор ключа
-		public: virtual String^ ConvertKeyName(String^ name) override
-        { 
-            // получить идентификатор ключа
-            return Aliases::ConvertKeyName(name); 
-        } 
-        // получить идентификатор алгоритма
-		public: String^ ConvertAlgorithmName(String^ name) override
-        { 
-            // получить идентификатор ключа
-            return Aliases::ConvertAlgorithmName(name); 
-        } 
 		// фабрика генераторов случайных данных
 		public:	virtual IRandFactory^ CreateRandFactory(SecurityObject^ scope, bool strong) override 
 		{ 

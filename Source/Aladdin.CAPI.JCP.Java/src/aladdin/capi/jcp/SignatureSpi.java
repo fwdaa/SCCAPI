@@ -1,6 +1,5 @@
 package aladdin.capi.jcp;
 import aladdin.*;
-import aladdin.asn1.*;
 import aladdin.capi.*; 
 import java.security.*;
 import java.security.spec.*;
@@ -14,26 +13,26 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
     // используемый провайдер, номер слота и имя алгоритма
 	private final Provider provider; private final int slot; private final String name; 
 	// параметры алгоритма и генератор случайных данных
-	private AlgorithmParametersSpi parameters; private SecureRandom random; 
+	private final AlgorithmParameters parameters; private SecureRandom random; 
     // имя алгоритма, алгоритм и ключ
     private IAlgorithm algorithm; private Object key; 
     // буфер приема входных данных
     private final ByteArrayOutputStream stream; 
 
 	// конструктор
-	public SignatureSpi(Provider provider, String name) 
+	public SignatureSpi(Provider provider, String name) throws IOException
 	{ 
         // сохранить переданные параметры
         this.provider = provider; this.slot = provider.addObject(this); 
         
         // инициализировать переменные
-        parameters = new AlgorithmParametersSpi(provider, name); random = null; 
-
+        parameters = new AlgorithmParameters(provider.engineCreateParameters(name)); 
+        
         // инициализировать переменные
         this.name = name; this.algorithm = null; this.key = null; 
         
         // создать буфер приема входных данных
-        this.stream = new ByteArrayOutputStream();
+        this.stream = new ByteArrayOutputStream(); random = null; 
     } 
     // освободить выделенные ресурсы
     @Override public void close() throws IOException
@@ -62,8 +61,8 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 	protected final void engineSetParameter(AlgorithmParameterSpec paramSpec) 
 		throws InvalidAlgorithmParameterException 
 	{
-		// раскодировать параметры
-		try { parameters = provider.createParameters(name, paramSpec); } 
+		// инициализировать параметры
+		try { parameters.init(paramSpec); } 
 			
         // обработать возможную ошибку
 		catch (InvalidParameterSpecException e) 
@@ -76,7 +75,7 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
 	protected final AlgorithmParameters engineGetParameters() 
     { 
         // вернуть параметры алгоритма
-        return new AlgorithmParameters(provider, parameters); 
+        return parameters; 
     }
 	@Override
 	protected final void engineInitSign(
@@ -129,20 +128,15 @@ public final class SignatureSpi extends java.security.SignatureSpi implements Cl
         // преобразовать тип ключа
         this.key = provider.translatePublicKey(key); stream.reset();
         try {
-            // указать параметры алгоритма
-            IEncodable encodable = parameters.getEncodable(); 
-            
             // создать алгоритм проверки подписи
-            algorithm = provider.factory().createAlgorithm(
-                parameters.getScope(), name, encodable, VerifyData.class
-            );  
+            algorithm = provider.createAlgorithm(name, parameters, VerifyData.class);  
+            
             // проверить наличие алгоритма
             if (algorithm != null) return; 
                 
             // создать алгоритм проверки подписи
-            algorithm = provider.factory().createAlgorithm(
-                parameters.getScope(), name, encodable, VerifyHash.class
-            );  
+            algorithm = provider.createAlgorithm(name, parameters, VerifyHash.class);  
+            
             // проверить наличие алгоритма
             if (algorithm == null) throw new InvalidKeyException(); 
         }

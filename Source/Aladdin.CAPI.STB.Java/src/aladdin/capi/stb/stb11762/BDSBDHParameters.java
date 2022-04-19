@@ -15,12 +15,9 @@ public class BDSBDHParameters extends DSAParameterSpec implements IBDSBDHParamet
     public static IBDSBDHParameters getInstance(AlgorithmParameterSpec paramSpec)
         throws InvalidParameterSpecException
     { 
-        // в зависимости от типа данных
-        if (paramSpec instanceof DSAParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IBDSBDHParameters) return (IBDSBDHParameters)paramSpec; 
-        }
+        // выполнить преобразование типа
+        if (paramSpec instanceof IBDSBDHParameters) return (IBDSBDHParameters)paramSpec; 
+        
         // тип параметров не поддерживается
         throw new InvalidParameterSpecException(); 
     }
@@ -62,6 +59,9 @@ public class BDSBDHParameters extends DSAParameterSpec implements IBDSBDHParamet
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры
+        if (specType.isAssignableFrom(IBDSBDHParameters.class)) return (T)this;
+        
         // вернуть параметры
         if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this;
         

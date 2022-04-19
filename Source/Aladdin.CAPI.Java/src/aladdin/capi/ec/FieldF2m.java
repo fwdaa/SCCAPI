@@ -14,7 +14,6 @@ public class FieldF2m extends ECFieldF2m implements IField<BigInteger>
     private final aladdin.math.F2m.Field field; 
     
     // преобразовать тип поля
-    @SuppressWarnings({"rawtypes"}) 
     public static FieldF2m convert(aladdin.math.F2m.Field field)
     {
         // в зависимости от типа поля

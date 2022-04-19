@@ -27,7 +27,7 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CSP { namespace 
 			String^ keyOID, DWORD keyType, DWORD keyFlags) override 
 		{
 			// определить число битов
-			int bits = ((IKeyBitsParameters^)Parameters)->KeyBits;
+			int bits = ((IKeySizeParameters^)Parameters)->KeyBits;
 
 			// создать пару ключей
 			return Generate(container, keyType, (bits << 16) | keyFlags); 

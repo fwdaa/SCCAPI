@@ -36,18 +36,6 @@ namespace Aladdin { namespace CAPI { namespace ANSI { namespace CNG { namespace 
 		// имя провайдера
 		public: property String^ Provider { String^ get() { return "Microsoft Primitive Provider"; }}
 
-        // получить идентификатор ключа
-		public: virtual String^ ConvertKeyName(String^ name) override
-        { 
-            // получить идентификатор ключа
-            return Aliases::ConvertKeyName(name); 
-        } 
-        // получить идентификатор алгоритма
-		public: String^ ConvertAlgorithmName(String^ name) override
-        { 
-            // получить идентификатор ключа
-            return Aliases::ConvertAlgorithmName(name); 
-        } 
 		// поддерживаемые фабрики кодирования ключей
 		public: virtual Dictionary<String^, KeyFactory^>^ KeyFactories() override { return keyFactories; }
 

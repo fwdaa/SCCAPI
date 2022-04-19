@@ -37,18 +37,6 @@ namespace Aladdin.CAPI.ANSI
 	    // поддерживаемые фабрики кодирования ключей
 	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     
-        // получить идентификатор ключа
-        public override string ConvertKeyName(string name) 
-        { 
-            // получить идентификатор ключа
-            return Aliases.ConvertKeyName(name); 
-        } 
-        // получить идентификатор алгоритма
-        public override string ConvertAlgorithmName(string name) 
-        { 
-            // получить идентификатор ключа
-            return Aliases.ConvertAlgorithmName(name); 
-        } 
 		///////////////////////////////////////////////////////////////////////
 		// Cоздать алгоритм генерации ключей
 		///////////////////////////////////////////////////////////////////////

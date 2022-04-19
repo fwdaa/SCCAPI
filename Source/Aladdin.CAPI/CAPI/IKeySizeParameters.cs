@@ -3,7 +3,7 @@
     ///////////////////////////////////////////////////////////////////////////////
     // Параметры размера ключа в битах
     ///////////////////////////////////////////////////////////////////////////////
-    public interface IKeyBitsParameters : IParameters
+    public interface IKeySizeParameters : IParameters
     {
         // размер ключа в битах
         int KeyBits { get; } 

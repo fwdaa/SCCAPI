@@ -86,6 +86,7 @@ public class Aliases
         if (name.equalsIgnoreCase("SHA256withRSA"           )) return aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_256;
         if (name.equalsIgnoreCase("SHA384withRSA"           )) return aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_384;
         if (name.equalsIgnoreCase("SHA512withRSA"           )) return aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_SHA2_512; 
+        if (name.equalsIgnoreCase("PSSwithRSA"              )) return aladdin.asn1.iso.pkcs.pkcs1.OID.RSA_PSS;
         if (name.equalsIgnoreCase("SHA1withDSA"             )) return aladdin.asn1.ansi.OID.X957_DSA_SHA1; 
         if (name.equalsIgnoreCase("SHA1withECDSA"           )) return aladdin.asn1.ansi.OID.X962_ECDSA_SHA1;
         if (name.equalsIgnoreCase("SHA256withECDSA"         )) return aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256; 

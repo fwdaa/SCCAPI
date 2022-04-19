@@ -26,12 +26,12 @@ public class Parameters extends ECParameterSpec implements aladdin.capi.ansi.x96
     public static IParameters getInstance(AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException
     { 
+        // выполнить преобразование типа
+        if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
+            
         // в зависимости от типа данных
         if (paramSpec instanceof ECParameterSpec)
         {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-            
             // выполнить преобразование типа
             ECParameterSpec ecParamSpec = (ECParameterSpec)paramSpec; 
             
@@ -66,6 +66,9 @@ public class Parameters extends ECParameterSpec implements aladdin.capi.ansi.x96
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры
+        if (specType.isAssignableFrom(IParameters.class)) return (T)this; 
+        
         // вернуть параметры
         if (specType.isAssignableFrom(ECParameterSpec.class)) return (T)this; 
         

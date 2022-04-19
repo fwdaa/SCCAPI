@@ -62,14 +62,14 @@ public class Explicit<T extends IEncodable> extends Encodable
         // записать закодированное представление
         catch (NoSuchMethodException e) { oos.writeObject(value); }
     }
-    @SuppressWarnings({"rawtypes", "unchecked"}) 
+    @SuppressWarnings({"unchecked"}) 
     @Override protected void readObject(ObjectInputStream ois) throws IOException 
     {
         // вызвать базовую функцию
         super.readObject(ois); 
         try { 
             // получить конструктор при раскодировании
-            Constructor constructor = getClass().getConstructor(IEncodable.class); 
+            Constructor<?> constructor = getClass().getConstructor(IEncodable.class); 
             
             // создать объект 
             Explicit<T> instance = (Explicit<T>)constructor.newInstance(this); 

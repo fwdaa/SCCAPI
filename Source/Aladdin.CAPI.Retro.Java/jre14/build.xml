@@ -313,8 +313,7 @@
              java.security.interfaces.ECKey:aladdin.capi.retro.java.security.interfaces.ECKey;
              java.security.interfaces.ECPublicKey:aladdin.capi.retro.java.security.interfaces.ECPublicKey;
              java.security.interfaces.ECPrivateKey:aladdin.capi.retro.java.security.interfaces.ECPrivateKey">
-        <fileset dir="../../Aladdin.CAPI.ANSI.Java/build/classes" includes="**/*.class" 
-             excludes="**/MGF1Parameters.class **/PSSParameters.class **/OAEPParameters.class"/>
+        <fileset dir="../../Aladdin.CAPI.ANSI.Java/build/classes" includes="**/*.class" />
 	    <classpath>
             <fileset dir="${platforms.JDK14.home}/jre/lib" includes="**/*.jar"/>
             <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
@@ -506,7 +505,8 @@
       </jar>
       <retrotranslator14 target="1.4" destjar="dist/Aladdin.CAPI.JCP.jar"
             smart="true" verify="true" failonwarning="true" embed="aladdin.capi.jcp.embed">
-        <fileset dir="../../Aladdin.CAPI.JCP.Java/build/classes" includes="**/*.class" excludes="**/Service*.class" />
+        <fileset dir="../../Aladdin.CAPI.JCP.Java/build/classes" includes="**/*.class" 
+            excludes="**/Service*.class **/MGF1Parameters.class **/PSSParameters.class **/OAEPParameters.class" />
 	    <classpath>
             <fileset dir="${platforms.JDK14.home}/jre/lib" includes="**/*.jar"/>
             <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
@@ -515,7 +515,7 @@
       </retrotranslator14>
       <jar jarfile="dist/Aladdin.CAPI.JCP.jar" update = "true" compress="yes">
         <manifest>
-          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar Aladdin.CAPI.Environment.jar "/>
+          <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.Environment.jar "/>
         </manifest>
       </jar>
    </target>

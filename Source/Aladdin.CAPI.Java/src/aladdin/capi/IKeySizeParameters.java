@@ -3,8 +3,8 @@ package aladdin.capi;
 ///////////////////////////////////////////////////////////////////////////////
 // Параметры размера ключа в битах
 ///////////////////////////////////////////////////////////////////////////////
-public interface IKeyBitsParameters extends IParameters
+public interface IKeySizeParameters extends IParameters
 {
     // размер ключа в битах
-    int getKeyBits(); 
+    public int getKeyBits();  
 }

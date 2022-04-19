@@ -71,6 +71,9 @@ public class Parameters extends ECParameterSpec implements IParameters
             throws InvalidParameterSpecException
     {
         // вернуть параметры 
+        if (specType.isAssignableFrom(IParameters.class)) return (T)this; 
+        
+        // вернуть параметры 
         if (specType.isAssignableFrom(ECParameterSpec.class)) return (T)this; 
         
         // тип параметров не поддерживается 

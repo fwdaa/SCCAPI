@@ -3,6 +3,7 @@ import aladdin.capi.pbe.*;
 import aladdin.capi.environment.*; 
 import aladdin.*; 
 import java.io.*;
+import java.lang.reflect.*;
 
 ///////////////////////////////////////////////////////////////////////////
 // Элемент расширения с использованием GUI
@@ -41,16 +42,23 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
         }
         // указать загрузчик классов
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
-        
-        // загрузить плагин
-        try (ICulturePlugin plugin = (ICulturePlugin)
-            Loader.loadClass(classLoader, className))
-        {
-            // получить параметры ключа
-            return plugin.getParameters(rand, keyOID, keyUsage); 
+        try { 
+            // загрузить класс
+            Class<?> type = classLoader.loadClass(className); 
+
+            // получить описание конструктора
+            Constructor<?> constructor = type.getConstructor(); 
+            
+            // загрузить плагин
+            try (ICulturePlugin plugin = (ICulturePlugin)constructor.newInstance())
+            {
+                // получить параметры ключа
+                return plugin.getParameters(rand, keyOID, keyUsage); 
+            }
         }
         // обработать врзможное исключение
-        catch (Throwable e) { throw new IOException(e); }
+        catch (InvocationTargetException e) { throw new IOException(e.getMessage()); }
+        catch (Throwable                 e) { throw new IOException(e             ); }
     }
     // параметры шифрования по паролю
     @Override public PBECulture getPBECulture(
@@ -64,15 +72,22 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
         }
         // указать загрузчик классов
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
-        
-        // загрузить плагин
-        try (ICulturePlugin plugin = (ICulturePlugin)
-            Loader.loadClass(classLoader, className))
-        {
-            // получить параметры шифрования по паролю
-            return plugin.getPBECulture(window, keyOID); 
+        try { 
+            // загрузить класс
+            Class<?> type = classLoader.loadClass(className); 
+
+            // получить описание конструктора
+            Constructor<?> constructor = type.getConstructor(); 
+            
+            // загрузить плагин
+            try (ICulturePlugin plugin = (ICulturePlugin)constructor.newInstance())
+            {
+                // получить параметры шифрования по паролю
+                return plugin.getPBECulture(window, keyOID); 
+            }
         }
         // обработать врзможное исключение
-        catch (Throwable e) { throw new IOException(e); }
+        catch (InvocationTargetException e) { throw new IOException(e.getMessage()); }
+        catch (Throwable                 e) { throw new IOException(e             ); }
     }
 }

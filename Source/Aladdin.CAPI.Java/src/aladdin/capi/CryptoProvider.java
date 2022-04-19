@@ -73,8 +73,7 @@ public abstract class CryptoProvider extends Factory implements IProvider, IRand
     public String[] generatedKeys(SecurityStore store) 
     { 
         // получить поддерживаемые ключи
-        @SuppressWarnings({"rawtypes", "unchecked"}) 
-        List<String> keyOIDs = new ArrayList(keyFactories().values()); 
+        List<String> keyOIDs = new ArrayList<String>(keyFactories().keySet()); 
         
         // вернуть поддерживаемые ключи
         return keyOIDs.toArray(new String[keyOIDs.size()]); 

@@ -15,7 +15,7 @@ namespace Aladdin.CAPI.ANSI.RSA
             if (parameters is IParameters) return (IParameters)parameters;
     
             // указать параметры алгоритма
-            return new Parameters((IKeyBitsParameters)parameters); 
+            return new Parameters((IKeySizeParameters)parameters); 
         }
         // размер модуля в битах и величина экспоненты
         private int modulusBits; private Math.BigInteger publicExponent;
@@ -39,7 +39,7 @@ namespace Aladdin.CAPI.ANSI.RSA
             this.modulusBits = modulusBits; publicExponent = Math.BigInteger.ValueOf(0x10001L);
         } 
         // конструктор
-        public Parameters(IKeyBitsParameters parameters) : this(parameters.KeyBits) {}
+        public Parameters(IKeySizeParameters parameters) : this(parameters.KeyBits) {}
         
         // размер модуля в битах
         public int KeyBits { get { return modulusBits; }}

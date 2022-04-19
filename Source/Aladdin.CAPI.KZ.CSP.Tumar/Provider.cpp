@@ -195,7 +195,7 @@ Aladdin::CAPI::KZ::CSP::Tumar::Provider::ImportKeyPair(
 	if (dynamic_cast<ANSI::RSA::IPublicKey^>(publicKey) != nullptr)
 	{
 		// определить число битов
-		switch (((IKeyBitsParameters^)publicKey->Parameters)->KeyBits)
+		switch (((IKeySizeParameters^)publicKey->Parameters)->KeyBits)
 		{
 		// указать идентификатор ключа
 		case 1024: algID = (keyType == AT_KEYEXCHANGE) ? CALG_RSA_1024_Xch : CALG_RSA_1024; break;

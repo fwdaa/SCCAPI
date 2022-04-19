@@ -69,18 +69,6 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             // тип структуры передачи параметров механизма PBKDF2
             get { return CAPI.PKCS11.PBE.PBKDF2.ParametersType.Params2; }
         }
-        // получить идентификатор ключа
-        public override string ConvertKeyName(string name) 
-        { 
-            // получить идентификатор ключа
-            return Aliases.ConvertKeyName(name); 
-        } 
-        // получить идентификатор алгоритма
-        public override string ConvertAlgorithmName(string name) 
-        { 
-            // получить идентификатор ключа
-            return Aliases.ConvertAlgorithmName(name); 
-        } 
 	    // поддерживаемые фабрики кодирования ключей
 	    public override Dictionary<String, KeyFactory> KeyFactories() { return keyFactories; } 
     

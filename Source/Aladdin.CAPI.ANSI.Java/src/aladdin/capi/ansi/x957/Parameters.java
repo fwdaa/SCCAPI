@@ -13,18 +13,18 @@ public final class Parameters extends DSAParameterSpec implements IParameters
     public static IParameters getInstance(AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException
     { 
+        // выполнить преобразование типа
+        if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
+            
         // в зависимости от типа данных
         if (paramSpec instanceof DSAParameterSpec)
         {
             // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-            
-            // выполнить преобразование типа
             DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
             
             // создать параметры ключа
-            return new Parameters(dsaParamSpec.getP(), 
-                dsaParamSpec.getQ(), dsaParamSpec.getG()
+            return new Parameters(
+                dsaParamSpec.getP(), dsaParamSpec.getQ(), dsaParamSpec.getG()
             ); 
         }
         // тип параметров не поддерживается
@@ -38,6 +38,9 @@ public final class Parameters extends DSAParameterSpec implements IParameters
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры
+        if (specType.isAssignableFrom(IParameters.class)) return (T)this; 
+        
         // вернуть параметры
         if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this; 
         

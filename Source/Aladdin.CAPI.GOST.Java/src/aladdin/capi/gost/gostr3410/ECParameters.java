@@ -26,12 +26,12 @@ public class ECParameters extends ECParameterSpec implements IECParameters
     public static IECParameters getInstance(AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException
     { 
+        // выполнить преобразование типа
+        if (paramSpec instanceof IECParameters) return (IECParameters)paramSpec; 
+            
         // в зависимости от типа данных
         if (paramSpec instanceof ECParameterSpec)
         {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IECParameters) return (IECParameters)paramSpec; 
-            
             // выполнить преобразование типа
             ECParameterSpec ecParamSpec = (ECParameterSpec)paramSpec; 
         
@@ -78,6 +78,9 @@ public class ECParameters extends ECParameterSpec implements IECParameters
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры
+        if (specType.isAssignableFrom(IECParameters.class)) return (T)this; 
+        
         // вернуть параметры
         if (specType.isAssignableFrom(ECParameterSpec.class)) return (T)this; 
         

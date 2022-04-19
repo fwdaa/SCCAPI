@@ -8,9 +8,6 @@ namespace Aladdin.CAPI
 	///////////////////////////////////////////////////////////////////////////
 	public abstract class Factory : RefObject
 	{
-        // получить идентификатор ключа
-        public virtual string ConvertKeyName(string name) { return name; } 
-    
 	    // поддерживаемые фабрики кодирования ключей
 	    public virtual Dictionary<String, KeyFactory> KeyFactories() 
         { 
@@ -20,9 +17,6 @@ namespace Aladdin.CAPI
 	    // получить фабрику кодирования ключей
 	    public KeyFactory GetKeyFactory(string keyOID)
         {
-            // указать идентификатор ключа
-            keyOID = ConvertKeyName(keyOID); 
-
             // получить фабрики кодирования ключей
             Dictionary<String, KeyFactory> keyFactories = KeyFactories(); 
 
@@ -87,9 +81,6 @@ namespace Aladdin.CAPI
 		public virtual KeyPairGenerator CreateGenerator(
             SecurityObject scope, IRand rand, string keyOID, IParameters parameters) 
         { 
-            // получить идентификатор ключа
-            keyOID = ConvertKeyName(keyOID); 
-
             // создать алгоритм генерации ключей
             return CreateAggregatedGenerator(this, scope, rand, keyOID, parameters); 
         }
@@ -122,9 +113,6 @@ namespace Aladdin.CAPI
                 return generator.Generate(keyID, keyOID, keyUsage, keyFlags);
             }
 	    }
-        // получить идентификатор алгоритма
-        public virtual string ConvertAlgorithmName(string name) { return name; } 
-    
 		// создать алгоритм для параметров
         public T CreateAlgorithm<T>(SecurityStore scope,
             ASN1.ISO.AlgorithmIdentifier parameters) where T : IAlgorithm
@@ -142,9 +130,6 @@ namespace Aladdin.CAPI
         public virtual IAlgorithm CreateAlgorithm(SecurityStore scope,
             string oid, ASN1.IEncodable parameters, Type type)
         {
-            // получить идентификатор алгоритма
-            oid = ConvertAlgorithmName(oid); 
-
             // создать алгоритм
             return CreateAggregatedAlgorithm(this, scope, oid, parameters, type); 
         }

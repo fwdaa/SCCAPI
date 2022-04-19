@@ -18,20 +18,23 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 	private final Provider provider; private final int slot; private final String[] names; 
     
     // параметры алгоритма и генератор случайных данных
-    private AlgorithmParametersSpi parameters; private SecureRandom random; 
+    private java.security.AlgorithmParameters parameters; private SecureRandom random; 
     
     // алгоритм шифрования, ключ и синхропосылка
 	private IAlgorithm algorithm; private Object key; private int opmode; 
 	
 	// конструктор
-	public CipherSpi(Provider provider, String name) 
+	public CipherSpi(Provider provider, String name) throws IOException 
 	{ 
 		// сохранить параметры
 		this.provider = provider; this.slot = provider.addObject(this); 
         
         // инициализировать переменные
-        this.names = new String[] { name, null }; parameters = null; 
-
+        this.names = new String[] { name, null }; 
+        
+        // указать параметры по умолчанию
+        parameters = new AlgorithmParameters(provider.engineCreateParameters(name)); 
+        
 		// инициализировать параметры
         random = null; algorithm = null; key = null; opmode = 0; 
 	}  
@@ -94,7 +97,7 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         if (padding.equalsIgnoreCase("CTSPadding"      )) { names[1] = padding; return; }
         
         // обработать дополнения асимметричного шифрования
-        if (padding.equalsIgnoreCase("PKCS1Padding") || padding.equalsIgnoreCase("OAEPPadding"))
+        if (padding.equalsIgnoreCase("PKCS1Padding") || padding.startsWith("OAEP"))
         {
             // проверить корректность режима
             if (names[0].contains("/")) throw new NoSuchPaddingException(); 
@@ -110,11 +113,8 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         java.security.Key key, SecureRandom random) throws InvalidKeyException 
 	{
 		try { 
-            // преобразовать тип параметров
-            AlgorithmParametersSpi spi = provider.createParameters(names[0], null); 
-
             // инициализировать алгоритм
-            engineInit(opmode, key, spi, random); 
+            parameters.init((AlgorithmParameterSpec)null); init(opmode, key, random); 
         }
 		// обработать возможное исключение
 		catch (InvalidAlgorithmParameterException e) { throw new RuntimeException(e); }
@@ -122,27 +122,12 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 	}
 	@Override
 	protected final void engineInit(int opmode, java.security.Key key, 
-		java.security.AlgorithmParameters parameters, SecureRandom random) 
-		throws InvalidKeyException, InvalidAlgorithmParameterException 
-	{
-        // преобразовать тип параметров
-        AlgorithmParametersSpi spi = AlgorithmParametersSpi.getInstance(
-            provider, names[0], parameters
-        ); 
-        // инициализировать алгоритм
-        engineInit(opmode, key, spi, random); 
-	}
-	@Override
-	protected final void engineInit(int opmode, java.security.Key key, 
 		AlgorithmParameterSpec spec, SecureRandom random) 
 		throws InvalidKeyException, InvalidAlgorithmParameterException 
     {
         try { 
-            // преобразовать тип параметров
-            AlgorithmParametersSpi spi = provider.createParameters(names[0], spec); 
-
             // инициализировать алгоритм
-            engineInit(opmode, key, spi, random); 
+            parameters.init(spec); init(opmode, key, random); 
         }
         // обработать возможное исключение
 		catch (InvalidParameterSpecException e) 
@@ -151,27 +136,26 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
             throw new InvalidAlgorithmParameterException(e.getMessage()); 
         }  
     }
+	@Override
 	protected final void engineInit(int opmode, java.security.Key key, 
-		AlgorithmParametersSpi parameters, SecureRandom random) 
+		java.security.AlgorithmParameters parameters, SecureRandom random) 
+		throws InvalidKeyException, InvalidAlgorithmParameterException 
+    {
+        // инициализировать алгоритм
+        this.parameters = parameters; init(opmode, key, random); 
+    }
+	private void init(int opmode, java.security.Key key, SecureRandom random) 
 		throws InvalidKeyException, InvalidAlgorithmParameterException 
 	{
 		// сохранить переданные параметры
-		this.opmode = opmode; this.parameters = parameters; this.random = random; 
-        
-        // получить закодированные параметры
-        IEncodable encodable = parameters.getEncodable(); 
-        try { 
-            // создать блочный алгоритм симметричного шифрования
-            Cipher cipher = provider.factory().createBlockMode(
-                parameters.getScope(), names[0], encodable, engineGetIV()
-            ); 
-            // при наличии алгоритма
-            if (cipher == null) cipher = (Cipher)provider.factory().createAlgorithm(
-                parameters.getScope(), names[0], encodable, Cipher.class
-            ); 
+		this.opmode = opmode; this.random = random; 
+         
+        // создать алгоритм симметричного шифрования
+        try (Cipher cipher = (Cipher)provider.createAlgorithm(names[0], parameters, Cipher.class))
+        {
             // получить режим дополнения
-            if (cipher != null) { try { PaddingMode padding = BlockPadding.parse(names[1]); 
-             
+            if (cipher != null) { PaddingMode padding = BlockPadding.parse(names[1]); 
+
                 // проверить тип ключа
                 if (!(key instanceof javax.crypto.SecretKey)) throw new InvalidKeyException(); 
 
@@ -185,7 +169,7 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
                         try (Transform transform = cipher.createEncryption(secretKey, padding)) 
                         {
                             // инициализировать алгоритм
-                            transform.init(); algorithm = RefObject.addRef(transform); return; 
+                            transform.init(); algorithm = RefObject.addRef(transform);
                         }
                     }
                     // в зависимости от режима
@@ -195,19 +179,16 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
                         try (Transform transform = cipher.createDecryption(secretKey, padding)) 
                         {
                             // инициализировать алгоритм
-                            transform.init(); algorithm = RefObject.addRef(transform); return; 
+                            transform.init(); algorithm = RefObject.addRef(transform);
                         }
                     }
                     else {
-                        // создать алгоритм шифрования ключа
-                        algorithm = cipher.createKeyWrap(padding); 
-
-                        // сохранить ключ шифрования
-                        this.key = RefObject.addRef(secretKey); 
+                        // создать алгоритм шифрования ключа и сохранить ключ шифрования
+                        algorithm = cipher.createKeyWrap(padding); this.key = RefObject.addRef(secretKey); 
                     }
                 }
+                return; 
             }
-            finally { cipher.close(); }}
         }
         // обработать возможное исключение
         catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
@@ -218,9 +199,8 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         // для алгоритмов шифрования ключа
         if (opmode == javax.crypto.Cipher.WRAP_MODE || opmode == javax.crypto.Cipher.UNWRAP_MODE)
         {
-			// создать алгоритм шифрования ключа
-			try (IAlgorithm keyWrap = provider.factory().createAlgorithm(
-                parameters.getScope(), names[0], encodable, KeyWrap.class))
+            // создать алгоритм шифрования ключа
+            try (IAlgorithm keyWrap = provider.createAlgorithm(names[0], parameters, KeyWrap.class))
             {
                 // при наличии алгоритма
                 if (keyWrap != null) 
@@ -242,18 +222,17 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         if (opmode == javax.crypto.Cipher.WRAP_MODE)
         {    
             // создать алгоритм асимметричного шифрования
-            try (IAlgorithm encipherment = provider.factory().createAlgorithm(
-                parameters.getScope(), names[0], encodable, Encipherment.class))
+            try (IAlgorithm encipherment = provider.createAlgorithm(names[0], parameters, Encipherment.class))
             {
                 // при наличии алгоритма
                 if (encipherment != null) 
                 { 
                     // проверить тип ключа
                     if (!(key instanceof java.security.PublicKey)) throw new InvalidKeyException();
-                    
+
                     // преобразовать тип ключа
                     this.key = provider.translatePublicKey((java.security.PublicKey)key);  
-                    
+
                     // сохранить используемый алгоритм
                     this.algorithm = RefObject.addRef(encipherment); return;
                 }
@@ -264,22 +243,21 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
         // для алгоритмов расшифрования ключа
         if (opmode == javax.crypto.Cipher.UNWRAP_MODE)
         {
-            // создать алгоритм асимметричного шифрования
-            try (IAlgorithm decipherment = provider.factory().createAlgorithm(
-                parameters.getScope(), names[0], encodable, Decipherment.class))
+            // проверить тип ключа
+            if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
+
+            // преобразовать тип ключа
+            try (IPrivateKey privateKey = provider.translatePrivateKey((java.security.PrivateKey)key))
             {
-                // при наличии алгоритма
-                if (decipherment != null) 
-                { 
-                    // проверить тип ключа
-                    if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
-                    
-                    // преобразовать тип ключа
-                    this.key = provider.translatePrivateKey((java.security.PrivateKey)key);  
-                    
-                    // сохранить используемый алгоритм
-                    this.algorithm = RefObject.addRef(decipherment); return;
-                }
+                // получить закодированные параметры
+                IEncodable encodable = AlgorithmParameters.encode(parameters); 
+            
+                // создать алгоритм асимметричного шифрования
+                this.algorithm = privateKey.factory().createAlgorithm(
+                    privateKey.scope(), names[0], encodable, Decipherment.class
+                ); 
+                // при наличии алгоритма сохранить личный ключ 
+                if (this.algorithm != null) { this.key = RefObject.addRef(privateKey); return; }
             }
             // обработать возможное исключение
             catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }
@@ -291,7 +269,7 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
 	protected final java.security.AlgorithmParameters engineGetParameters() 
     { 
         // вернуть параметры алгоритма
-        return new AlgorithmParameters(provider, parameters); 
+        return parameters; 
     }
 	@Override
 	protected final int engineGetKeySize(java.security.Key key) throws InvalidKeyException 
@@ -341,7 +319,7 @@ public final class CipherSpi extends javax.crypto.CipherSpi implements Closeable
     { 
         try { 
             // получить синхропосылку
-            return parameters.engineGetParameterSpec(IvParameterSpec.class).getIV(); 
+            return parameters.getParameterSpec(IvParameterSpec.class).getIV(); 
         }
         // обработать возможное исключение
         catch (InvalidParameterSpecException e) { return null; }

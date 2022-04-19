@@ -1,6 +1,8 @@
 package aladdin.capi.jcp;
 import aladdin.capi.*;
+import aladdin.capi.ansi.*;
 import java.security.*; 
+import java.security.cert.*; 
 import java.lang.reflect.*; 
 import java.io.*;
 import java.util.*; 
@@ -10,35 +12,85 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public class Service extends Provider.Service
 {
+    private static List<String> aliases(String name)
+    {
+        // проверить наличие идентификатора
+        if (name.contains(".")) return Arrays.asList(new String[] {name}); 
+        
+        // получить идентификатор ключа
+        String oid = Aliases.convertKeyName(name); 
+        
+        // проверить наличие идентификатора
+        if (oid.contains(".")) return Arrays.asList(new String[] {oid}); 
+
+        // получить идентификатор алгоритма
+        oid = Aliases.convertAlgorithmName(name); 
+        
+        // проверить наличие идентификатора
+        if (oid.contains(".")) return Arrays.asList(new String[] {oid}); 
+        
+        // идентификатор не найден
+        return new ArrayList<String>(); 
+    }
 	// параметры вызова
-    @SuppressWarnings("rawtypes") 
-	private final Class<?> type; private final Object[] args;  
+	private final Class<?> type; 
 	
-    @SuppressWarnings("rawtypes") 
-	public Service(Provider provider, String kind, String name, String oid, Class<?> type, Object... args)
+    // конструктор
+	protected Service(Provider provider, String kind, String name, List<String> aliases, Class<?> type)
 	{
 		// вызвать базовую функцию
-		super(provider, kind, name, "*", Arrays.asList(new String[] {"OID." + oid}), null); 
-		
-		// сохранить аргументы 
-		this.type = type; this.args = args;  
+		super(provider, kind, name, type.getName(), aliases, null); this.type = type;
 	}
-    @SuppressWarnings("rawtypes") 
-	public Service(Provider provider, String kind, String name, Class<?> type, Object... args)
+	@Override 
+    @SuppressWarnings({"unchecked"}) 
+	public Object newInstance(Object parameter) throws NoSuchAlgorithmException
 	{
-		// вызвать базовую функцию
-		super(provider, kind, name, "*", null, null); 
-		
-		// сохранить аргументы 
-		this.type = type; this.args = args;  
+		// получить доступные конструкторы
+        Constructor<?>[] constructors = type.getConstructors(); 
+        
+		// для каждого конструктора
+		for (Constructor<?> constructor : constructors)
+		try {
+			// получить аргументы конструктора
+			Class<?>[] types = constructor.getParameterTypes(); 
+                
+            // в зависимости от числа параметров
+            switch (types.length)
+            {
+            case 1: 
+                // проверить типы параметров
+                if (!types[0].isAssignableFrom(Provider.class)) break; 
+
+                // вызвать конструктор
+                return constructor.newInstance((Provider)getProvider());
+                    
+            case 2: 
+                // проверить типы параметров
+                if (!types[0].isAssignableFrom(Provider.class)) break; 
+                if (!types[1].isAssignableFrom(String  .class)) break; 
+
+                // определить идентификатор алгоритма
+                List<String> aliases = aliases(getAlgorithm());
+                        
+                // указать имя алгоритма
+                String name = aliases.isEmpty() ? getAlgorithm() : aliases.get(0); 
+
+                // вызвать конструктор
+                return constructor.newInstance((Provider)getProvider(), name);
+            }
+		}
+		// обработать возможное исключение
+        catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
+        
+		// обработать возможное исключение
+		catch (Throwable e) { throw new RuntimeException(e); } throw new NoSuchAlgorithmException();
 	}
 	@Override
+	public boolean supportsParameter(Object obj) { return false; }
+    
     @SuppressWarnings({"try"}) 
-	public final boolean supportsParameter(Object obj) 
-	{
-		// проверить тип ключа
-		if (!(obj instanceof java.security.Key)) return false;
-
+	protected boolean supportsKey(java.security.Key obj)
+{
 		// преобразовать тип провайдера
 		Provider provider = (Provider)getProvider(); 
 		try { 
@@ -68,71 +120,31 @@ public class Service extends Provider.Service
 		// обработать возможное исключение
 		catch (Throwable e) { return false; }
 	}
-	@Override
-    @SuppressWarnings({"rawtypes", "unchecked"}) 
-	public final Object newInstance(Object parameter) throws NoSuchAlgorithmException
-	{
-		// скопировать переданный параметр
-		Object[] parameters = (parameter != null) ? new Object[] {parameter} : new Object[0]; 
-		
-		// выделить память для параметров
-		Object[] args = new Object[parameters.length + this.args.length];
-		
-		// скопировать параметры 
-		System.arraycopy(parameters, 0, args, 0, parameters.length);
-		
-		// скопировать параметры 
-		System.arraycopy(this.args, 0, args, parameters.length, this.args.length);
-		try { 
-			// получить доступные конструкторы
-			Constructor[] constructors = type.getConstructors(); 
-		
-			// для каждого конструктора
-			for (Constructor constructor : constructors)
-			{
-				// получить аргументы конструктора
-				Class[] types = constructor.getParameterTypes(); 
-			
-				// проверить число параметров
-				if (types.length != args.length) continue; boolean find = true; 
-			
-				// для каждого параметра
-				for (int i = 0; i < types.length; i++)
-				{
-					// проверить соответствие параметра
-					if (!types[i].isAssignableFrom(args[i].getClass())) { find = false; break; }
-				}
-				// вызвать конструктор
-				if (find) return constructor.newInstance(args);
-			}
-            throw new NoSuchAlgorithmException();
-		}
-		// обработать возможное исключение
-        catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
-        
-		// обработать возможное исключение
-		catch (Throwable e) { throw new RuntimeException(e); } 
-	}
     ///////////////////////////////////////////////////////////////////////////
     // классы сервисов отдельных типов
     ///////////////////////////////////////////////////////////////////////////
 	public static class AlgorithmParameters extends Service
     {
         // конструктор 
-        public AlgorithmParameters(Provider provider, String name, String keyOID)
-        {
-            // сохранить переданные параметры
-            super(provider, "AlgorithmParameters", 
-                name, keyOID, AlgorithmParameters.class, provider, name
-            ); 
-        }
-        // конструктор 
         public AlgorithmParameters(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "AlgorithmParameters", 
-                name, AlgorithmParameters.class, provider, name
-            ); 
+            super(provider, "AlgorithmParameters", name, aliases(name), AlgorithmParametersSpi.class); 
+        }
+        @Override 
+        public Object newInstance(Object parameter) throws NoSuchAlgorithmException
+        {
+            // определить идентификатор алгоритма
+            List<String> aliases = aliases(getAlgorithm());
+                        
+            // указать имя алгоритма
+            String name = aliases.isEmpty() ? getAlgorithm() : aliases.get(0); 
+
+            // создать параметры алгоритма
+            try { return ((Provider)getProvider()).engineCreateParameters(name); }
+            
+            // обработать возможное исключение
+            catch (IOException e) { throw new RuntimeException(e); }
         }
     }
 	public static class SecretKeyFactory extends Service
@@ -141,9 +153,19 @@ public class Service extends Provider.Service
         public SecretKeyFactory(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "SecretKeyFactory", 
-                name, SecretKeyFactorySpi.class, provider, name
-            ); 
+            super(provider, "SecretKeyFactory", name, aliases(name), SecretKeyFactorySpi.class); 
+        }
+        @Override 
+        public Object newInstance(Object parameter) throws NoSuchAlgorithmException
+        {
+            // проверить имя алгоритма
+            if (getAlgorithm().equalsIgnoreCase("PBKDF2WithHmacSHA1"))
+            {
+                // создать фабрику генерации
+                return new PBKDF2FactorySpi((Provider)getProvider(), getAlgorithm()); 
+            }
+            // вызвать базовую функцию
+            return super.newInstance(parameter); 
         }
     }
 	public static class KeyFactory extends Service
@@ -152,9 +174,7 @@ public class Service extends Provider.Service
         public KeyFactory(Provider provider, String name, String keyOID)
         {
             // сохранить переданные параметры
-            super(provider, "KeyFactory", 
-                name, keyOID, KeyFactorySpi.class, provider, name
-            ); 
+            super(provider, "KeyFactory", name, aliases(name), KeyFactorySpi.class); 
         }
     }
 	public static class SecureRandom extends Service
@@ -163,9 +183,7 @@ public class Service extends Provider.Service
         public SecureRandom(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "SecureRandom", 
-                name, SecureRandomSpi.class, provider, name
-            ); 
+            super(provider, "SecureRandom", name, aliases(name), SecureRandomSpi.class); 
         }
     }
 	public static class KeyGenerator extends Service
@@ -174,71 +192,97 @@ public class Service extends Provider.Service
         public KeyGenerator(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "KeyGenerator", 
-                name, KeyGeneratorSpi.class, provider, name
-            ); 
+            super(provider, "KeyGenerator", name, aliases(name), KeyGeneratorSpi.class); 
         }
     }
 	public static class KeyPairGenerator extends Service
     {
         // конструктор 
-        public KeyPairGenerator(Provider provider, String name, String keyOID)
+        public KeyPairGenerator(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "KeyPairGenerator", 
-                name, keyOID, KeyPairGeneratorSpi.class, provider, keyOID
-            ); 
+            super(provider, "KeyPairGenerator", name, aliases(name), KeyPairGeneratorSpi.class); 
         }
     }
 	public static class MessageDigest extends Service
     {
         // конструктор 
-        public MessageDigest(Provider provider, String name, String oid)
+        public MessageDigest(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "MessageDigest", 
-                name, oid, MessageDigestSpi.class, provider, name
-            ); 
+            super(provider, "MessageDigest", name, aliases(name), MessageDigestSpi.class); 
         }
     }
 	public static class Mac extends Service
     {
         // конструктор 
-        public Mac(Provider provider, String name, String oid)
+        public Mac(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "Mac", name, oid, MacSpi.class, provider, name); 
+            super(provider, "Mac", name, aliases(name), MacSpi.class); 
+        }
+        @Override
+        public final boolean supportsParameter(Object obj)
+        {
+            // проверить тип ключа
+            if (!(obj instanceof java.security.Key)) return false;
+        
+            // проверить поддержку ключа
+            return supportsKey((java.security.Key)obj); 
         }
     }
 	public static class Cipher extends Service
     {
         // конструктор 
-        public Cipher(Provider provider, String name, String oid)
+        public Cipher(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "Cipher", name, oid, CipherSpi.class, provider, name); 
+            super(provider, "Cipher", name, aliases(name), CipherSpi.class); 
+        }
+        @Override
+        public final boolean supportsParameter(Object obj)
+        {
+            // проверить тип ключа
+            if (!(obj instanceof java.security.Key)) return false;
+        
+            // проверить поддержку ключа
+            return supportsKey((java.security.Key)obj); 
         }
     }
 	public static class KeyAgreement extends Service
     {
         // конструктор 
-        public KeyAgreement(Provider provider, String name, String oid)
+        public KeyAgreement(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "KeyAgreement", 
-                name, oid, KeyAgreementSpi.class, provider, name
-            ); 
+            super(provider, "KeyAgreement", name, aliases(name), KeyAgreementSpi.class); 
+        }
+        @Override
+        public final boolean supportsParameter(Object obj)
+        {
+            // проверить тип ключа
+            if (!(obj instanceof java.security.Key)) return false;
+        
+            // проверить поддержку ключа
+            return supportsKey((java.security.Key)obj); 
         }
     }
 	public static class Signature extends Service
     {
         // конструктор 
-        public Signature(Provider provider, String name, String oid)
+        public Signature(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "Signature", 
-                name, oid, SignatureSpi.class, provider, name
-            ); 
+            super(provider, "Signature", name, aliases(name), SignatureSpi.class); 
+        }
+        @Override
+        public final boolean supportsParameter(Object obj)
+        {
+            // проверить тип ключа
+            if (!(obj instanceof java.security.Key)) return false;
+        
+            // проверить поддержку ключа
+            return supportsKey((java.security.Key)obj); 
         }
     }
     // класс сервиса
@@ -248,9 +292,13 @@ public class Service extends Provider.Service
         public X509CertificateFactory(Provider provider)
         {
             // сохранить переданные параметры
-            super(provider, "CertificateFactory", 
-                "X509", X509CertificateFactorySpi.class, provider
-            ); 
+            super(provider, "CertificateFactory", "X509", null, X509CertificateFactorySpi.class); 
+        }
+        @Override 
+        public Object newInstance(Object parameter) throws NoSuchAlgorithmException
+        {
+            // создать объект хранилища
+            return new X509CertificateFactorySpi((Provider)getProvider()); 
         }
     }
 	public static class X509CertStore extends Service
@@ -259,18 +307,40 @@ public class Service extends Provider.Service
         public X509CertStore(Provider provider)
         {
             // сохранить переданные параметры
-            super(provider, "CertStore", "X509", X509CertStoreSpi.class); 
+            super(provider, "CertStore", "X509", null, X509CertStoreSpi.class); 
+        }
+        @Override 
+        public Object newInstance(Object parameter) throws NoSuchAlgorithmException
+        {
+            // проверить тип параметра
+            if (!(parameter instanceof CollectionCertStoreParameters)) throw new IllegalArgumentException();
+            
+            // создать объект хранилища
+            try { return new X509CertStoreSpi((CollectionCertStoreParameters)parameter); }
+            
+            // обработать возможное исключение
+            catch (InvalidAlgorithmParameterException e) { throw new NoSuchAlgorithmException(e); }
         }
     }
 	public static class KeyStore extends Service
     {
+        // идентификатор культуры по умолчанию
+        private final String keyOID; 
+        
         // конструктор 
-        public KeyStore(Provider provider, String keyOID)
+        public KeyStore(Provider provider, String name)
         {
             // сохранить переданные параметры
-            super(provider, "KeyStore", "PKCS#12", 
-                keyOID, KeyStoreSpi.class, provider, keyOID
-            ); 
+            super(provider, "KeyStore", "PKCS#12", null, KeyStoreSpi.class); 
+            
+            // сохранить идентификатор культуры по умолчанию
+            keyOID = Aliases.convertKeyName(name); 
+        }
+        @Override 
+        public Object newInstance(Object parameter) throws NoSuchAlgorithmException
+        {
+            // создать объект хранилища
+            return new KeyStoreSpi((Provider)getProvider(), keyOID); 
         }
     }
 }

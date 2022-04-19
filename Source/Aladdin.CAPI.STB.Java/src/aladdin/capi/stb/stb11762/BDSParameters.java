@@ -14,12 +14,12 @@ public class BDSParameters extends DSAParameterSpec implements IBDSParameters
     public static IBDSParameters getInstance(AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException
     { 
+        // выполнить преобразование типа
+        if (paramSpec instanceof IBDSParameters) return (IBDSParameters)paramSpec; 
+            
         // в зависимости от типа данных
         if (paramSpec instanceof DSAParameterSpec)
         {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IBDSParameters) return (IBDSParameters)paramSpec; 
-            
             // выполнить преобразование типа
             DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
             
@@ -76,6 +76,9 @@ public class BDSParameters extends DSAParameterSpec implements IBDSParameters
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры
+        if (specType.isAssignableFrom(IBDSParameters.class)) return (T)this; 
+        
         // вернуть параметры
         if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this; 
         

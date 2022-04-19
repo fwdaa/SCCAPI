@@ -6,7 +6,6 @@ import aladdin.asn1.iso.*;
 import aladdin.asn1.iso.pkcs.pkcs1.*; 
 import aladdin.asn1.iso.pkcs.pkcs5.*; 
 import aladdin.asn1.ansi.*; 
-import aladdin.capi.ansi.params.*;
 import aladdin.asn1.ansi.rsa.*; 
 import aladdin.capi.ansi.hash.*;
 import aladdin.capi.ansi.derive.*;
@@ -15,9 +14,7 @@ import aladdin.capi.mac.*;
 import aladdin.capi.pbe.*;
 import aladdin.capi.keyx.*;
 import java.io.*; 
-import java.security.spec.*;
 import java.util.*; 
-import javax.crypto.spec.*;
 
 //////////////////////////////////////////////////////////////////////////////
 // Создание параметров по умолчанию
@@ -53,37 +50,6 @@ public final class Factory extends aladdin.capi.Factory
 	// Поддерживаемые фабрики кодирования ключей
 	@Override public Map<String, KeyFactory> keyFactories() { return keyFactories; } 
     
-    // получить идентификатор ключа
-    @Override public String convertKeyName(String name) 
-    { 
-        // получить идентификатор ключа
-        return Aliases.convertKeyName(name); 
-    } 
-    // получить идентификатор алгоритма
-    @Override public String convertAlgorithmName(String name) 
-    { 
-        // получить идентификатор ключа
-        return Aliases.convertAlgorithmName(name); 
-    } 
-    // создать параметры
-    @Override public IEncodedParameters createParameters(
-        AlgorithmParameterSpec spec) throws InvalidParameterSpecException
-    {
-        // в зависимости от типа параметров
-        if (spec instanceof RC2ParameterSpec) 
-        {
-            // создать параметры
-            return new RC2Parameters((RC2ParameterSpec)spec); 
-        }
-        // в зависимости от типа параметров
-        if (spec instanceof RC5ParameterSpec) 
-        {
-            // создать параметры
-            return new RC5Parameters((RC5ParameterSpec)spec); 
-        }
-        // операция не поддерживается
-        throw new InvalidParameterSpecException(); 
-    }
 	///////////////////////////////////////////////////////////////////////
 	// Cоздать алгоритм генерации ключей
 	///////////////////////////////////////////////////////////////////////

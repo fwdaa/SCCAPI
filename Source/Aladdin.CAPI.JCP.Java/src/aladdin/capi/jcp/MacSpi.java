@@ -45,11 +45,10 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
         javax.crypto.SecretKey secretKey = (javax.crypto.SecretKey)key; 
 		try {
 			// раскодировать параметры
-			AlgorithmParametersSpi parameters = provider.createParameters(name, paramSpec); 
+			AlgorithmParameters parameters = provider.createParameters(name, paramSpec); 
             
             // создать алгоритм вычисления имитовставки
-            try (Mac algorithm = (Mac)provider.factory().createAlgorithm(
-                parameters.getScope(), name, parameters.getEncodable(), Mac.class))
+            try (Mac algorithm = (Mac)provider.createAlgorithm(name, parameters, Mac.class))
             {
                 // проверить наличие алгоритма
                 if (algorithm == null) throw new InvalidAlgorithmParameterException(); 
@@ -64,8 +63,6 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
                     this.macAlgorithm = RefObject.addRef(algorithm);
                 }
             }
-            // обработать возможное исключение
-            catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }  
 		}
         // обработать возможное исключение
 		catch (InvalidParameterSpecException e) 
@@ -73,6 +70,8 @@ public final class MacSpi extends javax.crypto.MacSpi implements Closeable
             // при ошибке выбросить исключение
             throw new InvalidAlgorithmParameterException(e.getMessage()); 
         }  
+        // обработать возможное исключение
+        catch (IOException e) { throw new InvalidAlgorithmParameterException(e.getMessage()); }  
 	}
     // определить размер имитовставки
 	@Override protected int engineGetMacLength() 

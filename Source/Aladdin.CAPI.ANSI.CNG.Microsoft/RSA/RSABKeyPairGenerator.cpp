@@ -16,7 +16,7 @@ Aladdin::CAPI::KeyPair^
 Aladdin::CAPI::ANSI::CNG::Microsoft::RSA::BKeyPairGenerator::Generate(String^ keyOID)
 {$
 	// извлечь требуемое число битов
-	int bits = ((IKeyBitsParameters^)parameters)->KeyBits;
+	int bits = ((IKeySizeParameters^)parameters)->KeyBits;
 
 	// сгенерировать пару ключей
 	Using<CAPI::CNG::BKeyHandle^> hKeyPair(Handle->CreateKeyPair(bits, 0)); 

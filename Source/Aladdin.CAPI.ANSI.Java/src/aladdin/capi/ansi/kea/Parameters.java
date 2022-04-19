@@ -1,8 +1,7 @@
 package aladdin.capi.ansi.kea;
-import javax.crypto.spec.*; 
 import java.math.*; 
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.*;
+import javax.crypto.spec.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Параметры ключей KEA
@@ -15,12 +14,9 @@ public final class Parameters extends DHParameterSpec implements IParameters
     public static IParameters getInstance(AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException
     { 
-        // в зависимости от типа данных
-        if (paramSpec instanceof DHParameterSpec)
-        {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
-        }
+        // выполнить преобразование типа
+        if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
+        
         // тип параметров не поддерживается
         throw new InvalidParameterSpecException(); 
     }
@@ -38,6 +34,9 @@ public final class Parameters extends DHParameterSpec implements IParameters
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры
+        if (specType.isAssignableFrom(IParameters.class)) return (T)this; 
+        
         // вернуть параметры
         if (specType.isAssignableFrom(DHParameterSpec.class)) return (T)this; 
         

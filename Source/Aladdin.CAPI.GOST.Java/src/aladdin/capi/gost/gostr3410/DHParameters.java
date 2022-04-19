@@ -16,12 +16,12 @@ public class DHParameters extends DSAParameterSpec implements IDHParameters
     public static IDHParameters getInstance(AlgorithmParameterSpec paramSpec) 
         throws InvalidParameterSpecException
     { 
+        // выполнить преобразование типа
+        if (paramSpec instanceof IDHParameters) return (IDHParameters)paramSpec; 
+            
         // проверить требуемый тип данных
         if (paramSpec instanceof DSAParameterSpec)
         {
-            // выполнить преобразование типа
-            if (paramSpec instanceof IDHParameters) return (IDHParameters)paramSpec; 
-            
             // выполнить преобразование типа
             DSAParameterSpec dsaParamSpec = (DSAParameterSpec)paramSpec; 
             
@@ -59,6 +59,9 @@ public class DHParameters extends DSAParameterSpec implements IDHParameters
         T getParameterSpec(Class<T> specType) 
             throws InvalidParameterSpecException
     {
+        // вернуть параметры 
+        if (specType.isAssignableFrom(IDHParameters.class)) return (T)this; 
+        
         // вернуть параметры 
         if (specType.isAssignableFrom(DSAParameterSpec.class)) return (T)this; 
         

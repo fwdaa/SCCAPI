@@ -135,17 +135,17 @@ public class Collection<T extends IEncodable> extends Encodable implements Itera
 		}
     }
     // сериализация
-    @SuppressWarnings({"rawtypes", "unchecked"}) 
+    @SuppressWarnings({"unchecked"}) 
     @Override protected void readObject(ObjectInputStream ois) throws IOException 
     {
         // выполнить дополнительные вычисления 
         super.readObject(ois); 
         try {
             // получить конструктор при раскодировании
-            Constructor constructor = getClass().getConstructor(IEncodable.class); 
+            Constructor<?> constructor = getClass().getConstructor(IEncodable.class); 
 			try {  
 				// создать объект 
-				Collection instance = (Collection)constructor.newInstance(this); 
+				Collection<T> instance = (Collection<T>)constructor.newInstance(this); 
 
 				// сохранить внутренние поля объекта
 				values = instance.values; info = instance.info; 

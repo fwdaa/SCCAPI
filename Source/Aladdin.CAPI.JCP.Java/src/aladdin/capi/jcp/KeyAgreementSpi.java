@@ -13,23 +13,23 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
     // используемый провайдер и номер слота
 	private final Provider provider; private final int slot; 
 	// параметры алгоритма и генератор случайных данных 
-	private SecureRandom random; private AlgorithmParametersSpi parameters; 
+	private final AlgorithmParameters parameters; private SecureRandom random; 
     // имя алгоритма и алгоритм согласования 
     private final String name; private IKeyAgreement keyAgreement; 
     // пара ключей алгоритма
     private IPublicKey publicKey; private IPrivateKey privateKey;  
 	
 	// конструктор
-	public KeyAgreementSpi(Provider provider, String name) 
+	public KeyAgreementSpi(Provider provider, String name) throws IOException
 	{ 
         // сохранить переданные параметры
         this.provider = provider; this.slot = provider.addObject(this); 
         
         // инициализировать переменные
-        parameters = new AlgorithmParametersSpi(provider, name); random = null; 
+        parameters = new AlgorithmParameters(provider.engineCreateParameters(name)); 
         
         // инициализировать переменные
-        this.name = name; this.keyAgreement = null; 
+        this.name = name; this.keyAgreement = null; random = null; 
         
         // инициализировать переменные
         this.publicKey = null; this.privateKey = null;
@@ -64,8 +64,8 @@ public final class KeyAgreementSpi extends javax.crypto.KeyAgreementSpi implemen
         // проверить тип ключа
         if (!(key instanceof java.security.PrivateKey)) throw new InvalidKeyException();
 		try {
-			// преобразовать тип параметров
-			parameters = provider.createParameters(name, paramSpec); this.random = random;
+			// инициализировать параметры
+			parameters.init(paramSpec); this.random = random;
         }
 		// обработать возможное исключение
 		catch (InvalidParameterSpecException e) 

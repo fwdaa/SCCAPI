@@ -45,9 +45,12 @@ public abstract class KeyFactory
 
     // создать параметры
     public IParameters createParameters(AlgorithmParameterSpec paramSpec) 
-        throws InvalidParameterSpecException, IOException 
-    { 
-        // операция не поддерживается 
+        throws InvalidParameterSpecException
+    {
+        // проверить тип данных
+        if (paramSpec instanceof IParameters) return (IParameters)paramSpec; 
+        
+        // выбросить исключение
         throw new InvalidParameterSpecException(); 
     }
     // создать открытый ключ

@@ -158,13 +158,12 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
         try { 
             // загрузить класс
-            @SuppressWarnings({"rawtypes"}) 
-            Class classConfigStore = classLoader.loadClass(
+            Class<?> classConfigStore = classLoader.loadClass(
                 "aladdin.capi.software.ConfigStore"
             ); 
             // получить метод класса
-            @SuppressWarnings({"rawtypes", "unchecked"}) 
-            Constructor constructor = classConfigStore.getConstructor(
+            @SuppressWarnings({"unchecked"}) 
+            Constructor<?> constructor = classConfigStore.getConstructor(
                 CryptoProvider.class, Scope.class, String.class
             ); 
             // выполнить конструктор
@@ -187,13 +186,12 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
         try { 
             // загрузить класс
-            @SuppressWarnings({"rawtypes"}) 
-            Class classConfigStore = classLoader.loadClass(
+            Class<?> classConfigStore = classLoader.loadClass(
                 "aladdin.capi.software.ConfigDirectories"
             ); 
             // получить метод класса
-            @SuppressWarnings({"rawtypes", "unchecked"}) 
-            Constructor constructor = classConfigStore.getConstructor(
+            @SuppressWarnings({"unchecked"}) 
+            Constructor<?> constructor = classConfigStore.getConstructor(
                 Scope.class, String.class
             ); 
             // выполнить конструктор

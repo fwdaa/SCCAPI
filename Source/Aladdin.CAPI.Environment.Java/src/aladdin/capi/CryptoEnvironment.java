@@ -4,6 +4,7 @@ import aladdin.capi.pbe.*;
 import aladdin.capi.environment.*;
 import java.io.*; 
 import java.util.*; 
+import java.lang.reflect.*; 
 
 ///////////////////////////////////////////////////////////////////////////
 // Криптографическая среда
@@ -64,9 +65,15 @@ public class CryptoEnvironment extends ExecutionContext
 		try { 
             // определить класс фабрики
             String className = element.className(); 
+            
+            // загрузить класс
+            Class<?> type = classLoader.loadClass(className); 
+            
+            // получить описание конструктора
+            Constructor<?> constructor = type.getConstructor(); 
                 
             // добавить фабрику классов
-            factories.add((Factory)Loader.loadClass(classLoader, className)); 
+            factories.add((Factory)constructor.newInstance()); 
         }
         catch (Throwable e) {}
         
@@ -89,8 +96,14 @@ public class CryptoEnvironment extends ExecutionContext
                 // определить класс генератора
                 String className = element.className(); 
                 
+                // загрузить класс
+                Class<?> type = classLoader.loadClass(className); 
+
+                // получить описание конструктора
+                Constructor<?> constructor = type.getConstructor(); 
+                
                 // создать фабрику генераторов
-                randFactories.add((IRandFactory)Loader.loadClass(classLoader, className)); 
+                randFactories.add((IRandFactory)constructor.newInstance()); 
                 
                 hardwareRand = true; 
             }
@@ -114,8 +127,14 @@ public class CryptoEnvironment extends ExecutionContext
             // определить класс культуры
             String className = element.className(); 
             
+            // загрузить класс
+            Class<?> type = classLoader.loadClass(className); 
+
+            // получить описание конструктора
+            Constructor<?> constructor = type.getConstructor(); 
+            
             // добавить культуру в список
-            keyCultures.put(element.oid(), (Culture)Loader.loadClass(classLoader, className)); 
+            keyCultures.put(element.oid(), (Culture)constructor.newInstance()); 
             
             // сохранить имя ключа
             keyNames.put(element.oid(), element.name()); 

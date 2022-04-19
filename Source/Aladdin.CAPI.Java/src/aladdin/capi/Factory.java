@@ -6,7 +6,6 @@ import aladdin.asn1.iso.pkix.*;
 import aladdin.asn1.iso.pkcs.pkcs5.*; 
 import aladdin.asn1.iso.pkcs.pkcs8.*;
 import aladdin.capi.pbe.*;
-import java.security.spec.*; 
 import java.io.*; 
 import java.util.*; 
 
@@ -15,16 +14,6 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////
 public abstract class Factory extends RefObject
 {
-    // создать параметры
-    public IEncodedParameters createParameters(AlgorithmParameterSpec spec)
-        throws InvalidParameterSpecException
-    {
-        // операция не поддерживается
-        throw new InvalidParameterSpecException(); 
-    }
-    // получить идентификатор ключа
-    public String convertKeyName(String name) { return name; } 
-    
 	// поддерживаемые фабрики кодирования ключей
 	public Map<String, KeyFactory> keyFactories() 
     { 
@@ -35,7 +24,7 @@ public abstract class Factory extends RefObject
 	public final KeyFactory getKeyFactory(String keyOID)
     {
         // получить фабрику кодирования ключей
-        return keyFactories().get(convertKeyName(keyOID)); 
+        return keyFactories().get(keyOID); 
     }
 	// раскодировать открытый ключ
 	public final IPublicKey decodePublicKey(
@@ -93,9 +82,6 @@ public abstract class Factory extends RefObject
 	public KeyPairGenerator createGenerator(SecurityObject scope, 
         IRand rand, String keyOID, IParameters parameters) throws IOException 
     { 
-        // получить идентификатор ключа
-        keyOID = convertKeyName(keyOID); 
-        
         // создать алгоритм генерации ключей
         return createAggregatedGenerator(this, scope, rand, keyOID, parameters); 
     }

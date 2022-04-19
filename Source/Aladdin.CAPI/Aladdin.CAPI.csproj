@@ -87,10 +87,9 @@
     <Compile Include="CAPI\ExecutionContext.cs" />
     <Compile Include="CAPI\IBlockCipher.cs" />
     <Compile Include="CAPI\ICultureFactory.cs" />
-    <Compile Include="CAPI\IKeyBitsParameters.cs" />
+    <Compile Include="CAPI\IKeySizeParameters.cs" />
     <Compile Include="CAPI\IParametersFactory.cs" />
     <Compile Include="CAPI\KeyAgreement.cs" />
-    <Compile Include="CAPI\KeyBitsParameters.cs" />
     <Compile Include="CAPI\PBE\PBECultureFactory.cs" />
     <Compile Include="CAPI\PBE\IPBECultureFactory.cs" />
     <Compile Include="CAPI\Provider.cs" />

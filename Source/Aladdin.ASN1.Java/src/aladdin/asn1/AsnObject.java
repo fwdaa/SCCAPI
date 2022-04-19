@@ -56,12 +56,11 @@ public abstract class AsnObject implements IEncodable
         // записать закодированное представление
         oos.writeObject(encoded()); 
     }
-    @SuppressWarnings({"rawtypes"}) 
     protected void readObject(ObjectInputStream ois) throws IOException 
     {
         try { 
             // получить конструктор при раскодировании
-            Constructor constructor = getClass().getConstructor(IEncodable.class); 
+            Constructor<?> constructor = getClass().getConstructor(IEncodable.class); 
             
             // раскодировать представление
             IEncodable encodable = Encodable.decode((byte[])ois.readObject()); 
