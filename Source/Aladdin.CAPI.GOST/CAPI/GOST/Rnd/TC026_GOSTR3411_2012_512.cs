@@ -15,7 +15,7 @@ namespace Aladdin.CAPI.GOST.Rnd
         [NonSerialized] private TC026 rand; private byte[] seed; 
 
         // конструктор
-        public TC026_GOSTR3411_2012_512(IRand rand)
+        public TC026_GOSTR3411_2012_512(object window, IRand rand)
         {
             // указать алгоритм хэширования
             using (CAPI.Hash hashAlgorithm = new Hash.GOSTR3411_2012(512))
@@ -27,7 +27,7 @@ namespace Aladdin.CAPI.GOST.Rnd
                 rand.Generate(seed, 0, seed.Length); 
 
                 // создать генератор случайных данных
-                this.rand = new TC026(null, hashAlgorithm, seed);
+                this.rand = new TC026(window, hashAlgorithm, seed);
             }
         }
         // конструктор

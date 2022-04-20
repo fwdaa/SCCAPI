@@ -286,13 +286,13 @@ public class Service extends Provider.Service
         }
     }
     // класс сервиса
-	public static class X509CertificateFactory extends Service
+	public static class CertificateFactory extends Service
     {
         // конструктор 
-        public X509CertificateFactory(Provider provider)
+        public CertificateFactory(Provider provider)
         {
             // сохранить переданные параметры
-            super(provider, "CertificateFactory", "X509", null, X509CertificateFactorySpi.class); 
+            super(provider, "CertificateFactory", "X.509", null, X509CertificateFactorySpi.class); 
         }
         @Override 
         public Object newInstance(Object parameter) throws NoSuchAlgorithmException
@@ -301,13 +301,13 @@ public class Service extends Provider.Service
             return new X509CertificateFactorySpi((Provider)getProvider()); 
         }
     }
-	public static class X509CertStore extends Service
+	public static class CertStore extends Service
     {
         // конструктор 
-        public X509CertStore(Provider provider)
+        public CertStore(Provider provider)
         {
             // сохранить переданные параметры
-            super(provider, "CertStore", "X509", null, X509CertStoreSpi.class); 
+            super(provider, "CertStore", "Collection", null, X509CertStoreSpi.class); 
         }
         @Override 
         public Object newInstance(Object parameter) throws NoSuchAlgorithmException

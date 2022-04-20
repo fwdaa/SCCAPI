@@ -152,6 +152,7 @@
     <Compile Include="CAPI\ANSI\Keyx\RSA\PKCS1\Encoding.cs" />
     <Compile Include="CAPI\ANSI\Keyx\RSA\PKCS1\Encipherment.cs" />
     <None Include="CAPI\ANSI\MAC\Test.cs" />
+    <Compile Include="CAPI\ANSI\Rnd\SHA1PRNG.cs" />
     <Compile Include="CAPI\ANSI\RSA\IParameters.cs" />
     <Compile Include="CAPI\ANSI\Sign\DSA\SignHash.cs" />
     <Compile Include="CAPI\ANSI\Sign\DSA\VerifiyHash.cs" />

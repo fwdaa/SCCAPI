@@ -8,37 +8,63 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////////
 public class SHA1PRNG extends RefObject implements IRand
 {
+    // алгоритм хэширования и начальное состояние
     private final Hash digest; private final byte[] state; 
     
+    // невозвращенные данные хэширования 
     private final byte[] remainder; private int remCount;
-  
+    
     // конструктор
-    public SHA1PRNG(byte[] seed) throws IOException
+    public static SHA1PRNG getInstance(Object window, IRand rand) throws IOException
     {
-        digest = new aladdin.capi.ansi.hash.SHA1(); 
+        // сгенерировать случайные данные
+        byte[] seed = new byte[20]; rand.generate(seed, 0, seed.length);
         
-        digest.init(); digest.update(seed, 0, seed.length);
+        // создать генератор случайных данных
+        return getInstance(window, seed); 
+    }
+    // конструктор
+    public static SHA1PRNG getInstance(Object window, byte[] seed) throws IOException
+    {
+        // создать алгоритм хэширования
+        try (Hash digest = new aladdin.capi.ansi.hash.SHA1())
+        {
+            // создать генератор случайных данных
+            return new SHA1PRNG(window, digest, seed); 
+        }
+    }
+    // конструктор
+    public SHA1PRNG(Object window, Hash digest, byte[] seed) throws IOException
+    {
+        // сохранить алгоритм хэширования
+        this.digest = RefObject.addRef(digest); this.window = window; 
         
+        // захэшировать начальные данные 
+        digest.init(); digest.update(seed, 0, seed.length); 
+        
+        // вычислить хэш-значение от начальных данных
         state = new byte[20]; digest.finish(state, 0); 
 
-        digest.init(); remainder = new byte[20]; remCount = 0; 
+        // указать отсутствие данных 
+        remainder = new byte[20]; remCount = 0; digest.init(); 
     }
     // деструктор
     @Override protected void onClose() throws IOException
     {
         // освободить выделенные ресурсы
-        digest.close(); super.onClose();
+        RefObject.release(digest); super.onClose();
     }
     // сгенерировать данные 
     @Override public void generate(byte[] buf, int bufOff, int bufLen) throws IOException
     {
-        int i = 0; if (remCount > 0)
+        // при наличии данных 
+        int copied = 0; if (remCount > 0)
         {
             // определить число байтов из последнего хэширования 
-            i = (bufLen < 20 - remCount) ? bufLen : (20 - remCount);
+            copied = (bufLen < 20 - remCount) ? bufLen : (20 - remCount);
       
             // для всех байтов
-            for (int m = 0; m < i; m++)
+            for (int m = 0; m < copied; m++)
             {
                 // скопировать байты
                 buf[bufOff + m] = remainder[remCount]; 
@@ -48,7 +74,7 @@ public class SHA1PRNG extends RefObject implements IRand
             }
         }
         // пока не сгенерированы все данные 
-        for (boolean modified = false; i < bufLen; modified = false)
+        for (boolean modified = false; copied < bufLen; modified = false)
         {
             // захэшировать состояние
             digest.update(state, 0, state.length);
@@ -72,17 +98,17 @@ public class SHA1PRNG extends RefObject implements IRand
             if (!modified) state[0]++;
         
             // определить число байтов
-            remCount = (bufLen - i > 20) ? 20 : (bufLen - i);
+            remCount = (bufLen - copied > 20) ? 20 : (bufLen - copied);
         
             // для всех байтов 
             for (int m = 0; m < remCount; m++)
             {
                 // скопировать байты
-                buf[bufOff + i++] = remainder[m]; remainder[m] = 0;
+                buf[bufOff + copied++] = remainder[m]; remainder[m] = 0;
             }
         }
         remCount %= 20;
     } 
     // объект окна
-    public @Override Object window() { return null; }      
+    public @Override Object window() { return window; } private final Object window; 
 }

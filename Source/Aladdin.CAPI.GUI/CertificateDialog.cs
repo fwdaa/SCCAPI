@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Runtime.InteropServices;
 
@@ -10,7 +9,6 @@ namespace Aladdin.CAPI.GUI
         ///////////////////////////////////////////////////////////////////////
 	    // Отобразить цепочку сертификатов
         ///////////////////////////////////////////////////////////////////////
-        [SecurityCritical]
 	    public static void Show(IntPtr hwnd, Certificate[] certificateChain)
         {
             // для частного случая
@@ -32,29 +30,33 @@ namespace Aladdin.CAPI.GUI
             // указать размер структуры
             parameters.dwSize = Marshal.SizeOf(parameters); 
 
-            // указать родительское окно 
-            parameters.hwndParent = hwnd; parameters.dwFlags = 0; parameters.szTitle = null;
+            // указать опции функции 
+            parameters.dwFlags = NativeMethods.CRYPTUI_DONT_OPEN_STORES; 
+
+            // указать параметры диалога 
+            parameters.hwndParent       = hwnd;         // описатель родительского окна 
+            parameters.szTitle          = null;         // имя диалога
 
             // указать параметры назначения сертификата
-            parameters.rgszPurposes = null; parameters.cPurposes = 0;
-
-            // указать параметры по умолчанию
-            parameters.idxSigner = 0; parameters.idxCert = 0;
-
-            // указать параметры по умолчанию
-            parameters.fCounterSigner = false; parameters.idxCounterSigner = 0;
+            parameters.rgszPurposes     = null;         // массив проверяемых назначений сертификата
+            parameters.cPurposes        = 0;            // число проверяемых назначений сертификата
 
             // указать используемые хранилища
-            parameters.cStores = 1; parameters.rghStores = hCertStores;
+            parameters.rghStores        = hCertStores;  // массив дополнительных хранилищ сертификатов
+            parameters.cStores          = 1;            // число дополнительных хранилищ сертификатов
 
             // указать параметры закладок
-            parameters.cPropSheetPages = 0; parameters.rgPropSheetPages = null; 
+            parameters.rgPropSheetPages = IntPtr.Zero;  // массив описаний дополнительных закладок
+            parameters.cPropSheetPages  = 0;            // число дополнительных закладок
+            parameters.nStartPage       = 0;            // номер активной закладки
             
             // указать параметры по умолчанию
-            parameters.pCryptProviderData = IntPtr.Zero; parameters.nStartPage = 0;
-
-            // указать параметры по умолчанию
-            parameters.fpCryptProviderDataTrustedUsage = false;
+            parameters.pCryptProviderData               = IntPtr.Zero;  // только для WinVerifyTrust
+            parameters.fpCryptProviderDataTrustedUsage  = false;        // только для WinVerifyTrust
+            parameters.fCounterSigner                   = false;        // только для WinVerifyTrust
+            parameters.idxSigner                        = 0;            // только для WinVerifyTrust
+            parameters.idxCert                          = 0;            // только для WinVerifyTrust
+            parameters.idxCounterSigner                 = 0;            // только для WinVerifyTrust
             try { 
                 // получить закодированное представление
                 byte[] encoded = certificateChain[0].Encoded; UInt32 X509_ASN_ENCODING = 1; 
@@ -70,7 +72,8 @@ namespace Aladdin.CAPI.GUI
                     Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error()); 
                 }
                 // отобразить сертификат
-                if (!NativeMethods.CryptUIDlgViewCertificate(parameters, IntPtr.Zero))
+                bool fPropertiesChanged; 
+                if (!NativeMethods.CryptUIDlgViewCertificate(parameters, out fPropertiesChanged))
                 {
                     // при ошибке выбросить исключение
                     Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error()); 
@@ -82,7 +85,6 @@ namespace Aladdin.CAPI.GUI
         ///////////////////////////////////////////////////////////////////////
         // Создать хранилище для цепочки сертификатов
         ///////////////////////////////////////////////////////////////////////
-        [SecurityCritical]
         private static IntPtr CreateCertChainStore(Certificate[] certificateChain)
         {
             // указать тип хранилища и сертификатов
@@ -96,8 +98,9 @@ namespace Aladdin.CAPI.GUI
                 X509_ASN_ENCODING, IntPtr.Zero, CERT_STORE_CREATE_NEW_FLAG, IntPtr.Zero
             ); 
             // при возникновении ошибки выбросить исключение
-            if (hCertStore == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error()); 
-
+            if (hCertStore == IntPtr.Zero) Marshal.ThrowExceptionForHR(
+                Marshal.GetHRForLastWin32Error()
+            ); 
             // для всех сертификатов
             for (int i = 1; i < certificateChain.Length; i++)
             {
@@ -109,11 +112,9 @@ namespace Aladdin.CAPI.GUI
                     X509_ASN_ENCODING, encoded, encoded.Length
                 ); 
                 // при возникновении ошибки 
-                if (hCertContext == IntPtr.Zero) 
-                {
-                    // выбросить исключение
-                    Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error()); 
-                }
+                if (hCertContext == IntPtr.Zero) Marshal.ThrowExceptionForHR( 
+                    Marshal.GetHRForLastWin32Error()
+                ); 
                 try { 
                     // добавить сертификат в хранилище
                     if (!NativeMethods.CertAddCertificateContextToStore(

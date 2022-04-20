@@ -26,13 +26,10 @@ public class PBKDF2FactorySpi extends SecretKeyFactorySpi
         if (keySpec instanceof PBEKeySpec) { PBEKeySpec pbeKeySpec = (PBEKeySpec)keySpec; 
         
             // определить размер ключа в битах
-            int keySize = pbeKeySpec.getKeyLength(); if ((keySize % 8) != 0)
-            {
-                // при ошибке выбросить исключение 
-                throw new InvalidKeySpecException(); 
-            }
-            // определить размер ключа в байтах
-            keySize = (keySize != 0) ? (keySize / 8) : -1; 
+            int keyBits = pbeKeySpec.getKeyLength(); 
+            
+            // проверить корректность размера 
+            if (keyBits == 0 || (keyBits % 8) != 0) throw new InvalidKeySpecException();
             
             // указать параметры алгоритма
             AlgorithmParameterSpec pbeParamSpec = new PBEParameterSpec(
@@ -57,7 +54,7 @@ public class PBKDF2FactorySpi extends SecretKeyFactorySpi
                     {
                         // создать ключ 
                         try (ISecretKey secretKey = keyDerive.deriveKey(
-                            password, null, keyFactory, keySize))
+                            password, null, keyFactory, keyBits / 8))
                         {
                             // зарегистрировать симметричный ключ
                             return new SecretKey(provider, null, secretKey); 

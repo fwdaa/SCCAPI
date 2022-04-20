@@ -15,8 +15,8 @@ import java.util.*;
 ///////////////////////////////////////////////////////////////////////////////
 public final class X509Crl extends java.security.cert.X509CRL
 {
-	private final Provider     provider;     // криптопровайдер
-	private final CertificateList crl;          // список отозванных сертификатов
+    // криптопровайдер и список отозванных сертификатов
+	private final Provider provider; private final CertificateList crl;
 	
 	// конструктор
 	public X509Crl(Provider provider, CertificateList crl) 

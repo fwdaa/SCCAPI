@@ -8,6 +8,8 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public final class TC026_GOSTR3411_2012_512 extends RefObject implements IRand, Serializable
 {
+    private static final long serialVersionUID = 1224358444372011800L;
+    
     // генератор случайных данных
     private TC026 rand; private byte[] seed; 
 

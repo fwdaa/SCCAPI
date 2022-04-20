@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Generator.h"
+#include <cryptuiapi.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
@@ -24,7 +25,7 @@ Aladdin::CAPI::KeyPair^ Aladdin::CAPI::CSP::KeyPairGenerator::Generate(String^ k
 	if ((keyUsage & keyxMask) != KeyUsage::None) keyType = AT_KEYEXCHANGE; 
 
 	// сгенерировать пару ключей
-	Using<KeyHandle^> hKeyPair(Generate(nullptr, keyOID, keyType, 0)); 
+	Using<KeyHandle^> hKeyPair(Generate(nullptr, keyOID, keyType, 0)); LPCPROPSHEETPAGEA
 
 	// экспортировать открытый ключ
 	ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo = 
