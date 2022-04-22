@@ -17,11 +17,18 @@ public class SHA1PRNG extends RefObject implements IRand
     // конструктор
     public static SHA1PRNG getInstance(Object window, IRand rand) throws IOException
     {
-        // сгенерировать случайные данные
-        byte[] seed = new byte[20]; rand.generate(seed, 0, seed.length);
+        // создать алгоритм хэширования
+        try (Hash digest = new aladdin.capi.ansi.hash.SHA1())
+        {
+            // выделить буфер для случайных данных
+            byte[] seed = new byte[digest.hashSize()]; 
+            
+            // сгенерировать случайные данные
+            rand.generate(seed, 0, seed.length);
         
-        // создать генератор случайных данных
-        return getInstance(window, seed); 
+            // создать генератор случайных данных
+            return new SHA1PRNG(window, digest, seed); 
+        }
     }
     // конструктор
     public static SHA1PRNG getInstance(Object window, byte[] seed) throws IOException
@@ -43,10 +50,10 @@ public class SHA1PRNG extends RefObject implements IRand
         digest.init(); digest.update(seed, 0, seed.length); 
         
         // вычислить хэш-значение от начальных данных
-        state = new byte[20]; digest.finish(state, 0); 
+        state = new byte[digest.hashSize()]; digest.finish(state, 0); 
 
         // указать отсутствие данных 
-        remainder = new byte[20]; remCount = 0; digest.init(); 
+        remainder = new byte[digest.hashSize()]; remCount = 0; digest.init(); 
     }
     // деструктор
     @Override protected void onClose() throws IOException
@@ -61,7 +68,8 @@ public class SHA1PRNG extends RefObject implements IRand
         int copied = 0; if (remCount > 0)
         {
             // определить число байтов из последнего хэширования 
-            copied = (bufLen < 20 - remCount) ? bufLen : (20 - remCount);
+            copied = (bufLen < remainder.length - remCount) ? 
+                bufLen : (remainder.length - remCount);
       
             // для всех байтов
             for (int m = 0; m < copied; m++)
@@ -98,7 +106,8 @@ public class SHA1PRNG extends RefObject implements IRand
             if (!modified) state[0]++;
         
             // определить число байтов
-            remCount = (bufLen - copied > 20) ? 20 : (bufLen - copied);
+            remCount = (bufLen - copied > remainder.length) ? 
+                remainder.length : (bufLen - copied);
         
             // для всех байтов 
             for (int m = 0; m < remCount; m++)
@@ -107,7 +116,7 @@ public class SHA1PRNG extends RefObject implements IRand
                 buf[bufOff + copied++] = remainder[m]; remainder[m] = 0;
             }
         }
-        remCount %= 20;
+        remCount %= remainder.length;
     } 
     // объект окна
     public @Override Object window() { return window; } private final Object window; 

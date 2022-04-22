@@ -18,11 +18,18 @@ namespace Aladdin.CAPI.ANSI.Rnd
         // конструктор
         public static SHA1PRNG Create(object window, IRand rand)
         {
-            // сгенерировать случайные данные
-            byte[] seed = new byte[20]; rand.Generate(seed, 0, seed.Length);
+            // создать алгоритм хэширования
+            using (CAPI.Hash digest = new Hash.SHA1())
+            {
+                // выделить буфер для случайных данных
+                byte[] seed = new byte[digest.HashSize]; 
+                
+                // сгенерировать случайные данные
+                rand.Generate(seed, 0, seed.Length);
         
-            // создать генератор случайных данных
-            return Create(window, seed); 
+                // создать генератор случайных данных
+                return new SHA1PRNG(window, digest, seed); 
+            }
         }
         // конструктор
         public static SHA1PRNG Create(object window, byte[] seed)
@@ -44,10 +51,10 @@ namespace Aladdin.CAPI.ANSI.Rnd
             digest.Init(); digest.Update(seed, 0, seed.Length); 
             
             // вычислить хэш-значение от начальных данных
-            state = new byte[20]; digest.Finish(state, 0); 
+            state = new byte[digest.HashSize]; digest.Finish(state, 0); 
 
             // указать отсутствие данных 
-            remainder = new byte[20]; remCount = 0; digest.Init(); 
+            remainder = new byte[digest.HashSize]; remCount = 0; digest.Init(); 
         }
         // деструктор
         protected override void OnDispose()
@@ -62,7 +69,8 @@ namespace Aladdin.CAPI.ANSI.Rnd
             int copied = 0; if (remCount > 0)
             {
                 // определить число байтов из последнего хэширования 
-                copied = (bufLen < 20 - remCount) ? bufLen : (20 - remCount);
+                copied = (bufLen < remainder.Length - remCount) ? 
+                    bufLen : (remainder.Length - remCount);
       
                 // для всех байтов
                 for (int m = 0; m < copied; m++)
@@ -99,7 +107,8 @@ namespace Aladdin.CAPI.ANSI.Rnd
                 if (!modified) state[0]++;
         
                 // определить число байтов
-                remCount = (bufLen - copied > 20) ? 20 : (bufLen - copied);
+                remCount = (bufLen - copied > remainder.Length) ? 
+                    remainder.Length : (bufLen - copied);
         
                 // для всех байтов 
                 for (int m = 0; m < remCount; m++)
@@ -108,7 +117,7 @@ namespace Aladdin.CAPI.ANSI.Rnd
                     buf[bufOff + copied++] = remainder[m]; remainder[m] = 0;
                 }
             }
-            remCount %= 20;
+            remCount %= remainder.Length;
         } 
         // объект окна
         public object Window { get { return window; }} private object window; 
