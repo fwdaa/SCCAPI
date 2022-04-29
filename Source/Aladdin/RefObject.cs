@@ -30,13 +30,13 @@ namespace Aladdin
 
         // конструктор
         public RefObject() { this.refs = 1; stackTrace = Environment.StackTrace; }
+
+        // деструктор
+        ~RefObject() { try { Dispose(false); } catch {} }
 #else 
         // конструктор
         public RefObject() { this.refs = 1; } private int refs; 
 #endif 
-        // деструктор
-        ~RefObject() { try { Dispose(false); } catch {} }
-
         // увеличить/уменьшить счетчик ссылок
         public void AddRef() { refs++; } public void Release() { Dispose(); }
 

@@ -17,14 +17,15 @@ namespace Aladdin
     public class Disposable : IDisposable
     {
 #if DEBUG            
+        // стек вызова
+        private string stackTrace;
+
         // конструктор
         public Disposable() { stackTrace = Environment.StackTrace; }
 
-        // стек вызова
-        private string stackTrace;
-#endif
         // деструктор
         ~Disposable() { try { Dispose(false); } catch {} }
+#endif
 
         // освободить выделенные ресурсы
         public void Close() { Dispose(); }

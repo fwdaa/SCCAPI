@@ -22,13 +22,13 @@ namespace Aladdin
 
         // конструктор
         public MarshalRefObject() { this.refs = 1; stackTrace = Environment.StackTrace; }
+
+        // деструктор
+        ~MarshalRefObject() { try { Dispose(false); } catch {} }
 #else 
         // конструктор
         public MarshalRefObject() { this.refs = 1; } private int refs; 
 #endif 
-        // деструктор
-        ~MarshalRefObject() { try { Dispose(false); } catch {} }
-
         // увеличить счетчик ссылок
         public void AddRef() { refs++; } 
 
