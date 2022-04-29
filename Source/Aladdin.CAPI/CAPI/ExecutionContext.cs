@@ -11,7 +11,7 @@ namespace Aladdin.CAPI
     public class ExecutionContext : RefObject, IRandFactory, PBE.IPBECultureFactory
     {
         // кэши аутентификации провайдеров
-        private static Dictionary<String, CredentialsManager> providerCaches; 
+        private static readonly Dictionary<String, CredentialsManager> providerCaches; 
 
         // конструктор
         static ExecutionContext()
