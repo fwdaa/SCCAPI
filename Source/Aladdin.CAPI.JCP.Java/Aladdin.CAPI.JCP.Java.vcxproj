@@ -40,17 +40,17 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <OutDir>..\..\Binary\Java\lib</OutDir>
     <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
-    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(JDK14_HOME)" jar -f .\build.xml"</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(JDK14_HOME)" clean,jar -f .\build.xml"</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(JDK14_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat"   -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" jar -f .\build.xml"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean,jar -f .\build.xml"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat"   -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
     <NMakeOutput />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutDir>..\..\Binary\Java\lib</OutDir>
     <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
-    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(JDK14_HOME)" jar -f .\build.xml"</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(JDK14_HOME)" clean,jar -f .\build.xml"</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(JDK14_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat"   -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" jar -f .\build.xml"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean,jar -f .\build.xml"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat"   -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
     <NMakeOutput />
   </PropertyGroup>
   <ItemDefinitionGroup>

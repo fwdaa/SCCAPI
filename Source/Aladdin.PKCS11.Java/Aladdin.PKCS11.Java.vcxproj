@@ -40,21 +40,21 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <OutDir>..\..\Binary\Java\lib</OutDir>
     <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
-    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" jar -f .\build.xml"
+    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" jar -f .\build.xml"
 rem cmd /c copy "$(ProjectDir)..\..\Binary\Windows\$(Platform)\$(Configuration)\pkcs11jni.dll" $(ProjectDir)\dist\*.dll"</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean,jar -f .\build.xml"
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean,jar -f .\build.xml"
 rem cmd /c copy "$(ProjectDir)..\..\Binary\Windows\$(Platform)\$(Configuration)\pkcs11jni.dll" $(ProjectDir)\dist\*.dll"</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
     <NMakeOutput />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutDir>..\..\Binary\Java\lib</OutDir>
     <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
-    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" jar -f .\build.xml"
+    <NMakeBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" jar -f .\build.xml"
 rem cmd /c copy "$(ProjectDir)..\..\Binary\Windows\$(Platform)\$(Configuration)\pkcs11jni.dll" $(ProjectDir)\dist\*.dll"</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean,jar -f .\build.xml"
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean,jar -f .\build.xml"
 rem cmd /c copy "$(ProjectDir)..\..\Binary\Windows\$(Platform)\$(Configuration)\pkcs11jni.dll" $(ProjectDir)\dist\*.dll"</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK13.home="$(JDK13_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" clean -f .\build.xml"</NMakeCleanCommandLine>
     <NMakeOutput />
   </PropertyGroup>
   <ItemDefinitionGroup>

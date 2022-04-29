@@ -71,4 +71,14 @@
     nbproject/build-impl.xml file. 
 
     -->
+<target name="-pre-init">
+  <manifest file="MANIFEST.MF">
+    <attribute name="Implementation-Version" value="${VERSION}" />
+    <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar" />
+    <attribute name="Main-Class" value="aladdin.capi.ansi.Test" />
+  </manifest>
+</target>
+<target name="-post-jar">
+   <delete file="MANIFEST.MF"/>
+</target>
 </project>

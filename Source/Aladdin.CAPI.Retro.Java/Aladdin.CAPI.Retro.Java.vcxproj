@@ -48,28 +48,28 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <OutDir>..\..\Binary\Java\lib</OutDir>
     <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
-    <NMakeBuildCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" jar -f .\jre14\build.xml"
-cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" jar -f .\jre13\build.xml"
+    <NMakeBuildCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" jar -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" jar -f .\jre13\build.xml"
 </NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean,jar -f .\jre14\build.xml"
-cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean,jar -f .\jre13\build.xml"
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean,jar -f .\jre14\build.xml"
+cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean,jar -f .\jre13\build.xml"
 </NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean -f .\jre14\build.xml"
-cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean -f .\jre13\build.xml"
+    <NMakeCleanCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean -f .\jre13\build.xml"
 </NMakeCleanCommandLine>
     <NMakeOutput />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutDir>..\..\Binary\Java\lib</OutDir>
     <IntDir>..\..\Temporary\$(ProjectName)\Java\$(Platform)\$(Configuration)</IntDir>
-    <NMakeBuildCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" jar -f .\jre14\build.xml"
-cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" jar -f .\jre13\build.xml"
+    <NMakeBuildCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" jar -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" jar -f .\jre13\build.xml"
 </NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean,jar -f .\jre14\build.xml"
-cmd /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean,jar -f .\jre13\build.xml"
+    <NMakeReBuildCommandLine>cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean,jar -f .\jre14\build.xml"
+cmd /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean,jar -f .\jre13\build.xml"
 </NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean -f .\jre14\build.xml"
-cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean -f .\jre13\build.xml"
+    <NMakeCleanCommandLine>cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.default_platform.home="$(JDK18_HOME)" -Dplatforms.JDK14.home="$(ProjectDir)$(JDK14_HOME)" clean -f .\jre14\build.xml"
+cmd   /c "call "$(ANT_HOME)\bin\ant.bat" -DVERSION=$(VERSION) -Dplatforms.JDK13.home="$(ProjectDir)$(JDK13_HOME)" clean -f .\jre13\build.xml"
 </NMakeCleanCommandLine>
     <NMakeOutput />
   </PropertyGroup>

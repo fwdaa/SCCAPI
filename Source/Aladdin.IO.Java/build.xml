@@ -71,31 +71,13 @@
     nbproject/build-impl.xml file. 
 
     -->
-<!--
-	<taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask">
-		<classpath>
-        	<fileset dir="../../Binary/Java/retro">
-				<include name="retrotranslator-transformer-1.2.9.jar" />
-				<include name="retrotranslator-runtime13-1.2.9.jar" />
-				<include name="backport-util-concurrent-java12-3.1.jar" /> 
-			</fileset>
-		</classpath>
-	</taskdef>
-   <target name="-post-jar">
-      <delete file="dist/readme.txt" failonerror="false"/>
-      <mkdir  dir="dist/jre13"/>
-      <retrotranslator target="1.2" destjar="dist/jre13/Aladdin.IO.jar"
-                     smart="true" verify="true" failonwarning="true" embed="aladdin.io.embed">
-        <fileset dir="build/classes" includes="**/*.class" />
-	    <classpath>
-         	<fileset dir="dist/jre13" includes="**/*.jar"/>
-            <fileset dir="${platforms.JDK13.home}/jre/lib" includes="**/*.jar"/>
-            <fileset dir="../../Binary/Java/retro">
-                <include name="retrotranslator-runtime13-1.2.9.jar" />
-                <include name="backport-util-concurrent-java12-3.1.jar" />
-            </fileset>
-        </classpath>
-      </retrotranslator>
-   </target>
--->
+<target name="-pre-init">
+  <manifest file="MANIFEST.MF">
+    <attribute name="Implementation-Version" value="${VERSION}" />
+    <attribute name="Class-Path" value="" />
+  </manifest>
+</target>
+<target name="-post-jar">
+   <delete file="MANIFEST.MF"/>
+</target>
 </project>

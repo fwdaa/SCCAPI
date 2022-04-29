@@ -1,2 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: Aladdin.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PCSC.jar Aladdin.CAPI.jar Aladdin.PKCS11.jar 
