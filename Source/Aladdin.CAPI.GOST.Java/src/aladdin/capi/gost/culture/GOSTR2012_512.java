@@ -53,7 +53,7 @@ public class GOSTR2012_512 extends GOST28147
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture.Default
+    public static class PKCS12 extends PBEDefaultCulture
     {
         // конструктор
         public PKCS12(PBEParameters parameters) 

@@ -27,7 +27,7 @@ public abstract class Culture
     public PBECulture pbe(PBEParameters parameters)
     {
         // параметры шифрования по паролю
-        return new PBECulture.Default(this, parameters, true); 
+        return new PBEDefaultCulture(this, parameters, true); 
     }
 	///////////////////////////////////////////////////////////////////////
 	// Параметры шифрования на открытом ключе (KeyX)

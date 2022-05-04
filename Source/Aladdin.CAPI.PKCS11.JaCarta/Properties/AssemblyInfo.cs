@@ -33,6 +33,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("8.0.0.140")]
-[assembly: AssemblyFileVersion("8.0.0.140")]
+[assembly: AssemblyVersion("8.0.0.6040")]
+[assembly: AssemblyFileVersion("8.0.0.6040")]
 [assembly: AllowPartiallyTrustedCallers]

@@ -22,7 +22,7 @@ namespace Aladdin.CAPI
         public virtual PBE.PBECulture PBE(PBE.PBEParameters parameters)
         {
             // параметры шифрования по паролю
-            return new PBE.PBECulture.Default(this, parameters, true); 
+            return new PBE.PBEDefaultCulture(this, parameters, true); 
         }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Параметры шифрования на открытом ключе (KeyX)

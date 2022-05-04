@@ -92,6 +92,7 @@
     <Compile Include="CAPI\KeyAgreement.cs" />
     <Compile Include="CAPI\PBE\PBECultureFactory.cs" />
     <Compile Include="CAPI\PBE\IPBECultureFactory.cs" />
+    <Compile Include="CAPI\PBE\PBEDefaultCulture.cs" />
     <Compile Include="CAPI\Provider.cs" />
     <Compile Include="CAPI\IRandFactory.cs" />
     <Compile Include="CAPI\SecretKeyFactory.cs" />

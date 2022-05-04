@@ -62,7 +62,7 @@ namespace Aladdin.CAPI.GOST.Culture
         ///////////////////////////////////////////////////////////////////////////
         // Парольная защита
         ///////////////////////////////////////////////////////////////////////////
-        public class PKCS12 : PBE.PBECulture.Default
+        public class PKCS12 : PBE.PBEDefaultCulture
         {
             // конструктор
             public PKCS12(PBE.PBEParameters parameters) 

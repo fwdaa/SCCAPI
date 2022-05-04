@@ -89,10 +89,10 @@ public class STB1176 extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture.Default
+    public static class PKCS12 extends PBEDefaultCulture
     {
         // конструктор
-        public PKCS12(String sboxParams, PBEParameters parameters) 
+        public PKCS12(PBEParameters parameters, String sboxParams) 
         {         
             // сохранить переданные параметры
             super(new STB1176(sboxParams), parameters, true); 

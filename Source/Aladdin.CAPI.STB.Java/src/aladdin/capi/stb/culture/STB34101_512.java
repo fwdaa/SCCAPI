@@ -31,7 +31,7 @@ public class STB34101_512 extends STB34101
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture.Default
+    public static class PKCS12 extends PBEDefaultCulture
     {
         // конструктор
         public PKCS12(PBEParameters parameters) 

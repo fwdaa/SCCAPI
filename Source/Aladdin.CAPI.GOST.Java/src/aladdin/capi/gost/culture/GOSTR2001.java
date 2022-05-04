@@ -55,10 +55,10 @@ public class GOSTR2001 extends GOST28147
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture.Default
+    public static class PKCS12 extends PBEDefaultCulture
     {
         // конструктор
-        public PKCS12(String encryptionParams, PBEParameters parameters) 
+        public PKCS12(PBEParameters parameters, String encryptionParams) 
         {         
             // сохранить переданные параметры
             super(new GOSTR2001(encryptionParams), parameters, true); 

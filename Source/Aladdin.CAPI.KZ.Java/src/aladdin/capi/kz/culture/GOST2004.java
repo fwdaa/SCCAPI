@@ -72,7 +72,7 @@ public class GOST2004 extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture.Default
+    public static class PKCS12 extends PBEDefaultCulture
     {
         // конструктор
         public PKCS12(PBEParameters parameters) { super(new GOST2004(), parameters, true); } 

@@ -72,7 +72,7 @@ public class ECDSS_512 extends aladdin.capi.Culture
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-    public static class PKCS12 extends PBECulture.Default
+    public static class PKCS12 extends PBEDefaultCulture
     {
         // конструктор
         public PKCS12(PBEParameters parameters) { super(new ECDSS_512(), parameters, true); }
