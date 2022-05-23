@@ -17,7 +17,7 @@ namespace Aladdin.CAPI
         private static bool IsIssuedByCA(Certificate certificate, Certificate parent)
         {
             // проверить совпадение издателя
-            if (!parent.Issuer.Equals(certificate.Subject)) return false; 
+            if (!parent.Subject.Equals(certificate.Issuer)) return false; 
 
             // найти расширение номера ключа издателя
             ASN1.OctetString authorityKeyIdentifier = certificate.IssuerKeyIdentifier; 
@@ -29,7 +29,7 @@ namespace Aladdin.CAPI
             if (authorityKeyIdentifier != null && subjectKeyIdentifierCA != null)
             {
                 // проверить совпадение номеров
-                if (!authorityKeyIdentifier.Equals(subjectKeyIdentifierCA)) return false; 
+                if (!Arrays.Equals(authorityKeyIdentifier.Value, subjectKeyIdentifierCA.Value)) return false; 
             }
             return true; 
         }

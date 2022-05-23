@@ -5,17 +5,20 @@
     ///////////////////////////////////////////////////////////////////////////
     public class RemoteClientControl : RefObject
     {
+        // удаленный поток
+        private readonly IBackgroundTask task; 
+
         // конструктор
         public RemoteClientControl(IBackgroundTask task) 
-        
+        { 
             // сохранить переданные параметры
-            { this.task = task; } private readonly IBackgroundTask task; 
-
+            this.task = RefObject.AddRef(task); 
+        } 
         // освободить выделенные ресурсы
         protected override void OnDispose() 
         { 
             // освободить выделенные ресурсы
-            task.Dispose(); base.OnDispose(); 
+            RefObject.Release(task); base.OnDispose(); 
         }
         // идентификатор запущенного потока
         public int ThreadID { get { return task.IsBusy ? task.ThreadID : 0; }}

@@ -25,7 +25,7 @@ namespace Aladdin.CAPI.GOST.Cipher
                 if (hmac == null) return null; 
             
                 // создать алгоритм выработки имитовставки
-                using (Mac omac = GOSTR3412.CreateOMAC(factory, scope, blockSize))
+                using (Mac omac = GOSTR3412.CreateOMAC(factory, scope, blockSize, blockSize / 2))
                 {
                     // обьединить имитовставку с режимом
                     return new GOSTR3412_OMAC(mode, omac, hmac, seed); 

@@ -64,7 +64,7 @@ public class RefObject implements IRefObject
         if (disposing) { try { onClose(); } finally { --refs; disposed = true; }}
         
         // при необходимости трассировки
-        else if (REFOBJECT_CHECK)
+        if (REFOBJECT_CHECK && (!disposing || refs != 0))
         {
             // вывести сообщение об ошибке
             System.out.println(String.format("Class = %1$s, Refs = %2$d", getClass(), refs));

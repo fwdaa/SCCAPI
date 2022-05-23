@@ -240,4 +240,7 @@
   <data name="NodeReaders" xml:space="preserve">
     <value>Считыватели</value>
   </data>
+  <data name="MessageFingerQuality" xml:space="preserve">
+    <value>Полученный отпечаток пальца имеет плохое качество</value>
+  </data>
 </root>

@@ -14,13 +14,13 @@ namespace Aladdin.CAPI.PKCS11.MAC
         private CAPI.Mac hMAC; private byte[] hash; 
     
         // конструктор
-	    public HMAC(CAPI.PKCS11.Applet applet, int macSize) 
+	    public HMAC(Applet applet, int macSize) 
         
             // сохранить переданные параметры
             : this(applet, API.CKK_GENERIC_SECRET, macSize) {}
 
         // конструктор
-	    public HMAC(CAPI.PKCS11.Applet applet, ulong keyType, int macSize) : base(applet)
+	    public HMAC(Applet applet, ulong keyType, int macSize) : base(applet)
         { 
             // сохранить переданные параметры
             this.keyType = keyType; this.macSize = macSize; hMAC = null; 
@@ -91,13 +91,15 @@ namespace Aladdin.CAPI.PKCS11.MAC
 		public override int Finish(byte[] buffer, int bufferOff)
 		{
 			// вызвать базовую функцию
-			if (hMAC == null) base.Finish(hash, 0);
+			if (hMAC == null) base.Finish(buffer, bufferOff);
             else { 
 			    // получить имитовставку
 			    hMAC.Finish(hash, 0); hMAC.Dispose(); hMAC = null;
+
+                // скопировать хэш-значение
+                Array.Copy(hash, 0, buffer, bufferOff, MacSize);
             }
-            // скопировать хэш-значение
-            Array.Copy(hash, 0, buffer, bufferOff, MacSize); return MacSize; 
+            return MacSize; 
 		}
         // признак специального ключа
         protected virtual bool IsSpecialKey(ISecretKey key) { return (key.Length == 0); }

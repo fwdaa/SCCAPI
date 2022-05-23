@@ -24,7 +24,7 @@ public abstract class PKI
     private static boolean isIssuedByCA(Certificate certificate, Certificate parent)
     {
         // проверить совпадение издателя
-        if (!parent.issuer().equals(certificate.subject())) return false; 
+        if (!parent.subject().equals(certificate.issuer())) return false; 
 
         // найти расширение номера ключа издателя
         OctetString authorityKeyIdentifier = certificate.issuerKeyIdentifier(); 
@@ -36,7 +36,7 @@ public abstract class PKI
         if (authorityKeyIdentifier != null && subjectKeyIdentifierCA != null)
         {
             // проверить совпадение номеров
-            if (!authorityKeyIdentifier.equals(subjectKeyIdentifierCA)) return false; 
+            if (!Arrays.equals(authorityKeyIdentifier.value(), subjectKeyIdentifierCA.value())) return false; 
         }
         return true; 
     }

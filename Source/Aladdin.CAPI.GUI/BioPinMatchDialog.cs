@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.ComponentModel;
-using System.Security;
 
 namespace Aladdin.CAPI.GUI
 {
@@ -46,10 +45,25 @@ namespace Aladdin.CAPI.GUI
 		public BioPinMatchDialog(SecurityObject obj, string user) 
 		{ 
 			// сохранить переданные параметры
-            InitializeComponent(); this.obj = obj; 
+            InitializeComponent(); this.obj = obj; timer = new Timer();
             
+            // создать список имен пальцев
+            fingerNames = new Dictionary<Bio.Finger, String>();
+   
+            // заполнить список имен пальцев
+            fingerNames.Add(Bio.Finger.LeftLittle , (string)comboFinger.Items[0]);  
+            fingerNames.Add(Bio.Finger.LeftRing   , (string)comboFinger.Items[1]); 
+            fingerNames.Add(Bio.Finger.LeftMiddle , (string)comboFinger.Items[2]); 
+            fingerNames.Add(Bio.Finger.LeftIndex  , (string)comboFinger.Items[3]);
+            fingerNames.Add(Bio.Finger.LeftThumb  , (string)comboFinger.Items[4]);
+            fingerNames.Add(Bio.Finger.RightLittle, (string)comboFinger.Items[5]);
+            fingerNames.Add(Bio.Finger.RightRing  , (string)comboFinger.Items[6]);
+            fingerNames.Add(Bio.Finger.RightMiddle, (string)comboFinger.Items[7]);
+            fingerNames.Add(Bio.Finger.RightIndex , (string)comboFinger.Items[8]);
+            fingerNames.Add(Bio.Finger.RightThumb , (string)comboFinger.Items[9]);
+
             // инициализировать переменные
-            Auth.BiometricService service = null; Result = null;
+            Auth.BiometricService service = null; Result = null; comboFinger.Items.Clear();
 
 			// установить имя провайдера и объекта
 			textBoxProvider.Text = obj.Provider.Name; textBoxObject.Text = obj.FullName; 
@@ -78,33 +92,15 @@ namespace Aladdin.CAPI.GUI
 			}
 			// выбрать считыватель по умолчанию
             if (comboReader.Items.Count > 0) comboReader.SelectedIndex = 0;
-             
-            // создать список имен пальцев
-            fingerNames = new Dictionary<Bio.Finger, String>();
-   
-            // заполнить список имен пальцев
-            fingerNames.Add(Bio.Finger.LeftLittle , (string)comboFinger.Items[0]);  
-            fingerNames.Add(Bio.Finger.LeftRing   , (string)comboFinger.Items[1]); 
-            fingerNames.Add(Bio.Finger.LeftMiddle , (string)comboFinger.Items[2]); 
-            fingerNames.Add(Bio.Finger.LeftIndex  , (string)comboFinger.Items[3]);
-            fingerNames.Add(Bio.Finger.LeftThumb  , (string)comboFinger.Items[4]);
-            fingerNames.Add(Bio.Finger.RightLittle, (string)comboFinger.Items[5]);
-            fingerNames.Add(Bio.Finger.RightRing  , (string)comboFinger.Items[6]);
-            fingerNames.Add(Bio.Finger.RightMiddle, (string)comboFinger.Items[7]);
-            fingerNames.Add(Bio.Finger.RightIndex , (string)comboFinger.Items[8]);
-            fingerNames.Add(Bio.Finger.RightThumb , (string)comboFinger.Items[9]);
-
-            // создать таймер
-            timer = new System.Windows.Forms.Timer();
         }
         // инициализация диалога
 		private void OnLoad(object sender, EventArgs e)
 		{
 			// установить начальные условия
-			comboFinger.Items.Clear(); buttonStop.Enabled = buttonOK.Enabled = false; 
+			buttonStop.Enabled = buttonOK.Enabled = false; 
 
 			// установить начальные условия
-			buttonStart.Enabled = (comboReader.SelectedIndex >= 0); 
+			buttonStart.Enabled = (comboFinger.SelectedIndex >= 0); 
 
 			// запустить таймер 
 			timer.Tick += OnTick; timer.Start(); 
@@ -130,13 +126,19 @@ namespace Aladdin.CAPI.GUI
         }
         private void OnUserChanged(object sender, EventArgs e)
         {
+            // указать отсутствие выбора пальца
+            comboFinger.SelectedIndex = -1; 
+
             // получить биометрический сервис объекта
             Auth.BiometricService service = (Auth.BiometricService)
                 obj.GetAuthenticationService(
                     comboBoxUser.Text, typeof(Auth.BiometricCredentials)
             ); 
-            // получить допустимые отпечатки пальцев и отсортировать их
-            fingers = service.GetAvailableFingers(); Array.Sort(fingers, new FingerComparer()); 
+            // получить допустимые отпечатки пальцев
+            fingers = service.GetAvailableFingers(); 
+            
+            // отсортировать допустимые отпечатки пальцев
+            Array.Sort(fingers, Comparer<Bio.Finger>.Default); 
 
             // для всех возможных пальцев
             for (int i = 0; i < fingers.Length; i++)
@@ -144,6 +146,14 @@ namespace Aladdin.CAPI.GUI
                 // указать имя отпечатка
                 comboFinger.Items.Add(fingerNames[fingers[i]]); 
             }
+        }
+        private void OnFingerChanged(object sender, EventArgs e)
+        {
+			// указать доступность кнопки
+			buttonStart.Enabled = (comboFinger.SelectedIndex >= 0); 
+
+            // указать недоступность изображения 
+            textInfo.Text = String.Empty; imageFinger.Visible = false; 
         }
         private void OnQualityScroll(object sender, EventArgs e)
         {
@@ -222,8 +232,11 @@ namespace Aladdin.CAPI.GUI
 				imageFinger.Image = (System.Drawing.Image)
                     image.GetThumbnailImage(imageFinger.Width, imageFinger.Height); 
 
-                // обновить изображение и создать шаблон для проверки отпечатка
-                imageFinger.Refresh(); matchTemplate = service.CreateTemplate(finger, image); 
+                // обновить изображение
+                imageFinger.Visible = true; imageFinger.Refresh(); 
+                
+                // создать шаблон для проверки отпечатка
+                matchTemplate = service.CreateTemplate(finger, image); 
                 
                 // вывести сообщение о готовности отпечатка
                 AfterStop(Resource.MessageFingerCaptured); 

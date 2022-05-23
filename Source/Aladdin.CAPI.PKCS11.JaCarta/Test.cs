@@ -283,7 +283,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 				// найти смарт-карту (Laser)
 				using (SecurityStore store = (SecurityStore)selector.OpenObject(
 					provider, Scope.System,  
-					"ARDS JaCarta 0\\JaCarta Laser", FileAccess.ReadWrite
+					"Aladdin R.D. JaCarta 0\\JaCarta Laser", FileAccess.ReadWrite
 				)) { 
                     // получить список алгоритмов
                     ulong[] algIDs = ((Applet)store).Algorithms; 
@@ -295,7 +295,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 				    string storeName = store.FullName; store.Authenticate(); 
 
                     // выполнить общие тесты
-                    ANSI.PKCS11.Test.TestAlgorithms((Applet)store); 
+                    // ANSI.PKCS11.Test.TestAlgorithms((Applet)store); 
 
                     // идентификаторы наборов параметров
                     string[] hashOIDs = new string[] { ASN1.GOST.OID.hashes_cryptopro}; 
@@ -306,7 +306,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
                         ASN1.GOST.OID.encrypts_C, ASN1.GOST.OID.encrypts_D    
                     }; 
                     // выполнить общие тесты
-                    GOST.PKCS11.Test.TestAlgorithms((Applet)store, hashOIDs, sboxOIDs); 
+                    // GOST.PKCS11.Test.TestAlgorithms((Applet)store, hashOIDs, sboxOIDs); 
 
 				    // указать имя контейнера
 				    SecurityInfo info = new SecurityInfo(store.Scope, storeName, "CAPI-TEST"); 
@@ -317,8 +317,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 				// найти смарт-карту (CryptoToken)
 				using (SecurityStore store = (SecurityStore)selector.OpenObject(
 					provider, Scope.System,  
-					// "Aladdin R.D. JaCarta 0\\eToken GOST", FileAccess.ReadWrite
-					"ARDS JaCarta 0\\eToken GOST", FileAccess.ReadWrite
+					"Aladdin R.D. JaCarta 0\\eToken GOST", FileAccess.ReadWrite
 				)) { 
                     // получить список алгоритмов
                     ulong[] algIDs = ((Applet)store).Algorithms; 
@@ -330,7 +329,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 				    string storeName = store.FullName; store.Authenticate(); 
 
                     // выполнить общие тесты
-                    ANSI.PKCS11.Test.TestAlgorithms((Applet)store); 
+                    // ANSI.PKCS11.Test.TestAlgorithms((Applet)store); 
 
                     // идентификаторы наборов параметров
                     string[] hashOIDs = new string[] { ASN1.GOST.OID.hashes_cryptopro}; 
@@ -341,7 +340,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
                         ASN1.GOST.OID.encrypts_C, ASN1.GOST.OID.encrypts_D    
                     }; 
                     // выполнить общие тесты
-                    GOST.PKCS11.Test.TestAlgorithms((Applet)store, hashOIDs, sboxOIDs); 
+                    // GOST.PKCS11.Test.TestAlgorithms((Applet)store, hashOIDs, sboxOIDs); 
 
 				    // указать имя контейнера
 				    SecurityInfo info = new SecurityInfo(store.Scope, storeName, "CAPI-TEST"); 

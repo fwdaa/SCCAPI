@@ -8,6 +8,15 @@ namespace Aladdin.GUI
     ///////////////////////////////////////////////////////////////////////////
     public class Win32Window : IWin32Window
     {
+        // получить описатель окна
+        public static IntPtr GetHandle(Control window) { IntPtr hwnd = IntPtr.Zero; 
+
+            // указать способ извлечения описателя окна
+            Action<Control> action = delegate(Control control) { hwnd = control.Handle; }; 
+
+            // извлечь описатель окна
+            window.Invoke(action, window); return hwnd; 
+        }
         // конструктор
         public static Win32Window FromHandle(IntPtr hwnd)
         {

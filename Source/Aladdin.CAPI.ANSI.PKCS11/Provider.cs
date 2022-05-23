@@ -59,9 +59,13 @@ namespace Aladdin.CAPI.ANSI.PKCS11
         // возможность генерации и импорта ключевой пары в памяти
         public override bool CanImportSessionPair(CAPI.PKCS11.Applet applet) { return canImport; } 
 
-        // корректная реализация OAEP/PSS механизмов
-        public virtual bool UseOAEP(CAPI.PKCS11.Applet applet) { return true; } 
-        public virtual bool UsePSS (CAPI.PKCS11.Applet applet) { return true; }
+        // корректная реализация OAEP механизмов
+        public virtual bool UseOAEP(CAPI.PKCS11.Applet applet, 
+            Parameters.CK_RSA_PKCS_OAEP_PARAMS parameters) { return true; } 
+
+        // корректная реализация PSS механизмов
+        public virtual bool UsePSS (CAPI.PKCS11.Applet applet, 
+            Parameters.CK_RSA_PKCS_PSS_PARAMS parameters) { return true; }
 
         // тип структуры передачи параметров механизма PBKDF2
         protected virtual CAPI.PKCS11.PBE.PBKDF2.ParametersType PBKDF2ParametersType 
@@ -188,7 +192,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             
                 // получить информацию алгоритма
                 MechanismInfo info = applet.GetAlgorithmInfo(API.CKM_EC_KEY_PAIR_GEN); 
-            
+
                 // преобразовать тип ключа
                 return new X962.PrivateKey(this, scope, obj, ecPublicKey, info.Flags); 
             }
@@ -208,7 +212,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             
                 // получить информацию алгоритма
                 MechanismInfo info = applet.GetAlgorithmInfo(API.CKM_ECDSA_KEY_PAIR_GEN); 
-            
+
                 // преобразовать тип ключа
                 return new X962.PrivateKey(this, scope, obj, ecPublicKey, info.Flags); 
             }
@@ -250,7 +254,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             {
                 // получить информацию алгоритма
                 if (info == null) info = applet.GetAlgorithmInfo(API.CKM_EC_KEY_PAIR_GEN); 
-                    
+
                 // выполнить преобразование типа
                 ANSI.X962.IPublicKey ecPublicKey = (ANSI.X962.IPublicKey) publicKey; 
 
@@ -295,7 +299,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
             {
                 // получить информацию алгоритма
                 if (info == null) info = applet.GetAlgorithmInfo(API.CKM_EC_KEY_PAIR_GEN); 
-                    
+
                 // выполнить преобразование типа
                 ANSI.X962.IPrivateKey ecPrivateKey = (ANSI.X962.IPrivateKey) privateKey; 
             

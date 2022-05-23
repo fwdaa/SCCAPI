@@ -29,7 +29,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11.X962
                 // вернуть атрибут параметров
                 return provider.CreateAttribute(API.CKA_EC_PARAMS, encodedParameters.Encoded); 
             }
-            else if ((flags & API.CKF_EC_COMPRESS) != 0)
+            else if ((flags & API.CKF_EC_COMPRESS) != 0) 
             {
                 // закодировать параметры алгоритма
                 ASN1.IEncodable encodedParameters = keyFactory.EncodeParameters(

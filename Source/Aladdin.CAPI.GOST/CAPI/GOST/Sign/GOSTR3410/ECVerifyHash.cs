@@ -5,7 +5,7 @@
     ///////////////////////////////////////////////////////////////////////
     public class ECVerifyHash : VerifyHash
     {
-        public override void Verify(IPublicKey publicKey, 
+        public void Verify(IPublicKey[] publicKeys, 
             ASN1.ISO.AlgorithmIdentifier hashParameters, byte[] hash, byte[] signature)
         {
             // проверить размер подписи
@@ -22,32 +22,19 @@
             Math.BigInteger r = Math.Convert.ToBigInteger(
                 signature, len / 2, len / 2, Math.Endian.BigEndian
             ); 
-            // преобразовать тип ключа
-            CAPI.GOST.GOSTR3410.IECPublicKey publicKeyS = 
-                (CAPI.GOST.GOSTR3410.IECPublicKey)publicKey;
-
             // получить параметры алгоритма
-            CAPI.GOST.GOSTR3410.IECParameters parameters = 
-                (CAPI.GOST.GOSTR3410.IECParameters)publicKeyS.Parameters; 
+            GOST.GOSTR3410.IECParameters parameters = 
+                (GOST.GOSTR3410.IECParameters)publicKeys[0].Parameters; 
 
             // извлечь параметры алгоритма
             EC.Curve ec = parameters.Curve; Math.BigInteger q = parameters.Order;
 
-            // извлечь параметры алгоритма
-            EC.Point P = parameters.Generator; EC.Point Q = publicKeyS.Q;
-
             // проверить корректность R
-            if (r.Signum == 0 || r.CompareTo(q) >= 0)
-            {
-                // при ошибке выбросить исключение
-                throw new SignatureException(); 
-            }
+            if (r.Signum == 0 || r.CompareTo(q) >= 0) throw new SignatureException();
+
             // проверить корректность S
-            if (s.Signum == 0 || s.CompareTo(q) >= 0)
-            {
-                // при ошибке выбросить исключение
-                throw new SignatureException(); 
-            }
+            if (s.Signum == 0 || s.CompareTo(q) >= 0) throw new SignatureException(); 
+
             // создать экспоненту
             Math.BigInteger e = Math.Convert.ToBigInteger(hash, Math.Endian.LittleEndian).Mod(q);  
 
@@ -61,14 +48,39 @@
             Math.BigInteger z1 = s.Multiply(v).Mod(q);
             Math.BigInteger z2 = q.Subtract(r).Multiply(v).Mod(q);
 
-            // выполнить вычисления
-            Math.Point<Math.BigInteger> sum = ec.MultiplySum(P, z1, Q, z2); 
+            // извлечь параметры алгоритма
+            EC.Point P = parameters.Generator; 
 
+            // преобразовать тип ключа
+            GOST.GOSTR3410.IECPublicKey publicKeyS = 
+                (GOST.GOSTR3410.IECPublicKey)publicKeys[0];
+
+            // выполнить вычисления
+            EC.Point sum = ec.MultiplySum(P, z1, publicKeyS.Q, z2); 
+
+            // для всех оставшихся ключей
+            for (int i = 1; i < publicKeys.Length; i++)
+            {
+                // преобразовать тип ключа
+                publicKeyS = (GOST.GOSTR3410.IECPublicKey)publicKeys[i];
+        
+                // выполнить вычисления
+                sum = ec.Add(sum, ec.Multiply(publicKeyS.Q, z2)); 
+            }
             // проверить корректность подписи
             if (sum.X == null) throw new SignatureException();
 
             // проверить корректность подписи
             if (!sum.X.Mod(q).Equals(r)) throw new SignatureException();
+        }
+        public override void Verify(IPublicKey publicKey, 
+            ASN1.ISO.AlgorithmIdentifier hashParameters, byte[] hash, byte[] signature)
+        {
+            // указать используемые открытые ключи
+            IPublicKey[] publicKeys = new IPublicKey[] {publicKey}; 
+        
+            // проверить подпись 
+            Verify(publicKeys, hashParameters, hash, signature); 
         }
         ////////////////////////////////////////////////////////////////////////////
         // Тест известного ответа

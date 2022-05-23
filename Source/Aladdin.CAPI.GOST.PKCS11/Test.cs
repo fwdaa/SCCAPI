@@ -41,7 +41,7 @@ namespace Aladdin.CAPI.GOST.PKCS11
                 for (int i = 0; i < sboxOIDs.Length; i++)
                 {
                     // выполнить тест
-                    TestGOST28147(applet.Provider, applet, sboxOIDs[i]);                     
+                    // TestGOST28147(applet.Provider, applet, sboxOIDs[i]);                     
                 }
             }
             // при поддержке алгоритма

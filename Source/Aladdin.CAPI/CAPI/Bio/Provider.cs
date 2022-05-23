@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Aladdin.CAPI.Bio
+﻿namespace Aladdin.CAPI.Bio
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Провайдер биометрии

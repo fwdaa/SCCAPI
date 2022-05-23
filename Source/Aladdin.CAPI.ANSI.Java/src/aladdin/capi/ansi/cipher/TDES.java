@@ -22,7 +22,7 @@ public final class TDES extends BlockCipher
     @Override public final int blockSize() { return 8; } 
         
     // получить режим шифрования
-    @Override public Cipher createBlockMode(CipherMode mode, int keyLength) throws IOException
+    @Override public Cipher createBlockMode(CipherMode mode) throws IOException
     {
         // в зависимости от режима
         if (mode instanceof CipherMode.ECB) 

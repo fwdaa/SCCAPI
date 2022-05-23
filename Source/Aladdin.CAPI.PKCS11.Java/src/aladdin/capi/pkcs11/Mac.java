@@ -54,6 +54,9 @@ public abstract class Mac extends aladdin.capi.Mac
         // получить атрибуты ключа
         keyAttributes = Attribute.join(keyAttributes, getKeyAttributes(key.length()));  
         
+    	// при необходимости закрыть старый сеанс
+		if (session != null) { session.close(); session = null; } 
+        
         // открыть сеанс
         session = applet.openSession(API.CKS_RO_PUBLIC_SESSION); 
         try {

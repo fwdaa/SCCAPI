@@ -139,22 +139,16 @@ namespace Aladdin.CAPI
                     trustScope, rand, null, keyOID, 
                     parameters, keyUsage, KeyFlags.Exportable))
                 { 
-                    // указать генератор случайных данных
-                    using (IRand importRand = new CAPI.Rand(null))
-                    { 
-                        // импортировать пару ключей
-                        return ((Container)scope).ImportKeyPair(importRand, 
-                            keyPair.PublicKey, keyPair.PrivateKey, keyUsage, keyFlags
-                        ); 
-                    }
+                    // импортировать пару ключей
+                    return ((Container)scope).ImportKeyPair(rand, 
+                        keyPair.PublicKey, keyPair.PrivateKey, keyUsage, keyFlags
+                    ); 
                 }
             }
-            else {
-                // сгенерировать пару ключей
-                return factory.GenerateKeyPair( 
-                    scope, rand, null, keyOID, parameters, keyUsage, keyFlags
-                ); 
-            } 
+            // сгенерировать пару ключей
+            else return factory.GenerateKeyPair( 
+                scope, rand, null, keyOID, parameters, keyUsage, keyFlags
+            ); 
         }
         ////////////////////////////////////////////////////////////////////////////
         // Удаление ключей
@@ -510,15 +504,17 @@ namespace Aladdin.CAPI
             using (IRand rand = new CAPI.Rand(null))
             {
                 // получить алгоритм зашифрования ключа
-                using (IKeyAgreement agreement1 = provider.CreateAlgorithm<IKeyAgreement>(
-                    keyPair.PrivateKey.Scope, keyAgreementParameters))
+                using (IKeyAgreement agreement1 = 
+                    provider.CreateAlgorithm<IKeyAgreement>(
+                        keyPair.PrivateKey.Scope, keyAgreementParameters))
                 { 
                     // проверить наличие алгоритма
                     if (agreement1 == null) return; 
 
                     // получить алгоритм расшифрования ключа
-                    using (IKeyAgreement agreement2 = factory.CreateAlgorithm<IKeyAgreement>(
-                        scope, keyAgreementParameters)) 
+                    using (IKeyAgreement agreement2 = 
+                        factory.CreateAlgorithm<IKeyAgreement>(
+                            scope, keyAgreementParameters)) 
                     {
                         // сформировать общий ключ
                         using (DeriveData kdfData = agreement1.DeriveKey(

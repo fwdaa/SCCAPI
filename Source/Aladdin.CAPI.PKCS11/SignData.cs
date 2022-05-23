@@ -42,6 +42,9 @@ namespace Aladdin.CAPI.PKCS11
 	        Attribute[] keyAttributes = new Attribute[] {
 		        applet.Provider.CreateAttribute(API.CKA_SIGN, API.CK_TRUE)
 	        }; 
+			// при необходимости закрыть старый сеанс
+			if (session != null) { session.Dispose(); session = null; } 
+
 	        // открыть сеанс
 	        session = applet.OpenSession(API.CKS_RO_USER_FUNCTIONS);  
 	        try { 
@@ -58,10 +61,8 @@ namespace Aladdin.CAPI.PKCS11
 		        // инициализировать алгоритм
 		        session.SignInit(parameters, sessionKey.Handle);
 	        }
-	        catch {
-                // закрыть сеанс
-                session.Dispose(); session = null; throw;
-            }
+			// при ошибке закрыть сеанс 
+	        catch { session.Dispose(); session = null; throw; } 
         }
 		// обработать данные
 		public override void Update(byte[] data, int dataOff, int dataLen)

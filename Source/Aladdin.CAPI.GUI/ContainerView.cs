@@ -84,7 +84,7 @@ namespace Aladdin.CAPI.GUI
 			    notAfter = certificate.NotAfter.ToString("d", CultureInfo.CurrentUICulture); 
 
                 // получить описание способа использования
-                keyUsage = Reflection.GetDescription(certificate.KeyUsage); 
+                keyUsage = Utils.GetDescription(certificate.KeyUsage); 
             }
             // при указании идентикатора ключа
             else if (keyPair.KeyID != null)

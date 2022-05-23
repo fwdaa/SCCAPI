@@ -113,6 +113,7 @@
             resources.GetString("comboFinger.Items8"),
             resources.GetString("comboFinger.Items9")});
             this.comboFinger.Name = "comboFinger";
+            this.comboFinger.SelectedIndexChanged += new System.EventHandler(this.OnFingerChanged);
             // 
             // textInfo
             // 

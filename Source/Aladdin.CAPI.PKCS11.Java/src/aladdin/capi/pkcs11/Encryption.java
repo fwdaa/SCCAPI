@@ -50,6 +50,9 @@ public class Encryption extends Transform
         keyAttributes = Attribute.join(
             keyAttributes, cipher.getKeyAttributes(key.length())
         );  
+    	// при необходимости закрыть старый сеанс
+		if (session != null) { session.close(); session = null; } 
+        
         // открыть новый сеанс
         session = cipher.applet().openSession(API.CKS_RO_PUBLIC_SESSION);
         try {

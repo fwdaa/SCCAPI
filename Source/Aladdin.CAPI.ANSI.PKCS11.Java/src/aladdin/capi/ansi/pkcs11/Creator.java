@@ -2475,7 +2475,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.useOAEP(applet)) 
+                if (applet != null && provider.useOAEP(applet, oaepParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.keyx.rsa.oaep.Encipherment(
@@ -2613,7 +2613,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.useOAEP(applet)) 
+                if (applet != null && provider.useOAEP(applet, oaepParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.keyx.rsa.oaep.Decipherment(
@@ -2754,7 +2754,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignHash(
@@ -2917,7 +2917,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyHash(
@@ -3577,7 +3577,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3623,7 +3623,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3669,7 +3669,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3715,7 +3715,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3761,7 +3761,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3807,7 +3807,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3853,7 +3853,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3899,7 +3899,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -3945,7 +3945,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.SignData(
@@ -5108,7 +5108,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5154,7 +5154,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5200,7 +5200,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5246,7 +5246,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5292,7 +5292,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5338,7 +5338,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5384,7 +5384,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5430,7 +5430,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(
@@ -5476,7 +5476,7 @@ public abstract class Creator
                 scope, algID, usage, 0))
             {
                 // проверить наличие смарт-карты
-                if (applet != null && provider.usePSS(applet)) 
+                if (applet != null && provider.usePSS(applet, pssParameters)) 
                 {
                     // вернуть найденный алгоритм
                     return new aladdin.capi.ansi.pkcs11.sign.rsa.pss.VerifyData(

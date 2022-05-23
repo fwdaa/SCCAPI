@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Security;
-using System.Security.Permissions;
 using System.Collections.Generic;
 using Aladdin.PKCS11; 
 
@@ -9,7 +7,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 	///////////////////////////////////////////////////////////////////////////
 	// Криптографический провайдер
 	///////////////////////////////////////////////////////////////////////////
-	public sealed class Provider : CAPI.ANSI.PKCS11.Provider
+	public sealed class Provider : ANSI.PKCS11.Provider
 	{
         // интерфейс вызова функций и криптографические провайдер
         private Module module; private GOST.PKCS11.Provider gostProvider;
@@ -18,7 +16,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
 		public Provider() : base("JaCarta PKCS11 Cryptographic Provider", true) 
         {
             // указать интерфейс вызова функций
-            module = Aladdin.PKCS11.Module.Create(new NativeMethods.NativeAPI()); 
+            module = Module.Create(new NativeMethods.NativeAPI()); 
 
             // создать криптографические провайдеры
             gostProvider = new GOST.PKCS11.Provider(module, Name, false); 
@@ -75,8 +73,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
             return keyOIDs.ToArray(); 
 	    }
 	    // преобразование ключей
-	    public override IPublicKey ConvertPublicKey(
-            CAPI.PKCS11.Applet applet, SessionObject obj)
+	    public override IPublicKey ConvertPublicKey(Applet applet, SessionObject obj)
         {
             // выполнить преобразование ключа
             IPublicKey publicKey = gostProvider.ConvertPublicKey(applet, obj); 
@@ -87,12 +84,11 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
             // вызвать базовую функцию
             return base.ConvertPublicKey(applet, obj); 
         }
-	    public override CAPI.PKCS11.PrivateKey ConvertPrivateKey(
+	    public override PrivateKey ConvertPrivateKey(
             SecurityObject scope, SessionObject obj, IPublicKey publicKey)
         {
             // выполнить преобразование ключа
-            CAPI.PKCS11.PrivateKey privateKey = 
-                gostProvider.ConvertPrivateKey(scope, obj, publicKey); 
+            PrivateKey privateKey = gostProvider.ConvertPrivateKey(scope, obj, publicKey); 
         
             // проверить наличие преобразования
             if (privateKey != null) return privateKey; 
@@ -101,26 +97,26 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
             return base.ConvertPrivateKey(scope, obj, publicKey); 
         }
 	    // атрибуты открытого и личного ключа
-        public override CAPI.PKCS11.Attribute[] PublicKeyAttributes(
-            CAPI.PKCS11.Applet applet, IPublicKey publicKey, MechanismInfo info) 
+        public override Attribute[] PublicKeyAttributes(
+            Applet applet, IPublicKey publicKey, MechanismInfo info) 
         {
             // получить атрибуты открытого ключа
-            CAPI.PKCS11.Attribute[] attributes = 
-                gostProvider.PublicKeyAttributes(applet, publicKey, info); 
-        
+            Attribute[] attributes = gostProvider.PublicKeyAttributes(
+                applet, publicKey, info
+            ); 
             // проверить наличие атрибутов
             if (attributes != null) return attributes; 
             
             // вызвать базовую функцию
             return base.PublicKeyAttributes(applet, publicKey, info); 
         }
-        public override CAPI.PKCS11.Attribute[] PrivateKeyAttributes(
-            CAPI.PKCS11.Applet applet, IPrivateKey privateKey, MechanismInfo info)
+        public override Attribute[] PrivateKeyAttributes(
+            Applet applet, IPrivateKey privateKey, MechanismInfo info)
         {
             // получить атрибуты личного ключа
-            CAPI.PKCS11.Attribute[] attributes = 
-                gostProvider.PrivateKeyAttributes(applet, privateKey, info); 
-        
+            Attribute[] attributes = gostProvider.PrivateKeyAttributes(
+                applet, privateKey, info
+            ); 
             // проверить наличие атрибутов
             if (attributes != null) return attributes; 
             
@@ -128,11 +124,11 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
             return base.PrivateKeyAttributes(applet, privateKey, info); 
         }
 	    // атрибуты симметричного ключа
-	    public override CAPI.PKCS11.Attribute[] SecretKeyAttributes(
+	    public override Attribute[] SecretKeyAttributes(
             SecretKeyFactory keyFactory, int keySize, bool hasValue) 
         { 
             // получить атрибуты симметричного ключа 
-            CAPI.PKCS11.Attribute[] attributes = gostProvider.SecretKeyAttributes(
+            Attribute[] attributes = gostProvider.SecretKeyAttributes(
                 keyFactory, keySize, hasValue
             ); 
             // проверить наличие атрибутов
@@ -158,7 +154,7 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
         }
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(
-            CAPI.Factory factory, SecurityStore scope, 
+            Factory factory, SecurityStore scope, 
 		    String oid, ASN1.IEncodable parameters, Type type)
         {
             // для алгоритмов ассиметричного шифрования

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Security;
 
 namespace Aladdin.CAPI.PKCS11.Athena
 {
@@ -39,7 +38,7 @@ namespace Aladdin.CAPI.PKCS11.Athena
 				{ 
     				// для всех размеров ключей
 					for (int i = 0; i < rsaBits.Length; i++)
-        			{
+        			try {
 						// выполнить тестирование
 						ANSI.Test.TestRSA(provider, container, rand, 
 							true, KeyFlags.None, rsaBits[i], KeySizes.Range(8, 32, 8)
@@ -48,12 +47,14 @@ namespace Aladdin.CAPI.PKCS11.Athena
 							false, KeyFlags.None, rsaBits[i], KeySizes.Range(8, 32, 8)
 						); 
 					}
+					catch (System.Exception ex) { System.Console.WriteLine(ex); }
+					
  					// для всех наборов параметров
 					for (int i = 0; i < ecOIDs.Length; i++)
 					try {
 						// выполнить тестирование
-						ANSI.Test.TestEC(provider, container, rand, true,  KeyFlags.None, ecOIDs[i]); 
-						ANSI.Test.TestEC(provider, container, rand, false, KeyFlags.None, ecOIDs[i]); 
+						ANSI.Test.TestEC(provider, container, rand, true,  KeyFlags.None, ecOIDs[i]); // CKR_DOMAIN_PARAMS_INVALID ?
+						ANSI.Test.TestEC(provider, container, rand, false, KeyFlags.None, ecOIDs[i]); // CKR_DOMAIN_PARAMS_INVALID ?
 					}
 					catch (System.Exception ex) { System.Console.WriteLine(ex); }
 				}
@@ -75,14 +76,16 @@ namespace Aladdin.CAPI.PKCS11.Athena
 				// найти смарт-карту (Laser)
 				using (SecurityStore store = (SecurityStore)selector.OpenObject(
 					provider, Scope.System,  
-					"ARDS JaCarta 0\\CNS", FileAccess.ReadWrite
-					// "ARDS JaCarta 0\\JaCarta Laser", FileAccess.ReadWrite
+					"Athena IDProtect Key 0\\JaCarta", FileAccess.ReadWrite		// "Qq12345678" 
+					// "ARDS JaCarta 0\\CNS", FileAccess.ReadWrite				// "1234567890" 
+					// "ARDS JaCarta 0\\JaCarta Laser", FileAccess.ReadWrite	// "1234567890" 
 				)) { 
                     // получить список алгоритмов
                     ulong[] algIDs = ((Applet)store).Algorithms; 
 
                     // указать способ аутентификации
-                    store.Authentication = new Auth.PasswordCredentials("USER", "1234567890");
+                    store.Authentication = new Auth.PasswordCredentials("USER", "Qq12345678");
+                    // store.Authentication = new Auth.PasswordCredentials("USER", "1234567890");
 
 				    // выполнить аутентификацию
 				    string storeName = store.FullName; store.Authenticate(); 

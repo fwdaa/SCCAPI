@@ -50,11 +50,11 @@ namespace Aladdin.CAPI.GUI
             [STAThread]
             public override void ThreadProc(Remoting.IBackgroundTask task, DoWorkEventArgs args)
             {
-                // выполнить преобразование типа
-                IWin32Window window = (IWin32Window)task.LocalHandler; 
+                // извлечь описатель окна
+                IntPtr hwnd = Aladdin.GUI.Win32Window.GetHandle((Form)task.LocalHandler); 
 
                 // создать прокси для объекта
-                object proxy = Proxy.Windows.WndClientProxy.Create(obj, window.Handle, 0x400); 
+                object proxy = Proxy.Windows.WndClientProxy.Create(obj, hwnd, 0x400); 
 
                 // выполнить локальное отображение диалога
                 args.Result = authentication.LocalAuthenticate((SecurityObject)proxy); 

@@ -50,6 +50,9 @@ namespace Aladdin.CAPI.PKCS11
 	        // получить атрибуты ключа
 	        keyAttributes = Attribute.Join(keyAttributes, GetKeyAttributes(key.Length)); 
 
+			// при необходимости закрыть старый сеанс
+			if (session != null) { session.Dispose(); session = null; } 
+
 	        // открыть сеанс
 	        session = applet.OpenSession(API.CKS_RO_PUBLIC_SESSION); 
 	        try {
@@ -63,10 +66,8 @@ namespace Aladdin.CAPI.PKCS11
 		        // инициализировать алгоритм
 		        session.SignInit(parameters, sessionKey.Handle); total = 0; 
 	        }
-	        catch { 
-                // закрыть сеанс
-                session.Dispose(); session = null; throw;
-            }
+			// при ошибке закрыть сеанс 
+	        catch { session.Dispose(); session = null; throw; } 
         }
 		// захэшировать данные
 		public override void Update(byte[] data, int dataOff, int dataLen)

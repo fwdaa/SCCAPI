@@ -100,38 +100,76 @@ public class Session extends RefObject
 		// вернуть созданный объект
 		return new SessionObject(this, hObject); 
     }
-	// создать пару ассиметричных ключей
-	public final SessionObject[] generateKeyPair(Mechanism parameters, 
-		Attribute[] requiredPublicAttributes, Attribute[] requiredPrivateAttributes, 
-        Attribute[] optionalPublicAttributes, Attribute[] optionalPrivateAttributes) 
-        throws Exception			
-	{
-        // проверить наличие атрибутов
-        if (optionalPublicAttributes  == null) optionalPublicAttributes  = new Attribute[0]; 
-        if (optionalPrivateAttributes == null) optionalPrivateAttributes = new Attribute[0]; 
+    // сгенерировать пару ключей
+	public final SessionObject[] generateKeyPair(Mechanism parameters,
+        KeyUsage keyUsage, Attribute[] publicAttributes, 
+        Attribute[] privateAttributes) throws IOException
+    {
+        // создать списки атрибутов
+        List<Attribute> requiredPublicAttributes  = new ArrayList<Attribute>(
+            Arrays.asList(publicAttributes)
+        ); 
+        List<Attribute> requiredPrivateAttributes = new ArrayList<Attribute>(
+            Arrays.asList(privateAttributes)
+        ); 
+        // указать классы объектов
+        requiredPublicAttributes .add(new Attribute(API.CKA_CLASS, API.CKO_PUBLIC_KEY ));
+        requiredPrivateAttributes.add(new Attribute(API.CKA_CLASS, API.CKO_PRIVATE_KEY));
 
+        // в зависимости от использования ключа
+        if ((keyUsage.containsAny(KeyUsage.DIGITAL_SIGNATURE | 
+            KeyUsage.CERTIFICATE_SIGNATURE | KeyUsage.CRL_SIGNATURE | KeyUsage.NON_REPUDIATION))) 
+        {
+            // указать значения атрибутов
+            requiredPrivateAttributes.add(new Attribute(API.CKA_SIGN   , API.CK_TRUE));  
+            requiredPublicAttributes .add(new Attribute(API.CKA_VERIFY , API.CK_TRUE));  
+        }
+        // в зависимости от использования ключа
+        if ((keyUsage.contains(KeyUsage.KEY_ENCIPHERMENT))) 
+        {
+            // указать значения атрибутов
+            requiredPrivateAttributes.add(new Attribute(API.CKA_UNWRAP, API.CK_TRUE));  
+            requiredPublicAttributes .add(new Attribute(API.CKA_WRAP  , API.CK_TRUE)); 
+        }
+        if ((keyUsage.contains(KeyUsage.KEY_AGREEMENT))) 
+        {
+            // указать значения атрибутов
+            requiredPrivateAttributes.add(new Attribute(API.CKA_DERIVE , API.CK_TRUE));  
+            requiredPublicAttributes .add(new Attribute(API.CKA_DERIVE , API.CK_TRUE));  
+        }
+		// создать необязательные атрибуты
+		List<Attribute> optionalPublicAttributes  = new ArrayList<Attribute>(); 
+		List<Attribute> optionalPrivateAttributes = new ArrayList<Attribute>(); 
+        
+        // в зависимости от использования ключа
+        if ((keyUsage.contains(KeyUsage.DATA_ENCIPHERMENT))) 
+        {
+            // указать значения атрибутов
+            optionalPrivateAttributes.add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE)); 
+            optionalPublicAttributes .add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
+        }
 		// создать список атрибутов
-		List<Attribute> publicAttributes  = new ArrayList<Attribute>(); 
-		List<Attribute> privateAttributes = new ArrayList<Attribute>(); 
+		List<Attribute> pubAttributes  = new ArrayList<Attribute>(); 
+		List<Attribute> privAttributes = new ArrayList<Attribute>(); 
         
 		// указать обязательные атрибуты
-		publicAttributes .addAll(Arrays.asList(requiredPublicAttributes )); 
-		privateAttributes.addAll(Arrays.asList(requiredPrivateAttributes)); 
+		pubAttributes .addAll(requiredPublicAttributes ); 
+		privAttributes.addAll(requiredPrivateAttributes); 
         
 		// указать необязательные атрибуты
-		publicAttributes .addAll(Arrays.asList(optionalPublicAttributes )); 
-		privateAttributes.addAll(Arrays.asList(optionalPrivateAttributes)); 
+		pubAttributes .addAll(optionalPublicAttributes ); 
+		privAttributes.addAll(optionalPrivateAttributes); 
         
 		// выделить память для результата
 		SessionObject[] objects = new SessionObject[2]; 
         try { 
             // преобразовать атрибуты
             CK_ATTRIBUTE[] publicAttrs  = Attribute.convert(
-                publicAttributes.toArray(new Attribute[publicAttributes.size()])
+                pubAttributes.toArray(new Attribute[pubAttributes.size()])
             ); 
             // преобразовать атрибуты
             CK_ATTRIBUTE[] privateAttrs = Attribute.convert(
-                privateAttributes.toArray(new Attribute[privateAttributes.size()])
+                privAttributes.toArray(new Attribute[privAttributes.size()])
             ); 
             // создать пару ассиметричных ключей
             long[] hObjects = module.generateKeyPair(
@@ -147,13 +185,18 @@ public class Session extends RefObject
             if (e.getErrorCode() != API.CKR_ATTRIBUTE_TYPE_INVALID) throw e; 
 
 			// проверить наличие необязательных атрибутов
-			if (optionalPublicAttributes .length == 0 && 
-				optionalPrivateAttributes.length == 0) throw e; 
+			if (optionalPublicAttributes .isEmpty() && 
+				optionalPrivateAttributes.isEmpty()) throw e; 
 
             // преобразовать атрибуты
-            CK_ATTRIBUTE[] publicAttrs  = Attribute.convert(requiredPublicAttributes ); 
-            CK_ATTRIBUTE[] privateAttrs = Attribute.convert(requiredPrivateAttributes); 
-            
+            CK_ATTRIBUTE[] publicAttrs  = Attribute.convert(
+                requiredPublicAttributes.toArray(
+                    new Attribute[requiredPublicAttributes.size()]
+            )); 
+            CK_ATTRIBUTE[] privateAttrs = Attribute.convert(
+                requiredPrivateAttributes.toArray(
+                    new Attribute[requiredPrivateAttributes.size()]
+            )); 
             // создать пару ассиметричных ключей
             long[] hObjects = module.generateKeyPair(
                 hSession, parameters.convert(), publicAttrs, privateAttrs); 
@@ -162,64 +205,6 @@ public class Session extends RefObject
             objects[0] = new SessionObject(this, hObjects[0]); 
             objects[1] = new SessionObject(this, hObjects[1]); return objects; 
         }
-	}
-    // сгенерировать пару ключей
-	public final SessionObject[] generateKeyPair(Mechanism parameters,
-        KeyUsage keyUsage, Attribute[] publicAttributes, 
-        Attribute[] privateAttributes) throws IOException
-    {
-        // создать списки атрибутов
-        List<Attribute> pubAttributes  = new ArrayList<Attribute>(
-            Arrays.asList(publicAttributes)
-        ); 
-        List<Attribute> privAttributes = new ArrayList<Attribute>(
-            Arrays.asList(privateAttributes)
-        ); 
-        // указать классы объектов
-        pubAttributes .add(new Attribute(API.CKA_CLASS, API.CKO_PUBLIC_KEY ));
-        privAttributes.add(new Attribute(API.CKA_CLASS, API.CKO_PRIVATE_KEY));
-
-        // в зависимости от использования ключа
-        if ((keyUsage.containsAny(KeyUsage.DIGITAL_SIGNATURE | 
-            KeyUsage.CERTIFICATE_SIGNATURE | KeyUsage.CRL_SIGNATURE | KeyUsage.NON_REPUDIATION))) 
-        {
-            // указать значения атрибутов
-            privAttributes.add(new Attribute(API.CKA_SIGN   , API.CK_TRUE));  
-            pubAttributes .add(new Attribute(API.CKA_VERIFY , API.CK_TRUE));  
-        }
-        // в зависимости от использования ключа
-        if ((keyUsage.contains(KeyUsage.KEY_ENCIPHERMENT))) 
-        {
-            // указать значения атрибутов
-            pubAttributes .add(new Attribute(API.CKA_WRAP  , API.CK_TRUE)); 
-            privAttributes.add(new Attribute(API.CKA_UNWRAP, API.CK_TRUE));  
-        }
-        if ((keyUsage.contains(KeyUsage.KEY_AGREEMENT))) 
-        {
-            // указать значения атрибутов
-            privAttributes.add(new Attribute(API.CKA_DERIVE , API.CK_TRUE));  
-            pubAttributes .add(new Attribute(API.CKA_DERIVE , API.CK_TRUE));  
-        }
-        // сохранить списки атрибутов
-        publicAttributes  = pubAttributes .toArray(new Attribute[pubAttributes .size()]); 
-        privateAttributes = privAttributes.toArray(new Attribute[privAttributes.size()]);
-        
-		// создать необязательные атрибуты
-		List<Attribute> optionalPubAttributes  = new ArrayList<Attribute>(); 
-		List<Attribute> optionalPrivAttributes = new ArrayList<Attribute>(); 
-        
-        // в зависимости от использования ключа
-        if ((keyUsage.contains(KeyUsage.DATA_ENCIPHERMENT))) 
-        {
-            // указать значения атрибутов
-            optionalPubAttributes .add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
-            optionalPrivAttributes.add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE)); 
-        }
-        // сгенерировать пару ключей
-        return generateKeyPair(parameters, publicAttributes, privateAttributes, 
-            optionalPubAttributes .toArray(new Attribute[optionalPubAttributes .size()]), 
-            optionalPrivAttributes.toArray(new Attribute[optionalPrivAttributes.size()])
-        );
     }
 	///////////////////////////////////////////////////////////////////////////
 	// Управление объектами

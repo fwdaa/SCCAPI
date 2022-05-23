@@ -1633,7 +1633,7 @@ namespace Aladdin.CAPI.ANSI
             using (CAPI.Hash hashAlgorithm = keyPair.PrivateKey.Factory.
                 CreateAlgorithm<CAPI.Hash>(keyPair.PrivateKey.Scope, hashParameters)) 
             {
-                // вычислить максимальный размер данных
+                // вычислить максимальный размер данных 
                 int dataSize = MaxDataSizeRSA_OAEP(keyPair.PublicKey, 32); 
             
                 // при поддержке алгоритма
@@ -1719,13 +1719,35 @@ namespace Aladdin.CAPI.ANSI
             IRand rand, bool generate, KeyFlags keyFlags)
         {
             WriteLine("DSA/EPHEMERAL");
-
+            TestDSA(factory, scope, rand, 
+                ASN1.ANSI.X957.DssParms.Ephemeral, generate, keyFlags
+            ); 
+            WriteLine();
+            WriteLine("DSA/JCA512");
+            TestDSA(factory, scope, rand, 
+                ASN1.ANSI.X957.DssParms.JCA512, generate, keyFlags
+            ); 
+            WriteLine();
+            WriteLine("DSA/JCA768");
+            TestDSA(factory, scope, rand, 
+                ASN1.ANSI.X957.DssParms.JCA768, generate, keyFlags
+            ); 
+            WriteLine();
+            WriteLine("DSA/JCA1024");
+            TestDSA(factory, scope, rand, 
+                ASN1.ANSI.X957.DssParms.JCA1024, generate, keyFlags
+            ); 
+            WriteLine();
+        }
+        public static void TestDSA(CAPI.Factory factory, SecurityObject scope,
+            IRand rand, ASN1.IEncodable encodable, bool generate, KeyFlags keyFlags)
+        {
             // указать идентификатор ключа
             String keyOID = ASN1.ANSI.OID.x957_dsa; 
         
             // указать способ использования ключа
             KeyUsage keyUsage = KeyUsage.DigitalSignature; 
-        
+
             // указать доверенную фабрику
             using (CAPI.Factory trustFactory = new ANSI.Factory()) 
             { 
@@ -1733,9 +1755,8 @@ namespace Aladdin.CAPI.ANSI
                 KeyFactory keyFactory = trustFactory.GetKeyFactory(keyOID); 
 
                 // раскодировать параметры алгоритма
-                IParameters parameters = keyFactory.DecodeParameters(
-                    ASN1.ANSI.X957.DssParms.Ephemeral
-                ); 
+                IParameters parameters = keyFactory.DecodeParameters(encodable); 
+
                 // сгенерировать ключевую пару
                 using (KeyPair keyPair = GenerateKeyPair(
                     factory, scope, rand, trustFactory, null, generate, 
@@ -1747,7 +1768,6 @@ namespace Aladdin.CAPI.ANSI
                 // удалить ключи контейнера
                 finally { DeleteKeys(scope); }
             }
-            WriteLine();
         }
         public static void TestDSA(CAPI.Factory factory, 
             SecurityStore scope, KeyPair keyPair, KeyFlags keyFlags)
@@ -1864,7 +1884,14 @@ namespace Aladdin.CAPI.ANSI
             IRand rand, bool generate, KeyFlags keyFlags)
         {
             WriteLine("DH/EPHEMERAL");
-
+            TestDH(factory, scope, rand, 
+                ASN1.ANSI.X942.DomainParameters.Ephemeral, generate, keyFlags
+            ); 
+            WriteLine();        
+        }
+        public static void TestDH(CAPI.Factory factory, SecurityObject scope,
+            IRand rand, ASN1.IEncodable encodable, bool generate, KeyFlags keyFlags)
+        {
             // указать идентификатор ключа
             String keyOID = ASN1.ANSI.OID.x942_dh_public_key; 
         
@@ -1878,8 +1905,8 @@ namespace Aladdin.CAPI.ANSI
                 KeyUsage keyUsage = KeyUsage.KeyAgreement; 
         
                 // раскодировать параметры алгоритма
-                IParameters parameters = keyFactory.DecodeParameters(
-                    ASN1.ANSI.X942.DomainParameters.Ephemeral
+                IParameters parameters = keyFactory.DecodeParameters(encodable
+                    // ASN1.ANSI.X942.DomainParameters.Ephemeral
                 ); 
                 // сгенерировать ключевую пару
                 using (KeyPair keyPair = GenerateKeyPair(
@@ -1892,7 +1919,6 @@ namespace Aladdin.CAPI.ANSI
                 // удалить ключи контейнера
                 finally { DeleteKeys(scope); }
             }
-            WriteLine();        
         }
         public static void TestDH(CAPI.Factory factory, SecurityStore scope, 
             KeyPair keyPair, KeyFlags keyFlags)

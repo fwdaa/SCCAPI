@@ -13,26 +13,20 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////
 public class ECSignHash extends SignHash
 {
-    @Override public byte[] sign(aladdin.capi.IPrivateKey privateKey, IRand rand, 
-        AlgorithmIdentifier hashParameters, byte[] hash) throws IOException
+    public byte[] sign(IPrivateKey[] privateKeys, 
+        IRand rand, AlgorithmIdentifier hashParameters, byte[] hash) throws IOException
     {
-        // преобразовать тип ключа
-        IECPrivateKey privateKeyS = (IECPrivateKey)privateKey;
-
-        // получить параметры алгоритма
-        IECParameters parameters = (IECParameters)privateKeyS.parameters(); 
-
+        // выполнить преобразование типа 
+        IECParameters ecParameters = (IECParameters)privateKeys[0].parameters(); 
+            
         // извлечь параметры алгоритма
-        ECPoint P = parameters.getGenerator(); BigInteger q = parameters.getOrder();
+        ECPoint P = ecParameters.getGenerator(); BigInteger q = ecParameters.getOrder();
 
-        // извлечь секретное значение
-        BigInteger d = privateKeyS.getS(); int bitsQ = q.bitLength();
-        
         // создать экспоненту
         BigInteger e = Convert.toBigInteger(hash, Endian.LITTLE_ENDIAN).mod(q);  
 
         // обработать частный случай
-        if (e.signum() == 0) e = BigInteger.ONE; 
+        if (e.signum() == 0) e = BigInteger.ONE; int bitsQ = q.bitLength();
             
         // указать начальные условия
         BigInteger r = BigInteger.ZERO; BigInteger s = BigInteger.ZERO; 
@@ -50,10 +44,20 @@ public class ECSignHash extends SignHash
                 while (k.signum() == 0) { k = new BigInteger(bitsQ, random); }
                 
                 // вычислить параметр R подписи
-                r = parameters.getCurve().multiply(P, k).getAffineX().mod(q);
-
-                // вычислить параметр S подписи
-                s = (k.multiply(e)).add(d.multiply(r)).mod(q);
+                r = ecParameters.getCurve().multiply(P, k).getAffineX().mod(q);
+                
+                // вычислить k*e (mod q)
+                s = k.multiply(e).mod(q);
+                
+                // для всех ключей 
+                for (int i = 0; i < privateKeys.length; i++)
+                {
+                    // преобразовать тип ключа
+                    IECPrivateKey privateKeyS = (IECPrivateKey)privateKeys[i];
+                    
+                    // вычислить параметр S подписи
+                    s = s.add(privateKeyS.getS().multiply(r)).mod(q);
+                }
             }
         }
         // выделить память для подписи
@@ -64,6 +68,69 @@ public class ECSignHash extends SignHash
         Convert.fromBigInteger(r, Endian.BIG_ENDIAN, signature, len / 2, len / 2); 
             
         return signature;
+    }
+    @Override public byte[] sign(IPrivateKey privateKey, IRand rand, 
+        AlgorithmIdentifier hashParameters, byte[] hash) throws IOException
+    {
+        // указать используемые личные ключи
+        IPrivateKey[] privateKeys = new IPrivateKey[] {privateKey}; 
+        
+        // вычислить подпись 
+        return sign(privateKeys, rand, hashParameters, hash); 
+    }
+    ////////////////////////////////////////////////////////////////////////////
+    // Тест одновременного подписывания 
+    ////////////////////////////////////////////////////////////////////////////
+    public static void circleTest(Factory trustFactory, String keyOID, 
+        IParameters parameters, AlgorithmIdentifier hashParameters) throws Exception
+    {
+        // указать способ использования ключа
+        KeyUsage keyUsage = new KeyUsage(KeyUsage.DIGITAL_SIGNATURE); byte[] hash; byte[] signature; 
+        
+        // получить алгоритм хэширования
+        try (Hash hashAlgorithm = (Hash)trustFactory.createAlgorithm(
+            null, hashParameters, Hash.class)) 
+        {
+            // выделить память для хэш-значения
+            hash = new byte[hashAlgorithm.hashSize()]; 
+        }
+        // указать генератор случайных данных
+        try (IRand rand = new aladdin.capi.Rand(null))
+        {
+            // сгенерировать ключевую пару
+            try (KeyPair keyPair1 = trustFactory.generateKeyPair(
+                null, rand, null, keyOID, parameters, keyUsage, KeyFlags.NONE))
+            {
+                // сгенерировать ключевую пару
+                try (KeyPair keyPair2 = trustFactory.generateKeyPair(
+                    null, rand, null, keyOID, parameters, keyUsage, KeyFlags.NONE)) 
+                {
+                    // указать список личных ключей
+                    IPrivateKey[] privateKeys = new IPrivateKey[] {
+                        keyPair1.privateKey, keyPair2.privateKey
+                    }; 
+                    // указать список открытых ключей
+                    IPublicKey[] publicKeys = new IPublicKey[] {
+                        keyPair1.publicKey, keyPair2.publicKey
+                    }; 
+                    // сгенерировать хэш-значение
+                    rand.generate(hash, 0, hash.length);
+                    
+                    // получить алгоритм выработки подписи
+                    try (ECSignHash signHash = new ECSignHash()) 
+                    {
+                        // подписать хэш-значение
+                        signature = signHash.sign(privateKeys, rand, hashParameters, hash); 
+                    }
+                    // получить алгоритм проверки подписи
+                    try (ECVerifyHash verifyHash = new ECVerifyHash()) 
+                    {
+                        // проверить подпись хэш-значения
+                        verifyHash.verify(publicKeys, hashParameters, hash, signature); 
+                    }
+                }
+            }
+        }
     }
     ////////////////////////////////////////////////////////////////////////////
     // Тест известного ответа

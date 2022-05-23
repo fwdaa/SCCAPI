@@ -83,7 +83,7 @@ namespace Aladdin.CAPI.GOST.Cipher
             }
         }
         // создать алгоритм вычисления имитовставки
-        public static Mac CreateOMAC(CAPI.Factory factory, SecurityStore scope, int blockSize)
+        public static Mac CreateOMAC(CAPI.Factory factory, SecurityStore scope, int blockSize, int macSize)
         {
             // указать имя алгоритма
             String name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
@@ -96,7 +96,7 @@ namespace Aladdin.CAPI.GOST.Cipher
                 if (blockCipher == null) return null; byte[] start = new byte[blockSize]; 
             
                 // создать алгоритм выработки имитовставки
-                return CAPI.MAC.OMAC1.Create(blockCipher, start); 
+                return CAPI.MAC.OMAC1.Create(blockCipher, start, macSize); 
             }
         }
         // конструктор

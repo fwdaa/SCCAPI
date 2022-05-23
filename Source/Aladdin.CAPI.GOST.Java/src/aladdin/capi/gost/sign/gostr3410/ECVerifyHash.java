@@ -14,7 +14,7 @@ import java.math.*;
 ///////////////////////////////////////////////////////////////////////
 public class ECVerifyHash extends VerifyHash
 {
-    @Override public void verify(aladdin.capi.IPublicKey publicKey, 
+    public void verify(IPublicKey[] publicKeys, 
         AlgorithmIdentifier hashParameters, byte[] hash, 
         byte[] signature) throws SignatureException
     {
@@ -24,33 +24,22 @@ public class ECVerifyHash extends VerifyHash
             // при ошибке выбросить исключение
             throw new SignatureException(); 
         }
+        // выполнить преобразование типа
+        IECParameters ecParameters = (IECParameters)publicKeys[0].parameters(); 
+
+        // извлечь части подписи
         BigInteger s = Convert.toBigInteger(signature,       0, len / 2, Endian.BIG_ENDIAN); 
         BigInteger r = Convert.toBigInteger(signature, len / 2, len / 2, Endian.BIG_ENDIAN); 
         
-        // преобразовать тип ключа
-        IECPublicKey publicKeyS = (IECPublicKey)publicKey;
-
-        // получить параметры алгоритма
-        IECParameters parameters = (IECParameters)publicKeyS.parameters(); 
-
         // извлечь параметры алгоритма
-        Curve ec = parameters.getCurve(); BigInteger q = parameters.getOrder();
+        Curve ec = ecParameters.getCurve(); BigInteger q = ecParameters.getOrder();
 
-        // извлечь параметры алгоритма
-        ECPoint P = parameters.getGenerator(); ECPoint Q = publicKeyS.getW();
-        
         // проверить корректность R
-        if (r.signum() == 0 || r.compareTo(q) >= 0)
-        {
-            // при ошибке выбросить исключение
-            throw new SignatureException(); 
-        }
+        if (r.signum() == 0 || r.compareTo(q) >= 0) throw new SignatureException();
+        
         // проверить корректность S
-        if (s.signum() == 0 || s.compareTo(q) >= 0)
-        {
-            // при ошибке выбросить исключение
-            throw new SignatureException(); 
-        }
+        if (s.signum() == 0 || s.compareTo(q) >= 0) throw new SignatureException(); 
+        
         // создать экспоненту
         BigInteger e = Convert.toBigInteger(hash, Endian.LITTLE_ENDIAN).mod(q);  
 
@@ -64,14 +53,39 @@ public class ECVerifyHash extends VerifyHash
         BigInteger z1 = s.multiply(v).mod(q);
         BigInteger z2 = q.subtract(r).multiply(v).mod(q);
         
+        // извлечь параметры алгоритма
+        ECPoint P = ecParameters.getGenerator(); 
+        
+        // преобразовать тип ключа
+        IECPublicKey publicKeyS = (IECPublicKey)publicKeys[0];
+        
         // выполнить вычисления
-        ECPoint sum = ec.multiply_sum(P, z1, Q, z2); 
-
+        ECPoint sum = ec.multiply_sum(P, z1, publicKeyS.getW(), z2); 
+        
+        // для всех оставшихся ключей
+        for (int i = 1; i < publicKeys.length; i++)
+        {
+            // преобразовать тип ключа
+            publicKeyS = (IECPublicKey)publicKeys[i];
+        
+            // выполнить вычисления
+            sum = ec.add(sum, ec.multiply(publicKeyS.getW(), z2)); 
+        }
         // проверить корректность подписи
         if (sum == ECPoint.POINT_INFINITY) throw new SignatureException();
         
         // проверить корректность подписи
         if (!sum.getAffineX().mod(q).equals(r)) throw new SignatureException();
+    }
+    @Override public void verify(IPublicKey publicKey, 
+        AlgorithmIdentifier hashParameters, byte[] hash, 
+        byte[] signature) throws SignatureException
+    {
+        // указать используемые открытые ключи
+        IPublicKey[] publicKeys = new IPublicKey[] {publicKey}; 
+        
+        // проверить подпись 
+        verify(publicKeys, hashParameters, hash, signature); 
     }
     ////////////////////////////////////////////////////////////////////////////
     // Тест известного ответа

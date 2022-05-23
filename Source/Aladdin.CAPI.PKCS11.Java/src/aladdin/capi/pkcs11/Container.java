@@ -236,10 +236,10 @@ public class Container extends aladdin.capi.Container
             ); 
             // преобразовать открытый ключ
             publicKey = provider().convertPublicKey(store(), objs[0]); 
-            
+
             // проверить поддержку ключа
             if (publicKey == null) throw new UnsupportedOperationException(); 
-            
+
             // преобразовать личный ключ
             try (IPrivateKey newPrivateKey = provider().convertPrivateKey(
                 this, objs[1], publicKey))

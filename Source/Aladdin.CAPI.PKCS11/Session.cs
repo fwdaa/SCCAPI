@@ -90,29 +90,61 @@ namespace Aladdin.CAPI.PKCS11
 	        // вернуть созданный объект
 	        return new SessionObject(this, hObject); 
         }
-	    // создать пару ассиметричных ключей
-	    public SessionObject[] GenerateKeyPair(Mechanism parameters, 
-            Attribute[] requiredPublicAttributes, Attribute[] requiredPrivateAttributes, 
-			Attribute[] optionalPublicAttributes, Attribute[] optionalPrivateAttributes)
+		// сгенерировать пару ключей
+		public SessionObject[] GenerateKeyPair(Mechanism parameters, KeyUsage keyUsage, 
+            Attribute[] publicAttributes, Attribute[] privateAttributes)
         {
-	        // проверить наличие атрибутов
-	        if (optionalPublicAttributes  == null) optionalPublicAttributes  = new Attribute[0]; 
-	        if (optionalPrivateAttributes == null) optionalPrivateAttributes = new Attribute[0]; 
+	        // создать списки атрибутов
+	        List<Attribute> requiredPublicAttributes  = new List<Attribute>(publicAttributes ); 
+	        List<Attribute> requiredPrivateAttributes = new List<Attribute>(privateAttributes); 
 
+	        // определить значения атрибутов
+	        if (KeyUsage.None != (keyUsage & (KeyUsage.DigitalSignature | 
+		        KeyUsage.CertificateSignature | KeyUsage.CrlSignature | KeyUsage.NonRepudiation)))
+            {
+	            // указать значения атрибутов
+	            requiredPrivateAttributes.Add(new Attribute(API.CKA_SIGN  , API.CK_TRUE));  
+	            requiredPublicAttributes .Add(new Attribute(API.CKA_VERIFY, API.CK_TRUE));  
+            }
+	        // определить значения атрибутов
+	        if (KeyUsage.None != (keyUsage &  KeyUsage.KeyEncipherment))
+            {
+	            // указать значения атрибутов
+	            requiredPrivateAttributes.Add(new Attribute(API.CKA_UNWRAP, API.CK_TRUE));  
+	            requiredPublicAttributes .Add(new Attribute(API.CKA_WRAP  , API.CK_TRUE));  
+            }
+	        // определить значения атрибутов
+	        if (KeyUsage.None != (keyUsage &  KeyUsage.KeyAgreement))
+            {
+	            // указать значения атрибутов
+	            requiredPrivateAttributes.Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
+	            requiredPublicAttributes .Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
+            }
+			// создать необязательные атрибуты
+			List<Attribute> optionalPublicAttributes  = new List<Attribute>(); 
+			List<Attribute> optionalPrivateAttributes = new List<Attribute>(); 
+
+            // определить значения атрибутов
+            if (KeyUsage.None != (keyUsage &  KeyUsage.DataEncipherment))
+            {  
+                // указать значения атрибутов
+                optionalPrivateAttributes.Add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
+                optionalPublicAttributes .Add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
+			}
 			// создать список атрибутов
-			List<Attribute> publicAttributes  = new List<Attribute>(requiredPublicAttributes ); 
-			List<Attribute> privateAttributes = new List<Attribute>(requiredPrivateAttributes); 
+			List<Attribute> privAttributes = new List<Attribute>(requiredPrivateAttributes); 
+			List<Attribute> pubAttributes  = new List<Attribute>(requiredPublicAttributes ); 
 
 			// указать необязательные атрибуты
-			publicAttributes .AddRange(optionalPublicAttributes ); 
-			privateAttributes.AddRange(optionalPrivateAttributes); 
+			privAttributes.AddRange(optionalPrivateAttributes); 
+			pubAttributes .AddRange(optionalPublicAttributes ); 
 
 	        // выделить память для результата
 	        SessionObject[] objects = new SessionObject[2]; 
 			try {  	
 				// создать пару ассиметричных ключей
 				UInt64[] hObjects = module.GenerateKeyPair(hSession, parameters, 
-					publicAttributes.ToArray(), privateAttributes.ToArray()
+					pubAttributes.ToArray(), privAttributes.ToArray()
 				); 
 				// вернуть созданные объекты
 				objects[0] = new SessionObject(this, hObjects[0]); 
@@ -125,63 +157,17 @@ namespace Aladdin.CAPI.PKCS11
 				if (e.ErrorCode != API.CKR_ATTRIBUTE_TYPE_INVALID) throw; 
 
 				// проверить наличие необязательных атрибутов
-				if (optionalPublicAttributes .Length == 0 && 
-					optionalPrivateAttributes.Length == 0) throw; 
+				if (optionalPublicAttributes .Count == 0 && 
+					optionalPrivateAttributes.Count == 0) throw; 
 
 				// создать пару ассиметричных ключей
 				UInt64[] hObjects = module.GenerateKeyPair(hSession, parameters, 
-					requiredPublicAttributes, requiredPrivateAttributes
+					requiredPublicAttributes.ToArray(), requiredPrivateAttributes.ToArray()
 				); 
 				// вернуть созданные объекты
 				objects[0] = new SessionObject(this, hObjects[0]); 
 				objects[1] = new SessionObject(this, hObjects[1]); return objects; 
 			}
-        }
-		// сгенерировать пару ключей
-		public SessionObject[] GenerateKeyPair(Mechanism parameters, KeyUsage keyUsage, 
-            Attribute[] publicAttributes, Attribute[] privateAttributes)
-        {
-	        // создать списки атрибутов
-	        List<Attribute> pubAttributes  = new List<Attribute>(publicAttributes ); 
-	        List<Attribute> privAttributes = new List<Attribute>(privateAttributes); 
-
-	        // определить значения атрибутов
-	        if (KeyUsage.None != (keyUsage & (KeyUsage.DigitalSignature | 
-		        KeyUsage.CertificateSignature | KeyUsage.CrlSignature | KeyUsage.NonRepudiation)))
-            {
-	            // указать значения атрибутов
-	            privAttributes.Add(new Attribute(API.CKA_SIGN  , API.CK_TRUE));  
-	            pubAttributes .Add(new Attribute(API.CKA_VERIFY, API.CK_TRUE));  
-            }
-	        // определить значения атрибутов
-	        if (KeyUsage.None != (keyUsage &  KeyUsage.KeyEncipherment))
-            {
-	            // указать значения атрибутов
-	            pubAttributes .Add(new Attribute(API.CKA_WRAP  , API.CK_TRUE));  
-	            privAttributes.Add(new Attribute(API.CKA_UNWRAP, API.CK_TRUE));  
-            }
-	        // определить значения атрибутов
-	        if (KeyUsage.None != (keyUsage &  KeyUsage.KeyAgreement))
-            {
-	            // указать значения атрибутов
-	            privAttributes.Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
-	            pubAttributes .Add(new Attribute(API.CKA_DERIVE, API.CK_TRUE));  
-            }
-			// создать необязательные атрибуты
-			List<Attribute> optionalPubAttributes  = new List<Attribute>(); 
-			List<Attribute> optionalPrivAttributes = new List<Attribute>(); 
-
-            // определить значения атрибутов
-            if (KeyUsage.None != (keyUsage &  KeyUsage.DataEncipherment))
-            {  
-                // указать значения атрибутов
-                optionalPubAttributes .Add(new Attribute(API.CKA_ENCRYPT, API.CK_TRUE));  
-                optionalPrivAttributes.Add(new Attribute(API.CKA_DECRYPT, API.CK_TRUE));  
-			}
-            // сгенерировать пару ключей
-            return GenerateKeyPair(parameters, pubAttributes.ToArray(), privAttributes.ToArray(), 
-				optionalPubAttributes.ToArray(), optionalPrivAttributes.ToArray()
-			);
         }
 	    ///////////////////////////////////////////////////////////////////////////
 	    // Управление объектами
@@ -235,14 +221,14 @@ namespace Aladdin.CAPI.PKCS11
             // выделить буфер требуемого размера
             SessionObject[] objs = new SessionObject[2]; 
 
-            // сохранить открытый ключ на смарт-карту
-            objs[0] = CreateObject(publicAttributes, optionalPubAttributes.ToArray()); 
+            // сохранить личный ключ на смарт-карту
+            objs[1] = CreateObject(privateAttributes, optionalPrivAttributes.ToArray()); 
             try { 
-                // сохранить личный ключ на смарт-карту
-                objs[1] = CreateObject(privateAttributes, optionalPrivAttributes.ToArray()); 
+				// сохранить открытый ключ на смарт-карту
+				objs[0] = CreateObject(publicAttributes, optionalPubAttributes.ToArray()); 
             }
             // при ошибке удалить личный ключ
-            catch { DestroyObject(objs[0]); throw; } return objs; 
+            catch { DestroyObject(objs[1]); throw; } return objs; 
         }
 	    // создать объект
 	    public SessionObject CreateObject(

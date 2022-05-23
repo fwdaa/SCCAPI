@@ -45,6 +45,9 @@ namespace Aladdin.CAPI.PKCS11
 	        // получить атрибуты ключа
 	        keyAttributes = Attribute.Join(keyAttributes, cipher.GetKeyAttributes(key.Length));  
 
+			// при необходимости закрыть старый сеанс
+			if (session != null) { session.Dispose(); session = null; } 
+
 	        // открыть новый сеанс
 	        session = cipher.Applet.OpenSession(API.CKS_RO_PUBLIC_SESSION); 
 	        try { 
@@ -58,10 +61,8 @@ namespace Aladdin.CAPI.PKCS11
 		        // инициализировать алгоритм
 		        session.DecryptInit(parameters, sessionKey.Handle);
 	        }
-	        catch { 
-                // закрыть сеанс
-                session.Dispose(); session = null; throw; 
-            }
+			// при ошибке закрыть сеанс 
+	        catch { session.Dispose(); session = null; throw; } 
         }
 		// преобразовать данные
 		public override int Update(byte[] data, int dataOff, int dataLen, byte[] buf, int bufOff)

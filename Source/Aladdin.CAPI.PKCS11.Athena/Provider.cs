@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Security;
-using System.Security.Permissions;
-using System.Collections.Generic;
 using Aladdin.PKCS11; 
 
 namespace Aladdin.CAPI.PKCS11.Athena
@@ -15,7 +12,7 @@ namespace Aladdin.CAPI.PKCS11.Athena
 		public Provider() : base("Athena PKCS11 Cryptographic Provider", false) 
         {
             // указать интерфейс вызова функций
-            module = Aladdin.PKCS11.Module.Create(new NativeMethods.NativeAPI()); 
+            module = Module.Create(new NativeMethods.NativeAPI()); 
         }
         // деструктор
         protected override void OnDispose() 
@@ -26,34 +23,17 @@ namespace Aladdin.CAPI.PKCS11.Athena
 		// интерфейс вызова функций
 		public override Module Module { get { return module; }} private Module module;
 
-        // корректная реализация OAEP/PSS механизмов
-        public override bool UseOAEP(CAPI.PKCS11.Applet applet) { return true;  } 
-        public override bool UsePSS (CAPI.PKCS11.Applet applet) { return false; } 
-
-	    // создать алгоритм генерации ключей
-	    protected override CAPI.KeyPairGenerator CreateGenerator(
-            CAPI.Factory factory, SecurityObject scope, 
-            IRand rand, string keyOID, IParameters parameters) 
-        {
-            // проверить тип параметров
-            if (keyOID == ASN1.ANSI.OID.x962_ec_public_key)
-            {
-                // преобразовать тип параметров
-                ANSI.X962.IParameters ecParameters = (ANSI.X962.IParameters)parameters;
-
-                // найти подходящую смарт-карту
-                using (CAPI.PKCS11.Applet applet = FindApplet(scope, API.CKM_EC_KEY_PAIR_GEN, 0, 0))
-                {
-                    // проверить наличие смарт-карты
-                    if (applet == null) return null; 
-
-                    // создать алгоритм генерации ключей
-                    return new X962.KeyPairGenerator(applet, scope, rand, ecParameters); 
-                }
-            }
-            // вызвать базовую функцию
-            return base.CreateGenerator(factory, scope, rand, keyOID, parameters); 
+        // корректная реализация отдельных OAEP механизмов
+        public override bool UseOAEP(Applet applet, 
+            ANSI.PKCS11.Parameters.CK_RSA_PKCS_OAEP_PARAMS parameters) 
+        { 
+            // проверить корректность реализации
+            return (parameters.HashAlg == API.CKM_SHA_1 && parameters.MGF == API.CKG_MGF1_SHA1); 
         }
+        // некорректная реализация PSS механизмов
+        public override bool UsePSS(Applet applet, 
+            ANSI.PKCS11.Parameters.CK_RSA_PKCS_PSS_PARAMS parameters) { return false; }
+
 	    // создать алгоритм для параметров
 	    protected override IAlgorithm CreateAlgorithm(CAPI.Factory factory, 
             SecurityStore scope, string oid, ASN1.IEncodable parameters, Type type)

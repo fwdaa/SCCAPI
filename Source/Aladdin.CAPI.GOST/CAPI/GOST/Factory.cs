@@ -356,20 +356,18 @@ namespace Aladdin.CAPI.GOST
 		        // для алгоритмов согласования общего ключа
 		        else if (type == typeof(IKeyAgreement))
                 {
-                    if (oid == ASN1.GOST.OID.gostR3410_1994_SSDH || 
-                        oid == ASN1.GOST.OID.gostR3410_1994_ESDH)
+                    if (oid == ASN1.GOST.OID.gostR3410_1994)
                     {
                         // создать алгоритм наследования ключа
                         return new Keyx.GOSTR3410.DHKeyAgreement(); 
                     }
-			        if (oid == ASN1.GOST.OID.gostR3410_2001_SSDH || 
-                        oid == ASN1.GOST.OID.gostR3410_2001_ESDH)
+			        if (oid == ASN1.GOST.OID.gostR3410_2001)
                     {
                         // создать алгоритм наследования ключа
                         return new Keyx.GOSTR3410.ECKeyAgreement2001(); 
                     }
-			        if (oid == ASN1.GOST.OID.gostR3410_2012_DH_256 || 
-                        oid == ASN1.GOST.OID.gostR3410_2012_DH_512)
+			        if (oid == ASN1.GOST.OID.gostR3410_2012_256 || 
+                        oid == ASN1.GOST.OID.gostR3410_2012_512)
                     {
                          // создать алгоритм
                          return new Keyx.GOSTR3410.ECKeyAgreement2012(); 
@@ -741,6 +739,42 @@ namespace Aladdin.CAPI.GOST
                     }
                 }
 		    }
+	        // для алгоритмов согласования общего ключа
+	        else if (type == typeof(IKeyAgreement))
+            {
+                if (oid == ASN1.GOST.OID.gostR3410_1994_SSDH)
+                {
+                    // указать идентификатор ключа
+                    oid = ASN1.GOST.OID.gostR3410_1994; 
+
+                    // создать алгоритм согласования общего ключа
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters);
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2001_SSDH)
+                {
+                    // указать идентификатор ключа
+                    oid = ASN1.GOST.OID.gostR3410_2001; 
+
+                    // создать алгоритм согласования общего ключа
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters);
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2012_DH_256)
+                {
+                    // указать идентификатор ключа
+                    oid = ASN1.GOST.OID.gostR3410_2012_256; 
+
+                    // создать алгоритм согласования общего ключа
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters);
+                }
+			    if (oid == ASN1.GOST.OID.gostR3410_2012_DH_512)
+                {
+                    // указать идентификатор ключа
+                    oid = ASN1.GOST.OID.gostR3410_2012_512; 
+
+                    // создать алгоритм согласования общего ключа
+                    return factory.CreateAlgorithm<IKeyAgreement>(scope, oid, parameters);
+                }
+            }
 		    // для алгоритмов согласования общего ключа
 		    else if (type == typeof(ITransportAgreement))
             {

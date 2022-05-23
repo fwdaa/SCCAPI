@@ -44,7 +44,7 @@ public final class Factory extends aladdin.capi.Factory
             new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X957_DSA)
         ); 
         keyFactories.put(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY, 
-            new aladdin.capi.ansi.x957.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)
+            new aladdin.capi.ansi.x962.KeyFactory(aladdin.asn1.ansi.OID.X962_EC_PUBLIC_KEY)
         ); 
     }
 	// Поддерживаемые фабрики кодирования ключей

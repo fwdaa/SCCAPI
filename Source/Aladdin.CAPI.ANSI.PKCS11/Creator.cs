@@ -2308,7 +2308,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UseOAEP(applet))
+                    if (applet != null && provider.UseOAEP(applet, oaepParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Keyx.RSA.OAEP.Encipherment(applet, 
@@ -2434,7 +2434,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UseOAEP(applet))
+                    if (applet != null && provider.UseOAEP(applet, oaepParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Keyx.RSA.OAEP.Decipherment(applet, 
@@ -2563,7 +2563,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignHash(applet, 
@@ -2716,7 +2716,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyHash(applet, 
@@ -3307,7 +3307,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3353,7 +3353,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3399,7 +3399,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3445,7 +3445,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3491,7 +3491,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3537,7 +3537,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3583,7 +3583,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3629,7 +3629,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -3675,7 +3675,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.SignData(applet, 
@@ -4702,7 +4702,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -4748,7 +4748,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -4794,7 +4794,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -4840,7 +4840,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -4886,7 +4886,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -4932,7 +4932,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -4978,7 +4978,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -5024,7 +5024,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 
@@ -5070,7 +5070,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                 using (CAPI.PKCS11.Applet applet = provider.FindApplet(scope, algID, usage, 0))
                 {
                     // при поддержке алгоритма
-                    if (applet != null && provider.UsePSS(applet))
+                    if (applet != null && provider.UsePSS(applet, pssParameters))
                     { 
                         // вернуть найденный алгоритм
                         return new Sign.RSA.PSS.VerifyData(applet, 

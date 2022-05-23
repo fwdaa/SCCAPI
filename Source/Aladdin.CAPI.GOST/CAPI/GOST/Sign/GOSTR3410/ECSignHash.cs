@@ -7,28 +7,21 @@ namespace Aladdin.CAPI.GOST.Sign.GOSTR3410
     ///////////////////////////////////////////////////////////////////////
     public class ECSignHash : SignHash
     {
-        public override byte[] Sign(IPrivateKey privateKey, IRand rand, 
+        public byte[] Sign(IPrivateKey[] privateKeys, IRand rand, 
             ASN1.ISO.AlgorithmIdentifier hashParameters, byte[] hash)
         {
-            // преобразовать тип ключа
-            CAPI.GOST.GOSTR3410.IECPrivateKey privateKeyS = 
-                (CAPI.GOST.GOSTR3410.IECPrivateKey)privateKey;
-
             // получить параметры алгоритма
-            CAPI.GOST.GOSTR3410.IECParameters parameters = 
-                (CAPI.GOST.GOSTR3410.IECParameters)privateKeyS.Parameters; 
+            GOST.GOSTR3410.IECParameters parameters = 
+                (GOST.GOSTR3410.IECParameters)privateKeys[0].Parameters; 
 
             // извлечь параметры алгоритма
             EC.Point P = parameters.Generator; Math.BigInteger q = parameters.Order;
 
-            // извлечь секретное значение
-            Math.BigInteger d = privateKeyS.D; int bitsQ = q.BitLength;
-            
             // создать экспоненту
             Math.BigInteger e = Math.Convert.ToBigInteger(hash, Math.Endian.LittleEndian).Mod(q);  
 
             // обработать частный случай
-            if (e.Signum == 0) e = Math.BigInteger.One; 
+            if (e.Signum == 0) e = Math.BigInteger.One; int bitsQ = q.BitLength;
 
             // указать начальные условия
             Math.BigInteger r = Math.BigInteger.Zero; 
@@ -46,8 +39,19 @@ namespace Aladdin.CAPI.GOST.Sign.GOSTR3410
                 // вычислить параметр R подписи
                 r = parameters.Curve.Multiply(P, k).X.Mod(q);
 
-                // вычислить параметр S подписи
-                s = (k.Multiply(e)).Add(d.Multiply(r)).Mod(q);
+                // вычислить k*e (mod q)
+                s = k.Multiply(e).Mod(q);
+
+                // для всех ключей 
+                for (int i = 0; i < privateKeys.Length; i++)
+                {
+                    // преобразовать тип ключа
+                    GOST.GOSTR3410.IECPrivateKey privateKeyS = 
+                        (GOST.GOSTR3410.IECPrivateKey)privateKeys[i];
+
+                    // вычислить параметр S подписи
+                    s = s.Add(privateKeyS.D.Multiply(r)).Mod(q);
+                }
             }
             // проверить ограничение
             while (r.Signum == 0 || s.Signum == 0); 
@@ -60,6 +64,69 @@ namespace Aladdin.CAPI.GOST.Sign.GOSTR3410
             Math.Convert.FromBigInteger(r, Math.Endian.BigEndian, signature, len / 2, len / 2); 
         
             return signature;
+        }
+        public override byte[] Sign(IPrivateKey privateKey, IRand rand, 
+            ASN1.ISO.AlgorithmIdentifier hashParameters, byte[] hash)
+        {
+            // указать используемые личные ключи
+            IPrivateKey[] privateKeys = new IPrivateKey[] {privateKey}; 
+        
+            // вычислить подпись 
+            return Sign(privateKeys, rand, hashParameters, hash); 
+        }
+        ////////////////////////////////////////////////////////////////////////////
+        // Тест одновременного подписывания 
+        ////////////////////////////////////////////////////////////////////////////
+        public static void CircleTest(CAPI.Factory trustFactory, string keyOID, 
+            IParameters parameters, ASN1.ISO.AlgorithmIdentifier hashParameters)
+        {
+            // указать способ использования ключа
+            KeyUsage keyUsage = KeyUsage.DigitalSignature; byte[] hash; byte[] signature; 
+        
+            // получить алгоритм хэширования
+            using (CAPI.Hash hashAlgorithm = trustFactory.
+                CreateAlgorithm<CAPI.Hash>(null, hashParameters)) 
+            {
+                // выделить память для хэш-значения
+                hash = new byte[hashAlgorithm.HashSize]; 
+            }
+            // указать генератор случайных данных
+            using (IRand rand = new Rand(null))
+            {
+                // сгенерировать ключевую пару
+                using (KeyPair keyPair1 = trustFactory.GenerateKeyPair(
+                    null, rand, null, keyOID, parameters, keyUsage, KeyFlags.None))
+                {
+                    // сгенерировать ключевую пару
+                    using (KeyPair keyPair2 = trustFactory.GenerateKeyPair(
+                        null, rand, null, keyOID, parameters, keyUsage, KeyFlags.None)) 
+                    {
+                        // указать список личных ключей
+                        IPrivateKey[] privateKeys = new IPrivateKey[] {
+                            keyPair1.PrivateKey, keyPair2.PrivateKey
+                        }; 
+                        // указать список открытых ключей
+                        IPublicKey[] publicKeys = new IPublicKey[] {
+                            keyPair1.PublicKey, keyPair2.PublicKey
+                        }; 
+                        // сгенерировать хэш-значение
+                        rand.Generate(hash, 0, hash.Length);
+                    
+                        // получить алгоритм выработки подписи
+                        using (ECSignHash signHash = new ECSignHash()) 
+                        {
+                            // подписать хэш-значение
+                            signature = signHash.Sign(privateKeys, rand, hashParameters, hash); 
+                        }
+                        // получить алгоритм проверки подписи
+                        using (ECVerifyHash verifyHash = new ECVerifyHash()) 
+                        {
+                            // проверить подпись хэш-значения
+                            verifyHash.Verify(publicKeys, hashParameters, hash, signature); 
+                        }
+                    }
+                }
+            }
         }
         ////////////////////////////////////////////////////////////////////////////
         // Тест известного ответа

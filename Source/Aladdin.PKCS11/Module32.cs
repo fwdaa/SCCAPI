@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security;
 using System.Security.Permissions;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -21,7 +20,7 @@ using CK_OBJECT_HANDLE  = System.UInt32;
 namespace Aladdin.PKCS11
 {
 	///////////////////////////////////////////////////////////////////////////
-	// Модуль библиотеки PKCS11
+	// Модуль библиотеки PKCS11 (для sizeof(long) == 4)
 	///////////////////////////////////////////////////////////////////////////
 	public sealed class Module32 : Module
 	{
@@ -342,8 +341,8 @@ namespace Aladdin.PKCS11
         ///////////////////////////////////////////////////////////////////////////
         private sealed class AllocatedAttributes : Disposable
         {
-            // список атрибутов и адрес выделенной памяти
-            private API32.CK_ATTRIBUTE[] ckAttributes; private IntPtr ptr;
+            // адрес выделенной памяти и описание атрибутов
+            private IntPtr ptr; private API32.CK_ATTRIBUTE[] ckAttributes; 
 
             // конструктор
             [SecuritySafeCritical]
@@ -353,62 +352,98 @@ namespace Aladdin.PKCS11
 	            // проверить наличие атрибутов
 	            if (attributes == null) attributes = new Attribute[0]; 
 
-	            // для каждого атрибута
-	            int cb = 0; foreach (Attribute attribute in attributes)
-	            {
-		            // увеличить требуемый размер
-		            if (attribute.Value != null) cb += attribute.Value.Length; 
-	            }
-                // выделить память для атрибутов
+                // выделить описание атрибутов
                 ckAttributes = new API32.CK_ATTRIBUTE[attributes.Length]; 
 
-	            // выделить память для атрибутов
-	            IntPtr p = Marshal.AllocHGlobal(cb); ptr = p; int i = 0; 
+                // указать фиксированный размер
+                int cbHeader = attributes.Length * Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE)); 
 
+	            // для каждого атрибута
+	            int cbTotal = 0; foreach (Attribute attribute in attributes)
+	            {
+                    // указать фиксированный размер
+                    cbTotal += Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE)); 
+
+		            // увеличить требуемый размер
+		            if (attribute.Value != null) cbTotal += attribute.Value.Length; 
+	            }
+	            // выделить память для атрибутов
+	            ptr = Marshal.AllocHGlobal(cbTotal); IntPtr ptrFix = ptr; 
+                
+                // указать адрес для значения атрибутов
+                IntPtr ptrVar = new IntPtr(ptr.ToInt64() + cbHeader);
+                
                 // для всех атрибутов
-                foreach (Attribute attribute in attributes)
+                for (int i = 0; i < attributes.Length; i++)
                 {
 		            // установить тип атрибута
-		            ckAttributes[i].type = (CK_ATTRIBUTE_TYPE)attribute.Type; 
+		            ckAttributes[i].type = (CK_ATTRIBUTE_TYPE)attributes[i].Type; 
 
 		            // установить отсутствие значения атрибута
 		            ckAttributes[i].pValue = IntPtr.Zero; ckAttributes[i].ulValueLen = 0; 
                 
 		            // проверить наличие значения
-		            if (attribute.Value == null) continue; ckAttributes[i].pValue = p;
+		            if (attributes[i].Value != null) { ckAttributes[i].pValue = ptrVar;
 
-		            // установить размер атрибута
-		            ckAttributes[i].ulValueLen = (CK_LONG)attribute.Value.Length;
+		                // установить размер атрибута
+		                ckAttributes[i].ulValueLen = attributes[i].Value.Length;
 
-		            // скопировать значение атрибута
-		            Marshal.Copy(attribute.Value, 0, p, attribute.Value.Length); 
+		                // скопировать значение атрибута
+		                Marshal.Copy(attributes[i].Value, 0, ptrVar, attributes[i].Value.Length); 
+
+                        // увеличить значение текущего адреса
+                        ptrVar = new IntPtr(ptrVar.ToInt64() + attributes[i].Value.Length); 
+                    }
+                    // скопировать заголовок атрибута
+                    Marshal.StructureToPtr(ckAttributes[i], ptrFix, false); 
 
                     // увеличить значение текущего адреса
-                    p = new IntPtr(p.ToInt64() + attribute.Value.Length); i++; 
+                    ptrFix = new IntPtr(ptrFix.ToInt64() + Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE))); 
                 }
             }
             // конструктор
             [SecuritySafeCritical]
             [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
-            public AllocatedAttributes(API32.CK_ATTRIBUTE[] attrs)
+            public AllocatedAttributes(API32.CK_ATTRIBUTE[] ckAttributes)
             {
+	            // проверить наличие атрибутов
+	            if (ckAttributes == null) ckAttributes = new API32.CK_ATTRIBUTE[0]; this.ckAttributes = ckAttributes; 
+
+                // указать фиксированный размер
+                int cbHeader = ckAttributes.Length * Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE)); 
+
 	            // для каждого атрибута
-	            int cb = 0; for (int i = 0; i < attrs.Length; i++)
+	            int cbTotal = 0; foreach (API32.CK_ATTRIBUTE ckAttribute in ckAttributes)
 	            {
+                    // указать фиксированный размер
+                    cbTotal += Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE)); 
+
 		            // увеличить требуемый размер
-		            cb += (int)attrs[i].ulValueLen; 
+		            if (ckAttribute.ulValueLen != 0) cbTotal += (int)ckAttribute.ulValueLen; 
 	            }
 	            // выделить память для атрибутов
-	            IntPtr p = Marshal.AllocHGlobal(cb); ptr = p; ckAttributes = attrs; 
+	            ptr = Marshal.AllocHGlobal(cbTotal); IntPtr ptrFix = ptr; 
 
+                // указать адрес для значения атрибутов
+                IntPtr ptrVar = new IntPtr(ptr.ToInt64() + cbHeader);
+                
                 // для всех атрибутов
-                for (int i = 0; i < attrs.Length; i++)
+                for (int i = 0; i < ckAttributes.Length; i++)
                 {
-		            // установить тип и адрес атрибута
-		            ckAttributes[i].type = attrs[i].type; ckAttributes[i].pValue = p;
+		            // проверить наличие значения
+		            if (ckAttributes[i].ulValueLen == 0) ckAttributes[i].pValue = IntPtr.Zero;
+                    else { 
+                        // указать адрес для значения 
+                        ckAttributes[i].pValue = ptrVar; 
+
+                        // увеличить значение текущего адреса
+                        ptrVar = new IntPtr(ptrVar.ToInt64() + ckAttributes[i].ulValueLen); 
+                    }
+                    // скопировать заголовок атрибута
+                    Marshal.StructureToPtr(ckAttributes[i], ptrFix, false); 
 
                     // увеличить значение текущего адреса
-                    p = new IntPtr(p.ToInt64() + attrs[i].ulValueLen); 
+                    ptrFix = new IntPtr(ptrFix.ToInt64() + Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE))); 
                 }
             }
             // освободить выделенную память
@@ -416,10 +451,29 @@ namespace Aladdin.PKCS11
             [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
             protected override void OnDispose() { Marshal.FreeHGlobal(ptr); base.OnDispose(); }
 
+            // выполнить синхронизацию
+            [SecuritySafeCritical]
+            [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
+            public API32.CK_ATTRIBUTE[] Synchronize()
+            {
+                // для всех атрибутов
+                IntPtr ptrFix = ptr;  for (int i = 0; i < ckAttributes.Length; i++)
+                {
+                    // извлечть описание атрибута
+                    ckAttributes[i] = (API32.CK_ATTRIBUTE)Marshal.PtrToStructure(ptrFix, typeof(API32.CK_ATTRIBUTE)); 
+
+                    // увеличить значение текущего адреса
+                    ptrFix = new IntPtr(ptrFix.ToInt64() + Marshal.SizeOf(typeof(API32.CK_ATTRIBUTE))); 
+                }
+                return ckAttributes; 
+            }
             // преобразованные атрибуты
-            public API32.CK_ATTRIBUTE[] Values { get { return ckAttributes; }}
+            public API32.CK_ATTRIBUTE[] Values { get { return ckAttributes; }} 
+
+            // адрес атрибутов
+            public IntPtr Pointer { get { return ptr; }}
             // число атрибутов
-            public CK_LONG Count { get { return (CK_LONG)ckAttributes.Length; }}
+            public CK_LONG Count { get { return ckAttributes.Length; }}
         }
         ///////////////////////////////////////////////////////////////////////////
         // Поиск объектов
@@ -430,15 +484,18 @@ namespace Aladdin.PKCS11
             private API32.CK_FINDOBJECTS      findObjects; 
             private API32.CK_FINDOBJECTSFINAL findObjectsFinal; 
 
-            // описатель сеанса
-            private CK_SESSION_HANDLE hSession; 
+            // описатель сеанса и выделенные атрибуты
+            private CK_SESSION_HANDLE hSession; private AllocatedAttributes allocated; 
 
             // конструктор
             public ObjectFinder(ref API32.CK_FUNCTION_LIST funcList, 
-                CK_SESSION_HANDLE hSession, API32.CK_ATTRIBUTE[] pTemplate, CK_LONG ulCount)
+                CK_SESSION_HANDLE hSession, Attribute[] attributes)
             {
+                // выделить память для атрибутов
+                allocated = new AllocatedAttributes(attributes); 
+
                 // инициализировать поиск объектов
-                Exception.Check(funcList.C_FindObjectsInit(hSession, pTemplate, ulCount));
+                Exception.Check(funcList.C_FindObjectsInit(hSession, allocated.Pointer, allocated.Count));
 
                 // сохранить адреса фунций модуля 
                 findObjectsFinal = funcList.C_FindObjectsFinal; 
@@ -447,8 +504,11 @@ namespace Aladdin.PKCS11
                 findObjects = funcList.C_FindObjects; this.hSession = hSession; 
             }
             // деструктор
-            protected override void OnDispose() { findObjectsFinal(hSession); base.OnDispose(); }
-
+            protected override void OnDispose() { findObjectsFinal(hSession); 
+                
+                // освободить выделенные ресурсы
+                allocated.Dispose(); base.OnDispose(); 
+            }
             // найти объекты
 		    public CK_OBJECT_HANDLE[] Find()
             {
@@ -488,7 +548,7 @@ namespace Aladdin.PKCS11
 	            // создать объект
 	            Exception.Check(funcList.C_CreateObject(
 	                (CK_SESSION_HANDLE)hSession, 
-                    allocated.Values, allocated.Count, out hObject
+                    allocated.Pointer, allocated.Count, out hObject
 	            )); 
             }
             return hObject; 
@@ -504,7 +564,7 @@ namespace Aladdin.PKCS11
                 // скопировать объект
 	            Exception.Check(funcList.C_CreateObject(
 		            (CK_SESSION_HANDLE)hSession, 
-                    allocated.Values, allocated.Count, out hCopyObject
+                    allocated.Pointer, allocated.Count, out hCopyObject
 	            )); 
             }
             return hCopyObject; 
@@ -518,28 +578,21 @@ namespace Aladdin.PKCS11
 		// найти объекты
 		public override ulong[] FindObjects(ulong hSession, Attribute[] attributes)
         {
-            // выполнить преобразование атрибутов
-            using (AllocatedAttributes allocated = new AllocatedAttributes(attributes))
-            {
-                // создать объект поиска
-                using (ObjectFinder finder = new ObjectFinder(
-                    ref funcList, (CK_SESSION_HANDLE)hSession, allocated.Values, allocated.Count))
-                { 
-                    // найти объекты
-                    CK_OBJECT_HANDLE[] objs = finder.Find(); ulong[] objects = new ulong[objs.Length];
+            // создать объект поиска
+            using (ObjectFinder finder = new ObjectFinder(
+                ref funcList, (CK_SESSION_HANDLE)hSession, attributes))
+            { 
+                // найти объекты
+                CK_OBJECT_HANDLE[] objs = finder.Find(); ulong[] objects = new ulong[objs.Length];
 
-                    // скопировать объекты
-                    Array.Copy(objs, 0, objects, 0, objs.Length); return objects; 
-                }
+                // скопировать объекты
+                Array.Copy(objs, 0, objects, 0, objs.Length); return objects; 
             }
         }
 		// получить значение атрибутов
 		public override Attribute[] GetAttributes(
             ulong hSession, ulong hObject, Attribute[] attributes)
         {
-            // проверить указание атрибутов
-            if (attributes == null) attributes = new Attribute[0]; 
-
 		    // скопировать атрибуты
 		    attributes = (Attribute[])attributes.Clone();
             try { 
@@ -555,29 +608,34 @@ namespace Aladdin.PKCS11
 		            // установить отсутствие значения атрибута
 		            attrs[i].pValue = IntPtr.Zero; attrs[i].ulValueLen = 0; 
                 }
-	            // определить размер атрибутов
-	            Exception.Check(funcList.C_GetAttributeValue(
-                    (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, attrs, attrs.Length
-                )); 
-                // выполнить преобразование атрибута
+                // выполнить преобразование атрибутов
                 using (AllocatedAttributes converted = new AllocatedAttributes(attrs))
                 {
-		            // получить значение атрибутов
-		            Exception.Check(funcList.C_GetAttributeValue(
-                        (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, attrs, attrs.Length
+	                // определить размер атрибутов
+	                Exception.Check(funcList.C_GetAttributeValue(
+                        (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, 
+                        converted.Pointer, converted.Count
                     )); 
-                    // для всех атрибутов
-                    for (int i = 0; i < attributes.Length; i++)
+                    // выполнить преобразование атрибутов
+                    using (AllocatedAttributes allocated = new AllocatedAttributes(converted.Synchronize()))
                     {
-		                // сохранить значение атрибута
-		                attributes[i] = new Attribute(attrs[i]); 
+		                // получить значение атрибутов
+		                Exception.Check(funcList.C_GetAttributeValue(
+                            (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, 
+                            allocated.Pointer, allocated.Count
+                        )); 
+                        // для всех атрибутов
+                        for (int i = 0; i < attributes.Length; i++)
+                        {
+		                    // сохранить значение атрибута
+		                    attributes[i] = new Attribute(allocated.Values[i]); 
+                        }
                     }
                 }
                 return attributes; 
             }
-            catch { 
-	            // выделить память для атрибута
-	            API32.CK_ATTRIBUTE[] attrs = new API32.CK_ATTRIBUTE[1]; 
+            // выделить память для атрибута
+            catch (Exception) { API32.CK_ATTRIBUTE[] attrs = new API32.CK_ATTRIBUTE[1]; 
 
 	            // для каждого атрибута
 	            for (int i = 0; i < attributes.Length; i++)
@@ -588,25 +646,29 @@ namespace Aladdin.PKCS11
 		            // установить отсутствие значения атрибута
 		            attrs[0].pValue = IntPtr.Zero; attrs[0].ulValueLen = 0; 
 
-		            // определить размер атрибутов
-		            CK_RV rv = funcList.C_GetAttributeValue(
-                        (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, attrs, 1
-                    ); 
-                    // при наличии ошибки
-                    if (rv != 0) { if (attributes[i].Value == null) Exception.Check(rv); continue; }
-
-                    // выполнить преобразование атрибута
+                    // выполнить преобразование атрибутов
                     using (AllocatedAttributes converted = new AllocatedAttributes(attrs))
                     {
-		                // получить значение атрибутов
-		                rv = funcList.C_GetAttributeValue(
-                            (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, attrs, 1
+		                // определить размер атрибутов
+		                CK_RV rv = funcList.C_GetAttributeValue(
+                            (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, converted.Pointer, 1
                         ); 
                         // при наличии ошибки
-                        if (rv != 0) { if (attributes[i].Value == null) Exception.Check(rv); continue; } 
+                        if (rv != 0) { if (attributes[i].Value == null) Exception.Check(rv); continue; }
 
-		                // создать атрибут по значению
-		                attributes[i] = new Attribute(attrs[0]); 
+                        // выполнить преобразование атрибутов
+                        using (AllocatedAttributes allocated = new AllocatedAttributes(converted.Synchronize()))
+                        {
+		                    // получить значение атрибутов
+		                    rv = funcList.C_GetAttributeValue(
+                                (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, allocated.Pointer, 1
+                            ); 
+                            // при наличии ошибки
+                            if (rv != 0) { if (attributes[i].Value == null) Exception.Check(rv); continue; } 
+
+		                    // создать атрибут по значению
+		                    attributes[i] = new Attribute(allocated.Values[0]); 
+                        }
                     }
                 }
                 return attributes; 
@@ -621,7 +683,7 @@ namespace Aladdin.PKCS11
                 // установить значения атрибутов
 	            Exception.Check(funcList.C_SetAttributeValue(
 		            (CK_SESSION_HANDLE)hSession, (CK_OBJECT_HANDLE)hObject, 
-                    allocated.Values, allocated.Count
+                    allocated.Pointer, allocated.Count
 	            )); 
             }
         }
@@ -656,7 +718,7 @@ namespace Aladdin.PKCS11
                 {
 	                // создать симметричный ключ
 	                Exception.Check(funcList.C_GenerateKey((CK_SESSION_HANDLE)hSession, 
-                        ref mechanism, allocated.Values, allocated.Count, out hKey
+                        ref mechanism, allocated.Pointer, allocated.Count, out hKey
 	                )); 
                 }
             }
@@ -684,8 +746,8 @@ namespace Aladdin.PKCS11
                     {
 	                    // создать пару ассиметричных ключей
 	                    Exception.Check(funcList.C_GenerateKeyPair((CK_SESSION_HANDLE)hSession, 
-                            ref mechanism, allocatedPublic.Values, allocatedPublic.Count, 
-		                    allocatedPrivate.Values, allocatedPrivate.Count, out hPublicKey, out hPrivateKey
+                            ref mechanism, allocatedPublic.Pointer, allocatedPublic.Count, 
+		                    allocatedPrivate.Pointer, allocatedPrivate.Count, out hPublicKey, out hPrivateKey
 	                    )); 
                     }
                 }
@@ -1086,7 +1148,7 @@ namespace Aladdin.PKCS11
 	                Exception.Check(funcList.C_UnwrapKey(
 		                (CK_SESSION_HANDLE)hSession, ref mechanism, 
                         (CK_OBJECT_HANDLE)hWrapKey, data, (CK_LONG)data.Length, 
-		                allocated.Values, allocated.Count, out hKey
+		                allocated.Pointer, allocated.Count, out hKey
                     )); 
                 }
             }
@@ -1114,7 +1176,7 @@ namespace Aladdin.PKCS11
 	                // наследовать ключ
 	                Exception.Check(funcList.C_DeriveKey(
 		                (CK_SESSION_HANDLE)hSession, ref mechanism, 
-                        (CK_OBJECT_HANDLE)hBaseKey, allocated.Values, allocated.Count, out hKey
+                        (CK_OBJECT_HANDLE)hBaseKey, allocated.Pointer, allocated.Count, out hKey
 	                )); 
                 }
             }

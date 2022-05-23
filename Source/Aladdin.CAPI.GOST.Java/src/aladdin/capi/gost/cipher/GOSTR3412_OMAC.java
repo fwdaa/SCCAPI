@@ -30,7 +30,7 @@ public class GOSTR3412_OMAC extends Cipher
             if (hmac == null) return null; 
             
             // создать алгоритм выработки имитовставки
-            try (Mac omac = GOSTR3412.createOMAC(factory, scope, blockSize))
+            try (Mac omac = GOSTR3412.createOMAC(factory, scope, blockSize, blockSize / 2))
             {
                 // обьединить имитовставку с режимом
                 return new GOSTR3412_OMAC(mode, omac, hmac, seed); 

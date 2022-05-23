@@ -189,7 +189,7 @@
     <Compile Include="AppletDialog.designer.cs">
       <DependentUpon>AppletDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Reflection.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="Resource.ru.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

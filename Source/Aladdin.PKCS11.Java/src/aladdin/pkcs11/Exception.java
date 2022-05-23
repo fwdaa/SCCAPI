@@ -87,6 +87,7 @@ public class Exception extends IOException
         errors.put(API.CKR_WRAPPING_KEY_TYPE_INCONSISTENT	, "CKR_WRAPPING_KEY_TYPE_INCONSISTENT"	);
         errors.put(API.CKR_RANDOM_SEED_NOT_SUPPORTED        , "CKR_RANDOM_SEED_NOT_SUPPORTED"		);
         errors.put(API.CKR_RANDOM_NO_RNG                    , "CKR_RANDOM_NO_RNG"					);
+        errors.put(API.CKR_DOMAIN_PARAMS_INVALID            , "CKR_DOMAIN_PARAMS_INVALID"           );
         errors.put(API.CKR_BUFFER_TOO_SMALL					, "CKR_BUFFER_TOO_SMALL"				);
         errors.put(API.CKR_SAVED_STATE_INVALID				, "CKR_SAVED_STATE_INVALID"				);
         errors.put(API.CKR_INFORMATION_SENSITIVE            , "CKR_INFORMATION_SENSITIVE"			);

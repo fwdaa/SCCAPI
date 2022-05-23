@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.ComponentModel;
-using System.Security;
 
 namespace Aladdin.CAPI.GUI
 {
@@ -46,7 +45,10 @@ namespace Aladdin.CAPI.GUI
         public BioPinEnrollDialog(SecurityObject obj, string user)
         {
 			// сохранить переданные параметры
-            InitializeComponent(); this.obj = obj; Auth.BiometricService service = null;
+            InitializeComponent(); this.obj = obj; timer = new Timer();
+            
+            // инициализировать переменные
+            Auth.BiometricService service = null;
 
             // установить имя пользователя
             if (user != null) { comboBoxUser.Text = user; comboBoxUser.Enabled = false;
@@ -69,9 +71,6 @@ namespace Aladdin.CAPI.GUI
 
 			// создать список для созданных шаблонов
             enrollTemplates = new Dictionary<Bio.Finger, Bio.EnrollTemplate>();
-
-            // создать таймер
-            timer = new System.Windows.Forms.Timer();
         }
         // инициализировать диалог
 		private void OnLoad(object sender, EventArgs e)
@@ -101,7 +100,7 @@ namespace Aladdin.CAPI.GUI
             far100.Select(); comboFinger.SelectedIndex = 9;
 
 			// установить начальные условия
-			buttonStart.Enabled = (comboReader.SelectedIndex >= 0); 
+			buttonStart.Enabled = (comboFinger.SelectedIndex >= 0); 
 
 			// установить начальные условия
 			buttonStop.Enabled = buttonOK.Enabled = false; 
@@ -120,6 +119,9 @@ namespace Aladdin.CAPI.GUI
 		}
         private void OnUserChanged(object sender, EventArgs e)
         {
+            // указать отсутствие выбора пальца
+            comboFinger.SelectedIndex = -1; 
+
             // получить биометрический сервис объекта
             Auth.BiometricService service = (Auth.BiometricService)
                 obj.GetAuthenticationService(
@@ -127,6 +129,14 @@ namespace Aladdin.CAPI.GUI
             ); 
             // максимальное число отпечатков
             this.maxFingers = service.GetMaxAvailableFingers(); 
+        }
+        private void OnFingerChanged(object sender, EventArgs e)
+        {
+			// указать доступность кнопки
+			buttonStart.Enabled = (comboFinger.SelectedIndex >= 0); 
+
+            // указать недоступность изображения 
+            textInfo.Text = String.Empty; imageFinger.Visible = false; 
         }
         private Bio.Finger GetCurrentFinger(out CheckBox checkBox)
         {
@@ -244,7 +254,7 @@ namespace Aladdin.CAPI.GUI
                     image.GetThumbnailImage(imageFinger.Width, imageFinger.Height); 
 
 				// обновить изображение
-				imageFinger.Refresh(); int far = 100; 
+				imageFinger.Refresh(); imageFinger.Visible = true; int far = 100; 
 
 				// получить значение FAR
 				if (far1000    .Checked) far = 1000   ; else

@@ -117,218 +117,698 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="textBoxProvider.Size" type="System.Drawing.Size, System.Drawing">
-    <value>263, 20</value>
-  </data>
-  <data name="&gt;&gt;comboReader.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="textInfo.Size" type="System.Drawing.Size, System.Drawing">
-    <value>144, 97</value>
-  </data>
-  <data name="&gt;&gt;labelState.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="groupScan.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Left, Right</value>
-  </data>
-  <data name="labelQuality.Location" type="System.Drawing.Point, System.Drawing">
-    <value>177, 13</value>
-  </data>
-  <data name="&gt;&gt;labelQualityValue.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="labelFinger.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 72</value>
-  </data>
-  <data name="&gt;&gt;buttonOK.Name" xml:space="preserve">
-    <value>buttonOK</value>
-  </data>
-  <data name="&gt;&gt;trackBarQuality.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="labelReader.Size" type="System.Drawing.Size, System.Drawing">
-    <value>44, 13</value>
-  </data>
-  <data name="&gt;&gt;labelProvider.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="textBoxLang.Size" type="System.Drawing.Size, System.Drawing">
-    <value>47, 20</value>
-  </data>
-  <data name="&gt;&gt;labelState.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="textBoxObject.Size" type="System.Drawing.Size, System.Drawing">
-    <value>261, 20</value>
-  </data>
-  <data name="&gt;&gt;imageFinger.Name" xml:space="preserve">
-    <value>imageFinger</value>
-  </data>
-  <data name="labelQualityValue.Location" type="System.Drawing.Point, System.Drawing">
-    <value>265, 14</value>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="labelReader.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="&gt;&gt;labelReader.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;labelObject.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="buttonOK.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="buttonCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Right</value>
   </data>
-  <data name="comboFinger.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 89</value>
-  </data>
-  <data name="textInfo.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
-  </data>
-  <data name="&gt;&gt;comboFinger.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="buttonCancel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>258, 359</value>
   </data>
   <data name="buttonCancel.Size" type="System.Drawing.Size, System.Drawing">
     <value>77, 23</value>
   </data>
-  <data name="textBoxLang.Location" type="System.Drawing.Point, System.Drawing">
-    <value>291, 328</value>
-  </data>
-  <data name="&gt;&gt;textBoxProvider.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="comboReader.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="comboFinger.TabIndex" type="System.Int32, mscorlib">
-    <value>11</value>
-  </data>
-  <data name="textInfo.Multiline" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="imageFinger.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Right</value>
-  </data>
-  <data name="buttonStop.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="&gt;&gt;textBoxProvider.Parent" xml:space="preserve">
-    <value>$this</value>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="buttonCancel.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
   </data>
   <data name="buttonCancel.Text" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="&gt;&gt;labelQualityValue.Parent" xml:space="preserve">
-    <value>groupScan</value>
+  <data name="&gt;&gt;buttonCancel.Name" xml:space="preserve">
+    <value>buttonCancel</value>
   </data>
-  <data name="&gt;&gt;labelQualityValue.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>Authentication</value>
-  </data>
-  <data name="buttonStart.TabIndex" type="System.Int32, mscorlib">
-    <value>13</value>
-  </data>
-  <data name="imageFinger.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
-  </data>
-  <data name="labelPIN.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="labelProvider.Size" type="System.Drawing.Size, System.Drawing">
-    <value>62, 17</value>
-  </data>
-  <data name="comboFinger.Items8" xml:space="preserve">
-    <value>Right index</value>
-  </data>
-  <data name="labelObject.Size" type="System.Drawing.Size, System.Drawing">
-    <value>51, 17</value>
-  </data>
-  <data name="&gt;&gt;labelQuality.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="buttonStop.Text" xml:space="preserve">
-    <value>Stop</value>
-  </data>
-  <data name="&gt;&gt;groupScan.Name" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="&gt;&gt;buttonStop.Type" xml:space="preserve">
+  <data name="&gt;&gt;buttonCancel.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="labelState.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 121</value>
-  </data>
-  <data name="comboReader.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 41</value>
-  </data>
-  <data name="labelQualityValue.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="&gt;&gt;trackBarQuality.Name" xml:space="preserve">
-    <value>trackBarQuality</value>
-  </data>
-  <data name="trackBarQuality.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="&gt;&gt;textBoxObject.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;textBoxLang.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="textBoxProvider.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="labelPIN.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 331</value>
-  </data>
-  <data name="&gt;&gt;groupScan.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="labelProvider.TabIndex" type="System.Int32, mscorlib">
-    <value>38</value>
-  </data>
-  <data name="textBoxObject.TabIndex" type="System.Int32, mscorlib">
-    <value>36</value>
-  </data>
-  <data name="comboFinger.Items9" xml:space="preserve">
-    <value>Right thumb</value>
-  </data>
-  <data name="&gt;&gt;buttonCancel.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="trackBarQuality.Location" type="System.Drawing.Point, System.Drawing">
-    <value>168, 28</value>
-  </data>
-  <data name="groupScan.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 65</value>
-  </data>
-  <data name="labelFinger.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="&gt;&gt;comboReader.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;textInfo.Name" xml:space="preserve">
-    <value>textInfo</value>
   </data>
   <data name="&gt;&gt;buttonCancel.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="textBoxPIN.PasswordChar" type="System.Char, mscorlib" xml:space="preserve">
-    <value>*</value>
+  <data name="&gt;&gt;buttonCancel.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="comboReader.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="comboReader.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 41</value>
+  </data>
+  <data name="comboReader.Size" type="System.Drawing.Size, System.Drawing">
+    <value>147, 21</value>
+  </data>
+  <data name="comboReader.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;comboReader.Name" xml:space="preserve">
+    <value>comboReader</value>
+  </data>
+  <data name="&gt;&gt;comboReader.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboReader.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;comboReader.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="imageFinger.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Right</value>
+  </data>
+  <data name="imageFinger.Location" type="System.Drawing.Point, System.Drawing">
+    <value>169, 103</value>
+  </data>
+  <data name="imageFinger.Size" type="System.Drawing.Size, System.Drawing">
+    <value>137, 137</value>
+  </data>
+  <data name="imageFinger.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;imageFinger.Name" xml:space="preserve">
+    <value>imageFinger</value>
+  </data>
+  <data name="&gt;&gt;imageFinger.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;imageFinger.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;imageFinger.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="buttonOK.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="buttonOK.Location" type="System.Drawing.Point, System.Drawing">
+    <value>175, 359</value>
+  </data>
+  <data name="buttonOK.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 23</value>
+  </data>
+  <data name="buttonOK.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="buttonOK.Text" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="&gt;&gt;buttonOK.Name" xml:space="preserve">
+    <value>buttonOK</value>
+  </data>
+  <data name="&gt;&gt;buttonOK.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;buttonOK.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;buttonOK.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="labelReader.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelReader.Location" type="System.Drawing.Point, System.Drawing">
+    <value>9, 23</value>
+  </data>
+  <data name="labelReader.Size" type="System.Drawing.Size, System.Drawing">
+    <value>44, 13</value>
+  </data>
+  <data name="labelReader.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="labelReader.Text" xml:space="preserve">
+    <value>Scaner:</value>
+  </data>
+  <data name="&gt;&gt;labelReader.Name" xml:space="preserve">
+    <value>labelReader</value>
+  </data>
+  <data name="&gt;&gt;labelReader.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelReader.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;labelReader.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="labelFinger.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelFinger.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 72</value>
+  </data>
+  <data name="labelFinger.Size" type="System.Drawing.Size, System.Drawing">
+    <value>74, 13</value>
+  </data>
+  <data name="labelFinger.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="labelFinger.Text" xml:space="preserve">
+    <value>Current swipe:</value>
+  </data>
+  <data name="&gt;&gt;labelFinger.Name" xml:space="preserve">
+    <value>labelFinger</value>
+  </data>
+  <data name="&gt;&gt;labelFinger.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelFinger.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;labelFinger.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="comboFinger.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="comboFinger.Items" xml:space="preserve">
+    <value>Left little</value>
+  </data>
+  <data name="comboFinger.Items1" xml:space="preserve">
+    <value>Left ring</value>
+  </data>
+  <data name="comboFinger.Items2" xml:space="preserve">
+    <value>Left middle</value>
+  </data>
+  <data name="comboFinger.Items3" xml:space="preserve">
+    <value>Left index</value>
+  </data>
+  <data name="comboFinger.Items4" xml:space="preserve">
+    <value>Left thumb</value>
+  </data>
+  <data name="comboFinger.Items5" xml:space="preserve">
+    <value>Right little</value>
+  </data>
+  <data name="comboFinger.Items6" xml:space="preserve">
+    <value>Right ring</value>
+  </data>
+  <data name="comboFinger.Items7" xml:space="preserve">
+    <value>Right middle</value>
+  </data>
+  <data name="comboFinger.Items8" xml:space="preserve">
+    <value>Right index</value>
+  </data>
+  <data name="comboFinger.Items9" xml:space="preserve">
+    <value>Right thumb</value>
+  </data>
+  <data name="comboFinger.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 89</value>
+  </data>
+  <data name="comboFinger.Size" type="System.Drawing.Size, System.Drawing">
+    <value>147, 21</value>
+  </data>
+  <data name="comboFinger.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;comboFinger.Name" xml:space="preserve">
+    <value>comboFinger</value>
+  </data>
+  <data name="&gt;&gt;comboFinger.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboFinger.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;comboFinger.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="textInfo.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="textInfo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>9, 143</value>
+  </data>
+  <data name="textInfo.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="textInfo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>144, 97</value>
+  </data>
+  <data name="textInfo.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="&gt;&gt;textInfo.Name" xml:space="preserve">
+    <value>textInfo</value>
+  </data>
+  <data name="&gt;&gt;textInfo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textInfo.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;textInfo.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="buttonStop.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="buttonStop.Location" type="System.Drawing.Point, System.Drawing">
+    <value>246, 73</value>
+  </data>
+  <data name="buttonStop.Size" type="System.Drawing.Size, System.Drawing">
+    <value>60, 23</value>
+  </data>
+  <data name="buttonStop.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="buttonStop.Text" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="&gt;&gt;buttonStop.Name" xml:space="preserve">
+    <value>buttonStop</value>
+  </data>
+  <data name="&gt;&gt;buttonStop.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;buttonStop.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;buttonStop.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="buttonStart.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="buttonStart.Location" type="System.Drawing.Point, System.Drawing">
+    <value>180, 73</value>
+  </data>
+  <data name="buttonStart.Size" type="System.Drawing.Size, System.Drawing">
+    <value>60, 23</value>
+  </data>
+  <data name="buttonStart.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="buttonStart.Text" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="&gt;&gt;buttonStart.Name" xml:space="preserve">
+    <value>buttonStart</value>
+  </data>
+  <data name="&gt;&gt;buttonStart.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;buttonStart.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;buttonStart.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="groupScan.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="labelQualityValue.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="labelQualityValue.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelQualityValue.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="labelQualityValue.Location" type="System.Drawing.Point, System.Drawing">
+    <value>265, 14</value>
+  </data>
+  <data name="labelQualityValue.Size" type="System.Drawing.Size, System.Drawing">
+    <value>30, 13</value>
+  </data>
+  <data name="labelQualityValue.TabIndex" type="System.Int32, mscorlib">
+    <value>34</value>
+  </data>
+  <data name="labelQualityValue.Text" xml:space="preserve">
+    <value>50 %</value>
+  </data>
+  <data name="&gt;&gt;labelQualityValue.Name" xml:space="preserve">
+    <value>labelQualityValue</value>
+  </data>
+  <data name="&gt;&gt;labelQualityValue.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelQualityValue.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;labelQualityValue.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="labelQuality.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="labelQuality.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelQuality.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="labelQuality.Location" type="System.Drawing.Point, System.Drawing">
+    <value>177, 13</value>
+  </data>
+  <data name="labelQuality.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 13</value>
+  </data>
+  <data name="labelQuality.TabIndex" type="System.Int32, mscorlib">
+    <value>33</value>
+  </data>
+  <data name="labelQuality.Text" xml:space="preserve">
+    <value>Available Quality:</value>
+  </data>
+  <data name="&gt;&gt;labelQuality.Name" xml:space="preserve">
+    <value>labelQuality</value>
+  </data>
+  <data name="&gt;&gt;labelQuality.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelQuality.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;labelQuality.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="trackBarQuality.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="trackBarQuality.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="trackBarQuality.Location" type="System.Drawing.Point, System.Drawing">
+    <value>168, 28</value>
+  </data>
+  <data name="trackBarQuality.Size" type="System.Drawing.Size, System.Drawing">
+    <value>146, 45</value>
+  </data>
+  <data name="trackBarQuality.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
+  </data>
+  <data name="&gt;&gt;trackBarQuality.Name" xml:space="preserve">
+    <value>trackBarQuality</value>
+  </data>
+  <data name="&gt;&gt;trackBarQuality.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;trackBarQuality.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;trackBarQuality.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="labelState.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelState.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="labelState.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 121</value>
+  </data>
+  <data name="labelState.Size" type="System.Drawing.Size, System.Drawing">
+    <value>35, 13</value>
+  </data>
+  <data name="labelState.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="labelState.Text" xml:space="preserve">
+    <value>State:</value>
+  </data>
+  <data name="&gt;&gt;labelState.Name" xml:space="preserve">
+    <value>labelState</value>
+  </data>
+  <data name="&gt;&gt;labelState.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelState.Parent" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;labelState.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="groupScan.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 65</value>
+  </data>
+  <data name="groupScan.Size" type="System.Drawing.Size, System.Drawing">
+    <value>322, 246</value>
   </data>
   <data name="groupScan.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
   </data>
-  <data name="labelQuality.AutoSize" type="System.Boolean, mscorlib">
+  <data name="groupScan.Text" xml:space="preserve">
+    <value>Scanning</value>
+  </data>
+  <data name="&gt;&gt;groupScan.Name" xml:space="preserve">
+    <value>groupScan</value>
+  </data>
+  <data name="&gt;&gt;groupScan.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupScan.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;groupScan.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="labelPIN.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
+  <data name="labelPIN.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
+  </data>
+  <data name="labelPIN.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 331</value>
+  </data>
+  <data name="labelPIN.Size" type="System.Drawing.Size, System.Drawing">
+    <value>28, 13</value>
+  </data>
+  <data name="labelPIN.TabIndex" type="System.Int32, mscorlib">
+    <value>31</value>
+  </data>
+  <data name="labelPIN.Text" xml:space="preserve">
+    <value>PIN:</value>
+  </data>
+  <data name="&gt;&gt;labelPIN.Name" xml:space="preserve">
+    <value>labelPIN</value>
+  </data>
+  <data name="&gt;&gt;labelPIN.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelPIN.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;labelPIN.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="textBoxPIN.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left, Right</value>
+  </data>
+  <data name="textBoxPIN.Location" type="System.Drawing.Point, System.Drawing">
+    <value>44, 328</value>
+  </data>
+  <data name="textBoxPIN.PasswordChar" type="System.Char, mscorlib" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="textBoxPIN.Size" type="System.Drawing.Size, System.Drawing">
+    <value>241, 20</value>
+  </data>
+  <data name="textBoxPIN.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
+  </data>
+  <data name="&gt;&gt;textBoxPIN.Name" xml:space="preserve">
+    <value>textBoxPIN</value>
+  </data>
+  <data name="&gt;&gt;textBoxPIN.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxPIN.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;textBoxPIN.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="textBoxLang.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="textBoxLang.Location" type="System.Drawing.Point, System.Drawing">
+    <value>291, 328</value>
+  </data>
+  <data name="textBoxLang.Size" type="System.Drawing.Size, System.Drawing">
+    <value>47, 20</value>
+  </data>
+  <data name="textBoxLang.TabIndex" type="System.Int32, mscorlib">
+    <value>33</value>
+  </data>
+  <data name="&gt;&gt;textBoxLang.Name" xml:space="preserve">
+    <value>textBoxLang</value>
+  </data>
+  <data name="&gt;&gt;textBoxLang.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxLang.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;textBoxLang.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="labelProvider.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 11</value>
+  </data>
+  <data name="labelProvider.Size" type="System.Drawing.Size, System.Drawing">
+    <value>62, 17</value>
+  </data>
+  <data name="labelProvider.TabIndex" type="System.Int32, mscorlib">
+    <value>38</value>
+  </data>
+  <data name="labelProvider.Text" xml:space="preserve">
+    <value>Provider:</value>
+  </data>
+  <data name="&gt;&gt;labelProvider.Name" xml:space="preserve">
+    <value>labelProvider</value>
+  </data>
+  <data name="&gt;&gt;labelProvider.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelProvider.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;labelProvider.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="textBoxProvider.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="textBoxProvider.Location" type="System.Drawing.Point, System.Drawing">
+    <value>76, 8</value>
+  </data>
+  <data name="textBoxProvider.Size" type="System.Drawing.Size, System.Drawing">
+    <value>263, 20</value>
+  </data>
+  <data name="textBoxProvider.TabIndex" type="System.Int32, mscorlib">
+    <value>37</value>
+  </data>
+  <data name="&gt;&gt;textBoxProvider.Name" xml:space="preserve">
+    <value>textBoxProvider</value>
+  </data>
+  <data name="&gt;&gt;textBoxProvider.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxProvider.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;textBoxProvider.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="labelObject.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 38</value>
+  </data>
+  <data name="labelObject.Size" type="System.Drawing.Size, System.Drawing">
+    <value>51, 17</value>
+  </data>
+  <data name="labelObject.TabIndex" type="System.Int32, mscorlib">
+    <value>35</value>
+  </data>
+  <data name="labelObject.Text" xml:space="preserve">
+    <value>Object:</value>
+  </data>
+  <data name="&gt;&gt;labelObject.Name" xml:space="preserve">
+    <value>labelObject</value>
+  </data>
+  <data name="&gt;&gt;labelObject.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelObject.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;labelObject.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="textBoxObject.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="textBoxObject.Location" type="System.Drawing.Point, System.Drawing">
+    <value>78, 35</value>
+  </data>
+  <data name="textBoxObject.Size" type="System.Drawing.Size, System.Drawing">
+    <value>261, 20</value>
+  </data>
+  <data name="textBoxObject.TabIndex" type="System.Int32, mscorlib">
+    <value>36</value>
+  </data>
+  <data name="&gt;&gt;textBoxObject.Name" xml:space="preserve">
+    <value>textBoxObject</value>
+  </data>
+  <data name="&gt;&gt;textBoxObject.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxObject.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;textBoxObject.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="comboBoxUser.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left, Right</value>
+  </data>
+  <data name="comboBoxUser.Items" xml:space="preserve">
+    <value>USER</value>
+  </data>
+  <data name="comboBoxUser.Items1" xml:space="preserve">
+    <value>ADMIN</value>
+  </data>
+  <data name="comboBoxUser.Location" type="System.Drawing.Point, System.Drawing">
+    <value>44, 359</value>
+  </data>
+  <data name="comboBoxUser.Size" type="System.Drawing.Size, System.Drawing">
+    <value>125, 21</value>
+  </data>
+  <data name="comboBoxUser.TabIndex" type="System.Int32, mscorlib">
+    <value>40</value>
+  </data>
+  <data name="&gt;&gt;comboBoxUser.Name" xml:space="preserve">
+    <value>comboBoxUser</value>
+  </data>
+  <data name="&gt;&gt;comboBoxUser.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBoxUser.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;comboBoxUser.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="labelType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
+  <data name="labelType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="labelType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 361</value>
+  </data>
+  <data name="labelType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 13</value>
+  </data>
+  <data name="labelType.TabIndex" type="System.Int32, mscorlib">
+    <value>39</value>
+  </data>
+  <data name="labelType.Text" xml:space="preserve">
+    <value>Role:</value>
+  </data>
+  <data name="&gt;&gt;labelType.Name" xml:space="preserve">
+    <value>labelType</value>
+  </data>
+  <data name="&gt;&gt;labelType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;labelType.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>351, 393</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -425,493 +905,13 @@
         JgAAACYAAAAmAAAAJgAAACYAAAAmAAAAJgAAACYA
 </value>
   </data>
-  <data name="labelPIN.Size" type="System.Drawing.Size, System.Drawing">
-    <value>28, 13</value>
-  </data>
-  <data name="&gt;&gt;labelType.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;buttonCancel.Name" xml:space="preserve">
-    <value>buttonCancel</value>
-  </data>
-  <data name="labelState.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
-  </data>
-  <data name="&gt;&gt;textBoxObject.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="buttonOK.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
-  </data>
-  <data name="&gt;&gt;textBoxObject.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;labelObject.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;labelType.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;labelProvider.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="comboFinger.Size" type="System.Drawing.Size, System.Drawing">
-    <value>147, 21</value>
-  </data>
-  <data name="&gt;&gt;labelType.Name" xml:space="preserve">
-    <value>labelType</value>
-  </data>
-  <data name="&gt;&gt;textBoxLang.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="trackBarQuality.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="&gt;&gt;labelState.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="comboBoxUser.Size" type="System.Drawing.Size, System.Drawing">
-    <value>125, 21</value>
-  </data>
-  <data name="&gt;&gt;textBoxPIN.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="labelQualityValue.Text" xml:space="preserve">
-    <value>50 %</value>
-  </data>
-  <data name="labelType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left</value>
-  </data>
-  <data name="buttonCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Right</value>
-  </data>
-  <data name="trackBarQuality.Size" type="System.Drawing.Size, System.Drawing">
-    <value>146, 45</value>
-  </data>
-  <data name="buttonStop.Location" type="System.Drawing.Point, System.Drawing">
-    <value>246, 73</value>
-  </data>
-  <data name="labelFinger.Size" type="System.Drawing.Size, System.Drawing">
-    <value>74, 13</value>
-  </data>
-  <data name="&gt;&gt;comboBoxUser.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;trackBarQuality.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="labelProvider.Location" type="System.Drawing.Point, System.Drawing">
-    <value>10, 11</value>
-  </data>
-  <data name="labelQuality.TabIndex" type="System.Int32, mscorlib">
-    <value>33</value>
-  </data>
-  <data name="comboFinger.Items" xml:space="preserve">
-    <value>Left little</value>
-  </data>
-  <data name="&gt;&gt;comboReader.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="buttonOK.Size" type="System.Drawing.Size, System.Drawing">
-    <value>77, 23</value>
-  </data>
-  <data name="&gt;&gt;labelReader.Name" xml:space="preserve">
-    <value>labelReader</value>
-  </data>
-  <data name="&gt;&gt;labelObject.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="labelQualityValue.TabIndex" type="System.Int32, mscorlib">
-    <value>34</value>
-  </data>
-  <data name="&gt;&gt;comboBoxUser.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;comboFinger.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="&gt;&gt;labelPIN.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="comboFinger.Items5" xml:space="preserve">
-    <value>Right little</value>
-  </data>
-  <data name="&gt;&gt;labelQuality.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="buttonCancel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>258, 359</value>
-  </data>
-  <data name="&gt;&gt;groupScan.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;labelProvider.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;comboFinger.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="buttonOK.Location" type="System.Drawing.Point, System.Drawing">
-    <value>175, 359</value>
-  </data>
-  <data name="&gt;&gt;buttonStop.Name" xml:space="preserve">
-    <value>buttonStop</value>
-  </data>
-  <data name="comboBoxUser.TabIndex" type="System.Int32, mscorlib">
-    <value>40</value>
-  </data>
-  <data name="&gt;&gt;groupScan.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="comboFinger.Items4" xml:space="preserve">
-    <value>Left thumb</value>
-  </data>
-  <data name="textInfo.Location" type="System.Drawing.Point, System.Drawing">
-    <value>9, 143</value>
-  </data>
-  <data name="&gt;&gt;labelPIN.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="labelState.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="&gt;&gt;textBoxProvider.Name" xml:space="preserve">
-    <value>textBoxProvider</value>
-  </data>
-  <data name="&gt;&gt;trackBarQuality.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="textBoxPIN.Size" type="System.Drawing.Size, System.Drawing">
-    <value>241, 20</value>
-  </data>
-  <data name="&gt;&gt;textBoxPIN.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;imageFinger.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="textBoxPIN.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
-  </data>
-  <data name="buttonStart.Size" type="System.Drawing.Size, System.Drawing">
-    <value>60, 23</value>
-  </data>
-  <data name="&gt;&gt;textBoxLang.Name" xml:space="preserve">
-    <value>textBoxLang</value>
-  </data>
-  <data name="labelObject.TabIndex" type="System.Int32, mscorlib">
-    <value>35</value>
-  </data>
-  <data name="buttonStop.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
-  </data>
-  <data name="&gt;&gt;comboBoxUser.Name" xml:space="preserve">
-    <value>comboBoxUser</value>
-  </data>
-  <data name="comboFinger.Items7" xml:space="preserve">
-    <value>Right middle</value>
-  </data>
-  <data name="&gt;&gt;labelState.Name" xml:space="preserve">
-    <value>labelState</value>
-  </data>
-  <data name="labelReader.Text" xml:space="preserve">
-    <value>Scaner:</value>
-  </data>
-  <data name="textBoxProvider.TabIndex" type="System.Int32, mscorlib">
-    <value>37</value>
-  </data>
-  <data name="&gt;&gt;imageFinger.Type" xml:space="preserve">
-    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboFinger.Name" xml:space="preserve">
-    <value>comboFinger</value>
-  </data>
-  <data name="&gt;&gt;labelPIN.Name" xml:space="preserve">
-    <value>labelPIN</value>
-  </data>
-  <data name="labelQuality.Size" type="System.Drawing.Size, System.Drawing">
-    <value>88, 13</value>
-  </data>
-  <data name="&gt;&gt;buttonOK.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="comboReader.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="labelPIN.Text" xml:space="preserve">
-    <value>PIN:</value>
-  </data>
-  <data name="comboFinger.Items6" xml:space="preserve">
-    <value>Right ring</value>
-  </data>
-  <data name="textBoxPIN.Location" type="System.Drawing.Point, System.Drawing">
-    <value>44, 328</value>
-  </data>
-  <data name="trackBarQuality.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
-  </data>
-  <data name="labelObject.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 38</value>
-  </data>
-  <data name="labelState.Text" xml:space="preserve">
-    <value>State:</value>
-  </data>
-  <data name="comboBoxUser.Items1" xml:space="preserve">
-    <value>ADMIN</value>
-  </data>
-  <data name="labelType.Location" type="System.Drawing.Point, System.Drawing">
-    <value>10, 361</value>
-  </data>
-  <data name="&gt;&gt;buttonStart.Name" xml:space="preserve">
-    <value>buttonStart</value>
-  </data>
-  <data name="&gt;&gt;textInfo.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;buttonStart.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;labelFinger.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="&gt;&gt;textInfo.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="labelState.Size" type="System.Drawing.Size, System.Drawing">
-    <value>35, 13</value>
-  </data>
-  <data name="labelType.TabIndex" type="System.Int32, mscorlib">
-    <value>39</value>
-  </data>
-  <data name="labelQuality.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="labelPIN.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left</value>
-  </data>
-  <data name="comboFinger.Items1" xml:space="preserve">
-    <value>Left ring</value>
-  </data>
-  <data name="&gt;&gt;buttonCancel.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="comboBoxUser.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
-  </data>
-  <data name="labelType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="&gt;&gt;buttonOK.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="textBoxProvider.Location" type="System.Drawing.Point, System.Drawing">
-    <value>76, 8</value>
-  </data>
-  <data name="buttonStart.Location" type="System.Drawing.Point, System.Drawing">
-    <value>180, 73</value>
-  </data>
-  <data name="&gt;&gt;buttonStop.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="&gt;&gt;labelPIN.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="textBoxObject.Location" type="System.Drawing.Point, System.Drawing">
-    <value>78, 35</value>
-  </data>
-  <data name="&gt;&gt;textBoxObject.Name" xml:space="preserve">
-    <value>textBoxObject</value>
-  </data>
-  <data name="&gt;&gt;buttonOK.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;labelObject.Name" xml:space="preserve">
-    <value>labelObject</value>
-  </data>
-  <data name="&gt;&gt;textInfo.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBoxUser.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="buttonCancel.TabIndex" type="System.Int32, mscorlib">
-    <value>30</value>
-  </data>
-  <data name="labelType.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="labelFinger.Text" xml:space="preserve">
-    <value>Current swipe:</value>
-  </data>
-  <data name="textBoxLang.TabIndex" type="System.Int32, mscorlib">
-    <value>33</value>
-  </data>
-  <data name="comboBoxUser.Location" type="System.Drawing.Point, System.Drawing">
-    <value>44, 359</value>
-  </data>
-  <data name="labelType.Size" type="System.Drawing.Size, System.Drawing">
-    <value>32, 13</value>
-  </data>
-  <data name="&gt;&gt;labelQualityValue.Name" xml:space="preserve">
-    <value>labelQualityValue</value>
-  </data>
-  <data name="&gt;&gt;labelFinger.Name" xml:space="preserve">
-    <value>labelFinger</value>
-  </data>
-  <data name="labelFinger.TabIndex" type="System.Int32, mscorlib">
-    <value>10</value>
-  </data>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>6, 13</value>
-  </data>
-  <data name="&gt;&gt;textBoxPIN.Name" xml:space="preserve">
-    <value>textBoxPIN</value>
-  </data>
-  <data name="labelQualityValue.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="textInfo.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Left, Right</value>
-  </data>
-  <data name="labelType.Text" xml:space="preserve">
-    <value>Role:</value>
-  </data>
-  <data name="&gt;&gt;labelQuality.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="buttonStart.Text" xml:space="preserve">
-    <value>Start</value>
-  </data>
-  <data name="comboFinger.Items3" xml:space="preserve">
-    <value>Left index</value>
-  </data>
-  <data name="&gt;&gt;labelProvider.Name" xml:space="preserve">
-    <value>labelProvider</value>
-  </data>
-  <data name="&gt;&gt;labelReader.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="comboReader.Size" type="System.Drawing.Size, System.Drawing">
-    <value>147, 21</value>
-  </data>
-  <data name="labelReader.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
-  </data>
-  <data name="imageFinger.Size" type="System.Drawing.Size, System.Drawing">
-    <value>137, 137</value>
-  </data>
-  <data name="buttonStart.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="labelState.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="textBoxObject.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="textBoxLang.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Right</value>
-  </data>
-  <data name="&gt;&gt;textBoxPIN.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;labelFinger.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="labelQualityValue.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="comboFinger.Items2" xml:space="preserve">
-    <value>Left middle</value>
-  </data>
-  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>351, 393</value>
-  </data>
-  <data name="&gt;&gt;imageFinger.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="groupScan.Text" xml:space="preserve">
-    <value>Scanning</value>
-  </data>
-  <data name="&gt;&gt;labelReader.Parent" xml:space="preserve">
-    <value>groupScan</value>
-  </data>
-  <data name="comboFinger.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="buttonStop.Size" type="System.Drawing.Size, System.Drawing">
-    <value>60, 23</value>
-  </data>
-  <data name="groupScan.Size" type="System.Drawing.Size, System.Drawing">
-    <value>322, 246</value>
-  </data>
-  <data name="labelQualityValue.Size" type="System.Drawing.Size, System.Drawing">
-    <value>30, 13</value>
-  </data>
-  <data name="&gt;&gt;labelQuality.Name" xml:space="preserve">
-    <value>labelQuality</value>
-  </data>
-  <data name="&gt;&gt;buttonStart.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="textBoxPIN.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
-  </data>
-  <data name="&gt;&gt;labelType.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="labelProvider.Text" xml:space="preserve">
-    <value>Provider:</value>
-  </data>
-  <data name="labelReader.Location" type="System.Drawing.Point, System.Drawing">
-    <value>9, 23</value>
-  </data>
-  <data name="&gt;&gt;textBoxLang.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="labelQuality.Text" xml:space="preserve">
-    <value>Available Quality:</value>
-  </data>
-  <data name="imageFinger.Location" type="System.Drawing.Point, System.Drawing">
-    <value>169, 103</value>
-  </data>
-  <data name="&gt;&gt;comboReader.Name" xml:space="preserve">
-    <value>comboReader</value>
-  </data>
-  <data name="&gt;&gt;labelFinger.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="labelPIN.TabIndex" type="System.Int32, mscorlib">
-    <value>31</value>
-  </data>
-  <data name="&gt;&gt;buttonStart.Parent" xml:space="preserve">
-    <value>groupScan</value>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Authentication</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>BioPinMatchDialog</value>
   </data>
-  <data name="labelQuality.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="comboBoxUser.Items" xml:space="preserve">
-    <value>USER</value>
-  </data>
-  <data name="&gt;&gt;textBoxProvider.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="labelObject.Text" xml:space="preserve">
-    <value>Object:</value>
-  </data>
-  <data name="buttonOK.Text" xml:space="preserve">
-    <value>Verify</value>
-  </data>
-  <data name="&gt;&gt;buttonStop.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
 </root>

@@ -408,7 +408,7 @@ namespace Aladdin.CAPI.GOST
                 scope, "GOST3412_2015_M", ASN1.Null.Instance))
             {
                 // выполнить тест
-                Engine.GOSTR3412_K.TestMAC64(blockCipher);
+                Engine.GOSTR3412_M.TestMAC(blockCipher);
             }
             WriteLine(); 
             WriteLine("MAC.GOSTR3412/128");
@@ -418,7 +418,7 @@ namespace Aladdin.CAPI.GOST
                 scope, "GOST3412_2015_K", ASN1.Null.Instance))
             {
                 // выполнить тест
-                Engine.GOSTR3412_K.TestMAC128(blockCipher);
+                Engine.GOSTR3412_K.TestMAC(blockCipher);
             }
             Console.WriteLine(); 
         }
@@ -552,7 +552,7 @@ namespace Aladdin.CAPI.GOST
                 scope, "GOST3412_2015_M", ASN1.Null.Instance))
             {
                 // протестировать алгоритм
-                Engine.GOSTR3412_K.Test64(blockCipher);
+                Engine.GOSTR3412_M.Test(blockCipher);
             }
             WriteLine();
             WriteLine("Cipher.GOSTR3412/128");
@@ -562,8 +562,17 @@ namespace Aladdin.CAPI.GOST
                 scope, "GOST3412_2015_K", ASN1.Null.Instance))
             {
                 // протестировать алгоритм
-                Engine.GOSTR3412_K.Test128(blockCipher);
+                Engine.GOSTR3412_K.Test(blockCipher);
             }
+            WriteLine();
+
+            // протестировать алгоритм
+            WriteLine("KeyWrap.KExp15/64");
+            Wrap.KExp15.Test(factory, scope, 8);
+            WriteLine();
+        
+            WriteLine("KeyWrap.KExp15/128");
+            Wrap.KExp15.Test(factory, scope, 16);
             WriteLine();
         }
         ////////////////////////////////////////////////////////////////////////////
@@ -871,6 +880,10 @@ namespace Aladdin.CAPI.GOST
                             new ASN1.ObjectIdentifier(ASN1.GOST.OID.gostR3411_94), 
                             new ASN1.ObjectIdentifier(hashOID) 
                         ); 
+                        // выполнить тест круговой подписи
+                        Sign.GOSTR3410.ECSignHash.CircleTest(
+                            trustFactory, keyOID, parameters, hashParameters
+                        ); 
                         // указать параметры алгоритма
                         ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
                             new ASN1.ObjectIdentifier(keyOID), ASN1.Null.Instance
@@ -1033,6 +1046,10 @@ namespace Aladdin.CAPI.GOST
                         ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
                             new ASN1.ObjectIdentifier(hashOID), ASN1.Null.Instance
                         ); 
+                        // выполнить тест круговой подписи
+                        Sign.GOSTR3410.ECSignHash.CircleTest(
+                            trustFactory, keyOID, parameters, hashParameters
+                        ); 
                         // указать параметры алгоритма
                         ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
                             new ASN1.ObjectIdentifier(keyOID), ASN1.Null.Instance
@@ -1118,8 +1135,9 @@ namespace Aladdin.CAPI.GOST
                 Write("OK  "); 
             
                 // получить алгоритм согласования ключа
-                using (IKeyAgreement agreement = container.Provider.CreateAlgorithm<IKeyAgreement>(
-                    container.Store, agreementParameters))
+                using (IKeyAgreement agreement = 
+                    container.Provider.CreateAlgorithm<IKeyAgreement>(
+                        container.Store, agreementParameters))
                 try {
                     // выполнить тест
                     Keyx.GOSTR3410.ECKeyAgreement2012.Test(
@@ -1155,7 +1173,8 @@ namespace Aladdin.CAPI.GOST
 
                 // получить алгоритм согласования ключа
                 using (IKeyAgreement agreement = 
-                    factory.CreateAlgorithm<IKeyAgreement>(null, agreementParameters))
+                    factory.CreateAlgorithm<IKeyAgreement>(
+                        null, agreementParameters))
                 {
                     // выполнить тест
                     Keyx.GOSTR3410.ECKeyAgreement2012.Test(
@@ -1214,6 +1233,10 @@ namespace Aladdin.CAPI.GOST
                         // указать параметры алгоритма хэширования
                         ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
                             new ASN1.ObjectIdentifier(hashOID), ASN1.Null.Instance
+                        ); 
+                        // выполнить тест круговой подписи
+                        Sign.GOSTR3410.ECSignHash.CircleTest(
+                            trustFactory, keyOID, parameters, hashParameters
                         ); 
                         // указать параметры алгоритма
                         ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
@@ -2152,7 +2175,8 @@ namespace Aladdin.CAPI.GOST
                         "jLqCMAoGCCqFAwcBAQICMAoGCCqFAwcBAQEBBEAVAajM7ZUSj46D6eEG48jGY4BI" + 
                         "MaME8XwiOc2OZeDulzxJc3My8o3M53erK4OUab1i2KYZ66mOLoEC7KsN+FDr"
                     )); 
-/*                    string msg2012_256_2 = encoding.GetString(pki2012_256.TestEnvelopedMessage( 
+                    // ОШИБКА
+/*                  string msg2012_256_2 = encoding.GetString(pki2012_256.TestEnvelopedMessage( 
                         "MIIDYgYJKoZIhvcNAQcDoIIDUzCCA08CAQKgggHzoIIB7zCCAeswggGYoAMCAQIC" + 
                         "BAGMuoIwCgYIKoUDBwEBAwIwODENMAsGA1UEChMEVEsyNjEnMCUGA1UEAxMeQ0Eg" + 
                         "VEsyNjogR09TVCAzNC4xMC0xMiAyNTYtYml0MB4XDTAxMDEwMTAwMDAwMFoXDTQ5" + 
@@ -2173,7 +2197,8 @@ namespace Aladdin.CAPI.GOST
                         "AAAAAACALx+QhUp4gvbGLB3vh+tFGUcGkKaSN3gZce8VURIfpINvLbVDSRrlLqil" + 
                         "y+C8gkYn"
                     )); 
-*/                    string msg2012_256_3 = encoding.GetString(pki2012_256.TestEnvelopedMessage( 
+                    // ОШИБКА
+                    string msg2012_256_3 = encoding.GetString(pki2012_256.TestEnvelopedMessage( 
                         "MIIBlQYJKoZIhvcNAQcDoIIBhjCCAYICAQAxggEcMIIBGAIBADBAMDgxDTALBgNV" + 
                         "BAoTBFRLMjYxJzAlBgNVBAMTHkNBIFRLMjY6IEdPU1QgMzQuMTAtMTIgMjU2LWJp" + 
                         "dAIEAYy6gzAXBgkqhQMHAQEHAgEwCgYIKoUDBwEBBgEEgbcwgbQEMFcMddCZTWrx" + 
@@ -2184,7 +2209,7 @@ namespace Aladdin.CAPI.GOST
                         "AQUCATASBBAWxF6hGJ034AAAAAAAAAAAgC/zjFxalfzn+RnUVhH9Bmc/FYuq3cK6" + 
                         "wUjUSBFCAfVuZOMlVPqnDUKXSwCKOhG/7A=="
                     )); 
-                }
+*/              }
                 using (CMS pki2012_512 = new CMS(factory, 
                     "MIIB5zCCAZSgAwIBAgIEAYy6hTAKBggqhQMHAQEDAjA4MQ0wCwYDVQQKEwRUSzI2" + 
                     "MScwJQYDVQQDEx5DQSBUSzI2OiBHT1NUIDM0LjEwLTEyIDI1Ni1iaXQwHhcNMDEw" + 

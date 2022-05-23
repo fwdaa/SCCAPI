@@ -46,6 +46,9 @@ public abstract class SignData extends aladdin.capi.SignData
         Attribute[] keyAttributes = new Attribute[] {
             new Attribute(API.CKA_SIGN,  API.CK_TRUE)
         }; 
+    	// при необходимости закрыть старый сеанс
+		if (session != null) { session.close(); session = null; } 
+        
         // открыть сеанс
         session = applet.openSession(API.CKS_RO_USER_FUNCTIONS); 
         try { 

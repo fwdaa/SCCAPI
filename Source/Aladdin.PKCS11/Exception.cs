@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using System.Runtime.InteropServices;
 
 namespace Aladdin.PKCS11
@@ -99,6 +98,7 @@ namespace Aladdin.PKCS11
 		    case API.CKR_WRAPPING_KEY_TYPE_INCONSISTENT	    : return "CKR_WRAPPING_KEY_TYPE_INCONSISTENT";
 		    case API.CKR_RANDOM_SEED_NOT_SUPPORTED		    : return "CKR_RANDOM_SEED_NOT_SUPPORTED";
 		    case API.CKR_RANDOM_NO_RNG					    : return "CKR_RANDOM_NO_RNG";
+	        case API.CKR_DOMAIN_PARAMS_INVALID              : return "CKR_DOMAIN_PARAMS_INVALID";
 		    case API.CKR_BUFFER_TOO_SMALL					: return "CKR_BUFFER_TOO_SMALL";
 		    case API.CKR_SAVED_STATE_INVALID				: return "CKR_SAVED_STATE_INVALID";
 		    case API.CKR_INFORMATION_SENSITIVE			    : return "CKR_INFORMATION_SENSITIVE";

@@ -48,7 +48,7 @@ namespace Aladdin.CAPI.GUI
 				    "d", CultureInfo.CurrentUICulture
 			    ); 
                 // получить описание способа использования
-                string description = Reflection.GetDescription(keyUsage); 
+                string description = Utils.GetDescription(keyUsage); 
 
 			    // указать информацию о новом элементе в список
 			    ListViewItem item = new ListViewItem(new string[] { 

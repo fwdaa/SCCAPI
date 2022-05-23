@@ -11,14 +11,14 @@ namespace Aladdin.CAPI.Proxy.Windows
     ///////////////////////////////////////////////////////////////////////////
     public sealed class WndServerWindow : Form, Remoting.IBackgroundHandler
     {
-        // идентификатор сообщения и результат выполнения 
+        //идентификатор сообщения и результат выполнения
         private int msg; private RunWorkerCompletedEventArgs result;
 
         // конструктор
         public WndServerWindow(int msg) 
         { 
             // сохранить переданные параметры
-            this.msg = msg; result = null; InitializeComponent();
+            this.msg = msg; result = null; InitializeComponent(); 
 
             // установить свойства окна
             ShowInTaskbar = false; Visible = false; Enabled = false; 

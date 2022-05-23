@@ -7,17 +7,20 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class RemoteClientControl extends RefObject
 {
+    // удаленный поток
+    private final IBackgroundTask task; 
+    
     // конструктор
     public RemoteClientControl(IBackgroundTask task) 
-        
+    {     
         // сохранить переданные параметры
-        { this.task = task; } private final IBackgroundTask task; 
-
+        this.task = RefObject.addRef(task); 
+    } 
     // освободить выделенные ресурсы
     @Override protected void onClose() throws IOException
     { 
         // освободить выделенные ресурсы
-        task.close(); super.onClose(); 
+        RefObject.release(task); super.onClose(); 
     }
     // идентификатор запущенного потока
     public final long threadID() { return task.isBusy() ? task.threadID() : 0; }

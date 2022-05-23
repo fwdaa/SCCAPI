@@ -37,6 +37,9 @@ namespace Aladdin.CAPI.PKCS11
 		// инициализировать алгоритм
 		public override void Init()
         {
+			// при необходимости закрыть старый сеанс
+			if (session != null) { session.Dispose(); session = null; } 
+
 	        // открыть новый сеанс
 	        session = applet.OpenSession(API.CKS_RO_PUBLIC_SESSION); 
 	        try { 
@@ -46,10 +49,8 @@ namespace Aladdin.CAPI.PKCS11
 		        // инициализировать алгоритм
 		        session.DigestInit(parameters); total = 0; 
 	        }
-	        catch { 
-                // закрыть сеанс
-                session.Dispose(); session = null; throw; 
-            }
+			// при ошибке закрыть сеанс
+	        catch { session.Dispose(); session = null; throw; }
         }
 		// захэшировать данные
 		public override void Update(byte[] data, int dataOff, int dataLen)

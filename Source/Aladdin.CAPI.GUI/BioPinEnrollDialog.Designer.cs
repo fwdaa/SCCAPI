@@ -126,12 +126,12 @@
             // 
             // groupLeft
             // 
-            resources.ApplyResources(this.groupLeft, "groupLeft");
             this.groupLeft.Controls.Add(this.checkLeftIndex);
             this.groupLeft.Controls.Add(this.checkLeftThumb);
             this.groupLeft.Controls.Add(this.checkLeftMiddle);
             this.groupLeft.Controls.Add(this.checkLeftRing);
             this.groupLeft.Controls.Add(this.checkLeftLittle);
+            resources.ApplyResources(this.groupLeft, "groupLeft");
             this.groupLeft.Name = "groupLeft";
             this.groupLeft.TabStop = false;
             // 
@@ -279,6 +279,7 @@
             resources.GetString("comboFinger.Items8"),
             resources.GetString("comboFinger.Items9")});
             this.comboFinger.Name = "comboFinger";
+            this.comboFinger.SelectedIndexChanged += new System.EventHandler(this.OnFingerChanged);
             // 
             // textInfo
             // 

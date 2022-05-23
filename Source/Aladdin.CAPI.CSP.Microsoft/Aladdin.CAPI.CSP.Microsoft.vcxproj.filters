@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Hash">
+      <UniqueIdentifier>{88b7fb3a-64e5-43c1-aad3-c2369fdad469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MAC">
+      <UniqueIdentifier>{7c24daf4-7230-4aa7-9c78-7b0effe29562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MAC">
+      <UniqueIdentifier>{1a3228cc-01be-4537-82fd-9df954744429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Cipher">
+      <UniqueIdentifier>{5f2b63d0-c15e-4aa5-90d8-462d617c80a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\RSA">
+      <UniqueIdentifier>{9d85eec2-d3fb-4de6-9107-4028a609eb16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RSA">
+      <UniqueIdentifier>{15962f61-9b2e-4c70-aa3c-a1ee269999bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\X942">
+      <UniqueIdentifier>{14a6b8b1-5088-43f5-aad7-b2fb074e1899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\X942">
+      <UniqueIdentifier>{d5e43795-9658-44f5-9050-6012d3c6cb62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\X957">
+      <UniqueIdentifier>{284884c7-8f86-48fc-beb8-08179d2e7843}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\X957">
+      <UniqueIdentifier>{5fc0aa3c-9b9f-4ad3-afe0-56d29ed275f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sign">
+      <UniqueIdentifier>{dfa5ac7a-8d8f-43b2-a6fd-f50ee72265e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Keyx">
+      <UniqueIdentifier>{d8052566-8498-4889-8667-b00f57efa351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sign\RSA">
+      <UniqueIdentifier>{f9bd4d8f-7987-4b13-97e4-d20a125c5b67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sign">
+      <UniqueIdentifier>{94473b7c-8431-4097-9c14-cb1fe88e491c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sign\RSA">
+      <UniqueIdentifier>{744728ce-47f6-4a54-82b4-12c50ea701ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Keyx\RSA">
+      <UniqueIdentifier>{647308a2-6cce-4817-a52a-d0b665c8e945}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sign\DSA">
+      <UniqueIdentifier>{c7543ce6-ef69-4f15-bf97-725bc865fbab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sign\DSA">
+      <UniqueIdentifier>{edb3fb79-cbf5-47b2-9ca9-6a549b448c2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DSS">
+      <UniqueIdentifier>{9316b385-78e8-461f-a905-b86c43e4f4f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DSS">
+      <UniqueIdentifier>{2dfcf1a3-0d5b-438a-8c6e-f78cf5e66812}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MAC\HMAC.cpp">
+      <Filter>Source Files\MAC</Filter>
+    </ClCompile>
+    <ClCompile Include="CertificateStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistryStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\AESEnhancedProvider.cpp">
+      <Filter>Source Files\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="X957\X957PrivateKey.cpp">
+      <Filter>Source Files\X957</Filter>
+    </ClCompile>
+    <ClCompile Include="X957\X957KeyPairGenerator.cpp">
+      <Filter>Source Files\X957</Filter>
+    </ClCompile>
+    <ClCompile Include="X942\X942PrivateKey.cpp">
+      <Filter>Source Files\X942</Filter>
+    </ClCompile>
+    <ClCompile Include="X942\X942KeyPairGenerator.cpp">
+      <Filter>Source Files\X942</Filter>
+    </ClCompile>
+    <ClCompile Include="Sign\RSA\RSAVerifyHash.cpp">
+      <Filter>Source Files\Sign\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="Sign\RSA\RSASignHash.cpp">
+      <Filter>Source Files\Sign\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="Sign\DSA\DSAVerifyHash.cpp">
+      <Filter>Source Files\Sign\DSA</Filter>
+    </ClCompile>
+    <ClCompile Include="Sign\DSA\DSASignHash.cpp">
+      <Filter>Source Files\Sign\DSA</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\RSABaseProvider.cpp">
+      <Filter>Source Files\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\RSAEnhancedProvider.cpp">
+      <Filter>Source Files\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\RSAPrivateKey.cpp">
+      <Filter>Source Files\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\RSAProvider.cpp">
+      <Filter>Source Files\RSA</Filter>
+    </ClCompile>
+    <ClCompile Include="DSS\DSSBaseProvider.cpp">
+      <Filter>Source Files\DSS</Filter>
+    </ClCompile>
+    <ClCompile Include="DSS\DSSEnhancedProvider.cpp">
+      <Filter>Source Files\DSS</Filter>
+    </ClCompile>
+    <ClCompile Include="DSS\DSSProvider.cpp">
+      <Filter>Source Files\DSS</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\RSASCardProvider.cpp">
+      <Filter>Source Files\RSA</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\MD2.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\MD4.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\MD5.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\SHA1.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\SHA2_256.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\SHA2_384.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash\SHA2_512.h">
+      <Filter>Header Files\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="MAC\HMAC.h">
+      <Filter>Header Files\MAC</Filter>
+    </ClInclude>
+    <ClInclude Include="Cipher\AES.h">
+      <Filter>Header Files\Cipher</Filter>
+    </ClInclude>
+    <ClInclude Include="Cipher\DES.h">
+      <Filter>Header Files\Cipher</Filter>
+    </ClInclude>
+    <ClInclude Include="Cipher\DESX.h">
+      <Filter>Header Files\Cipher</Filter>
+    </ClInclude>
+    <ClInclude Include="Cipher\RC2.h">
+      <Filter>Header Files\Cipher</Filter>
+    </ClInclude>
+    <ClInclude Include="Cipher\RC4.h">
+      <Filter>Header Files\Cipher</Filter>
+    </ClInclude>
+    <ClInclude Include="Cipher\TDES.h">
+      <Filter>Header Files\Cipher</Filter>
+    </ClInclude>
+    <ClInclude Include="CertificateStore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistryStore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\AESEnhancedProvider.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="SecretKeyType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DSS\DSSBaseProvider.h">
+      <Filter>Header Files\DSS</Filter>
+    </ClInclude>
+    <ClInclude Include="DSS\DSSEnhancedProvider.h">
+      <Filter>Header Files\DSS</Filter>
+    </ClInclude>
+    <ClInclude Include="DSS\DSSProvider.h">
+      <Filter>Header Files\DSS</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSABaseProvider.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSAEnhancedProvider.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSAKeyPairGenerator.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSAPrivateKey.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSAProvider.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSAStrongProvider.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyx\RSA\RSADecipherment.h">
+      <Filter>Header Files\Keyx\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyx\RSA\RSAEncipherment.h">
+      <Filter>Header Files\Keyx\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyx\RSA\RSATransportKeyUnwrap.h">
+      <Filter>Header Files\Keyx\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyx\RSA\RSATransportKeyWrap.h">
+      <Filter>Header Files\Keyx\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Sign\DSA\DSASignHash.h">
+      <Filter>Header Files\Sign\DSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Sign\DSA\DSAVerifyHash.h">
+      <Filter>Header Files\Sign\DSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Sign\RSA\RSASignHash.h">
+      <Filter>Header Files\Sign\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="Sign\RSA\RSAVerifyHash.h">
+      <Filter>Header Files\Sign\RSA</Filter>
+    </ClInclude>
+    <ClInclude Include="X942\X942KeyPairGenerator.h">
+      <Filter>Header Files\X942</Filter>
+    </ClInclude>
+    <ClInclude Include="X942\X942PrivateKey.h">
+      <Filter>Header Files\X942</Filter>
+    </ClInclude>
+    <ClInclude Include="X957\X957KeyPairGenerator.h">
+      <Filter>Header Files\X957</Filter>
+    </ClInclude>
+    <ClInclude Include="X957\X957PrivateKey.h">
+      <Filter>Header Files\X957</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSASCardProvider.h">
+      <Filter>Header Files\RSA</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Aladdin.CAPI.CSP.Microsoft.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

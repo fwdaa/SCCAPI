@@ -39,6 +39,9 @@ public abstract class Hash extends aladdin.capi.Hash
     @Override
 	public void init() throws IOException
     {
+    	// при необходимости закрыть старый сеанс
+		if (session != null) { session.close(); session = null; } 
+        
         // открыть новый сеанс 
         session = applet.openSession(API.CKS_RO_PUBLIC_SESSION); 
         try { 

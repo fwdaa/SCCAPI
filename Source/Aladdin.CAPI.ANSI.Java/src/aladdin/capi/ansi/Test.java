@@ -159,7 +159,7 @@ public class Test extends aladdin.capi.Test
                 testEC(factory, scope, rand, true, KeyFlags.NONE, OID.CERTICOM_CURVES_SECT409R1); 
                 testEC(factory, scope, rand, true, KeyFlags.NONE, OID.CERTICOM_CURVES_SECT571K1); 
                 testEC(factory, scope, rand, true, KeyFlags.NONE, OID.CERTICOM_CURVES_SECT571R1); 
-                testEC(factory, scope, rand, true, KeyFlags.NONE, OID.X962_CURVES_C2ONB239V5   ); 
+                testEC(factory, scope, rand, true, KeyFlags.NONE, OID.X962_CURVES_C2ONB239V5   ); /* ОШИБКА */
             }
         }
         catch (Throwable e) { e.printStackTrace(System.err); throw e; }
@@ -1766,7 +1766,29 @@ public class Test extends aladdin.capi.Test
         IRand rand, boolean generate, KeyFlags keyFlags) throws Exception
     {
         println("DSA/EPHEMERAL");
-
+        testDSA(factory, scope, rand, 
+            aladdin.asn1.ansi.x957.DssParms.EPHEMERAL, generate, keyFlags
+        ); 
+        println();
+        println("DSA/JCA512");
+        testDSA(factory, scope, rand, 
+            aladdin.asn1.ansi.x957.DssParms.JCA512, generate, keyFlags
+        ); 
+        println();
+        println("DSA/JCA768");
+        testDSA(factory, scope, rand, 
+            aladdin.asn1.ansi.x957.DssParms.JCA768, generate, keyFlags
+        ); 
+        println();
+        println("DSA/JCA1024");
+        testDSA(factory, scope, rand, 
+            aladdin.asn1.ansi.x957.DssParms.JCA1024, generate, keyFlags
+        ); 
+        println();
+    }
+    public static void testDSA(Factory factory, SecurityObject scope,
+        IRand rand, IEncodable encodable, boolean generate, KeyFlags keyFlags) throws Exception
+    {
         // указать идентификатор ключа
         String keyOID = aladdin.asn1.ansi.OID.X957_DSA; 
         
@@ -1780,9 +1802,8 @@ public class Test extends aladdin.capi.Test
             KeyUsage keyUsage = keyFactory.getKeyUsage(); 
             
             // раскодировать параметры алгоритма
-            IParameters parameters = keyFactory.decodeParameters(
-                aladdin.asn1.ansi.x957.DssParms.EPHEMERAL
-            ); 
+            IParameters parameters = keyFactory.decodeParameters(encodable); 
+                
             // сгенерировать ключевую пару
             try (KeyPair keyPair = generateKeyPair(
                 factory, scope, rand, trustFactory, null, generate, 
@@ -1794,7 +1815,6 @@ public class Test extends aladdin.capi.Test
             // удалить ключи контейнера
             finally { deleteKeys(scope); }
         }
-        println();
     }
     public static void testDSA(Factory factory, SecurityStore scope,
         KeyPair keyPair, KeyFlags keyFlags) throws Exception
@@ -1911,7 +1931,14 @@ public class Test extends aladdin.capi.Test
         IRand rand, boolean generate, KeyFlags keyFlags) throws Exception
     {
         println("DH/EPHEMERAL");
-
+        testDH(factory, scope, rand, 
+            aladdin.asn1.ansi.x942.DomainParameters.EPHEMERAL, generate, keyFlags
+        ); 
+        println();        
+    }
+    public static void testDH(Factory factory, SecurityObject scope,
+        IRand rand, IEncodable encodable, boolean generate, KeyFlags keyFlags) throws Exception
+    {
         // указать идентификатор ключа
         String keyOID = aladdin.asn1.ansi.OID.X942_DH_PUBLIC_KEY; 
         
@@ -1925,9 +1952,8 @@ public class Test extends aladdin.capi.Test
             KeyUsage keyUsage = keyFactory.getKeyUsage(); 
             
             // раскодировать параметры алгоритма
-            IParameters parameters = keyFactory.decodeParameters(
-                aladdin.asn1.ansi.x942.DomainParameters.EPHEMERAL
-            ); 
+            IParameters parameters = keyFactory.decodeParameters(encodable); 
+            
             // сгенерировать ключевую пару
             try (KeyPair keyPair = generateKeyPair(
                 factory, scope, rand, trustFactory, null, generate, 
@@ -1939,8 +1965,8 @@ public class Test extends aladdin.capi.Test
             // удалить ключи контейнера
             finally { deleteKeys(scope); }
         }
-        println();        
     }
+        
     public static void testDH(Factory factory, SecurityStore scope, 
         KeyPair keyPair, KeyFlags keyFlags) throws Exception
     {

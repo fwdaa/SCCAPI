@@ -23,7 +23,7 @@ namespace Aladdin.PKCS11
 		    // сохранить минимальный и максимальный размер ключей
 		    ulMinKeySize = (Int32)info.ulMinKeySize; ulMaxKeySize = (Int32)info.ulMaxKeySize; 
 	    }
-	    public UInt64 Flags		    { get { return flags;		    } }  
+	    public UInt64 Flags		    { get { return flags;		    } }
 	    public Int32  MinKeySize	{ get { return ulMinKeySize;	} }  
 	    public Int32  MaxKeySize	{ get { return ulMaxKeySize;	} }  
     }; 

@@ -56,15 +56,6 @@ public abstract class HMAC extends aladdin.capi.pkcs11.Mac
             // создать алгоритм вычисления имитовставки
             hMAC = new aladdin.capi.mac.HMAC(hashAlgorithm); hMAC.init(key); return;         
         }
-        // инициализировать алгоритм
-        try { super.init(key); return; }
-            
-        // при возникновении ошибки
-        catch (aladdin.pkcs11.Exception e) { 
-            
-            // проверить код ошибки
-            if (e.getErrorCode() != API.CKR_ATTRIBUTE_VALUE_INVALID) throw e; 
-        }
         // выделить буфер для хэш-значения
         hash = new byte[hashAlgorithm.hashSize()]; 
             
@@ -93,13 +84,15 @@ public abstract class HMAC extends aladdin.capi.pkcs11.Mac
 	@Override public int finish(byte[] buffer, int bufferOff) throws IOException
 	{
 		// вызвать базовую функцию
-		if (hMAC == null) super.finish(hash, 0);
+		if (hMAC == null) super.finish(buffer, bufferOff);
         else { 
 		    // получить имитовставку
 		    hMAC.finish(hash, 0); hMAC.close(); hMAC = null;
+
+            // скопировать хэш-значение
+            System.arraycopy(hash, 0, buffer, bufferOff, macSize); 
         }
-        // скопировать хэш-значение
-        System.arraycopy(hash, 0, buffer, bufferOff, macSize); return macSize; 
+        return macSize; 
 	}
     // признак специального ключа
     protected boolean isSpecialKey(ISecretKey key) { return (key.length() == 0); }

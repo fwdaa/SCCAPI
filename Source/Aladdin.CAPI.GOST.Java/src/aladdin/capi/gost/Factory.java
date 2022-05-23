@@ -395,17 +395,18 @@ public final class Factory extends aladdin.capi.Factory
             // для алгоритмов согласования общего ключа
             else if (type.equals(IKeyAgreement.class))
             {
-                if (oid.equals(OID.GOSTR3410_1994_SSDH) || oid.equals(OID.GOSTR3410_1994_ESDH))
+                if (oid.equals(OID.GOSTR3410_1994))
                 {
                     // создать алгоритм
                     return new aladdin.capi.gost.keyx.gostr3410.DHKeyAgreement(); 
                 }
-                if (oid.equals(OID.GOSTR3410_2001_SSDH) || oid.equals(OID.GOSTR3410_2001_ESDH))
+                if (oid.equals(OID.GOSTR3410_2001))
                 {
                     // создать алгоритм
                     return new aladdin.capi.gost.keyx.gostr3410.ECKeyAgreement2001(); 
                 }
-                if (oid.equals(OID.GOSTR3410_2012_DH_256) || oid.equals(OID.GOSTR3410_2012_DH_512))
+                if (oid.equals(OID.GOSTR3410_2012_256) || 
+                    oid.equals(OID.GOSTR3410_2012_512))
                 {
                     // создать алгоритм
                     return new aladdin.capi.gost.keyx.gostr3410.ECKeyAgreement2012(); 
@@ -780,6 +781,42 @@ public final class Factory extends aladdin.capi.Factory
                         return new VerifyHashData(hash, hashParameters, verifyHash); 
                     }
                 }
+            }
+        }
+        // для алгоритмов согласования общего ключа
+	    else if (type.equals(IKeyAgreement.class))
+        {
+            if (oid.equals(OID.GOSTR3410_1994_SSDH))
+            {
+                // указать идентификатор ключа
+                oid = OID.GOSTR3410_1994; 
+
+                // создать алгоритм согласования общего ключа
+                return factory.createAlgorithm(scope, oid, parameters, type);
+            }
+            if (oid.equals(OID.GOSTR3410_2001_SSDH))
+            {
+                // указать идентификатор ключа
+                oid = OID.GOSTR3410_2001; 
+
+                // создать алгоритм согласования общего ключа
+                return factory.createAlgorithm(scope, oid, parameters, type);
+            }
+            if (oid.equals(OID.GOSTR3410_2012_DH_256))
+            {
+                // указать идентификатор ключа
+                oid = OID.GOSTR3410_2012_256; 
+
+                // создать алгоритм согласования общего ключа
+                return factory.createAlgorithm(scope, oid, parameters, type);
+            }
+            if (oid.equals(OID.GOSTR3410_2012_DH_512))
+            {
+                // указать идентификатор ключа
+                oid = OID.GOSTR3410_2012_512; 
+
+                // создать алгоритм согласования общего ключа
+                return factory.createAlgorithm(scope, oid, parameters, type);
             }
         }
         // для алгоритмов согласования общего ключа

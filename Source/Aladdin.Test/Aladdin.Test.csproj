@@ -70,21 +70,21 @@
       <Project>{48dbfc14-a9a2-4b1c-836a-9673e9bda85b}</Project>
       <Name>Aladdin.ASN1</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CNG.Microsoft\Aladdin.CAPI.ANSI.CNG.Microsoft.vcxproj">
+    <ProjectReference Include="..\Aladdin.CAPI.CNG.Microsoft\Aladdin.CAPI.CNG.Microsoft.vcxproj">
       <Project>{974304e5-6bb7-4f61-aceb-2033b7c3d62e}</Project>
-      <Name>Aladdin.CAPI.ANSI.CNG.Microsoft</Name>
+      <Name>Aladdin.CAPI.CNG.Microsoft</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CSP.AKS\Aladdin.CAPI.ANSI.CSP.AKS.vcxproj">
+    <ProjectReference Include="..\Aladdin.CAPI.CSP.AKS\Aladdin.CAPI.CSP.AKS.vcxproj">
       <Project>{8c9a2d92-0b6f-49fb-844d-97d39985aa83}</Project>
-      <Name>Aladdin.CAPI.ANSI.CSP.AKS</Name>
+      <Name>Aladdin.CAPI.CSP.AKS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CSP.Athena\Aladdin.CAPI.ANSI.CSP.Athena.vcxproj">
+    <ProjectReference Include="..\Aladdin.CAPI.CSP.Athena\Aladdin.CAPI.CSP.Athena.vcxproj">
       <Project>{ca2507ce-0cdb-49a9-b216-af45c4280b9d}</Project>
-      <Name>Aladdin.CAPI.ANSI.CSP.Athena</Name>
+      <Name>Aladdin.CAPI.CSP.Athena</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.ANSI.CSP.Microsoft\Aladdin.CAPI.ANSI.CSP.Microsoft.vcxproj">
+    <ProjectReference Include="..\Aladdin.CAPI.CSP.Microsoft\Aladdin.CAPI.CSP.Microsoft.vcxproj">
       <Project>{8c0107d0-e7b3-418d-968d-3516e45339a4}</Project>
-      <Name>Aladdin.CAPI.ANSI.CSP.Microsoft</Name>
+      <Name>Aladdin.CAPI.CSP.Microsoft</Name>
     </ProjectReference>
     <ProjectReference Include="..\Aladdin.CAPI.ANSI.PKCS11\Aladdin.CAPI.ANSI.PKCS11.csproj">
       <Project>{26c89adf-2387-4ae4-afa6-01cd383359b8}</Project>
@@ -110,9 +110,9 @@
       <Project>{cb835c0c-e96b-424e-8c82-e52eb59bc020}</Project>
       <Name>Aladdin.CAPI.Environment</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.GOST.CSP.CryptoPro\Aladdin.CAPI.GOST.CSP.CryptoPro.vcxproj">
+    <ProjectReference Include="..\Aladdin.CAPI.CSP.CryptoPro\Aladdin.CAPI.CSP.CryptoPro.vcxproj">
       <Project>{c22ece82-4e81-45f7-ab9f-716c55b2bdcd}</Project>
-      <Name>Aladdin.CAPI.GOST.CSP.CryptoPro</Name>
+      <Name>Aladdin.CAPI.CSP.CryptoPro</Name>
     </ProjectReference>
     <ProjectReference Include="..\Aladdin.CAPI.GOST.GUI\Aladdin.CAPI.GOST.GUI.csproj">
       <Project>{e85168e7-9366-4335-9094-23131aa8fc69}</Project>
@@ -134,9 +134,9 @@
       <Project>{888a1913-d930-46ea-be2c-80128c457ef0}</Project>
       <Name>Aladdin.CAPI.KZ.GUI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.KZ.CSP.Tumar\Aladdin.CAPI.KZ.CSP.Tumar.vcxproj">
+    <ProjectReference Include="..\Aladdin.CAPI.CSP.Tumar\Aladdin.CAPI.CSP.Tumar.vcxproj">
       <Project>{2259dd25-6fce-4de2-bd6c-81e14763d4c9}</Project>
-      <Name>Aladdin.CAPI.KZ.CSP.Tumar</Name>
+      <Name>Aladdin.CAPI.CSP.Tumar</Name>
     </ProjectReference>
     <ProjectReference Include="..\Aladdin.CAPI.KZ\Aladdin.CAPI.KZ.csproj">
       <Project>{eb64498d-28aa-4b6b-b311-ae23b2c32fe0}</Project>

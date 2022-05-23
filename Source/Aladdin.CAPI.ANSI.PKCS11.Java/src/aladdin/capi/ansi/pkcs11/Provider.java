@@ -64,8 +64,8 @@ public class Provider extends aladdin.capi.pkcs11.Provider
     @Override public boolean canImportSessionPair(Applet applet) { return canImport; } 
     
     // корректная реализация OAEP/PSS механизмов
-    public boolean useOAEP(Applet applet) { return true; } 
-    public boolean usePSS (Applet applet) { return true; } 
+    public boolean useOAEP(Applet applet, CK_RSA_PKCS_OAEP_PARAMS parameters) { return true; } 
+    public boolean usePSS (Applet applet, CK_RSA_PKCS_PSS_PARAMS  parameters) { return true; } 
     
     // тип структуры передачи параметров механизма PBKDF2
     protected aladdin.capi.pkcs11.pbe.PBKDF2.ParametersType pbkdf2ParametersType() 

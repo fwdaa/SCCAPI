@@ -4,6 +4,7 @@ import aladdin.asn1.ansi.*;
 import aladdin.capi.*; 
 import aladdin.capi.pkcs11.*; 
 import aladdin.pkcs11.*; 
+import aladdin.pkcs11.jni.*;
 import java.io.*; 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -31,9 +32,14 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
     // интерфейс вызова функций
 	@Override public Module module() { return module; } 
     
-    // корректная реализация OAEP/PSS механизмов
-    @Override public boolean useOAEP(Applet applet) { return true;  } 
-    @Override public boolean usePSS (Applet applet) { return false; } 
+    // корректная реализация отдельных OAEP механизмов
+    @Override public boolean useOAEP(Applet applet, CK_RSA_PKCS_OAEP_PARAMS parameters) 
+    { 
+        // проверить корректность реализации
+        return (parameters.hashAlg == API.CKM_SHA_1 && parameters.mgf == API.CKG_MGF1_SHA1); 
+    } 
+    // некорректная реализация PSS механизмов
+    @Override public boolean usePSS (Applet applet, CK_RSA_PKCS_PSS_PARAMS parameters) { return false; } 
     
 	// создать алгоритм генерации ключей
     @Override

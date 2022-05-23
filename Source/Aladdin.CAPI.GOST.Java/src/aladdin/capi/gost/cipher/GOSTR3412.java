@@ -87,7 +87,7 @@ public final class GOSTR3412 extends BlockCipher
     }
     // создать алгоритм вычисления имитовставки
     public static Mac createOMAC(Factory factory, 
-        SecurityStore scope, int blockSize) throws IOException
+        SecurityStore scope, int blockSize, int macSize) throws IOException
     {
         // указать имя алгоритма
         String name = (blockSize == 8) ? "GOST3412_2015_M" : "GOST3412_2015_K"; 
@@ -100,7 +100,7 @@ public final class GOSTR3412 extends BlockCipher
             if (blockCipher == null) return null; byte[] start = new byte[blockSize]; 
             
             // создать алгоритм выработки имитовставки
-            return aladdin.capi.mac.OMAC1.create(blockCipher, start); 
+            return aladdin.capi.mac.OMAC1.create(blockCipher, start, macSize); 
         }
     }
     // конструктор

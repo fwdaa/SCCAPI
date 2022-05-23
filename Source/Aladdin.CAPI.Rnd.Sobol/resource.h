@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Aladdin.CAPI.ANSI.CSP.AKS.rc
+// Used by Aladdin.CAPI.CSP.AKS.rc
 
 // Next default values for new objects
 // 

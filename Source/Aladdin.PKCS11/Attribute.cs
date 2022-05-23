@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security;
 using System.Security.Permissions;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Aladdin.PKCS11
 {

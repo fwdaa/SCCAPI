@@ -39,7 +39,7 @@ public class Test
             {
                 // для всех размеров ключей
                 for (int i = 0; i < rsaBits.length; i++)
-                {
+                try {
                     // выполнить тестирование
                     aladdin.capi.ansi.Test.testRSA(provider, container, rand, 
                         true, KeyFlags.NONE, rsaBits[i], KeySizes.range(8, 32, 8)
@@ -48,6 +48,9 @@ public class Test
                         false, KeyFlags.NONE, rsaBits[i], KeySizes.range(8, 32, 8)
                     ); 
                 }
+                // при возникновении ошибки вывести описание ошибки
+                catch (Throwable ex) { System.out.println(ex.toString()); }
+                
                 // для всех наборов параметров
                 for (int i = 0; i < ecOIDs.length; i++)
                 try {

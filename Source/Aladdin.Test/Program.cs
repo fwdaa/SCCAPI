@@ -176,17 +176,13 @@ namespace Aladdin.CAPI.Test
 
             // указать строку подсказки
             string usage = String.Format("Usage: \n" + 
-                "{0} -extract <container> <password> [<test file> [(der/pem)]]\n" +
-                "{0} -hash <file>", program
+                "{0} -extract <container> <password> [<test file> [(der/pem)]]", program
             ); 
             // вывести сообщение на экран
             Console.WriteLine(usage); 
         }
         static void Main(string[] args)
         {
-            // CAPI.Rnd.Bio.Test.Entry(); 
-            // CAPI.GOST.Test.Entry(); 
-
             // проверить число параметров
             if (args.Length < 1) { Usage(); return; }
             try { 
@@ -209,23 +205,23 @@ namespace Aladdin.CAPI.Test
                 else { Usage(); return; }
             }
             catch (Exception ex) { Console.WriteLine(ex); }
-            try { 
-                  // CAPI.ANSI              .Test.Entry(); 
-                  // CAPI.GOST              .Test.Entry(); 
-                  // CAPI.STB               .Test.Entry(); 
-                  // CAPI.KZ                .Test.Entry(); 
-                  // CAPI.ANSI.CSP.Microsoft.Test.Entry(); 
-                  // CAPI.ANSI.CSP.AKS      .Test.Entry(); 
-                  // CAPI.ANSI.CSP.Athena   .Test.Entry(); 
-                  // CAPI.ANSI.CNG.Microsoft.Test.Entry(); 
-                  // CAPI.GOST.CSP.CryptoPro.Test.Entry(); 
-                  // CAPI.KZ.CSP.Tumar      .Test.Entry(); 
-                  // CAPI.PKCS11.AKS        .Test.Entry(); 
-                  // CAPI.PKCS11.Athena     .Test.Entry(); 
+/*          try { 
+                  // CAPI.ANSI              .Test.Entry(); // +
+                  // CAPI.GOST              .Test.Entry(); // +
+                  // CAPI.STB               .Test.Entry(); // +
+                  // CAPI.KZ                .Test.Entry(); // +
+                  // CAPI.CSP.Microsoft     .Test.Entry(); // +
+                  // CAPI.CSP.AKS           .Test.Entry(); // +
+                  // CAPI.CSP.Athena        .Test.Entry(); // +
+                  // CAPI.CSP.CryptoPro     .Test.Entry(); // N/A
+                  // CAPI.CSP.Tumar         .Test.Entry(); // N/A
+                  // CAPI.CNG.Microsoft     .Test.Entry(); // +
+                  // CAPI.PKCS11.AKS        .Test.Entry(); // +
+                  // CAPI.PKCS11.Athena     .Test.Entry(); // +- (EC -> CKR_DOMAIN_PARAMS_INVALID)
                   // CAPI.PKCS11.JaCarta    .Test.Entry(); 
 
                   //CryptoEnvironment environment = new CryptoEnvironment(
-                  //   @"E:\Development\SCCAPI.7\Source\Aladdin.CAPI.Environment\config\Env.Crypto.config"
+                  //   @"E:\Development\SCCAPI.8\Source\Aladdin.CAPI.Environment\config\Env.Crypto.config"
                   //); 
 
                   // CAPI.Rnd.Accord           .Test.Entry(); 
@@ -233,6 +229,7 @@ namespace Aladdin.CAPI.Test
                   // CAPI.Rnd.Bio              .Test.Entry(); 
             }
             catch (Exception ex) { Console.WriteLine(ex); Console.ReadKey(); }
+*/
         }
     }
 }

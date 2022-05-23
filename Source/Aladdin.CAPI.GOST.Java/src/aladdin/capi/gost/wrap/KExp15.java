@@ -25,7 +25,8 @@ public class KExp15 extends KeyWrap
             if (cipher == null) return null; 
             
             // создать имитовставку OMAC
-            try (Mac macAlgorithm = GOSTR3412.createOMAC(factory, scope, blockSize))
+            try (Mac macAlgorithm = GOSTR3412.createOMAC(
+                factory, scope, blockSize, blockSize))
             {
                 // проверить наличие алгоритма
                 if (macAlgorithm == null) return null; 
@@ -202,9 +203,8 @@ public class KExp15 extends KeyWrap
             // вывести сообщение
             Test.dump("IV", iv);
             
-            try (KeyWrap keyWrap = create(factory, scope, 
-                8, new byte[] { (byte)0x67, (byte)0xBE, (byte)0xD6, (byte)0x54 }
-            )){
+            try (KeyWrap keyWrap = create(factory, scope, blockSize, iv))
+            {
                 knownTest(null, keyWrap, KEK, CEK, new byte[] {
                     (byte)0xCF, (byte)0xD5, (byte)0xA1, (byte)0x2D, 
                     (byte)0x5B, (byte)0x81, (byte)0xB6, (byte)0xE1, 
@@ -228,12 +228,8 @@ public class KExp15 extends KeyWrap
             // вывести сообщение
             Test.dump("IV", iv);
             
-            try (KeyWrap keyWrap = create(factory, scope, 
-                16, new byte[] { 
-                    (byte)0x09, (byte)0x09, (byte)0x47, (byte)0x2D, 
-                    (byte)0xD9, (byte)0xF2, (byte)0x6B, (byte)0xE8, 
-                }
-            )){
+            try (KeyWrap keyWrap = create(factory, scope, blockSize, iv))
+            {
                 knownTest(null, keyWrap, KEK, CEK, new byte[] {
                     (byte)0xE3, (byte)0x61, (byte)0x84, (byte)0xE8, 
                     (byte)0x4E, (byte)0x8D, (byte)0x73, (byte)0x6F, 

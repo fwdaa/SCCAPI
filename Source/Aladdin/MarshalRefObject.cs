@@ -45,7 +45,7 @@ namespace Aladdin
             if (disposing) { try { OnDispose(); } finally { --refs; GC.SuppressFinalize(this); }} 
 #if DEBUG
             // проверить наличие трассировки
-            else if (!String.IsNullOrEmpty(stackTrace))
+            if (!String.IsNullOrEmpty(stackTrace) && (!disposing || refs != 0))
             { 
                 // сформировать строку описания
                 string message = String.Format("{0}:{1}\n{2}", refs, GetType(), stackTrace); 

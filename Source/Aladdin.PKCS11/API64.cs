@@ -11,6 +11,7 @@ using CK_UTF8CHAR       = System.Byte;
 using CK_VOID_PTR       = System.IntPtr; 
 using CK_BYTE_PTR       = System.IntPtr; 
 using CK_UTF8CHAR_PTR   = System.IntPtr; 
+using CK_ATTRIBUTE_PTR  = System.IntPtr; 
 using CK_LONG           = System.Int64; 
 using CK_ULONG          = System.UInt64; 
 using CK_RV             = System.UInt64; 
@@ -199,7 +200,7 @@ namespace Aladdin.PKCS11
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate CK_RV CK_CREATEOBJECT(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // the object's template
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // the object's template
             [In     ] CK_LONG                           ulCount,                    // attributes in template
             [    Out] out CK_OBJECT_HANDLE              phObject                    // gets new object's handle.
         );
@@ -207,7 +208,7 @@ namespace Aladdin.PKCS11
         public delegate CK_RV CK_COPYOBJECT(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
             [In     ] CK_OBJECT_HANDLE                  hObject,                    // the object's handle
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // template for new object
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // template for new object
             [In     ] CK_LONG                           ulCount,                    // attributes in template
             [    Out] out CK_OBJECT_HANDLE              phNewObject                 // receives handle of copy
         );
@@ -226,20 +227,20 @@ namespace Aladdin.PKCS11
         public delegate CK_RV CK_GETATTRIBUTEVALUE(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
             [In     ] CK_OBJECT_HANDLE                  hObject,                    // the object's handle
-            [In, Out] CK_ATTRIBUTE[]                    pTemplate,                  // specifies attrs; gets vals
+            [In, Out] CK_ATTRIBUTE_PTR                  pTemplate,                  // specifies attrs; gets vals
             [In     ] CK_LONG                           ulCount                     // attributes in template
         );
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate CK_RV CK_SETATTRIBUTEVALUE(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
             [In     ] CK_OBJECT_HANDLE                  hObject,                    // the object's handle
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // specifies attrs and values
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // specifies attrs and values
             [In     ] CK_LONG                           ulCount                     // attributes in template
         );
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate CK_RV CK_FINDOBJECTSINIT(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // attribute values to match
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // attribute values to match
             [In     ] CK_LONG                           ulCount                     // attrs in search template
         );
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -257,7 +258,7 @@ namespace Aladdin.PKCS11
         public delegate CK_RV CK_GENERATEKEY(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // the session's handle
             [In     ] ref CK_MECHANISM                  pMechanism,                 // key generation mech.
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // template for new key
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // template for new key
             [In     ] CK_LONG                           ulCount,                    // # of attrs in template
             [    Out] out CK_OBJECT_HANDLE              phKey                       // gets handle of new key
         );
@@ -265,9 +266,9 @@ namespace Aladdin.PKCS11
         public delegate CK_RV CK_GENERATEKEYPAIR(
             [In     ] CK_SESSION_HANDLE                 hSession,                   // session handle
             [In     ] ref CK_MECHANISM                  pMechanism,                 // key-gen mech.
-            [In     ] CK_ATTRIBUTE[]                    pPublicKeyTemplate,         // template for pub. key
+            [In     ] CK_ATTRIBUTE_PTR                  pPublicKeyTemplate,         // template for pub. key
             [In     ] CK_LONG                           ulPublicKeyAttributeCount,  // # pub. attrs.
-            [In     ] CK_ATTRIBUTE[]                    pPrivateKeyTemplate,        // template for priv. key
+            [In     ] CK_ATTRIBUTE_PTR                  pPrivateKeyTemplate,        // template for priv. key
             [In     ] CK_LONG                           ulPrivateKeyAttributeCount, // # priv. attrs.
             [    Out] out CK_OBJECT_HANDLE              phPublicKey,                // gets pub. key handle
             [    Out] out CK_OBJECT_HANDLE              phPrivateKey                // gets priv. key handle
@@ -486,7 +487,7 @@ namespace Aladdin.PKCS11
             [In     ] CK_OBJECT_HANDLE                  hUnwrappingKey,             // unwrapping key 
             [In     ] CK_BYTE[]                         pWrappedKey,                // the wrapped key 
             [In     ] CK_LONG                           ulWrappedKeyLen,            // wrapped key len 
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // new key template
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // new key template
             [In     ] CK_LONG                           ulAttributeCount,           // template length 
             [    Out] out CK_OBJECT_HANDLE              phKey                       // gets new handle 
         );
@@ -495,7 +496,7 @@ namespace Aladdin.PKCS11
             [In     ] CK_SESSION_HANDLE                 hSession,                   // session's handle
             [In     ] ref CK_MECHANISM                  pMechanism,                 // key deriv. mech.
             [In     ] CK_OBJECT_HANDLE                  hBaseKey,                   // base key
-            [In     ] CK_ATTRIBUTE[]                    pTemplate,                  // new key template
+            [In     ] CK_ATTRIBUTE_PTR                  pTemplate,                  // new key template
             [In     ] CK_LONG                           ulAttributeCount,           // template length
             [    Out] out CK_OBJECT_HANDLE              phKey                       // gets new handle
         );

@@ -41,6 +41,9 @@ namespace Aladdin.CAPI.PKCS11
 	        Attribute[] keyAttributes = new Attribute[] {
 		        applet.Provider.CreateAttribute(API.CKA_VERIFY, API.CK_TRUE)
 	        }; 
+			// при необходимости закрыть старый сеанс
+			if (session != null) { session.Dispose(); session = null; } 
+
 	        // открыть сеанс
 	        session = applet.OpenSession(API.CKS_RO_PUBLIC_SESSION); 
 	        try { 
@@ -57,7 +60,7 @@ namespace Aladdin.CAPI.PKCS11
 		        // инициализировать алгоритм
 		        session.VerifyInit(parameters, sessionKey.Handle);
 	        }
-            // закрыть сеанс
+            // при ошибке закрыть сеанс
 	        catch { session.Dispose(); session = null; throw; }
         }
 		// обработать данные

@@ -47,6 +47,9 @@ public abstract class VerifyData extends aladdin.capi.VerifyData
         Attribute[] keyAttributes = new Attribute[] {
             new Attribute(API.CKA_VERIFY, API.CK_TRUE)
         }; 
+    	// при необходимости закрыть старый сеанс
+		if (session != null) { session.close(); session = null; } 
+        
         // сохранить переданные параметры
         session = applet.openSession(API.CKS_RO_PUBLIC_SESSION); 
         try { 
