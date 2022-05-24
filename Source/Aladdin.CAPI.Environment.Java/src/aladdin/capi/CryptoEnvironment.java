@@ -31,19 +31,19 @@ public class CryptoEnvironment extends ExecutionContext
     private Map<String, Culture> keyCultures;    // параметры алгоритмов
     
     // криптографическая среда по умолчанию
-    public static CryptoEnvironment getDefault(PBEParameters parameters) 
+    public static CryptoEnvironment getDefault(PBEParameters parameters) throws IOException
     { 
         // криптографическая среда по умолчанию
         return new CryptoEnvironment(Config.DEFAULT, parameters); 
     }
     // конструктор
-    public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters)
+    public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters) throws IOException
 	{
         // сохранить переданные параметры
         this.section = section; this.pbeParameters = pbeParameters; init(); 
     }
     // конструктор
-    private void init() { hardwareRand = false; 
+    private void init() throws IOException { hardwareRand = false; 
         
         // указать загрузчик классов
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
@@ -147,6 +147,9 @@ public class CryptoEnvironment extends ExecutionContext
         
         // создать провайдер PKCS12
         CryptoProvider provider = new aladdin.capi.pkcs12.CryptoProvider(this, factories); 
+        
+        // скорректировать счетчик ссылок
+        RefObject.release(this); 
              
         // заполнить список криптопровайдеров
         providers.add(provider); providers.addAll(this.factories.providers()); 
@@ -161,7 +164,10 @@ public class CryptoEnvironment extends ExecutionContext
         for (IRandFactory randFactory : randFactories) randFactory.release();
         
         // освободить выделенные ресурсы
-        providers.get(0).release(); factories.release(); super.onClose(); 
+        RefObject.addRef(this); providers.get(0).release(); 
+        
+        // освободить выделенные ресурсы
+        factories.release(); super.onClose(); 
     }
     /////////////////////////////////////////////////////////////////////////////
     // Сериализация

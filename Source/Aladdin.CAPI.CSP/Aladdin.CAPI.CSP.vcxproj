@@ -227,6 +227,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CertificateStore.cpp" />
     <ClCompile Include="Cipher.cpp" />
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="Entry.cpp" />
@@ -254,6 +255,7 @@
     <ClCompile Include="Store.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CertificateStore.h" />
     <ClInclude Include="Cipher.h" />
     <ClInclude Include="Container.h" />
     <ClInclude Include="Generator.h" />

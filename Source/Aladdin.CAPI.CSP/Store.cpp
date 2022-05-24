@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Store.h"
 #include "Container.h"
+#include "CertificateStore.h"
 
 #ifndef CRYPT_DEFAULT_CONTAINER_OPTIONAL
 #define CRYPT_DEFAULT_CONTAINER_OPTIONAL 0x80
@@ -150,11 +151,29 @@ Aladdin::CAPI::CSP::ProviderStore::GetCertificate(KeyHandle^ hKeyPair,
 	catch (Exception^) { return nullptr; } 
 }
 
+array<Aladdin::CAPI::Certificate^>^ 
+Aladdin::CAPI::CSP::ProviderStore::GetCertificateChain(Certificate^ certificate)
+{$
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Scope == CAPI::Scope::System) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
+
+	// получить цепочку сертификатов
+	return CertificateStore::GetCertificateChain("System", location, certificate); 
+}
+
 void Aladdin::CAPI::CSP::ProviderStore::SetCertificateChain(
 	KeyHandle^ hKeyPair, array<Certificate^>^ certificateChain)
 {$
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Scope == CAPI::Scope::System) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
+
 	// установить сертификат
 	hKeyPair->SetParam(KP_CERTIFICATE, certificateChain[0]->Encoded, 0); 
+
+	// сохранить цепочку сертификатов
+	CertificateStore::SetCertificateChain("System", location, certificateChain, 1); 
 }
 
 ///////////////////////////////////////////////////////////////////////////

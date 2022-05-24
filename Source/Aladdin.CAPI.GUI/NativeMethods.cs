@@ -71,9 +71,9 @@ namespace Aladdin.CAPI.GUI
         ///////////////////////////////////////////////////////////////////////
         [SuppressMessage("Microsoft.Design", "CA1049: Types that own native resources should be disposable")]
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        internal struct CRYPTUI_VIEWCERTIFICATE_STRUCT {
-            [MarshalAs(UnmanagedType.U4)]
-            internal int      dwSize;                               // размер структуры в байтах
+        internal class CRYPTUI_VIEWCERTIFICATE_STRUCT {
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32      dwSize;                             // размер структуры в байтах
             [MarshalAs(UnmanagedType.SysUInt)]
             internal IntPtr   hwndParent;                           // родительское окно
             [MarshalAs(UnmanagedType.U4)]
@@ -82,42 +82,38 @@ namespace Aladdin.CAPI.GUI
             internal String   szTitle;                              // имя диалога
             [MarshalAs(UnmanagedType.SysUInt)]
             internal IntPtr   pCertContext;                         // контекст сертификата
-            [MarshalAs(UnmanagedType.LPArray, 
-                ArraySubType = UnmanagedType.LPWStr, 
-                SizeParamIndex = 6)]
-            internal String[] rgszPurposes;                         // массив проверяемых назначений сертификата
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   cPurposes;                            // число проверяемых назначений сертификата
+            [MarshalAs(UnmanagedType.SysUInt)] 
+            internal IntPtr rgszPurposes;                           // массив проверяемых назначений сертификата
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   cPurposes;                             // число проверяемых назначений сертификата
             [MarshalAs(UnmanagedType.SysUInt)]
             internal IntPtr   pCryptProviderData;                   // используется только с WinVerifyTrust
             [MarshalAs(UnmanagedType.Bool)]
             internal Boolean  fpCryptProviderDataTrustedUsage;      // используется только с WinVerifyTrust
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   idxSigner;                            // используется только с WinVerifyTrust
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   idxCert;                              // используется только с WinVerifyTrust
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   idxSigner;                             // используется только с WinVerifyTrust
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   idxCert;                               // используется только с WinVerifyTrust
             [MarshalAs(UnmanagedType.Bool)]
             internal Boolean  fCounterSigner;                       // используется только с WinVerifyTrust
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   idxCounterSigner;                     // используется только с WinVerifyTrust
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   cStores;                              // число дополнительных хранилищ сертификатов
-            [MarshalAs(UnmanagedType.LPArray, 
-                ArraySubType = UnmanagedType.SysUInt, 
-                SizeParamIndex = 13)]
-            internal IntPtr[] rghStores;                            // массив дополнительных хранилищ сертификатов
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   cPropSheetPages;                      // число дополнительных закладок
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   idxCounterSigner;                      // используется только с WinVerifyTrust
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   cStores;                               // число дополнительных хранилищ сертификатов
+            [MarshalAs(UnmanagedType.SysUInt)]
+            internal IntPtr rghStores;                              // массив дополнительных хранилищ сертификатов
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   cPropSheetPages;                       // число дополнительных закладок
             [MarshalAs(UnmanagedType.SysUInt)]
             internal IntPtr   rgPropSheetPages;                     // массив описаний дополнительных закладок
-            [MarshalAs(UnmanagedType.U4)]
-            internal UInt32   nStartPage;                           // номер активной закладки
+            [MarshalAs(UnmanagedType.I4)]
+            internal Int32   nStartPage;                            // номер активной закладки
         }
         // отобразить сертификат
         [DllImport("cryptui.dll", CallingConvention = CallingConvention.Winapi, 
             CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern bool CryptUIDlgViewCertificate(
-            [In, MarshalAs(UnmanagedType.LPStruct)] CRYPTUI_VIEWCERTIFICATE_STRUCT ViewInfo,
+            [In,  MarshalAs(UnmanagedType.LPStruct)] CRYPTUI_VIEWCERTIFICATE_STRUCT ViewInfo,
             [Out, MarshalAs(UnmanagedType.Bool)] out bool fPropertiesChanged
         );    
         ///////////////////////////////////////////////////////////////////////
@@ -154,12 +150,18 @@ namespace Aladdin.CAPI.GUI
         ); 
         // добавить сертификат в хранилище
         [DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, 
-            CharSet = CharSet.Unicode, SetLastError = true)]
+            SetLastError = true)]
         internal static extern bool CertAddCertificateContextToStore(
             [In, MarshalAs(UnmanagedType.SysUInt)] IntPtr hCertStore, 
             [In, MarshalAs(UnmanagedType.SysUInt)] IntPtr pCertContext,
             [In, MarshalAs(UnmanagedType.U4     )] UInt32 dwAddDisposition, 
             [In, MarshalAs(UnmanagedType.SysUInt), Optional] IntPtr ppStoreContext
+        );
+        // удалить сертификат из хранилища
+        [DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, 
+            SetLastError = true)]
+        internal static extern bool CertDeleteCertificateFromStore(
+            [In, MarshalAs(UnmanagedType.SysUInt)] IntPtr pCertContext
         );
         // закрыть хранилище
         [DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, 

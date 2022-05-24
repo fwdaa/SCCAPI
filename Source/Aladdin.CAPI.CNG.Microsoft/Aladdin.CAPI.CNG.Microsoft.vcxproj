@@ -200,9 +200,6 @@
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\Aladdin.CAPI.CSP.Microsoft\Aladdin.CAPI.CSP.Microsoft.vcxproj">
-      <Project>{8c0107d0-e7b3-418d-968d-3516e45339a4}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Aladdin.CAPI.ANSI\Aladdin.CAPI.ANSI.csproj">
       <Project>{25c83bcc-185c-4eed-a0c0-6f0c9ad20cd4}</Project>
     </ProjectReference>

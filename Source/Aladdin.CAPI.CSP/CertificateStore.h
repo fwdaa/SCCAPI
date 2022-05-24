@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
+namespace Aladdin { namespace CAPI { namespace CSP 
 {
 	//////////////////////////////////////////////////////////////////////////////
 	// Хранилище сертификатов
@@ -32,7 +32,8 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 		); 
 		// сохранить цепочку сертификатов открытого ключа
 		public: static void SetCertificateChain(
-			String^ provider, DWORD location, array<Certificate^>^ certificateChain
+			String^ provider, DWORD location, 
+			array<Certificate^>^ certificateChain, int offset  
 		); 
 	}; 
-}}}}
+}}}

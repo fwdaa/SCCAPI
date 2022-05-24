@@ -31,7 +31,7 @@ namespace Aladdin.CAPI.PKCS12
                 return Readonly(factories, rand); 
             }
         }
-		// конструктор
+		// конструктор 
 		public CryptoProvider(ExecutionContext executionContext, IEnumerable<Factory> factories) 
 
             // сохранить переданные параметры

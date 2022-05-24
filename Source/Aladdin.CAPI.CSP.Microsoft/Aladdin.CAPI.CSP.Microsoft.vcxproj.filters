@@ -90,9 +90,6 @@
     <ClCompile Include="MAC\HMAC.cpp">
       <Filter>Source Files\MAC</Filter>
     </ClCompile>
-    <ClCompile Include="CertificateStore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RegistryStore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -199,9 +196,6 @@
     </ClInclude>
     <ClInclude Include="Cipher\TDES.h">
       <Filter>Header Files\Cipher</Filter>
-    </ClInclude>
-    <ClInclude Include="CertificateStore.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RegistryStore.h">
       <Filter>Header Files</Filter>

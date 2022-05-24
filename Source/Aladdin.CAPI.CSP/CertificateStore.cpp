@@ -9,10 +9,19 @@
 #include "CertificateStore.tmh"
 #endif 
 
+///////////////////////////////////////////////////////////////////////////
+// Отображения хранилищ CAPI и MMC Certificates
+// Root		- Trusted Root Certification Authorities
+// AuthRoot - Third-Party Root Certification Authorities
+// Trust	- Enterprise Trust
+// CA		- Intermediate Certification Authorities
+// My		- Personal
+///////////////////////////////////////////////////////////////////////////
+ 
 //////////////////////////////////////////////////////////////////////////////
 // Хранилище сертификатов
 //////////////////////////////////////////////////////////////////////////////
-Aladdin::CAPI::CSP::Microsoft::CertificateStore::CertificateStore(
+Aladdin::CAPI::CSP::CertificateStore::CertificateStore(
 	String^ provider, String^ name, DWORD location)
 {$
 	// определить имя хранилища
@@ -35,13 +44,13 @@ Aladdin::CAPI::CSP::Microsoft::CertificateStore::CertificateStore(
 	AE_CHECK_WINAPI(hCertStore != nullptr); 
 }
 
-Aladdin::CAPI::CSP::Microsoft::CertificateStore::~CertificateStore() 
+Aladdin::CAPI::CSP::CertificateStore::~CertificateStore() 
 {$
 	// освободить описатель хранилища
 	::CertCloseStore(hCertStore, 0); 
 }
 
-array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::FindIssuer(
+array<BYTE>^ Aladdin::CAPI::CSP::CertificateStore::FindIssuer(
 	array<BYTE>^ certificate)
 {$
 	// получить адрес сертификата
@@ -73,12 +82,11 @@ array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::FindIssuer(
 	finally { ::CertFreeCertificateContext(hCertContext); }
 }
 
-array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::Find(
-	PCERT_PUBLIC_KEY_INFO pInfo)
+array<BYTE>^ Aladdin::CAPI::CSP::CertificateStore::Find(PCERT_PUBLIC_KEY_INFO pInfo)
 {$
 	// найти сертификат в хранилище
-	PCCERT_CONTEXT hCertContext = ::CertFindCertificateInStore(hCertStore, 
-		X509_ASN_ENCODING, 0, CERT_FIND_PUBLIC_KEY, pInfo, 0
+	PCCERT_CONTEXT hCertContext = ::CertFindCertificateInStore(
+		hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_PUBLIC_KEY, pInfo, 0
 	); 
 	// проверить наличие сертификата
 	if (hCertContext == 0) return nullptr; 
@@ -96,7 +104,7 @@ array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::Find(
 	finally { ::CertFreeCertificateContext(hCertContext); }
 }
 
-array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::Find(
+array<BYTE>^ Aladdin::CAPI::CSP::CertificateStore::Find(
 	ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo)
 {$
 	// получить закодированный ключ
@@ -110,7 +118,8 @@ array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::Find(
 		ptrEncoded, cbEncoded, CRYPT_DECODE_NOCOPY_FLAG, 0, &cbInfo
 	)); 
 	// выделить буфер требуемого размера
-	std::vector<BYTE> vecInfo(cbInfo); PCERT_PUBLIC_KEY_INFO pInfo = (PCERT_PUBLIC_KEY_INFO)&vecInfo[0]; 
+	std::vector<BYTE> vecInfo(cbInfo); PCERT_PUBLIC_KEY_INFO pInfo = 
+		(PCERT_PUBLIC_KEY_INFO)&vecInfo[0]; 
 
 	// раскодировать открытый ключ
 	AE_CHECK_WINAPI(::CryptDecodeObject(X509_ASN_ENCODING, X509_PUBLIC_KEY_INFO, 
@@ -120,7 +129,7 @@ array<BYTE>^ Aladdin::CAPI::CSP::Microsoft::CertificateStore::Find(
 	return Find(pInfo); 
 }
 
-void Aladdin::CAPI::CSP::Microsoft::CertificateStore::Write(array<BYTE>^ certificate)
+void Aladdin::CAPI::CSP::CertificateStore::Write(array<BYTE>^ certificate)
 {$
 	// получить адрес сертификата
 	pin_ptr<BYTE> ptrCertificate = &certificate[0]; 
@@ -142,7 +151,7 @@ void Aladdin::CAPI::CSP::Microsoft::CertificateStore::Write(array<BYTE>^ certifi
 }
 
 array<Aladdin::CAPI::Certificate^>^ 
-Aladdin::CAPI::CSP::Microsoft::CertificateStore::GetCertificateChain(
+Aladdin::CAPI::CSP::CertificateStore::GetCertificateChain(
 	String^ provider, DWORD location, Certificate^ certificate)
 {$
     // инициализировать цепочку сертификатов
@@ -150,55 +159,64 @@ Aladdin::CAPI::CSP::Microsoft::CertificateStore::GetCertificateChain(
 		gcnew array<Certificate^> { certificate }
     ); 
 	// указать хранилище
-	CertificateStore storeCA(provider, "CA", location);
+	CertificateStore storeRoot (provider, "Root"    , location);
+	CertificateStore storeAuth (provider, "AuthRoot", location);
+	CertificateStore storeTrust(provider, "Trust"   , location);
+	CertificateStore storeCA   (provider, "CA"      , location);
 
     // до появления самоподписанного сертификата
     while (!PKI::IsSelfSignedCertificate(certificate))
     {
 		// найти сертификат издателя
-		array<BYTE>^ encoded = storeCA.FindIssuer(certificate->Encoded); 
+		array<BYTE>^ encoded = storeRoot.FindIssuer(certificate->Encoded); 
 
 		// при отсутствии сертификата
 		if (encoded == nullptr) 
 		{
-			// указать хранилище
-			CertificateStore storeTrust(provider, "Trust", location);
-
+			// найти сертификат издателя
+			encoded = storeAuth.FindIssuer(certificate->Encoded); 
+		}
+		// при отсутствии сертификата
+		if (encoded == nullptr) 
+		{
 			// найти сертификат издателя
 			encoded = storeTrust.FindIssuer(certificate->Encoded); 
 		}
 		// при отсутствии сертификата
 		if (encoded == nullptr) 
 		{
-			// указать хранилище
-			CertificateStore storeRoot(provider, "Root", location);
-
 			// найти сертификат издателя
-			encoded = storeRoot.FindIssuer(certificate->Encoded); 
+			encoded = storeCA.FindIssuer(certificate->Encoded); 
 		}
 		// проверить наличие сертификата
 		if (encoded == nullptr) break; 
 
+		// раскодировать сертификат
+		certificate = gcnew Certificate(encoded); 
+
         // добавить сертификат издателя в список
-        certificateChain->Add(gcnew Certificate(encoded)); 
+        certificateChain->Add(certificate); 
     }
     // вернуть цепочку сертификатов
     return certificateChain->ToArray(); 
 
 }
 
-void Aladdin::CAPI::CSP::Microsoft::CertificateStore::SetCertificateChain(
-	String^ provider, DWORD location, array<Certificate^>^ certificateChain)
+void Aladdin::CAPI::CSP::CertificateStore::SetCertificateChain(
+	String^ provider, DWORD location, 
+	array<Certificate^>^ certificateChain, int offset)
 {$
 	// указать хранилище
-	CertificateStore storeMy(provider, "My", location);
-	CertificateStore storeCA(provider, "CA", location);
+	CertificateStore storeCA(provider, "CA", location); 
 
-	// сохранить сертификат открытого ключа
-	storeMy.Write(certificateChain[0]->Encoded); 
+	// указать хранилище
+	if (offset == 0) { CertificateStore storeMy(provider, "My", location);
 
+		// сохранить сертификат открытого ключа
+		storeMy.Write(certificateChain[offset]->Encoded); offset++; 
+	}
 	// для оставшихся сертификатов
-	for (int i = 1; i < certificateChain->Length - 1; i++)
+	for (int i = offset; i < certificateChain->Length - 1; i++)
 	{
 		// сохранить сертификат открытого ключа
 		storeCA.Write(certificateChain[i]->Encoded); 
@@ -217,10 +235,10 @@ void Aladdin::CAPI::CSP::Microsoft::CertificateStore::SetCertificateChain(
 		}
 		else {
 			// указать хранилище
-			CertificateStore storeTrust(provider, "Trust", location);
+			CertificateStore storeAuth(provider, "AuthRoot", location);
 
 			// сохранить сертификат открытого ключа
-			storeTrust.Write(certificate->Encoded); 
+			storeAuth.Write(certificate->Encoded); 
 		}
 	}
 }

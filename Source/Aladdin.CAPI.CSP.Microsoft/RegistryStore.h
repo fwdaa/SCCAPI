@@ -18,10 +18,6 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 			CAPI::CSP::KeyHandle^ hKeyPair, 
 			ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo) override;  
 
-		// получить цепь сертификатов
-		public protected: virtual array<Certificate^>^ GetCertificateChain(
-			Certificate^ certificate) override;   
-		
 		// сохранить цепь сертификатов
 		public protected: virtual void SetCertificateChain(
 			CAPI::CSP::KeyHandle^ hKeyPair, 

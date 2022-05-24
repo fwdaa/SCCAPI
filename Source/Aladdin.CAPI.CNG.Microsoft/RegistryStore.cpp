@@ -21,26 +21,16 @@ Aladdin::CAPI::CNG::Microsoft::RegistryStore::GetCertificate(
 			CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
 
 		// указать хранилище
-		CSP::Microsoft::CertificateStore store("System", "My", location);
-
+		Using<CSP::CertificateStore^> store(
+			gcnew CSP::CertificateStore("System", "My", location)
+		);
 		// получить содержимое сертификата
-		array<BYTE>^ content = store.Find(publicKeyInfo); 
+		array<BYTE>^ content = store.Get()->Find(publicKeyInfo); 
 				
 		// вернуть сертификат открытого ключа
 		return (content != nullptr) ? gcnew Certificate(content) : nullptr; 
 	}
 	catch (Exception^) {} return nullptr; 
-}
-
-array<Aladdin::CAPI::Certificate^>^ 
-Aladdin::CAPI::CNG::Microsoft::RegistryStore::GetCertificateChain(Certificate^ certificate) 
-{$
-	// указать месторасположение хранилища в реестре
-	DWORD location = (Scope == CAPI::Scope::System) ? 
-		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
-
-	// получить цепочку сертификатов
-	return CSP::Microsoft::CertificateStore::GetCertificateChain("System", location, certificate); 
 }
 
 void Aladdin::CAPI::CNG::Microsoft::RegistryStore::SetCertificateChain(
@@ -50,6 +40,13 @@ void Aladdin::CAPI::CNG::Microsoft::RegistryStore::SetCertificateChain(
 	DWORD location = (Scope == CAPI::Scope::System) ? 
 		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
 
+	// указать хранилище
+	Using<CSP::CertificateStore^> store(
+		gcnew CSP::CertificateStore("System", "My", location)
+	);
+	// сохранить конечный сертификат
+	store.Get()->Write(certificateChain[0]->Encoded); 
+
 	// сохранить цепочку сертификатов
-	CSP::Microsoft::CertificateStore::SetCertificateChain("System", location, certificateChain); 
+	CSP::CertificateStore::SetCertificateChain("System", location, certificateChain, 1); 
 }

@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationSelector.cs" />
+    <Compile Include="CertificateContext.cs" />
     <Compile Include="CertificateDialog.cs" />
     <Compile Include="CertificatesDialog.cs">
       <SubType>Form</SubType>
@@ -57,6 +58,7 @@
     <Compile Include="CertificatesDialog.Designer.cs">
       <DependentUpon>CertificatesDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="CertificateStore.cs" />
     <Compile Include="CertRequestDialog.cs">
       <SubType>Form</SubType>
     </Compile>

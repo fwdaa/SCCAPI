@@ -99,14 +99,32 @@ Aladdin::CAPI::CNG::ProviderStore::GetCertificate(NKeyHandle^ hPrivateKey,
 	return (encoded != nullptr) ? gcnew Certificate(encoded) : nullptr; 
 }
 
+array<Aladdin::CAPI::Certificate^>^ 
+Aladdin::CAPI::CNG::ProviderStore::GetCertificateChain(Certificate^ certificate)
+{$
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Scope == CAPI::Scope::System) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
+
+	// получить цепочку сертификатов
+	return CSP::CertificateStore::GetCertificateChain("System", location, certificate); 
+}
+
 void Aladdin::CAPI::CNG::ProviderStore::SetCertificateChain(
 	NKeyHandle^ hPrivateKey, array<Certificate^>^ certificateChain)
 {$
+	// указать месторасположение хранилища в реестре
+	DWORD location = (Scope == CAPI::Scope::System) ? 
+		CERT_SYSTEM_STORE_LOCAL_MACHINE : CERT_SYSTEM_STORE_CURRENT_USER; 
+
 	// получить закодированное представление сертификата
 	array<BYTE>^ encoded = certificateChain[0]->Encoded; 
 
 	// установить сертификат
 	hPrivateKey->SetParam(NCRYPT_CERTIFICATE_PROPERTY, encoded, 0); 
+
+	// сохранить цепочку сертификатов
+	CSP::CertificateStore::SetCertificateChain("System", location, certificateChain, 1); 
 }
 
 ///////////////////////////////////////////////////////////////////////////

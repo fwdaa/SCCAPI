@@ -60,6 +60,9 @@
     <ClCompile Include="Keyx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CertificateStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cipher.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Keyx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CertificateStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

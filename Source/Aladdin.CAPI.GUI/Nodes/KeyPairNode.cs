@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Security.Cryptography.X509Certificates;
 using Aladdin.GUI;
 
 namespace Aladdin.CAPI.GUI.Nodes

@@ -146,9 +146,12 @@ namespace Aladdin.CAPI
             // создать список криптопровайдеров
             catch {} providers = new List<CryptoProvider>(); 
 
-            // создать провайдер PKCS12
+            // создать провайдер PKCS12 
             CryptoProvider provider = new PKCS12.CryptoProvider(this, factories); 
-             
+
+            // скорректировать счетчик ссылок
+            RefObject.Release(this); 
+
             // заполнить список криптопровайдеров
             providers.Add(provider); providers.AddRange(this.factories.Providers); 
         }
@@ -197,7 +200,10 @@ namespace Aladdin.CAPI
                 randFactory.Release(); 
             }
             // освободить выделенные ресурсы
-            providers[0].Release(); factories.Release(); base.OnDispose(); 
+            RefObject.AddRef(this); providers[0].Release(); 
+            
+            // освободить выделенные ресурсы
+            factories.Release(); base.OnDispose(); 
         }
         ///////////////////////////////////////////////////////////////////////
         // Фабрики алгоритмов

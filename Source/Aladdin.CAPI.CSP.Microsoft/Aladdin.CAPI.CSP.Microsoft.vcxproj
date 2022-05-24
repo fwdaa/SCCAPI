@@ -232,7 +232,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CertificateStore.cpp" />
     <ClCompile Include="DSS\DSSBaseProvider.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\stdafx.h</PrecompiledHeaderFile>
@@ -358,7 +357,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CertificateStore.h" />
     <ClInclude Include="Cipher\AES.h" />
     <ClInclude Include="Cipher\DES.h" />
     <ClInclude Include="Cipher\DESX.h" />

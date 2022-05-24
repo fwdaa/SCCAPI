@@ -89,11 +89,8 @@ namespace Aladdin { namespace CAPI { namespace CSP
 			KeyHandle^ hKeyPair, ASN1::ISO::PKIX::SubjectPublicKeyInfo^ publicKeyInfo
 		);
 		// получить цепь сертификатов
-		public protected: virtual array<Certificate^>^ GetCertificateChain(Certificate^ certificate)
-		{
-			// получить цепь сертификатов
-			return gcnew array<Certificate^> { certificate }; 
-		}
+		public protected: virtual array<Certificate^>^ GetCertificateChain(Certificate^ certificate); 
+
 		// сохранить сертификат открытого ключа
 		public protected: virtual void SetCertificateChain(
 			KeyHandle^ hKeyPair, array<Certificate^>^ certificateChain
