@@ -146,7 +146,7 @@ public class CryptoEnvironment extends ExecutionContext
         catch (Throwable e) {} providers = new ArrayList<CryptoProvider>(); 
         
         // создать провайдер PKCS12
-        CryptoProvider provider = new aladdin.capi.pkcs12.CryptoProvider(this, factories); 
+        CryptoProvider provider = new aladdin.capi.pkcs12.CryptoProvider(this); 
         
         // скорректировать счетчик ссылок
         RefObject.release(this); 
@@ -194,7 +194,7 @@ public class CryptoEnvironment extends ExecutionContext
     ///////////////////////////////////////////////////////////////////////
     
     // фабрики алгоритмов
-    public final Factories factories() { return factories; }
+    @Override public final Factories factories() { return factories; }
 
     // криптопровайдеры
     public final Iterable<CryptoProvider> providers() { return providers; }

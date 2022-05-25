@@ -32,10 +32,10 @@ namespace Aladdin.CAPI.PKCS12
             }
         }
 		// конструктор 
-		public CryptoProvider(ExecutionContext executionContext, IEnumerable<Factory> factories) 
+		public CryptoProvider(ExecutionContext executionContext) 
 
             // сохранить переданные параметры
-            : base(factories, executionContext, "PKCS12", new string[] { "p12", "pfx" }) 
+            : base(executionContext, "PKCS12", new string[] { "p12", "pfx" }) 
         {
             // сохранить парольную защиту
             this.cultureFactory = executionContext; 

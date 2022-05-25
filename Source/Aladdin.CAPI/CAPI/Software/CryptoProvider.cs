@@ -17,6 +17,19 @@ namespace Aladdin.CAPI.Software
         private string type; private string[] extensions; 
         
 		// конструктор
+		public CryptoProvider(ExecutionContext executionContext, 
+            string type, string[] extensions)
+        {
+            // сохранить фабрики алгоритмов
+            this.factories = RefObject.AddRef(executionContext.Factories); 
+
+            // сохранить фабрику генераторов
+            this.randFactory = RefObject.AddRef(executionContext); 
+
+            // сохранить переданные параметры
+            this.type = type; this.extensions = extensions; 
+        }
+		// конструктор
 		public CryptoProvider(IEnumerable<Factory> factories, 
             IRandFactory randFactory, string type, string[] extensions)
         {
@@ -388,4 +401,3 @@ namespace Aladdin.CAPI.Software
 		}
 	}
 }
-

@@ -147,7 +147,7 @@ namespace Aladdin.CAPI
             catch {} providers = new List<CryptoProvider>(); 
 
             // создать провайдер PKCS12 
-            CryptoProvider provider = new PKCS12.CryptoProvider(this, factories); 
+            CryptoProvider provider = new PKCS12.CryptoProvider(this); 
 
             // скорректировать счетчик ссылок
             RefObject.Release(this); 
@@ -210,7 +210,7 @@ namespace Aladdin.CAPI
         ///////////////////////////////////////////////////////////////////////
 
         // фабрики алгоритмов
-        public Factories Factories { get { return factories; }}
+        public override Factories Factories { get { return factories; }}
 
         // криптопровайдеры
         public IEnumerable<CryptoProvider> Providers { get { return providers; }}

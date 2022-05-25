@@ -199,7 +199,6 @@ Aladdin::CAPI::CSP::CertificateStore::GetCertificateChain(
     }
     // вернуть цепочку сертификатов
     return certificateChain->ToArray(); 
-
 }
 
 void Aladdin::CAPI::CSP::CertificateStore::SetCertificateChain(

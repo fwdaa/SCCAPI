@@ -20,6 +20,19 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
     private final String type; private final String[] extensions; 
     
 	// конструктор
+	public CryptoProvider(ExecutionContext executionContext, 
+        String type, String[] extensions) 
+	{ 
+		// сохранить фабрики алгоритмов
+		this.factories = RefObject.addRef(executionContext.factories()); 
+        
+        // сохранить фабрику генераторов
+        this.randFactory = RefObject.addRef(executionContext); 
+
+        // сохранить тип контейнеров и расширения файлов
+        this.type = type; this.extensions = extensions;
+	} 
+	// конструктор
 	public CryptoProvider(Iterable<Factory> factories, 
         IRandFactory randFactory, String type, String[] extensions) 
 	{ 

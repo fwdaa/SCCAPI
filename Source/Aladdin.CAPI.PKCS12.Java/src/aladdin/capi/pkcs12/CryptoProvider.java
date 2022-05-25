@@ -43,10 +43,10 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
         catch (IOException e) { throw new RuntimeException(e); }
     }
 	// конструктор
-	public CryptoProvider(ExecutionContext executionContext, Iterable<Factory> factories) 
+	public CryptoProvider(ExecutionContext executionContext) 
     { 
         // сохранить переданные параметры
-        super(factories, executionContext, "PKCS12", EXTENSIONS); 
+        super(executionContext, "PKCS12", EXTENSIONS); 
         
         // сохранить парольную защиту
         this.cultureFactory = executionContext; 
