@@ -31,19 +31,19 @@ public class CryptoEnvironment extends ExecutionContext
     private Map<String, Culture> keyCultures;    // параметры алгоритмов
     
     // криптографическая среда по умолчанию
-    public static CryptoEnvironment getDefault(PBEParameters parameters) throws IOException
+    public static CryptoEnvironment getDefault(PBEParameters parameters) 
     { 
         // криптографическая среда по умолчанию
         return new CryptoEnvironment(Config.DEFAULT, parameters); 
     }
     // конструктор
-    public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters) throws IOException
+    public CryptoEnvironment(ConfigSection section, PBEParameters pbeParameters)
 	{
         // сохранить переданные параметры
         this.section = section; this.pbeParameters = pbeParameters; init(); 
     }
     // конструктор
-    private void init() throws IOException { hardwareRand = false; 
+    private void init() { hardwareRand = false; 
         
         // указать загрузчик классов
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
@@ -149,7 +149,7 @@ public class CryptoEnvironment extends ExecutionContext
         CryptoProvider provider = new aladdin.capi.pkcs12.CryptoProvider(this); 
         
         // скорректировать счетчик ссылок
-        RefObject.release(this); 
+        try { RefObject.release(this); } catch (IOException e) {}
              
         // заполнить список криптопровайдеров
         providers.add(provider); providers.addAll(this.factories.providers()); 
