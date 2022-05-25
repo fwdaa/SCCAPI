@@ -23,14 +23,11 @@ public abstract class KeyWrap extends RefObject implements IAlgorithm
     ///////////////////////////////////////////////////////////////////////////
     // Тест известного ответа
     ///////////////////////////////////////////////////////////////////////////
-    public static void knownTest(Test.Rand rand, KeyWrap algorithm, 
+    public static void knownTest(IRand rand, KeyWrap algorithm, 
         byte[] KEK, byte[] CEK, byte[] result) throws Exception
     {
         // указать фабрику кодирования ключей
         SecretKeyFactory keyFactory = SecretKeyFactory.GENERIC; 
-        
-        // вывести сообщение
-        if (rand != null) rand.dump(); 
         
         // указать используемый ключ
         try (ISecretKey k1 = algorithm.keyFactory().create(KEK))

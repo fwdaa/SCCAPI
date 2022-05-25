@@ -142,7 +142,7 @@ public class RC2 extends KeyWrap
             (byte)0xb2, (byte)0x9e, (byte)0x97, (byte)0xf7
         }}; 
         // создать генератор случайных данных
-        try (Test.Rand rand = new Test.Rand(random)) 
+        try (IRand rand = new aladdin.capi.rnd.Fixed(random)) 
         {
             // выполнить тест
             knownTest(rand, keyWrap, new byte[] {
@@ -180,7 +180,7 @@ public class RC2 extends KeyWrap
             (byte)0xb2, (byte)0x9e, (byte)0x97, (byte)0xf7
         }}; 
         // создать генератор случайных данных
-        try (Test.Rand rand = new Test.Rand(random)) 
+        try (IRand rand = new aladdin.capi.rnd.Fixed(random)) 
         {
             // выполнить тест
             knownTest(rand, keyWrap, new byte[] {

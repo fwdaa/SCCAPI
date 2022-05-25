@@ -25,7 +25,7 @@ namespace Aladdin.CAPI
                 null, KeyUsage.DigitalSignature, KeyFlags.None))
             {
                 // указать генератор случайных данных
-                using (Test.Rand rand = new Test.Rand(random))
+                using (IRand rand = new Rnd.Fixed(random))
                 {
                     // подписать хэш-значение
                     byte[] signature = signHash.Sign(keyPair.PrivateKey, rand, hashParameters, hash); 

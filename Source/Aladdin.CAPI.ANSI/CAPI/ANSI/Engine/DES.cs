@@ -605,7 +605,7 @@ namespace Aladdin.CAPI.ANSI.Engine
             using (KeyWrap algorithm = new CAPI.ANSI.Wrap.SMIME(des, 8, iv))
             {
                 // создать генератор случайных данных
-                using (CAPI.Test.Rand rand = new CAPI.Test.Rand(new byte[] {
+                using (IRand rand = new CAPI.Rnd.Fixed(new byte[] {
                     (byte)0xC4, (byte)0x36, (byte)0xF5, (byte)0x41 
                 })){
                     // выполнить тест

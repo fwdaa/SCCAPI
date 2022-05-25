@@ -123,7 +123,7 @@ public class TDES extends KeyWrap
             (byte)0x96, (byte)0xf5, (byte)0x45, (byte)0x3b
         }; 
         // создать генератор случайных данных
-        try (Test.Rand rand = new Test.Rand(random)) 
+        try (IRand rand = new aladdin.capi.rnd.Fixed(random)) 
         {
             // выполнить тест
             knownTest(rand, keyWrap, new byte[] {

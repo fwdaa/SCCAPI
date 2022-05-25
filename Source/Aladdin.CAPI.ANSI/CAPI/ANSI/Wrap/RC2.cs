@@ -134,7 +134,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0xb2, (byte)0x9e, (byte)0x97, (byte)0xf7
             }}; 
             // создать генератор случайных данных
-            using (CAPI.Test.Rand rand = new CAPI.Test.Rand(random)) 
+            using (IRand rand = new CAPI.Rnd.Fixed(random)) 
             {
                 // выполнить тест
                 KnownTest(rand, keyWrap, new byte[] {
@@ -172,7 +172,7 @@ namespace Aladdin.CAPI.ANSI.Wrap
                 (byte)0xb2, (byte)0x9e, (byte)0x97, (byte)0xf7
             }}; 
             // создать генератор случайных данных
-            using (CAPI.Test.Rand rand = new CAPI.Test.Rand(random)) 
+            using (IRand rand = new CAPI.Rnd.Fixed(random)) 
             {
                 // выполнить тест
                 KnownTest(rand, keyWrap, new byte[] {

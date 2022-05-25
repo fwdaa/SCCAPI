@@ -831,7 +831,7 @@ public final class TDES extends Cipher
         try (KeyWrap algorithm = new aladdin.capi.ansi.wrap.SMIME(tdes, 24, iv))
         {
             // создать генератор случайных данных
-            try (Test.Rand rand = new Test.Rand(new byte[] {
+            try (IRand rand = new aladdin.capi.rnd.Fixed(new byte[] {
                 (byte)0xFA, (byte)0x06, (byte)0x0A, (byte)0x45
             })){
                 // выполнить тест

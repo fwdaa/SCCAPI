@@ -25,7 +25,7 @@ public abstract class TransportKeyWrap extends RefObject implements IAlgorithm
         SecretKeyFactory keyFactory = SecretKeyFactory.GENERIC; 
         
         // указать генератор случайных данных
-        try (Test.Rand rand = new Test.Rand(random)) 
+        try (IRand rand = new aladdin.capi.rnd.Fixed(random)) 
         {
             // указать используемый ключ
             try (ISecretKey key = keyFactory.create(CEK))

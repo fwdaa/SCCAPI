@@ -54,7 +54,7 @@ public abstract class KeyAgreement extends RefObject implements IKeyAgreement
                 try (KeyPair keyPair2 = new KeyPair(publicKey2, privateKey2, null))
                 {
                     // создать генератор случайных данных
-                    try (Test.Rand rand = new Test.Rand(random)) 
+                    try (IRand rand = new aladdin.capi.rnd.Fixed(random)) 
                     {
                         // сформировать общий ключ
                         try (DeriveData kdfData = keyAgreement.deriveKey(

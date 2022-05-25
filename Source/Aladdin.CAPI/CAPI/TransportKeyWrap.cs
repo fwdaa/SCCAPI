@@ -25,7 +25,7 @@ namespace Aladdin.CAPI
             SecretKeyFactory keyFactory = SecretKeyFactory.Generic; 
 
             // указать генератор случайных данных
-            using (Test.Rand rand = new Test.Rand(random)) 
+            using (IRand rand = new Rnd.Fixed(random)) 
             {
                 // указать используемый ключ
                 using (ISecretKey key = keyFactory.Create(CEK))

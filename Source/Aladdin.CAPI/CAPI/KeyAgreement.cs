@@ -48,7 +48,7 @@ namespace Aladdin.CAPI
                 using (KeyPair keyPair2 = new KeyPair(publicKey2, privateKey2, null))
                 {
                     // создать генератор случайных данных
-                    using (Test.Rand rand = new Test.Rand(random)) 
+                    using (IRand rand = new Rnd.Fixed(random)) 
                     {
                         // сформировать общий ключ
                         using (DeriveData kdfData = keyAgreement.DeriveKey(

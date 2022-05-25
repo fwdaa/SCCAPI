@@ -1,5 +1,4 @@
 package aladdin.capi.ansi.engine;
-import aladdin.asn1.Null;
 import aladdin.math.*;
 import aladdin.capi.*; 
 import java.security.*; 
@@ -613,7 +612,7 @@ public final class DES extends Cipher
         try (KeyWrap algorithm = new aladdin.capi.ansi.wrap.SMIME(des, 8, iv))
         {
             // создать генератор случайных данных
-            try (Test.Rand rand = new Test.Rand(new byte[] {
+            try (IRand rand = new aladdin.capi.rnd.Fixed(new byte[] {
                 (byte)0xC4, (byte)0x36, (byte)0xF5, (byte)0x41 
             })){
                 // выполнить тест

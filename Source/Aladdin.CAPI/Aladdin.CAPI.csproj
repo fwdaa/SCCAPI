@@ -239,6 +239,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CAPI\SecurityInfo.cs" />
     <Compile Include="CAPI\RandomNumberGenerator.cs" />
+    <Compile Include="CAPI\Rnd\Zero.cs" />
+    <Compile Include="CAPI\Rnd\Fixed.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aladdin.ASN1.ISO\Aladdin.ASN1.ISO.csproj">

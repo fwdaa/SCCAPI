@@ -28,7 +28,7 @@ public abstract class SignHash extends RefObject implements IAlgorithm
                 new KeyUsage(KeyUsage.DIGITAL_SIGNATURE), KeyFlags.NONE))
             {
                 // указать генератор случайных данных
-                try (Test.Rand rand = new Test.Rand(random))
+                try (IRand rand = new aladdin.capi.rnd.Fixed(random))
                 {
                     // подписать хэш-значение
                     byte[] signature = signHash.sign(keyPair.privateKey, rand, hashParameters, hash); 

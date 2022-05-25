@@ -20,7 +20,7 @@ namespace Aladdin.CAPI
         ////////////////////////////////////////////////////////////////////////////
         // Тест известного ответа
         ////////////////////////////////////////////////////////////////////////////
-        public static void KnownTest(Test.Rand rand, 
+        public static void KnownTest(IRand rand, 
             KeyWrap algorithm, byte[] KEK, byte[] CEK, byte[] result) 
         {
             // указать фабрику кодирования ключей

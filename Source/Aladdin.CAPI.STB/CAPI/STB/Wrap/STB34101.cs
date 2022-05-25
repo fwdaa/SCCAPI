@@ -148,7 +148,7 @@ namespace Aladdin.CAPI.STB.Wrap
         public static void Test(KeyWrap keyWrap) 
         {
             // указать генератор случайных данных
-            using (Test.Rand rand = new Test.Rand(new byte[] {
+            using (IRand rand = new Rnd.Fixed(new byte[] {
                 (byte)0x5B, (byte)0xE3, (byte)0xD6, (byte)0x12, 
                 (byte)0x17, (byte)0xB9, (byte)0x61, (byte)0x81, 
                 (byte)0xFE, (byte)0x67, (byte)0x86, (byte)0xAD, 
@@ -189,7 +189,7 @@ namespace Aladdin.CAPI.STB.Wrap
                 });
             }
             // указать генератор случайных данных
-            using (Test.Rand rand = new Test.Rand(new byte[] {
+            using (IRand rand = new Rnd.Fixed(new byte[] {
                 (byte)0xB5, (byte)0xEF, (byte)0x68, (byte)0xD8, 
                 (byte)0xE4, (byte)0xA3, (byte)0x9E, (byte)0x56, 
                 (byte)0x71, (byte)0x53, (byte)0xDE, (byte)0x13, 
