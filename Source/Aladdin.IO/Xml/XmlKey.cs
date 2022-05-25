@@ -246,19 +246,13 @@ namespace Aladdin.IO.Xml
 		///////////////////////////////////////////////////////////////////////
         // Получить значение элемента
 		///////////////////////////////////////////////////////////////////////
-		public string GetValue() 
-        { 
-            // вернуть содержимое элемента
-            return (!element.HasChildNodes) ? element.InnerText : null;
-        }
+		public string GetValue() { return element.InnerText; }
+
 		///////////////////////////////////////////////////////////////////////
         // Установить значение элемента
 		///////////////////////////////////////////////////////////////////////
 		public void SetValue(string value) 
         { 
-            // проверить корректность операции
-            if (element.HasChildNodes) throw new InvalidOperationException();
-
             // проверить соответствие доступа
             if (save == null) throw new SecurityException(); 
 

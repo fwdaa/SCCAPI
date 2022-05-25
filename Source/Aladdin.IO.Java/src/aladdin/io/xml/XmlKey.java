@@ -314,19 +314,13 @@ public final class XmlKey
 	///////////////////////////////////////////////////////////////////////
     // Получить значение элемента
 	///////////////////////////////////////////////////////////////////////
-	public String getValue() 
-    { 
-        // вернуть содержимое элемента
-        return (!element.hasChildNodes()) ? element.getNodeValue() : null;
-    }
+	public String getValue() { return element.getNodeValue(); }
+    
 	///////////////////////////////////////////////////////////////////////
     // Установить значение элемента
 	///////////////////////////////////////////////////////////////////////
 	public void setValue(String value) 
     { 
-        // проверить корректность операции
-        if (element.hasChildNodes()) throw new IllegalStateException();
-
         // проверить соответствие доступа
         if (save == null) throw new SecurityException(); 
 

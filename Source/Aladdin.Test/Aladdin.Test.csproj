@@ -56,6 +56,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -193,6 +195,10 @@
     <ProjectReference Include="..\Aladdin.CAPI\Aladdin.CAPI.csproj">
       <Project>{422f4ee1-d424-4396-92b1-a62b332a0281}</Project>
       <Name>Aladdin.CAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aladdin.GUI\Aladdin.GUI.csproj">
+      <Project>{eacc2c52-c417-481f-bd35-d4ee7bb72ee0}</Project>
+      <Name>Aladdin.GUI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Aladdin.Math\Aladdin.Math.csproj">
       <Project>{5ae748d8-a9e3-4bfa-a047-a644e92c43f5}</Project>

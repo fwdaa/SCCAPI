@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using System.IO;
 
 namespace Aladdin.CAPI.Test
@@ -181,8 +183,42 @@ namespace Aladdin.CAPI.Test
             // вывести сообщение на экран
             Console.WriteLine(usage); 
         }
+        // функции определения активных окон
+        [DllImport("kernel32.dll")]
+        internal static extern IntPtr GetConsoleWindow();
+
+		public static IClient SelectContainer(byte[] encrypted)
+		{
+            IWin32Window window = Aladdin.GUI.Win32Window.FromHandle(GetConsoleWindow()); 
+
+            using (CryptoEnvironment environment = new CryptoEnvironment(
+               @"E:\Development\SCCAPI.8\Source\Aladdin.CAPI.Environment\config\Env.Crypto.config"))
+            { 
+                KeyUsage keyUsage = KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement; 
+
+                // указать функцию фильтра
+                Predicate<CAPI.ContainerKeyPair> filter = delegate(CAPI.ContainerKeyPair keyPair)
+                {
+                    // проверить наличие сертификата
+                    if (keyPair.CertificateChain == null) return false; 
+
+                    // проверить способ использования сертификата
+                    return (keyPair.CertificateChain[0].KeyUsage & keyUsage) != CAPI.KeyUsage.None; 
+                }; 
+			    // создать функцию проверки контейнера
+			    CAPI.GUI.KeyPairsDialog.Callback check = delegate(
+                    Form form, CAPI.CryptoProvider provider, CAPI.ContainerKeyPair keyPair)
+			    {
+                    return null; 
+			    }; 
+	            // выбрать пользователя из списка
+                return (Client)CAPI.GUI.KeyPairsDialog.Show(window, environment, filter, check); 
+            }
+        }
         static void Main(string[] args)
         {
+            // SelectContainer(null); 
+
             // проверить число параметров
             if (args.Length < 1) { Usage(); return; }
             try { 
@@ -219,10 +255,6 @@ namespace Aladdin.CAPI.Test
                   // CAPI.PKCS11.AKS        .Test.Entry(); // +
                   // CAPI.PKCS11.Athena     .Test.Entry(); // +- (EC -> CKR_DOMAIN_PARAMS_INVALID)
                   // CAPI.PKCS11.JaCarta    .Test.Entry(); 
-
-                  //CryptoEnvironment environment = new CryptoEnvironment(
-                  //   @"E:\Development\SCCAPI.8\Source\Aladdin.CAPI.Environment\config\Env.Crypto.config"
-                  //); 
 
                   // CAPI.Rnd.Accord           .Test.Entry(); 
                   // CAPI.Rnd.Sobol            .Test.Entry(); 
