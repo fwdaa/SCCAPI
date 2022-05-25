@@ -101,8 +101,11 @@ namespace Aladdin.CAPI
             // для всех сертификатов
             for (int i = 0; i < keyxParameters.Length; i++)
             {
+                // указать используемую культуру
+                Culture keyxCulture = (cultures != null) ? cultures[i] : culture; 
+
                 // получить параметры алгоритма
-                keyxParameters[i] = cultures[i].KeyxParameters(
+                keyxParameters[i] = keyxCulture.KeyxParameters(
                     factory, scope, rand, recipientCertificates[i].KeyUsage
                 ); 
                 // проверить отсутствие ошибок
@@ -115,6 +118,17 @@ namespace Aladdin.CAPI
             ); 
             // вернуть закодированную структуру
             return new ASN1.ISO.PKCS.ContentInfo(dataType, envelopedData); 
+        }
+	    public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(
+            Culture culture, IRand rand, IPrivateKey privateKey, 
+            Certificate[] certificateChain, Certificate recipientCertificate, 
+            CMSData data, ASN1.ISO.Attributes attributes)
+        {
+            // зашифровать данные
+            return KeyxEncryptData(culture, rand, privateKey, certificateChain, 
+                new Certificate[] { recipientCertificate }, 
+                new Culture[] { culture }, data, attributes
+            ); 
         }
 	    public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(
             Culture culture, IRand rand, IPrivateKey privateKey, 
@@ -138,8 +152,11 @@ namespace Aladdin.CAPI
             // для всех сертификатов
             for (int i = 0; i < keyxParameters.Length; i++)
             {
+                // указать используемую культуру
+                Culture keyxCulture = (cultures != null) ? cultures[i] : culture; 
+
                 // получить параметры алгоритма
-                keyxParameters[i] = cultures[i].KeyxParameters( 
+                keyxParameters[i] = keyxCulture.KeyxParameters( 
                     privateKey.Factory, privateKey.Scope, 
                     rand, recipientCertificates[i].KeyUsage
                 ); 

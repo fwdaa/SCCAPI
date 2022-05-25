@@ -107,12 +107,33 @@ namespace Aladdin.CAPI.GUI.Nodes
 			using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
             {
                 // получить допустимые способы использования открытого ключа
-                KeyUsage keyUsage = container.GetKeyUsage(keyPair.KeyOID); 
+                KeyUsage keyUsage = container.GetKeyUsage(keyPair.KeyOID); bool check = false; 
 
+                // при допустимости шифрования 
+                if (KeyUsage.None != (keyUsage & (KeyUsage.KeyEncipherment | 
+					KeyUsage.KeyAgreement | KeyUsage.DataEncipherment))) 
+				{ 
+					// при наличии сертификата
+					if (!check && keyPair.CertificateChain[0] != null) { check = true; 
+
+						// указать возможность создания сертификата
+						items.Add(new ToolStripMenuItem(Resource.MenuCheckAccess, null,    
+							delegate (object sender, EventArgs e) { OnTestEncrypt(node, sender, e); }
+						));
+					}
+				}
                 // при допустимости подписи добавить элемент меню
                 if (KeyUsage.None != (keyUsage & KeyUsage.DigitalSignature | 
-                        KeyUsage.CertificateSignature | KeyUsage.CrlSignature))
-                { 
+                        KeyUsage.CertificateSignature | KeyUsage.CrlSignature)) 
+				{ 
+					// при наличии сертификата
+					if (!check && keyPair.CertificateChain[0] != null) { check = true; 
+
+						// указать возможность создания сертификата
+						items.Add(new ToolStripMenuItem(Resource.MenuCheckAccess, null,    
+							delegate (object sender, EventArgs e) { OnTestSign(node, sender, e); }
+						));
+					}
                     // указать возможность создания сертификата
                     items.Add(new ToolStripMenuItem(Resource.MenuCreateCertificate, null,    
                         delegate (object sender, EventArgs e) { OnCreateCertificate(node, sender, e); }
@@ -126,6 +147,7 @@ namespace Aladdin.CAPI.GUI.Nodes
                         ));
                     }
                 }
+
             }
             // указать возможность установки сертификата
 			items.Add(new ToolStripMenuItem(Resource.MenuSetCertificate, null,    
@@ -133,6 +155,87 @@ namespace Aladdin.CAPI.GUI.Nodes
             )); 
             return items.ToArray(); 
 		}
+		private void OnTestEncrypt(ConsoleNode node, object sender, EventArgs e)
+        {
+			// получить основное окно
+			ContainersForm mainForm = (ContainersForm)node.MainForm; 
+			try { 
+				// указать способ аутентификации
+				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
+
+				// получить интерфейс клиента
+				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
+                {
+					// получить криптографическую культуру
+					Culture culture = environment.GetCulture(keyPair.KeyOID); 
+
+					// указать используемый сертификат
+					Certificate certificate = keyPair.CertificateChain[0]; 
+
+					// создать список сертификатов
+					Certificate[] recipientCertificates = new Certificate[] { certificate }; 
+
+					// закодировать данные
+					CMSData cmsData = new CMSData(ASN1.ISO.PKCS.PKCS7.OID.data, new byte[0]); 
+
+                    // указать генератор случайных данных
+                    using (IRand rand = environment.CreateRand(null))
+                    { 
+						// зашифровать данные
+						byte[] encrypted = container.EncryptData(
+							rand, culture, certificate, recipientCertificates, cmsData, null
+						); 
+						// расшифровать данные
+						container.DecryptData(encrypted); 
+					}
+                }
+				// получить сообщение о завершении
+				string message = Resource.StatusAccessGranted; node.Refresh(); 
+
+				// вывести ее описание
+				MessageBox.Show(mainForm, message, mainForm.Text, 
+					MessageBoxButtons.OK, MessageBoxIcon.Information);  
+			}
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); }
+        }
+		private void OnTestSign(ConsoleNode node, object sender, EventArgs e)
+        {
+			// получить основное окно
+			ContainersForm mainForm = (ContainersForm)node.MainForm; 
+			try { 
+				// указать способ аутентификации
+				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
+
+				// получить интерфейс клиента
+				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
+                {
+					// получить криптографическую культуру
+					Culture culture = environment.GetCulture(keyPair.KeyOID); 
+
+					// указать используемый сертификат
+					Certificate certificate = keyPair.CertificateChain[0]; 
+
+					// закодировать данные
+					CMSData cmsData = new CMSData(ASN1.ISO.PKCS.PKCS7.OID.data, new byte[0]); 
+
+                    // указать генератор случайных данных
+                    using (IRand rand = environment.CreateRand(null))
+                    { 
+						// подписать данные данные
+						container.SignData(rand, culture, certificate, cmsData, null, null); 
+					}
+                }
+				// получить сообщение о завершении
+				string message = Resource.StatusAccessGranted; node.Refresh(); 
+
+				// вывести ее описание
+				MessageBox.Show(mainForm, message, mainForm.Text, 
+					MessageBoxButtons.OK, MessageBoxIcon.Information);  
+			}
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); }
+        }
 		private void OnCreateCertificate(ConsoleNode node, object sender, EventArgs e)
 		{
 			// получить основное окно

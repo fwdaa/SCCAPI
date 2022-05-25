@@ -53,7 +53,7 @@ namespace Aladdin.CAPI.GUI
             { 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, info, selector))
-				{ 
+				try { 
 					// перечислить пары ключей контейнера
 					ContainerKeyPair[] keyPairs = container.EnumerateKeyPairs(); 
 
@@ -64,6 +64,7 @@ namespace Aladdin.CAPI.GUI
 						if (filter == null || filter(keyPair)) PopulateView(keyPair); 
 					}
 				}
+				catch {}
             }
 			// установить размер столбца
 			listView.Columns[listView.Columns.Count - 1].Width = -1; 

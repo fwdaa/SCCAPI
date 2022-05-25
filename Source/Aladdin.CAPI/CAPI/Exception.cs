@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Authentication;
 
 namespace Aladdin.CAPI
 {
@@ -46,5 +47,20 @@ namespace Aladdin.CAPI
         public SignatureException(Exception exception) : base(Resource.InvalidSignature, exception) {} 
         // конструктор
         public SignatureException() : base(Resource.InvalidSignature) {} 
+    }
+	//////////////////////////////////////////////////////////////////////////////
+	// Объект не найден 
+	//////////////////////////////////////////////////////////////////////////////
+    [Serializable]
+	public class AuthenticationException : System.Security.Authentication.AuthenticationException
+    {
+        // конструктор
+        public AuthenticationException(string message, Exception exception) : base(message, exception) {} 
+        // конструктор
+        public AuthenticationException(string message) : base(message) {} 
+        // конструктор
+        public AuthenticationException(Exception exception) : base(Resource.AuthenticationFailed, exception) {} 
+        // конструктор
+        public AuthenticationException() : base(Resource.ObjectNotFound) {} 
     }
 }

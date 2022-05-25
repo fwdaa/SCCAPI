@@ -142,6 +142,15 @@ namespace Aladdin.CAPI.GUI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Check container access....
+        /// </summary>
+        internal static string MenuCheckAccess {
+            get {
+                return ResourceManager.GetString("MenuCheckAccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create selfsigned certificate....
         /// </summary>
         internal static string MenuCreateCertificate {
@@ -345,6 +354,15 @@ namespace Aladdin.CAPI.GUI {
         internal static string QuestionDeleteObjects {
             get {
                 return ResourceManager.GetString("QuestionDeleteObjects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Container access granted.
+        /// </summary>
+        internal static string StatusAccessGranted {
+            get {
+                return ResourceManager.GetString("StatusAccessGranted", resourceCulture);
             }
         }
         

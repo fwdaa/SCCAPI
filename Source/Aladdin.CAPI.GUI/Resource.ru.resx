@@ -243,4 +243,10 @@
   <data name="MessageFingerQuality" xml:space="preserve">
     <value>Полученный отпечаток пальца имеет плохое качество</value>
   </data>
+  <data name="MenuCheckAccess" xml:space="preserve">
+    <value>Проверить наличие доступа...</value>
+  </data>
+  <data name="StatusAccessGranted" xml:space="preserve">
+    <value>Доступ к контейнеру предоставлен</value>
+  </data>
 </root>

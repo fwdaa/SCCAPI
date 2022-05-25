@@ -113,8 +113,11 @@ public abstract class Culture
         // для всех сертификатов
         for (int i = 0; i < keyxParameters.length; i++)
         {
+            // указать используемую культуру
+            Culture keyxCulture = (cultures != null) ? cultures[i] : culture; 
+            
             // получить параметры алгоритма
-            keyxParameters[i] = cultures[i].keyxParameters(
+            keyxParameters[i] = keyxCulture.keyxParameters(
                 factory, scope, rand, recipientCertificates[i].keyUsage()
             ); 
             // проверить отсутствие ошибок
@@ -127,6 +130,17 @@ public abstract class Culture
         ); 
         // вернуть закодированную структуру
         return new ContentInfo(dataType, envelopedData); 
+    }
+	public static ContentInfo keyxEncryptData(
+        Culture culture, IRand rand, IPrivateKey privateKey, 
+        Certificate[] certificateChain, Certificate recipientCertificate, 
+        CMSData data, Attributes attributes) throws IOException
+    {
+        // зашифровать данные
+        return keyxEncryptData(culture, rand, privateKey, certificateChain, 
+            new Certificate[] { recipientCertificate }, 
+            new Culture[] { culture }, data, attributes
+        ); 
     }
 	public static ContentInfo keyxEncryptData(Culture culture, IRand rand, 
         IPrivateKey privateKey, Certificate[] certificateChain, 
@@ -150,8 +164,11 @@ public abstract class Culture
         // для всех сертификатов
         for (int i = 0; i < keyxParameters.length; i++)
         {
+            // указать используемую культуру
+            Culture keyxCulture = (cultures != null) ? cultures[i] : culture; 
+                
             // получить параметры алгоритма
-            keyxParameters[i] = cultures[i].keyxParameters( 
+            keyxParameters[i] = keyxCulture.keyxParameters( 
                 privateKey.factory(), privateKey.scope(), 
                 rand, recipientCertificates[i].keyUsage()
             ); 

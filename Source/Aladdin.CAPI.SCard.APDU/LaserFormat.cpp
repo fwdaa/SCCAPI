@@ -35,7 +35,7 @@ static void AuthenticateWipe(Aladdin::PKCS11::Module^ module,
         throw gcnew InvalidOperationException(); 
     }
     // проверить возможность аутентификации
-    if (buffer[1] == 0) throw gcnew AuthenticationException(); 
+    if (buffer[1] == 0) throw gcnew Aladdin::CAPI::AuthenticationException(); 
 
 	// создать сеанс со смарт-картой
 	UInt64 hSession = module->OpenSession(slotId, CKF_RW_SESSION);

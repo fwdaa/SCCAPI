@@ -339,10 +339,10 @@ namespace Aladdin.CAPI.COM
 			    {
 				    // для всех контейнеров
 				    foreach (SecurityInfo info in provider.EnumerateAllObjects(scope))
-				    try {
+				    {
 						// получить интерфейс клиента
 						using (ClientContainer container = new ClientContainer(provider, info, selector))
-						{ 
+						try { 
 							// для всех пар ключей контейнера
 							foreach (ContainerKeyPair keyPair in container.EnumerateKeyPairs())
 							{
@@ -371,7 +371,8 @@ namespace Aladdin.CAPI.COM
 								}
 							}
 						}
-				    } catch {}
+						catch {}
+				    }
                 }
 				return encodedPrivateKeys.ToArray(); 
 			}

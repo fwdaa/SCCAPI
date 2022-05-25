@@ -7,7 +7,7 @@ namespace Aladdin.CAPI.Software
     ///////////////////////////////////////////////////////////////////////////
     // Хранилище каталогов в файле конфигурации
     ///////////////////////////////////////////////////////////////////////////
-    public class ConfigDirectories : RefObject, IDirectoriesSource
+    public class ConfigDirectories : IDirectoriesSource
     {
 		// модель документа
 		private IO.Xml.XmlKey document; 

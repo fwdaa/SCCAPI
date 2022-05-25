@@ -47,27 +47,26 @@ namespace Aladdin.CAPI.GUI.Nodes
 		{ 
 			// определить основное окно
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
+             
+			// указать способ аутентификации
+			AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
+
+			// получить интерфейс клиента
+			using (ClientContainer container = new ClientContainer(provider, containerInfo, selector))
             try { 
-				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
+				// перечислить пары ключей контейнера
+				ContainerKeyPair[] keyPairs = container.EnumerateKeyPairs(); 
 
-				// получить интерфейс клиента
-				using (ClientContainer container = new ClientContainer(provider, containerInfo, selector))
-                { 
-					// перечислить пары ключей контейнера
-					ContainerKeyPair[] keyPairs = container.EnumerateKeyPairs(); 
+				// создать список дочерних узлов
+				ConsoleForm.Node[] nodes = new ConsoleForm.Node[keyPairs.Length]; 
 
-					// создать список дочерних узлов
-					ConsoleForm.Node[] nodes = new ConsoleForm.Node[keyPairs.Length]; 
-
-					// заполнить список дочерних узлов
-					for (int i = 0; i < keyPairs.Length; i++)
-					{
-						// создать узел сертификата
-						nodes[i] = new KeyPairNode(environment, provider, keyPairs[i]); 
-					}
-					return nodes; 
-                }
+				// заполнить список дочерних узлов
+				for (int i = 0; i < keyPairs.Length; i++)
+				{
+					// создать узел сертификата
+					nodes[i] = new KeyPairNode(environment, provider, keyPairs[i]); 
+				}
+				return nodes; 
             }
             // обработать возможное исключение
             catch { return new ConsoleForm.Node[0]; } 

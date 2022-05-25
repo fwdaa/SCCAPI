@@ -46,23 +46,22 @@ namespace Aladdin.CAPI.GUI
 		// обновить список ключевых пар
 		public new void Refresh() 
         { 
-            try { listView.Items.Clear();
+            listView.Items.Clear();
  
-			    // сделать контекстное меню доступным/недоступным
-			    OnSelectedIndexChanged(this, EventArgs.Empty); 
+			// сделать контекстное меню доступным/недоступным
+			OnSelectedIndexChanged(this, EventArgs.Empty); 
 
-				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
+			// указать способ аутентификации
+			AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
 
-				// получить интерфейс клиента
-				using (ClientContainer container = new ClientContainer(provider, info, selector))
-				{ 
-					// перечислить пары ключей контейнера
-					ContainerKeyPair[] keyPairs = container.EnumerateKeyPairs(); 
+			// получить интерфейс клиента
+			using (ClientContainer container = new ClientContainer(provider, info, selector))
+			try { 
+				// перечислить пары ключей контейнера
+				ContainerKeyPair[] keyPairs = container.EnumerateKeyPairs(); 
 
-					// заполнить представление
-					foreach (ContainerKeyPair keyPair in keyPairs) PopulateView(keyPair);
-                }
+				// заполнить представление
+				foreach (ContainerKeyPair keyPair in keyPairs) PopulateView(keyPair);
             }
             catch {}
 		}

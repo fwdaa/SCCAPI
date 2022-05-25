@@ -187,7 +187,7 @@ namespace Aladdin.CAPI.Test
         [DllImport("kernel32.dll")]
         internal static extern IntPtr GetConsoleWindow();
 
-		public static IClient SelectContainer(byte[] encrypted)
+		public static object SelectContainer()
 		{
             IWin32Window window = Aladdin.GUI.Win32Window.FromHandle(GetConsoleWindow()); 
 
@@ -197,7 +197,7 @@ namespace Aladdin.CAPI.Test
                 KeyUsage keyUsage = KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement; 
 
                 // указать функцию фильтра
-                Predicate<CAPI.ContainerKeyPair> filter = delegate(CAPI.ContainerKeyPair keyPair)
+                Predicate<ContainerKeyPair> filter = delegate(ContainerKeyPair keyPair)
                 {
                     // проверить наличие сертификата
                     if (keyPair.CertificateChain == null) return false; 
@@ -206,18 +206,48 @@ namespace Aladdin.CAPI.Test
                     return (keyPair.CertificateChain[0].KeyUsage & keyUsage) != CAPI.KeyUsage.None; 
                 }; 
 			    // создать функцию проверки контейнера
-			    CAPI.GUI.KeyPairsDialog.Callback check = delegate(
-                    Form form, CAPI.CryptoProvider provider, CAPI.ContainerKeyPair keyPair)
+			    GUI.KeyPairsDialog.Callback check = delegate(
+                    Form form, CryptoProvider provider, ContainerKeyPair keyPair)
 			    {
-                    return null; 
+                    // указать способ аутентификации
+                    AuthenticationSelector selector = GUI.AuthenticationSelector.Create(form); 
+
+                    // создать пользователя
+                    using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
+                    {
+					    // получить криптографическую культуру
+					    Culture culture = environment.GetCulture(keyPair.KeyOID); 
+
+					    // указать используемый сертификат
+					    Certificate certificate = keyPair.CertificateChain[0]; 
+
+					    // создать список сертификатов
+					    Certificate[] recipientCertificates = new Certificate[] { certificate }; 
+
+					    // закодировать данные
+					    CMSData cmsData = new CMSData(ASN1.ISO.PKCS.PKCS7.OID.data, new byte[0]); 
+
+                        // указать генератор случайных данных
+                        using (IRand rand = environment.CreateRand(null))
+                        { 
+						    // зашифровать данные
+						    byte[] encrypted = container.EncryptData(
+							    rand, culture, certificate, recipientCertificates, cmsData, null
+						    ); 
+						    // расшифровать данные
+						    container.DecryptData(encrypted); 
+					    }
+                        return null; 
+                    }
 			    }; 
 	            // выбрать пользователя из списка
-                return (Client)CAPI.GUI.KeyPairsDialog.Show(window, environment, filter, check); 
+                return GUI.KeyPairsDialog.Show(window, environment, filter, check); 
             }
         }
+        [STAThread]
         static void Main(string[] args)
         {
-            // SelectContainer(null); 
+            SelectContainer(); 
 
             // проверить число параметров
             if (args.Length < 1) { Usage(); return; }

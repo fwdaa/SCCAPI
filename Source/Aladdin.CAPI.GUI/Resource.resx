@@ -243,4 +243,10 @@
   <data name="NodeReaders" xml:space="preserve">
     <value>Readers</value>
   </data>
+  <data name="MenuCheckAccess" xml:space="preserve">
+    <value>Check container access...</value>
+  </data>
+  <data name="StatusAccessGranted" xml:space="preserve">
+    <value>Container access granted</value>
+  </data>
 </root>
