@@ -31,6 +31,12 @@ namespace Aladdin.CAPI.PKCS11
             // освободить выделенные ресурсы
             session.Dispose(); base.OnDispose(); 
         } 
+        // изменить окно для генератора
+        public virtual IRand CreateRand(object window) 
+        { 
+			// изменить окно для генератора
+            return CAPI.Rand.Rebind(this, window); 
+        } 
 		// сгенерировать случайные данные
 		public virtual void Generate(byte[] bytes, int start, int len)
 		{

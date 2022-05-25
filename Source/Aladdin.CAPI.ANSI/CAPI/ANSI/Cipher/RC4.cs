@@ -62,6 +62,9 @@ namespace Aladdin.CAPI.ANSI.Cipher
                     byte temp = state[i]; state[i] = state[j]; state[j] = temp;
                 }
             }
+            // изменить окно для генератора
+            public IRand CreateRand(object window) { return RefObject.AddRef(this); } 
+
             // сгенерировать последовательность
             public void Generate(byte[] buffer, int off, int length)
             {

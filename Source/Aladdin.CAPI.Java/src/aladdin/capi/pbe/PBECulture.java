@@ -11,7 +11,7 @@ import java.security.*;
 ///////////////////////////////////////////////////////////////////////////
 // Парольная защита
 ///////////////////////////////////////////////////////////////////////////
-public abstract class PBECulture
+public abstract class PBECulture implements IPBECultureFactory
 {
     // параметры шифрования по паролю
     private final PBEParameters pbeParameters; 
@@ -22,6 +22,9 @@ public abstract class PBECulture
         // сохранить переданные параметры
         this.pbeParameters = pbeParameters; 
     } 
+    // параметры парольной защиты
+    @Override public PBECulture getPBECulture(Object window, String keyOID) { return this; }
+    
     // параметры шифрования по паролю 
     public final PBEParameters pbeParameters() { return pbeParameters; } 
 

@@ -1,6 +1,7 @@
 package aladdin.capi;
 import aladdin.*; 
 import aladdin.asn1.iso.*;
+import java.io.*;
 import java.util.*; 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,6 +71,12 @@ public abstract class Test
         { 
             // сохранить переданные параметры
             super(); this.values = values; index = 0; 
+        }
+        // создать генератор случайных данных
+        @Override public IRand createRand(Object window) 
+        {
+            // вернуть генератор случайных данных
+            return RefObject.addRef(this);  
         }
         // сгенерировать случайные данные
         @Override public void generate(byte[] data, int dataOff, int dataLen) 

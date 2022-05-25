@@ -62,6 +62,9 @@ namespace Aladdin.CAPI.ANSI.Rnd
             // освободить выделенные ресурсы
             RefObject.Release(digest); base.OnDispose();
         }
+        // изменить окно для генератора
+        public virtual IRand CreateRand(object window) { return Rand.Rebind(this, window); } 
+
         // сгенерировать данные 
         public void Generate(byte[] buf, int bufOff, int bufLen)
         {

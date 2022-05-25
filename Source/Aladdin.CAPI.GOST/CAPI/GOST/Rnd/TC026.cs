@@ -49,6 +49,9 @@ namespace Aladdin.CAPI.GOST.Rnd
             // освободить ресурсы
             RefObject.Release(algorithm); base.OnDispose();
         }
+        // изменить окно для генератора
+        public IRand CreateRand(object window) { return Rand.Rebind(this, window); } 
+
 		// сгенерировать случайные данные
 		public void Generate(byte[] data, int dataOff, int dataLen)
         {

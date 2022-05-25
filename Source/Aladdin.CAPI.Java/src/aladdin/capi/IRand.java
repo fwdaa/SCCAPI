@@ -4,7 +4,7 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 // Генерация случайных данных
 ///////////////////////////////////////////////////////////////////////////
-public interface IRand extends IAlgorithm
+public interface IRand extends IAlgorithm, IRandFactory
 {
 	// сгенерировать случайные данные
 	void generate(byte[] data, int dataOff, int dataLen) throws IOException;

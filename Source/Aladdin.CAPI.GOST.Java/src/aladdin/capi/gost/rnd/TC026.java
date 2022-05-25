@@ -48,6 +48,12 @@ public class TC026 extends RefObject implements IRand
         // освободить ресурсы
         RefObject.release(algorithm); super.onClose();
     }
+    // создать генератор случайных данных
+    @Override public IRand createRand(Object window) 
+    {
+        // вернуть генератор случайных данных
+        return Rand.rebind(this, window);  
+    }
     // сгенерировать случайные данные
 	@Override public void generate(byte[] data, int dataOff, int dataLen) throws IOException
     {

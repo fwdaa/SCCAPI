@@ -14,12 +14,8 @@ namespace Aladdin.CAPI.PKCS12
         // провайдер только для чтения
         public static CryptoProvider Readonly(IEnumerable<Factory> factories, IRand rand)
         {
-            // указать фабрику генераторов
-            using (IRandFactory randFactory = new RandFactory(rand))
-            { 
-                // вернуть провайдер
-                return new CryptoProvider(factories, randFactory); 
-            }
+            // вернуть провайдер
+            return new CryptoProvider(factories, rand); 
         }
         // провайдер только для чтения
         public static CryptoProvider Readonly(IEnumerable<Factory> factories)

@@ -40,6 +40,9 @@ namespace Aladdin.CAPI.GOST.Rnd
                 rand = new TC026(window, hashAlgorithm, seed); this.seed = seed; 
             }
         }
+        // изменить окно для генератора
+        public IRand CreateRand(object window) { return Rand.Rebind(this, window); } 
+
         // конструктор при сериализации
         public void OnDeserialization(object sender)
         {

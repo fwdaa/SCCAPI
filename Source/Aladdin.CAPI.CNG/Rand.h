@@ -18,6 +18,12 @@ namespace Aladdin { namespace CAPI { namespace CNG
             // сохранить описатель провайдера алгоритма
 			: hProvider(gcnew BProviderHandle(provider, alg, flags)) { this->window = window; }
 
+        // изменить окно для генератора
+		public: virtual IRand^ CreateRand(Object^ window) 
+        { 
+			// изменить окно для генератора
+            return CAPI::Rand::Rebind(this, window); 
+        } 
 		// сгенерировать случайные данные
 		public: virtual void Generate(array<BYTE>^ buffer, int bufferOff, int bufferLen)
 		{

@@ -3,7 +3,7 @@
     ///////////////////////////////////////////////////////////////////////////
 	// Генерация случайных данных
     ///////////////////////////////////////////////////////////////////////////
-	public interface IRand : IAlgorithm
+	public interface IRand : IAlgorithm, IRandFactory
 	{
 		// сгенерировать случайные данные
 		void Generate(byte[] data, int dataOff, int dataLen);

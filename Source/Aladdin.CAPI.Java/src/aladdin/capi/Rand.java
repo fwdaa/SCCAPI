@@ -16,9 +16,9 @@ public class Rand extends RefObject implements IRand
 
     // изменить окно для генератора
     public static IRand rebind(IRand rand, Object window) 
-    { 
-        // изменить окно для генератора
-        return new Rand(rand, window); 
+    {
+        // вернуть генератор случайных данных
+        return new Rand(rand, window);  
     }
 	// конструктор
 	private Rand(IRand rand, Object window) { this.generator = null; 
@@ -52,6 +52,12 @@ public class Rand extends RefObject implements IRand
     { 
         // освободить выделенные ресурсы
         RefObject.release(rand); super.onClose(); 
+    }
+    // создать генератор случайных данных
+    @Override public IRand createRand(Object window) 
+    {
+        // вернуть генератор случайных данных
+        return Rand.rebind(this, window);  
     }
     // сгенерировать случайные данные
 	@Override public void generate(byte[] data, int dataOff, int dataLen) throws IOException

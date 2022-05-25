@@ -1,6 +1,7 @@
 package aladdin.capi.ansi.cipher;
 import aladdin.*; 
 import aladdin.capi.*; 
+import java.io.IOException;
 import java.security.*; 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -59,6 +60,12 @@ public class RC4 extends StreamCipher
                 // do the byte-swap inline
                 byte temp = state[i]; state[i] = state[j]; state[j] = temp;
             }
+        }
+        // создать генератор случайных данных
+        @Override public IRand createRand(Object window) 
+        {
+            // вернуть генератор случайных данных
+            return RefObject.addRef(this);  
         }
         // сгенерировать последовательность
         @Override public void generate(byte[] buffer, int off, int length)

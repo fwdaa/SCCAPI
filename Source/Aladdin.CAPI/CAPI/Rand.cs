@@ -18,9 +18,9 @@ namespace Aladdin.CAPI
 
         // изменить окно для генератора
         public static IRand Rebind(IRand rand, object window) 
-        { 
-            // изменить окно для генератора
-            return new Rand(rand, window); 
+        {
+            // вернуть генератор случайных данных
+            return new Rand(rand, window);  
         }
 		// конструктор
         private Rand(IRand rand, object window)
@@ -31,7 +31,6 @@ namespace Aladdin.CAPI
             // сохранить дополнительный генератор
             this.window = window; this.rand = RefObject.AddRef(rand); 
         }
-
 		// конструктор
         public Rand(object window) : this(RNGCryptoServiceProvider.Create(), window) {}
         // конструктор
@@ -82,6 +81,12 @@ namespace Aladdin.CAPI
         // описатель окна
         public object Window { get { return window; }}
 
+        // изменить окно для генератора
+        public IRand CreateRand(object window) 
+        { 
+            // изменить окно для генератора
+            return Rand.Rebind(this, window); 
+        } 
 		// сгенерировать случайные данные
 		public void Generate(byte[] data, int dataOff, int dataLen)
 		{

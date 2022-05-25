@@ -61,6 +61,12 @@ public class SHA1PRNG extends RefObject implements IRand
         // освободить выделенные ресурсы
         RefObject.release(digest); super.onClose();
     }
+    // создать генератор случайных данных
+    @Override public IRand createRand(Object window) 
+    {
+        // вернуть генератор случайных данных
+        return Rand.rebind(this, window);  
+    }
     // сгенерировать данные 
     @Override public void generate(byte[] buf, int bufOff, int bufLen) throws IOException
     {

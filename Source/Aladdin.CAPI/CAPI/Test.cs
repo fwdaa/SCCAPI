@@ -71,6 +71,12 @@ namespace Aladdin.CAPI
                 // сохранить переданные параметры
                 this.values = values; index = 0; 
             }
+            // изменить окно для генератора
+            public IRand CreateRand(object window) 
+            { 
+                // вернуть генератор случайных данных
+                return RefObject.AddRef(this); 
+            } 
             public void Generate(byte[] data, int dataOff, int dataLen) 
             {
 		        // сгенерировать случайные данные

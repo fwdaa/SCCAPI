@@ -25,6 +25,12 @@ namespace Aladdin { namespace CAPI { namespace Rnd { namespace Accord
 		// деструктор
 		protected: virtual ~Rand() { factory->Release(); }
 
+        // изменить окно для генератора
+		public: virtual IRand^ CreateRand(Object^ window) 
+        { 
+			// изменить окно для генератора
+            return CAPI::Rand::Rebind(this, window); 
+        } 
 		// сгенерировать случайные данные
 		public: virtual void Generate(array<BYTE>^ buffer, int bufferOff, int bufferLen); 
 

@@ -5,13 +5,16 @@ namespace Aladdin.CAPI.PBE
     ///////////////////////////////////////////////////////////////////////////
     // Парольная защита
     ///////////////////////////////////////////////////////////////////////////
-	public abstract class PBECulture
+	public abstract class PBECulture : IPBECultureFactory
 	{
         // конструктор
         public PBECulture(PBEParameters pbeParameters) 
          
             // сохранить переданные параметры
             { this.pbeParameters = pbeParameters; } private PBEParameters pbeParameters;
+
+        // получить параметры парольной защиты
+        public PBECulture GetPBECulture(object window, string keyOID) { return this; }
 
         // параметры шифрования по паролю 
         public PBEParameters PBEParameters { get { return pbeParameters; } } 

@@ -90,7 +90,6 @@
     <Compile Include="CAPI\IKeySizeParameters.cs" />
     <Compile Include="CAPI\IParametersFactory.cs" />
     <Compile Include="CAPI\KeyAgreement.cs" />
-    <Compile Include="CAPI\PBE\PBECultureFactory.cs" />
     <Compile Include="CAPI\PBE\IPBECultureFactory.cs" />
     <Compile Include="CAPI\PBE\PBEDefaultCulture.cs" />
     <Compile Include="CAPI\Provider.cs" />
@@ -239,7 +238,6 @@
     <Compile Include="CAPI\Client.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CAPI\SecurityInfo.cs" />
-    <Compile Include="CAPI\RandFactory.cs" />
     <Compile Include="CAPI\RandomNumberGenerator.cs" />
   </ItemGroup>
   <ItemGroup>

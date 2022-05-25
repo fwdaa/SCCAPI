@@ -29,6 +29,12 @@ public class Rand extends RefObject implements IRand
         // закрыть сеанс
         session.close(); super.onClose();
     } 
+    // создать генератор случайных данных
+    @Override public IRand createRand(Object window) 
+    {
+        // вернуть генератор случайных данных
+        return aladdin.capi.Rand.rebind(this, window);  
+    }
 	// сгенерировать случайные данные
 	@Override
 	public void generate(byte[] bytes, int start, int len) throws IOException

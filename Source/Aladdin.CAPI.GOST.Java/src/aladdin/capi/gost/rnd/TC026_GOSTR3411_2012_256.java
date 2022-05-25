@@ -62,6 +62,12 @@ public final class TC026_GOSTR3411_2012_256 extends RefObject implements IRand, 
     // стартовое значение
     public final byte[] seed() { return seed; }
 
+    // создать генератор случайных данных
+    @Override public IRand createRand(Object window) 
+    {
+        // вернуть генератор случайных данных
+        return Rand.rebind(this, window);  
+    }
     // сгенерировать случайные данные
 	@Override public void generate(byte[] data, int dataOff, int dataLen) throws IOException
     {
