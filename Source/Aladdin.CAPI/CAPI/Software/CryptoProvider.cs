@@ -318,7 +318,7 @@ namespace Aladdin.CAPI.Software
             if (scope != null && !(scope is ContainerStore) && !(scope is Container)) return null; 
 
             // создать алгоритм генерации ключей
-            return factories.CreateAggregatedGenerator(outer, null, rand, keyOID, parameters); 
+            return factories.CreateAggregatedGenerator(outer, scope, rand, keyOID, parameters); 
 		}
 		// cоздать алгоритм для параметров
 		protected internal override IAlgorithm CreateAggregatedAlgorithm(
@@ -329,7 +329,7 @@ namespace Aladdin.CAPI.Software
             if (scope != null && !(scope is ContainerStore)) return null; 
 
             // создать алгоритм
-            return factories.CreateAggregatedAlgorithm(outer, null, oid, parameters, type); 
+            return factories.CreateAggregatedAlgorithm(outer, scope, oid, parameters, type); 
         }
 	    ///////////////////////////////////////////////////////////////////////
 	    // Управление контейнерами в памяти

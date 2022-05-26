@@ -113,7 +113,9 @@ public class Factories extends Factory implements Iterable<Factory>
         Factory outer, SecurityObject scope, IRand rand, 
         String keyOID, IParameters parameters) throws IOException
     {
-        if (scope == null) 
+        // при программной генерации 
+        if (scope == null || scope instanceof aladdin.capi.software.ContainerStore || 
+            scope instanceof aladdin.capi.software.Container) 
         {
             // для всех программных фабрик алгоритмов
             for (Factory factory : factories)
@@ -164,7 +166,8 @@ public class Factories extends Factory implements Iterable<Factory>
         SecurityStore scope, String oid, IEncodable parameters, 
         Class<? extends IAlgorithm> type) throws IOException
     {
-        if (scope == null) 
+        // для программного алгоритма
+        if (scope == null || scope instanceof aladdin.capi.software.ContainerStore) 
         {
             // для всех программных фабрик алгоритмов
             for (Factory factory : factories)

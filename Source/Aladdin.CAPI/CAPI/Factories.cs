@@ -123,7 +123,8 @@ namespace Aladdin.CAPI
             Factory outer, SecurityObject scope, IRand rand, 
             string keyOID, IParameters parameters)
         {
-            if (scope == null) 
+            // при программной генерации
+            if (scope == null || scope is Software.ContainerStore || scope is Software.Container) 
             {
                 // для всех программных фабрик алгоритмов
                 foreach (Factory factory in factories)
@@ -174,7 +175,8 @@ namespace Aladdin.CAPI
             Factory outer, SecurityStore scope, 
             string oid, ASN1.IEncodable parameters, Type type)
         {
-            if (scope == null) 
+            // для программного алгоритма
+            if (scope == null || scope is Software.ContainerStore)  
             {
                 // для всех программных фабрик алгоритмов
                 foreach (Factory factory in factories)

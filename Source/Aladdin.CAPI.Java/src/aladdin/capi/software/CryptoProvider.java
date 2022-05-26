@@ -251,7 +251,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         if (scope != null && !(scope instanceof ContainerStore) && !(scope instanceof Container)) return null; 
         
 		// создать программный алгоритм генерации ключей
-		return factories.createAggregatedGenerator(outer, null, rand, keyOID, parameters); 
+		return factories.createAggregatedGenerator(outer, scope, rand, keyOID, parameters); 
 	}
 	// cоздать алгоритм для параметров
 	@Override protected IAlgorithm createAggregatedAlgorithm(Factory outer, 
@@ -262,7 +262,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         if (scope != null && !(scope instanceof ContainerStore)) return null; 
         
 		// cоздать программный алгоритм для параметров
-		return factories.createAggregatedAlgorithm(outer, null, oid, parameters, type); 
+		return factories.createAggregatedAlgorithm(outer, scope, oid, parameters, type); 
 	}
 	///////////////////////////////////////////////////////////////////////
 	// Управление контейнерами в памяти
