@@ -315,7 +315,7 @@ namespace Aladdin.CAPI.Software
             string keyOID, IParameters parameters)
 		{
             // проверить тип хранилища
-            if (scope != null && !(scope is ContainerStore)) return null; 
+            if (scope != null && !(scope is ContainerStore) && !(scope is Container)) return null; 
 
             // создать алгоритм генерации ключей
             return factories.CreateAggregatedGenerator(outer, null, rand, keyOID, parameters); 

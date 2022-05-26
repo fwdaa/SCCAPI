@@ -248,7 +248,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
         String keyOID, IParameters parameters) throws IOException
 	{
         // проверить тип хранилища
-        if (scope != null && !(scope instanceof ContainerStore)) return null; 
+        if (scope != null && !(scope instanceof ContainerStore) && !(scope instanceof Container)) return null; 
         
 		// создать программный алгоритм генерации ключей
 		return factories.createAggregatedGenerator(outer, null, rand, keyOID, parameters); 
