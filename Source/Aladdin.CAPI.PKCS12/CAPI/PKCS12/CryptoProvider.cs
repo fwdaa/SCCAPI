@@ -75,13 +75,22 @@ namespace Aladdin.CAPI.PKCS12
 		///////////////////////////////////////////////////////////////////////
         public override Software.Container CreateContainer(IRand rand, 
             Software.ContainerStore store, Software.ContainerStream stream, 
-            string password, string keyOID)
+            string password, object parameter)
 		{
-            // указать культуру по умолчанию
-            if (password == null || cultureFactory == null) throw new InvalidOperationException(); 
+            // проверить наличие параметров
+            if (password == null) throw new InvalidOperationException(); 
 
-            // получить парольную защиту
-            PBE.PBECulture culture = cultureFactory.GetPBECulture(rand.Window, keyOID); 
+            // при указании идентификатора ключа
+            PBE.PBECulture culture = null; if (parameter is string)
+            {
+                // проверить наличие параметров
+                if (cultureFactory == null) throw new InvalidOperationException(); 
+            
+                // получить парольную защиту
+                culture = cultureFactory.GetPBECulture(rand.Window, (string)parameter); 
+            }
+            // выполнить преобразование типа
+            else culture = (PBE.PBECulture)parameter; 
 
             // проверить поддержку защиты
             if (culture == null) throw new NotSupportedException(); 
@@ -106,7 +115,7 @@ namespace Aladdin.CAPI.PKCS12
             );
             // создать объект контейнера
             using (Container container = new Container(
-                cultureFactory, rand, store, stream, pfx))
+                culture, rand, store, stream, pfx))
             { 
                 // установить пароль контейнера
                 container.Password = password; 

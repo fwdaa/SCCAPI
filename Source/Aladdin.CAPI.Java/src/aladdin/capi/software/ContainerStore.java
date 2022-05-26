@@ -50,7 +50,7 @@ public abstract class ContainerStore extends aladdin.capi.ContainerStore
             {
                 // создать контейнер
                 Container container = provider().createContainer(
-                    rand, this, stream, password, (String)parameters[0]
+                    rand, this, stream, password, parameters[0]
                 );
                 // записать содержимое контейнера
                 stream.write(container.encoded()); return container;  

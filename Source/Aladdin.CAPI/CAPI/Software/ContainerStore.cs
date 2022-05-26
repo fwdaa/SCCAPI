@@ -42,7 +42,7 @@ namespace Aladdin.CAPI.Software
                 {
                     // создать контейнер
                     Container container = Provider.CreateContainer(
-                        rand, this, stream, password, (string)parameters[0]
+                        rand, this, stream, password, parameters[0]
                     );
                     // записать содержимое контейнера
                     stream.Write(container.Encoded); return container;  

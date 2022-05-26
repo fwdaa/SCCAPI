@@ -83,14 +83,23 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
 	///////////////////////////////////////////////////////////////////////
 	@Override public Container createContainer(IRand rand, 
         aladdin.capi.software.ContainerStore store, 
-        ContainerStream stream, String password, String keyOID) throws IOException
+        ContainerStream stream, String password, Object parameter) throws IOException
 	{
         // проверить наличие параметров
-        if (password == null || cultureFactory == null) throw new IllegalStateException(); 
+        if (password == null) throw new IllegalStateException(); 
         
+        // при указании идентификатора ключа
+        PBECulture culture = null; if (parameter instanceof String)
+        {
+            // проверить наличие параметров
+            if (cultureFactory == null) throw new IllegalStateException(); 
+            
+            // получить парольную защиту
+            culture = cultureFactory.getPBECulture(rand.window(), (String)parameter); 
+        }
         // выполнить преобразование типа
-        PBECulture culture = cultureFactory.getPBECulture(rand.window(), keyOID); 
-        
+        else culture = (PBECulture)parameter; 
+            
         // проверить поддержку защиты
         if (culture == null) throw new UnsupportedOperationException(); 
 
@@ -116,7 +125,7 @@ public class CryptoProvider extends aladdin.capi.software.CryptoProvider
         );
         // создать объект контейнера
         try (Container container = new Container(
-            cultureFactory, rand, store, stream, pfx))
+            culture, rand, store, stream, pfx))
         {
             // установить пароль контейнера
             container.setPassword(password); 

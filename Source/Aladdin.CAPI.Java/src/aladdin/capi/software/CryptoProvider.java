@@ -221,7 +221,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 	// Управление контейнерами
 	///////////////////////////////////////////////////////////////////////
 	public Container createContainer(IRand rand, ContainerStore store, 
-        ContainerStream stream, String password, String keyOID) throws IOException
+        ContainerStream stream, String password, Object parameter) throws IOException
     {
 		// операция не поддерживается
 		throw new UnsupportedOperationException();
@@ -268,13 +268,13 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
 	// Управление контейнерами в памяти
 	///////////////////////////////////////////////////////////////////////
     public Container createMemoryContainer(IRand rand, 
-        MemoryStream stream, String password, String keyOID) throws IOException
+        MemoryStream stream, String password, Object parameter) throws IOException
 	{
         // открыть хранилище
         try (SecurityStore store = openStore(Scope.SYSTEM, "MEMORY"))
         {
             // создать контейнер
-            return (Container)store.createObject(rand, stream, password, keyOID); 
+            return (Container)store.createObject(rand, stream, password, parameter); 
         }
     }
 	public final Container openMemoryContainer(

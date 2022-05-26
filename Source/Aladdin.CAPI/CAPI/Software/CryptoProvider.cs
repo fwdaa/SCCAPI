@@ -287,7 +287,7 @@ namespace Aladdin.CAPI.Software
 	    ///////////////////////////////////////////////////////////////////////
 		public virtual Container CreateContainer(IRand rand, 
             ContainerStore store, ContainerStream stream, 
-            string password, string keyOID)
+            string password, object parameter)
 		{
 			// операция не поддерживается
 			throw new NotSupportedException();
@@ -335,13 +335,13 @@ namespace Aladdin.CAPI.Software
 	    // Управление контейнерами в памяти
 	    ///////////////////////////////////////////////////////////////////////
 		public Container CreateMemoryContainer(IRand rand, 
-            MemoryStream stream, string keyOID, string password)
+            MemoryStream stream, string password, object parameter)
 		{
             // открыть хранилище
             using (SecurityStore store = OpenStore(Scope.System, "MEMORY"))
             {
                 // создать контейнер
-                return (Container)store.CreateObject(rand, stream, password, keyOID); 
+                return (Container)store.CreateObject(rand, stream, password, parameter); 
             }
         }
 		public Container OpenMemoryContainer(
