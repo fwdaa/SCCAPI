@@ -47,9 +47,12 @@ namespace Aladdin.CAPI
         { 
             // сохранить переданные параметры
             this.obj = random as IDisposable; this.generator = random.GetBytes; 
+
+            // сохранить генератор случайных данных
+            this.rand = RefObject.AddRef(rand); 
             
-            // сохранить дополнительный генератор
-            this.window = rand.Window; this.rand = RefObject.AddRef(rand); 
+            // указать используемое окно
+            this.window = (rand != null) ? rand.Window : null; 
         }
         // конструктор
         public Rand(System.Random random, object window) 

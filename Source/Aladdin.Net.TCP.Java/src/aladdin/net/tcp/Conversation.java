@@ -31,7 +31,7 @@ public class Conversation extends aladdin.net.Conversation
         if (!closed) socket.close(); closed = true; super.onClose();  
     }
     // признак освобождения ресурсов
-    @Override public boolean closed() { return closed; }
+    @Override public boolean inactive() { return closed; }
     
     // создать способ записи/чтения данных
     @Override public Serializer getSerializer(Class<?> type)
@@ -71,21 +71,21 @@ public class Conversation extends aladdin.net.Conversation
         if (exception == null) { end(); return; } 
         
         // проверить закрытие соединения
-        if (closed()) return; int timeout = 0; 
+        if (inactive()) return; int timeout = 0; 
         
 	    // закодировать исключение
         String error = SerialException.toString(exception, false); 
         
         // передать сообщение о завершении
-        send(-1, error.getBytes("UTF-8"), timeout); close();
+        send(-1, error.getBytes("UTF-8"), timeout); 
     }
     public void end() throws IOException
     {
         // проверить закрытие соединения
-        if (closed()) return; int timeout = 0; 
+        if (inactive()) return; int timeout = 0; 
         
         // передать сообщение о завершении
-        send(0, new byte[0], timeout); close();
+        send(0, new byte[0], timeout); 
     }
 	///////////////////////////////////////////////////////////////////////
 	// Передать сообщение

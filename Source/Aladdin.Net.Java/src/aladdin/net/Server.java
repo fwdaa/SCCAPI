@@ -50,11 +50,14 @@ public abstract class Server extends Client
                 // для всех активных соединений
                 for (int i = 0; i < activeConversations.size(); i++, lastTime = new Date().getTime())
                 {
-                    // проверить наличие соединения
-                    conversation = activeConversations.get(i); if (conversation.closed()) continue; 
-                    
+                    // извлечь активное соединение
+                    boolean delayed = true; conversation = activeConversations.get(i); 
+
+                    // проверить активность соединения
+                    if (conversation.inactive()) { conversation.close(); continue; }
+
                     // при отсутствии отложенного сообщения
-                    Message message = activeMessages.get(i); boolean delayed = true; if (message == null) 
+                    Message message = activeMessages.get(i); if (message == null) 
                     {
                         // проверить наличие нового сообщения
                         try { message = conversation.receive(0); } catch (Throwable e) { continue; }
@@ -66,13 +69,19 @@ public abstract class Server extends Client
                         if (delta >= serverTimeout) handler.onIdle(this, delta);
                     }
                     // проверить наличие сообщения
-                    if (message == null) messages.add(null); 
+                    if (message == null) { messages.add(null); conversations.add(conversation); }
 
-                    // обработать сообщение
-                    else messages.add(handler.dispatch(conversation, message, delayed) ? null : message);  
-                        
-                    // сохранить активный диалог
-                    conversations.add(conversation); 
+                    // при обработке сообщения 
+                    else if (handler.dispatch(conversation, message, delayed)) 
+                    { 
+                        // проверить закрытие диалога
+                        messages.add(null); if (conversation.inactive()) conversation.close(); 
+
+                        // сохранить активный диалог
+                        else conversations.add(conversation); 
+                    }
+                    // отложить сообщение и сохранить активный диалог
+                    else { messages.add(message); conversations.add(conversation); } 
                 }
                 // проверить наличие нового соединения
                 conversation = accept(0); delta = new Date().getTime() - lastTime;
@@ -103,6 +112,9 @@ public abstract class Server extends Client
     // закрыть диалог и оповестить клиента
     @Override public void end(Conversation conversation, Throwable exception) throws IOException
     {
+        // проверить наличие ошибки
+        if (exception == null) { end(conversation); return; } 
+        
         // операция не реализована
         throw new UnsupportedOperationException(); 
     }

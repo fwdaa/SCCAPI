@@ -97,7 +97,7 @@ namespace Aladdin.Net
         public void EndDialog(Conversation conversation) 
         { 
             // закрыть диалог и оповестить клиента
-            EndDialog(conversation, null); 
+            try { server.End(conversation); } catch {} 
         }
         // закрыть диалог и оповестить клиента
         public void EndDialog(Conversation conversation, Exception exception)

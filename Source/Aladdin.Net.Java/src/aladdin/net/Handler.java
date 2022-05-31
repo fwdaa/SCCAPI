@@ -99,7 +99,7 @@ public abstract class Handler extends Disposable
     public final void endDialog(Conversation conversation) throws InterruptedException
     { 
         // закрыть диалог с оповещением клиента
-        endDialog(conversation, null); 
+        try { server.end(conversation); } catch (Throwable e) {} 
     }
     // закрыть диалог с оповещением клиента
     public void endDialog(Conversation conversation, Throwable exception) throws InterruptedException

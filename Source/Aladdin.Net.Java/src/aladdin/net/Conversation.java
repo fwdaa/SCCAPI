@@ -8,7 +8,7 @@ import java.io.*;
 public abstract class Conversation extends Disposable
 {
     // признак закрытия диалога
-    public abstract boolean closed(); 
+    public abstract boolean inactive(); 
     
     // создать способ записи/чтения данных
     public abstract Serializer getSerializer(Class<?> type); 

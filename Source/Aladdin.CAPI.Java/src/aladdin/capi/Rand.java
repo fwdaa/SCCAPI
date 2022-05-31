@@ -44,8 +44,11 @@ public class Rand extends RefObject implements IRand
         // сохранить переданные параметры
         super(); this.generator = generator; 
         
-        // сохранить дополнительный генератор
-        this.window = rand.window(); this.rand = RefObject.addRef(rand); 
+        // сохранить генератор случайных данных
+        this.rand = RefObject.addRef(rand); 
+            
+        // указать используемое окно
+        this.window = (rand != null) ? rand.window() : null; 
     }
     // деструктор
     @Override protected void onClose() throws IOException 

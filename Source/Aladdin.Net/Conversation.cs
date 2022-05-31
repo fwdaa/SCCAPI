@@ -8,7 +8,7 @@ namespace Aladdin.Net
     public abstract class Conversation : Disposable
     {
         // признак закрытия диалога
-        public abstract bool Closed { get; }		
+        public abstract bool Inactive { get; }		
 
         // создать способ записи/чтения данных
         public abstract Serializer GetSerializer(Type type); 

@@ -51,11 +51,14 @@ namespace Aladdin.Net
                     // для всех активных соединений
                     for (int i = 0; i < activeConversations.Count; i++, lastTime = DateTime.Now)
                     {
-                        // проверить наличие соединения
-                        conversation = activeConversations[i]; if (conversation.Closed) { continue; } 
-                    
+                        // извлечь активное соединение
+                        bool delayed = true; conversation = activeConversations[i]; 
+
+                        // проверить активность соединения
+                        if (conversation.Inactive) { conversation.Dispose(); continue; }
+
                         // при отсутствии отложенного сообщения
-                        Message message = activeMessages[i]; bool delayed = true; if (message == null) 
+                        Message message = activeMessages[i]; if (message == null) 
                         { 
                             // проверить наличие нового сообщения
                             try { message = conversation.Receive(new TimeSpan(0)); } catch { continue; }
@@ -67,13 +70,19 @@ namespace Aladdin.Net
                             if (delta >= serverTimeout) handler.OnIdle(this, delta);
                         }
                         // проверить наличие сообщения
-                        if (message == null) messages.Add(null); 
+                        if (message == null) { messages.Add(null); conversations.Add(conversation); }
 
-                        // обработать сообщение
-                        else messages.Add(handler.Dispatch(conversation, message, delayed) ? null : message);  
+                        // при обработке сообщения 
+                        else if (handler.Dispatch(conversation, message, delayed)) 
+                        { 
+                            // проверить закрытие диалога
+                            messages.Add(null); if (conversation.Inactive) conversation.Dispose(); 
 
-                        // сохранить активный диалог
-                        conversations.Add(conversation); 
+                            // сохранить активный диалог
+                            else conversations.Add(conversation); 
+                        }
+                        // отложить сообщение и сохранить активный диалог
+                        else { messages.Add(message); conversations.Add(conversation); } 
                     }
                     // проверить наличие нового соединения
                     conversation = Accept(new TimeSpan(0)); delta = DateTime.Now - lastTime; 
@@ -104,6 +113,9 @@ namespace Aladdin.Net
         // закрыть диалог и оповестить клиента
         public override void End(Conversation conversation, Exception exception)
         {
+            // проверить наличие ошибки
+            if (exception == null) { End(conversation); return; } 
+
             // операция не реализована
             throw new NotImplementedException(); 
         }

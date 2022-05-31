@@ -29,7 +29,7 @@ namespace Aladdin.Net.TCP
             if (socket.Connected) socket.Close(); base.OnDispose(); 
         }
         // признак закрытия диалога
-        public override bool Closed { get { return !socket.Connected; }}
+        public override bool Inactive { get { return !socket.Connected; }}
 
         // создать способ записи/чтения данных
         public override Serializer GetSerializer(Type type)
@@ -62,21 +62,21 @@ namespace Aladdin.Net.TCP
             if (exception == null) { End(); return; } 
             
             // проверить закрытие соединения
-            if (Closed) return; TimeSpan timeout = new TimeSpan(0); 
+            if (Inactive) return; TimeSpan timeout = new TimeSpan(0); 
         
 	        // закодировать исключение
             string error = SerialException.ToString(exception, false); 
         
             // передать сообщение о завершении
-            Send(-1, Encoding.UTF8.GetBytes(error), timeout); Close();
+            Send(-1, Encoding.UTF8.GetBytes(error), timeout); 
         }
         public void End()
         {
             // проверить закрытие соединения
-            if (Closed) return; TimeSpan timeout = new TimeSpan(0); 
+            if (Inactive) return; TimeSpan timeout = new TimeSpan(0); 
             
             // передать сообщение о завершении
-            Send(0, new byte[0], timeout); Close();
+            Send(0, new byte[0], timeout); 
         }
 		///////////////////////////////////////////////////////////////////////
 		// Передать сообщение
