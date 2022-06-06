@@ -81,7 +81,7 @@ namespace Aladdin.CAPI.GUI
 		    string notBefore = "N/A"; string notAfter = "N/A";
 
             // при наличии сертификата
-            if (keyPair.CertificateChain != null)
+            if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null)
             {
                 // извлечь сертификат
                 Certificate certificate = keyPair.CertificateChain[0]; subject = certificate.SubjectName;
@@ -135,7 +135,7 @@ namespace Aladdin.CAPI.GUI
 			ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 
             // при наличии сертификата
-            if (keyPair.CertificateChain != null)
+            if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null)
             { 
 			    // отобразить сертификат
 			    CertificateDialog.Show(Handle, keyPair.CertificateChain); 

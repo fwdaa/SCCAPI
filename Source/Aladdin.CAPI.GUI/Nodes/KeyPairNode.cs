@@ -27,9 +27,12 @@ namespace Aladdin.CAPI.GUI.Nodes
 		// значение узла
 		public override string Label { get 
         { 
-            // вернуть имя субъекта сертификата
-            if (keyPair.CertificateChain != null) return keyPair.CertificateChain[0].SubjectName; 
-
+            // при наличии сертификата
+            if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null) 
+			{
+				// вернуть имя субъекта сертификата
+				return keyPair.CertificateChain[0].SubjectName; 
+			}
             // обработать исключительный случай
             if (keyPair.KeyID == null) return "?"; 
 
@@ -52,7 +55,7 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
             // при наличии сертификата
-            if (keyPair.CertificateChain != null)
+            if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null)
             { 
 			    // отобразить сертификат
 				CertificateDialog.Show(node.MainForm.Handle, keyPair.CertificateChain); 
@@ -98,7 +101,7 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
             // создать список элементов контекстного меню
-            List<ToolStripItem> items = new List<ToolStripItem>(); 
+            List<ToolStripItem> items = new List<ToolStripItem>(); int check = 0; 
             
 			// указать способ аутентификации
 			AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
@@ -107,52 +110,46 @@ namespace Aladdin.CAPI.GUI.Nodes
 			using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
             {
                 // получить допустимые способы использования открытого ключа
-                KeyUsage keyUsage = container.GetKeyUsage(keyPair.KeyOID); bool check = false; 
+                KeyUsage keyUsage = container.GetKeyUsage(keyPair.KeyOID); 
 
-                // при допустимости шифрования 
-                if (KeyUsage.None != (keyUsage & (KeyUsage.KeyEncipherment | 
-					KeyUsage.KeyAgreement | KeyUsage.DataEncipherment))) 
-				{ 
-					// при наличии сертификата
-					if (!check && keyPair.CertificateChain[0] != null) { check = true; 
-
-						// указать возможность создания сертификата
-						items.Add(new ToolStripMenuItem(Resource.MenuCheckAccess, null,    
-							delegate (object sender, EventArgs e) { OnTestEncrypt(node, sender, e); }
-						));
-					}
-				}
-                // при допустимости подписи добавить элемент меню
+                // при допустимости подписи 
                 if (KeyUsage.None != (keyUsage & KeyUsage.DigitalSignature | 
                         KeyUsage.CertificateSignature | KeyUsage.CrlSignature)) 
 				{ 
-					// при наличии сертификата
-					if (!check && keyPair.CertificateChain[0] != null) { check = true; 
-
-						// указать возможность создания сертификата
-						items.Add(new ToolStripMenuItem(Resource.MenuCheckAccess, null,    
-							delegate (object sender, EventArgs e) { OnTestSign(node, sender, e); }
-						));
-					}
                     // указать возможность создания сертификата
                     items.Add(new ToolStripMenuItem(Resource.MenuCreateCertificate, null,    
                         delegate (object sender, EventArgs e) { OnCreateCertificate(node, sender, e); }
                     ));
-                    // при наличии сертификата 
-                    if (keyPair.CertificateChain != null) 
-                    {
+				}
+				// при наличии сертификата
+				if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null)
+                {
+					// при допустимости подписи 
+					if (KeyUsage.None != (keyUsage & KeyUsage.DigitalSignature | 
+							KeyUsage.CertificateSignature | KeyUsage.CrlSignature)) { check = 2; 
+                    
                         // указать возможность создания запроса на сертификат
                         items.Add(new ToolStripMenuItem(Resource.MenuCreateRequest, null,        
                             delegate (object sender, EventArgs e) { OnCreateRequest(node, sender, e); }
                         ));
                     }
+					// при допустимости шифрования 
+					if (KeyUsage.None != (keyUsage & (KeyUsage.KeyEncipherment | 
+						KeyUsage.KeyAgreement | KeyUsage.DataEncipherment))) check = 1;
                 }
-
             }
             // указать возможность установки сертификата
 			items.Add(new ToolStripMenuItem(Resource.MenuSetCertificate, null,    
                 delegate (object sender, EventArgs e) { OnSetCertificate(node, sender, e); } 
             )); 
+			// указать возможность проверки сертификата
+			if (check == 1) items.Add(new ToolStripMenuItem(Resource.MenuCheckAccess, null,    
+				delegate (object sender, EventArgs e) { OnTestEncrypt(node, sender, e); }
+			));
+			// указать возможность создания сертификата
+			if (check == 2) items.Add(new ToolStripMenuItem(Resource.MenuCheckAccess, null,    
+				delegate (object sender, EventArgs e) { OnTestSign(node, sender, e); }
+			));
             return items.ToArray(); 
 		}
 		private void OnTestEncrypt(ConsoleNode node, object sender, EventArgs e)

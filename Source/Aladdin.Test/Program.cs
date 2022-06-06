@@ -200,7 +200,7 @@ namespace Aladdin.CAPI.Test
                 Predicate<ContainerKeyPair> filter = delegate(ContainerKeyPair keyPair)
                 {
                     // проверить наличие сертификата
-                    if (keyPair.CertificateChain == null) return false; 
+                    if (keyPair.CertificateChain == null || keyPair.CertificateChain[0] == null) return false; 
 
                     // проверить способ использования сертификата
                     return (keyPair.CertificateChain[0].KeyUsage & keyUsage) != CAPI.KeyUsage.None; 

@@ -284,7 +284,7 @@ namespace Aladdin.CAPI.COM
                 Predicate<ContainerKeyPair> keyFilter = delegate(ContainerKeyPair keyPair)
                 {
                     // проверить наличие сертификата
-                    if (keyPair.CertificateChain == null) return false; 
+                    if (keyPair.CertificateChain == null || keyPair.CertificateChain[0] == null) return false; 
 
                     // создать объект сертификата
                     using (Certificate certificate = new Certificate(
@@ -347,7 +347,7 @@ namespace Aladdin.CAPI.COM
 							foreach (ContainerKeyPair keyPair in container.EnumerateKeyPairs())
 							{
 								// проверить наличие сертификата
-								if (keyPair.CertificateChain == null) continue; 
+								if (keyPair.CertificateChain == null || keyPair.CertificateChain[0] == null) continue; 
 
 								// получить способ использования ключа
 								CAPI.KeyUsage usage = keyPair.CertificateChain[0].KeyUsage; 

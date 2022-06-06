@@ -68,10 +68,10 @@ namespace Aladdin.CAPI.GUI
 		private void PopulateView(ContainerKeyPair keyPair)
 		{
     	    // указать начальные условия
-		    string subject = "?"; string notBefore = "N/A"; string notAfter = "N/A";
+		    string subject = "?"; string notBefore = "N/A"; string notAfter = "N/A"; string keyUsage = String.Empty; 
 
             // при наличии сертификата
-            string keyUsage = String.Empty; if (keyPair.CertificateChain != null)
+            if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null)
             {
                 // извлечь сертификат
                 Certificate certificate = keyPair.CertificateChain[0]; subject = certificate.SubjectName;
@@ -138,7 +138,7 @@ namespace Aladdin.CAPI.GUI
 						listView.ContextMenuStrip.Items[2].Enabled = false; 
 					}
 					// при отсутствии сертификата
-					else if (keyPair.CertificateChain == null)
+					else if (keyPair.CertificateChain == null || keyPair.CertificateChain[0] == null)
 					{
 						// сделать контекстное меню доступным
 						listView.ContextMenuStrip.Items[1].Enabled = true; 
@@ -161,7 +161,7 @@ namespace Aladdin.CAPI.GUI
 		    ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 
             // при наличии сертификата
-            if (keyPair.CertificateChain != null)
+            if (keyPair.CertificateChain != null && keyPair.CertificateChain[0] != null)
             { 
 			    // отобразить сертификат
 			    CertificateDialog.Show(Handle, keyPair.CertificateChain); 
