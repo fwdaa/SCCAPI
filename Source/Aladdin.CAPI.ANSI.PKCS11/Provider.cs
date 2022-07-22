@@ -2002,7 +2002,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                         // проверить поддержку алгоритма
                         if (signHash == null) break; return signHash; 
                     } 
-                    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) 
+                    if (oid == ASN1.ANSI.OID.x962_ecdsa_recommended) 
                     {
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_ECDSA); 
@@ -2097,7 +2097,7 @@ namespace Aladdin.CAPI.ANSI.PKCS11
                         // проверить поддержку алгоритма
                         if (verifyHash == null) break; return verifyHash; 
                     } 
-                    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) 
+                    if (oid == ASN1.ANSI.OID.x962_ecdsa_recommended) 
                     {
                         // указать параметры алгоритма
                         Mechanism mechanism = new Mechanism(API.CKM_ECDSA); 

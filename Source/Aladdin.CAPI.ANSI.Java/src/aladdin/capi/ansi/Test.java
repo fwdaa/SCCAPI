@@ -2247,7 +2247,7 @@ public class Test extends aladdin.capi.Test
         ); 
         // закодировать параметры алгоритма подписи
         AlgorithmIdentifier signHashParameters = new AlgorithmIdentifier(
-            new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1), Null.INSTANCE
+            new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_RECOMMENDED), Null.INSTANCE
         );
         if (container != null)
         {

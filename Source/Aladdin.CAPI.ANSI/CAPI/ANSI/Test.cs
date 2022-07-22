@@ -2173,7 +2173,7 @@ namespace Aladdin.CAPI.ANSI
             ); 
             // закодировать параметры алгоритма подписи
             ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-                new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha1), ASN1.Null.Instance
+                new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
             );
             if (container != null)
             {

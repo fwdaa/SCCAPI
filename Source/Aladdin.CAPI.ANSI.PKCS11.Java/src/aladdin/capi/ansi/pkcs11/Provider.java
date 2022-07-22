@@ -2004,7 +2004,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                     // проверить поддержку алгоритма
                     if (signHash == null) break; return signHash; 
                 } 
-                if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) 
+                if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_RECOMMENDED)) 
                 {
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_ECDSA); 
@@ -2098,7 +2098,7 @@ public class Provider extends aladdin.capi.pkcs11.Provider
                     // проверить поддержку алгоритма
                     if (verifyHash == null) break; return verifyHash; 
                 } 
-                if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) 
+                if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_RECOMMENDED)) 
                 {
                     // указать параметры алгоритма
                     Mechanism mechanism = new Mechanism(API.CKM_ECDSA); 

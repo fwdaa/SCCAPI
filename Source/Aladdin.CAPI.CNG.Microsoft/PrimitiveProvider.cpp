@@ -655,8 +655,8 @@ Aladdin::CAPI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 					Provider, hashOID, algParameters->SaltLength->IntValue
 				);
 			}
-			if (oid == ASN1::ANSI::OID::x957_dsa       ) return gcnew Sign::  DSA::BSignHash(Provider); 
-			if (oid == ASN1::ANSI::OID::x962_ecdsa_sha1) return gcnew Sign::ECDSA::BSignHash(Provider); 
+			if (oid == ASN1::ANSI::OID::x957_dsa              ) return gcnew Sign::  DSA::BSignHash(Provider); 
+			if (oid == ASN1::ANSI::OID::x962_ecdsa_recommended) return gcnew Sign::ECDSA::BSignHash(Provider); 
 		}
 		// для алгоритмов подписи
 		else if (type == CAPI::VerifyHash::typeid)
@@ -704,8 +704,8 @@ Aladdin::CAPI::CNG::Microsoft::PrimitiveProvider::CreateAlgorithm(
 					Provider, hashOID, algParameters->SaltLength->IntValue
 				);
 			}
-			if (oid == ASN1::ANSI::OID::x957_dsa       ) return gcnew Sign::  DSA::BVerifyHash(Provider); 
-			if (oid == ASN1::ANSI::OID::x962_ecdsa_sha1) return gcnew Sign::ECDSA::BVerifyHash(Provider); 
+			if (oid == ASN1::ANSI::OID::x957_dsa              ) return gcnew Sign::  DSA::BVerifyHash(Provider); 
+			if (oid == ASN1::ANSI::OID::x962_ecdsa_recommended) return gcnew Sign::ECDSA::BVerifyHash(Provider); 
 		}
 		// для алгоритмов подписи
 		else if (type == CAPI::SignData::typeid)

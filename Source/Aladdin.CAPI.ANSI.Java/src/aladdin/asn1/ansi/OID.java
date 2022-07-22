@@ -62,7 +62,7 @@ public final class OID
 	public static final String X962_EC_SIG_TYPE                     = "1.2.840.10045.4";
 	public static final String X962_ECDSA_SHA1                      = "1.2.840.10045.4.1";
 	public static final String X962_ECDSA_RECOMMENDED               = "1.2.840.10045.4.2";
-	public static final String X962_ECDSA_SPECIFIED                 = "1.2.840.10045.4.3";
+	public static final String X962_ECDSA_SHA2                      = "1.2.840.10045.4.3";
 	public static final String X962_ECDSA_SHA2_224                  = "1.2.840.10045.4.3.1";
 	public static final String X962_ECDSA_SHA2_256                  = "1.2.840.10045.4.3.2";
 	public static final String X962_ECDSA_SHA2_384                  = "1.2.840.10045.4.3.3";

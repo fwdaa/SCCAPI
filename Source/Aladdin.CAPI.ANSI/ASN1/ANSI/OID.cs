@@ -64,7 +64,7 @@ namespace Aladdin.ASN1.ANSI
 	    public const string x962_ec_sig_type                        = "1.2.840.10045.4";
 	    public const string x962_ecdsa_sha1                         = "1.2.840.10045.4.1";
 	    public const string x962_ecdsa_recommended                  = "1.2.840.10045.4.2";
-	    public const string x962_ecdsa_specified                    = "1.2.840.10045.4.2";
+	    public const string x962_ecdsa_sha2                         = "1.2.840.10045.4.3";
 	    public const string x962_ecdsa_sha2_224                     = "1.2.840.10045.4.3.1";
 	    public const string x962_ecdsa_sha2_256                     = "1.2.840.10045.4.3.2";
 	    public const string x962_ecdsa_sha2_384                     = "1.2.840.10045.4.3.3";

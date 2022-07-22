@@ -66,6 +66,7 @@
     <Compile Include="ASN1\Cast.cs" />
     <Compile Include="ASN1\Choice.cs" />
     <Compile Include="ASN1\ChoiceCreator.cs" />
+    <Compile Include="ASN1\Enumerated.cs" />
     <Compile Include="ASN1\TagClass.cs" />
     <Compile Include="ASN1\Collection.cs" />
     <Compile Include="ASN1\Encodable.cs" />

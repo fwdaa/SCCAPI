@@ -373,8 +373,8 @@ namespace Aladdin.CAPI.ANSI
                         }
 			        }
                     // создать алгоритм подписи хэш-значения
-			        if (oid == ASN1.ANSI.OID.x957_dsa       ) return new Sign.  DSA.SignHash();
-			        if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) return new Sign.ECDSA.SignHash();
+			        if (oid == ASN1.ANSI.OID.x957_dsa              ) return new Sign.  DSA.SignHash();
+			        if (oid == ASN1.ANSI.OID.x962_ecdsa_recommended) return new Sign.ECDSA.SignHash();
 		        }
 		        // для алгоритмов подписи
 		        else if (type == typeof(VerifyHash))
@@ -411,8 +411,8 @@ namespace Aladdin.CAPI.ANSI
                             }
                         }
 			        }
-			        if (oid == ASN1.ANSI.OID.x957_dsa       ) return new Sign.  DSA.VerifyHash();
-			        if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) return new Sign.ECDSA.VerifyHash();
+			        if (oid == ASN1.ANSI.OID.x957_dsa              ) return new Sign.  DSA.VerifyHash();
+			        if (oid == ASN1.ANSI.OID.x962_ecdsa_recommended) return new Sign.ECDSA.VerifyHash();
 		        }
 		        // для алгоритмов согласования общего ключа
 		        else if (type == typeof(IKeyAgreement))
@@ -2722,20 +2722,20 @@ namespace Aladdin.CAPI.ANSI
                     // создать алгоритм
                     return factory.CreateAlgorithm<SignHash>(scope, oid, parameters); 
                 } 
-                if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2_224 ||
+                if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1     ||
+                    oid == ASN1.ANSI.OID.x962_ecdsa_sha2_224 ||
                     oid == ASN1.ANSI.OID.x962_ecdsa_sha2_256 ||
                     oid == ASN1.ANSI.OID.x962_ecdsa_sha2_384 ||
                     oid == ASN1.ANSI.OID.x962_ecdsa_sha2_512) 
                 {
                     // изменить идентификатор алгоритма
-                    oid = ASN1.ANSI.OID.x962_ecdsa_sha1; 
+                    oid = ASN1.ANSI.OID.x962_ecdsa_recommended; 
 
                     // создать алгоритм
                     return factory.CreateAlgorithm<SignHash>(scope, oid, parameters); 
                 }
                 // защита от зацикливания
-                if (oid != ASN1.ISO.PKCS.PKCS1.OID.rsa_pss && 
-                    oid != ASN1.ANSI.OID.x962_ecdsa_sha1) 
+                if (oid != ASN1.ISO.PKCS.PKCS1.OID.rsa_pss) 
                 { 
     		        // получить алгоритм подписи данных
 			        SignData signAlgorithm = factory.CreateAlgorithm<SignData>(scope, oid, parameters); 
@@ -2768,20 +2768,20 @@ namespace Aladdin.CAPI.ANSI
                     // создать алгоритм
                     return factory.CreateAlgorithm<VerifyHash>(scope, oid, parameters); 
                 } 
-                if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2_224 ||
+                if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1     ||
+                    oid == ASN1.ANSI.OID.x962_ecdsa_sha2_224 ||
                     oid == ASN1.ANSI.OID.x962_ecdsa_sha2_256 ||
                     oid == ASN1.ANSI.OID.x962_ecdsa_sha2_384 ||
                     oid == ASN1.ANSI.OID.x962_ecdsa_sha2_512) 
                 {
                     // изменить идентификатор алгоритма
-                    oid = ASN1.ANSI.OID.x962_ecdsa_sha1; 
+                    oid = ASN1.ANSI.OID.x962_ecdsa_recommended; 
 
                     // создать алгоритм
                     return factory.CreateAlgorithm<VerifyHash>(scope, oid, parameters); 
                 }
                 // защита от зацикливания
-                if (oid != ASN1.ISO.PKCS.PKCS1.OID.rsa_pss && 
-                    oid != ASN1.ANSI.OID.x962_ecdsa_sha1)
+                if (oid != ASN1.ISO.PKCS.PKCS1.OID.rsa_pss)
                 { 
     		        // получить алгоритм проверки подписи данных
 			        VerifyData verifyAgorithm = factory.CreateAlgorithm<VerifyData>(scope, oid, parameters); 
@@ -3505,14 +3505,15 @@ namespace Aladdin.CAPI.ANSI
                         }
                     }   
                 }
-			    if (oid == ASN1.ANSI.OID.x962_ecdsa_specified) 
+			    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) 
                 {
-				    // раскодировать параметры алгоритма хэширования
-				    ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(parameters); 
-
+				    // указать параметры алгоритма хэширования
+				    ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.ssig_sha1), ASN1.Null.Instance
+				    ); 
 				    // указать параметры алгоритма подписи
 				    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha1), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 				    );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -3532,15 +3533,14 @@ namespace Aladdin.CAPI.ANSI
                         }
                     }   
                 }
-			    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) 
+			    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2) 
                 {
-				    // указать параметры алгоритма хэширования
-				    ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.ssig_sha1), ASN1.Null.Instance
-				    ); 
+				    // раскодировать параметры алгоритма хэширования
+				    ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(parameters); 
+
 				    // указать параметры алгоритма подписи
 				    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha1), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 				    );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -3568,7 +3568,7 @@ namespace Aladdin.CAPI.ANSI
 				    ); 
 				    // указать параметры алгоритма подписи
 				    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_224), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 				    );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -3596,7 +3596,7 @@ namespace Aladdin.CAPI.ANSI
 				    ); 
 				    // указать параметры алгоритма подписи
 				    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_256), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 				    );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -3624,7 +3624,7 @@ namespace Aladdin.CAPI.ANSI
 				    ); 
 				    // указать параметры алгоритма подписи
 				    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_384), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 				    );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -3652,7 +3652,7 @@ namespace Aladdin.CAPI.ANSI
 				    ); 
 				    // указать параметры алгоритма подписи
 				    ASN1.ISO.AlgorithmIdentifier signHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_512), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 				    );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -4383,14 +4383,15 @@ namespace Aladdin.CAPI.ANSI
                         }
                     }
                 }
-			    if (oid == ASN1.ANSI.OID.x962_ecdsa_specified) 
+			    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) 
                 {
-			        // раскодировать параметры алгоритма хэширования
-			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(parameters); 
-
+			        // указать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.ssig_sha1), ASN1.Null.Instance
+			        ); 
 			        // указать параметры алгоритма проверки подписи
 			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha1), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 			        );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -4410,15 +4411,14 @@ namespace Aladdin.CAPI.ANSI
                         }
                     }
                 }
-			    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) 
+			    if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2) 
                 {
-			        // указать параметры алгоритма хэширования
-			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.ssig_sha1), ASN1.Null.Instance
-			        ); 
+			        // раскодировать параметры алгоритма хэширования
+			        ASN1.ISO.AlgorithmIdentifier hashParameters = new ASN1.ISO.AlgorithmIdentifier(parameters); 
+
 			        // указать параметры алгоритма проверки подписи
 			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha1), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 			        );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -4446,7 +4446,7 @@ namespace Aladdin.CAPI.ANSI
 			        ); 
 			        // указать параметры алгоритма проверки подписи
 			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_224), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 			        );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -4474,7 +4474,7 @@ namespace Aladdin.CAPI.ANSI
 			        ); 
 			        // указать параметры алгоритма проверки подписи
 			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_256), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 			        );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -4502,7 +4502,7 @@ namespace Aladdin.CAPI.ANSI
 			        ); 
 			        // указать параметры алгоритма проверки подписи
 			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_384), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 			        );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
@@ -4530,7 +4530,7 @@ namespace Aladdin.CAPI.ANSI
 			        ); 
 			        // указать параметры алгоритма проверки подписи
 			        ASN1.ISO.AlgorithmIdentifier verifyHashParameters = new ASN1.ISO.AlgorithmIdentifier(
-				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_512), ASN1.Null.Instance
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), ASN1.Null.Instance
 			        );
                     // получить алгоритм хэширования
                     using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))

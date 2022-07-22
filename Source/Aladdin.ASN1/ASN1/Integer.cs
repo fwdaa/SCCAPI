@@ -8,7 +8,7 @@ namespace Aladdin.ASN1
 	// Целое число со знаком
 	///////////////////////////////////////////////////////////////////////////
 	[Serializable]
-	public sealed class Integer : AsnObject
+	public class Integer : AsnObject
 	{
         // проверить допустимость типа
         public static bool IsValidTag(Tag tag) { return tag == Tag.Integer; }
@@ -40,7 +40,7 @@ namespace Aladdin.ASN1
             }
 		} 
 		// конструктор при сериализации
-        private Integer(SerializationInfo info, StreamingContext context)
+        protected Integer(SerializationInfo info, StreamingContext context)
 
 			// инициализировать объект
 			: base(info, context) { Init(); } private void Init()
@@ -58,13 +58,16 @@ namespace Aladdin.ASN1
 		public Integer(IEncodable encodable) : base(encodable) { Init(); }
 
 		// конструктор при закодировании
-		public Integer(Math.BigInteger value) : base(Tag.Integer) { this.value = value; }
+		protected Integer(Tag tag, Math.BigInteger value) : base(tag        ) { this.value = value; }
+		public    Integer(         Math.BigInteger value) : base(Tag.Integer) { this.value = value; }
 		
 		// конструктор при закодировании
-		public Integer(int value) : this(Math.BigInteger.ValueOf(value))  {} 
+		protected Integer(Tag tag, int value) : this(tag, Math.BigInteger.ValueOf(value))  {} 
+		public    Integer(         int value) : this(     Math.BigInteger.ValueOf(value))  {} 
 
 		// конструктор при закодировании
-		public Integer(Enum value) : this(Convert.ToInt32(value)) {}
+		protected Integer(Tag tag, Enum value) : this(tag, Convert.ToInt32(value)) {}
+		public    Integer(         Enum value) : this(     Convert.ToInt32(value)) {}
 
 		// способ кодирования для DER-кодировки
 		protected override PC DerPC { get { return PC.Primitive; } }

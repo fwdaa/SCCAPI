@@ -51,7 +51,7 @@ public class ECDSS_512 extends aladdin.capi.Culture
     {
         // вернуть параметры алгоритма
         return new AlgorithmIdentifier(
-            new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_512), null
+            new ObjectIdentifier(aladdin.asn1.ansi.OID.X962_ECDSA_RECOMMENDED), null
         ); 
     }
     @Override public AlgorithmIdentifier signDataAlgorithm(IRand rand) 

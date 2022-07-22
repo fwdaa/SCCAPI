@@ -45,7 +45,7 @@
         {
             // вернуть параметры алгоритма
             return new ASN1.ISO.AlgorithmIdentifier(
-                new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_sha2_384), null
+                new ASN1.ObjectIdentifier(ASN1.ANSI.OID.x962_ecdsa_recommended), null
             ); 
         }
         public override ASN1.ISO.AlgorithmIdentifier SignDataAlgorithm(IRand rand) 

@@ -173,13 +173,14 @@ namespace Aladdin.CAPI.PKCS11.JaCarta
             else if (type == typeof(CAPI.VerifyHash))
             {
                 // указать неподдерживаемые алгоритмы
-                if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1) return null; 
+                if (oid == ASN1.ANSI.OID.x962_ecdsa_recommended) return null; 
             }
             // для алгоритмов проверки подписи данных
             else if (type == typeof(CAPI.VerifyData))
             {
                 // указать неподдерживаемые алгоритмы
                 if (oid == ASN1.ANSI.OID.x962_ecdsa_sha1    ) return null; 
+                if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2    ) return null; 
                 if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2_224) return null; 
                 if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2_256) return null; 
                 if (oid == ASN1.ANSI.OID.x962_ecdsa_sha2_384) return null; 

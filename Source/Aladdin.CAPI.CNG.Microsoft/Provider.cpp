@@ -611,7 +611,7 @@ Aladdin::CAPI::CNG::Microsoft::Provider::CreateAlgorithm(
 				algs[NCRYPT_SIGNATURE_OPERATION]->Contains(NCRYPT_ECDSA_P521_ALGORITHM))
 			{
 				// создать алгоритм подписи хэш-значения
-				if (oid == ASN1::ANSI::OID::x962_ecdsa_sha1) return gcnew Sign::ECDSA::NSignHash(); 
+				if (oid == ASN1::ANSI::OID::x962_ecdsa_recommended) return gcnew Sign::ECDSA::NSignHash(); 
 			}
 		}
 		// для алгоритмов подписи
@@ -674,7 +674,7 @@ Aladdin::CAPI::CNG::Microsoft::Provider::CreateAlgorithm(
 				algs[NCRYPT_SIGNATURE_OPERATION]->Contains(NCRYPT_ECDSA_P521_ALGORITHM))
 			{
 				// создать алгоритм подписи хэш-значения
-				if (oid == ASN1::ANSI::OID::x962_ecdsa_sha1) return gcnew Sign::ECDSA::NVerifyHash(this); 
+				if (oid == ASN1::ANSI::OID::x962_ecdsa_recommended) return gcnew Sign::ECDSA::NVerifyHash(this); 
 			}
 		}
 		// для алгоритмов подписи

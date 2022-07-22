@@ -170,13 +170,14 @@ public class Provider extends aladdin.capi.ansi.pkcs11.Provider
         else if (type.equals(aladdin.capi.VerifyHash.class))
         {
             // указать неподдерживаемые алгоритмы
-            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1)) return null; 
+            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_RECOMMENDED)) return null; 
         }
         // для алгоритмов проверки подписи данных
         else if (type.equals(aladdin.capi.VerifyData.class))
         {
             // указать неподдерживаемые алгоритмы
             if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA1    )) return null; 
+            if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2    )) return null; 
             if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_224)) return null; 
             if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_256)) return null; 
             if (oid.equals(aladdin.asn1.ansi.OID.X962_ECDSA_SHA2_384)) return null; 
