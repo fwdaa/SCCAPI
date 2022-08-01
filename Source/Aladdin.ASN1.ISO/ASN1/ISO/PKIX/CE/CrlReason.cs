@@ -1,6 +1,4 @@
-﻿using System; 
-
-namespace Aladdin.ASN1.ISO.PKIX.CE
+﻿namespace Aladdin.ASN1.ISO.PKIX.CE
 {
 	public enum CrlReason
 	{

@@ -5,7 +5,7 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 // Целое число со знаком
 ///////////////////////////////////////////////////////////////////////////
-public final class Integer extends AsnObject
+public class Integer extends AsnObject
 {
     private static final long serialVersionUID = 1841353454133299997L;
 
@@ -65,10 +65,12 @@ public final class Integer extends AsnObject
 		this.value = new BigInteger(content());
     }
     // конструктор при закодировании
-    public Integer(BigInteger value) { super(Tag.INTEGER); this.value = value; }
+    protected Integer(Tag tag, BigInteger value) { super(tag        ); this.value = value; }
+    public    Integer(         BigInteger value) { super(Tag.INTEGER); this.value = value; }
     
     // конструктор при закодировании
-    public Integer(int value) { this(BigInteger.valueOf(value)); }
+    protected Integer(Tag tag, int value) { this(tag, BigInteger.valueOf(value)); }
+    public    Integer(         int value) { this(     BigInteger.valueOf(value)); }
     
     // способ кодирования для DER-кодировки
     @Override protected final PC derPC() { return PC.PRIMITIVE; }
@@ -79,5 +81,6 @@ public final class Integer extends AsnObject
     // целое число со знаком
     public final BigInteger value() { return value; } private BigInteger value;
     
-    
+    // целое число со знаком
+	public final int intValue() { return value.intValueExact(); } 
 }

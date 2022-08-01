@@ -59,5 +59,4 @@ public class OID
 	public static final String CE_INHIBIT_ANY_POLICY			= "2.5.29.54"; 
 	public static final String CE_TARGET_INFORMATION			= "2.5.29.55";
 	public static final String CE_NO_REV_AVAIL					= "2.5.29.56";
-    
 }

@@ -4,7 +4,7 @@ import java.io.*;
 
 //	NoticeReference ::= SEQUENCE {
 //		organization  DisplayText,
-//		noticeNumbers NoticeNumbers
+//		noticeNumbers SEQUENCE OF INTEGER
 //	}
 
 public final class NoticeReference extends Sequence<IEncodable>
@@ -14,17 +14,17 @@ public final class NoticeReference extends Sequence<IEncodable>
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
-		new ObjectInfo(new ChoiceCreator(DisplayText  .class).factory(), Cast.N), 
-		new ObjectInfo(new ObjectCreator(NoticeNumbers.class).factory(), Cast.N), 
+		new ObjectInfo(new ChoiceCreator  (DisplayText         .class).factory(), Cast.N), 
+		new ObjectInfo(new SequenceCreator(aladdin.asn1.Integer.class).factory(), Cast.N), 
 	}; 
 	// конструктор при раскодировании
 	public NoticeReference(IEncodable encodable) throws IOException { super(encodable, info); }
 
 	// конструктор при закодировании
-	public NoticeReference(OctetString organization, NoticeNumbers noticeNumbers) 
+	public NoticeReference(OctetString organization, Sequence<aladdin.asn1.Integer> noticeNumbers) 
 	{
 		super(info, organization, noticeNumbers); 
 	}
-	public final OctetString    organization () { return (OctetString  )get(0); } 
-	public final NoticeNumbers  noticeNumbers() { return (NoticeNumbers)get(1); }
+	public final OctetString                    organization () { return (OctetString                   )get(0); } 
+	public final Sequence<aladdin.asn1.Integer> noticeNumbers() { return (Sequence<aladdin.asn1.Integer>)get(1); }
 }
