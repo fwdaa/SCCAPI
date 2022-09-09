@@ -87,6 +87,8 @@
     <Compile Include="CAPI\GOST\Cipher\GOST28147.cs" />
     <Compile Include="CAPI\GOST\Cipher\GOSTR3412.cs" />
     <Compile Include="CAPI\GOST\Cipher\GOSTR3412_OMAC.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOSTR2012_256_ACPKM.cs" />
+    <Compile Include="CAPI\GOST\Culture\GOSTR2012_512_ACPKM.cs" />
     <Compile Include="CAPI\GOST\Derive\ACPKM.cs" />
     <Compile Include="CAPI\GOST\Engine\GOST28147.cs" />
     <Compile Include="CAPI\GOST\Engine\GOSTR3412_K.cs" />

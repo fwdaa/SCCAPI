@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Значение в реестре для функций расширения
 ///////////////////////////////////////////////////////////////////////////////
-DWORD Windows::Crypto::FunctionExtensionRegistryValue::GetType(PDWORD pcbBuffer) const 
+DWORD Windows::Crypto::Extension::FunctionExtensionRegistryValue::GetType(PDWORD pcbBuffer) const 
 { 
 	// инициализировать переменные 
 	DWORD type = _type; DWORD cb = (DWORD)_value.size(); 
@@ -30,7 +30,7 @@ DWORD Windows::Crypto::FunctionExtensionRegistryValue::GetType(PDWORD pcbBuffer)
 	if (pcbBuffer) *pcbBuffer = cb; return type; 
 }
 
-DWORD Windows::Crypto::FunctionExtensionRegistryValue::GetValue(
+DWORD Windows::Crypto::Extension::FunctionExtensionRegistryValue::GetValue(
 	PVOID pvBuffer, DWORD cbBuffer) const 
 {
 	// проверить наличие данных
@@ -52,7 +52,7 @@ DWORD Windows::Crypto::FunctionExtensionRegistryValue::GetValue(
 	return cbBuffer;  
 }
 
-void Windows::Crypto::FunctionExtensionRegistryValue::SetValue(
+void Windows::Crypto::Extension::FunctionExtensionRegistryValue::SetValue(
 	LPCVOID pvBuffer, DWORD cbBuffer, DWORD type) 
 {
 	// установить значение параметра
@@ -70,7 +70,7 @@ void Windows::Crypto::FunctionExtensionRegistryValue::SetValue(
 ///////////////////////////////////////////////////////////////////////////////
 // Набор функций расширения для OID
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::FunctionExtensionOID::FunctionExtensionOID(PCSTR szFuncName, DWORD dwEncodingType, PCSTR szOID)
+Windows::Crypto::Extension::FunctionExtensionOID::FunctionExtensionOID(PCSTR szFuncName, DWORD dwEncodingType, PCSTR szOID)
 	
 	// сохранить переданные параметры
 	: _strFuncName(szFuncName), _dwEncodingType(dwEncodingType), _szOID(szOID)
@@ -98,7 +98,7 @@ static BOOL CALLBACK FunctionExtensionOIDCallback(
 	{
 		// добавить значение в список
 		values[rgpwszValueName[i]] = std::shared_ptr<Windows::IRegistryValue>(
-			new Windows::Crypto::FunctionExtensionRegistryValue(
+			new Windows::Crypto::Extension::FunctionExtensionRegistryValue(
 				pszFuncName, pszOID, dwEncodingType, rgpwszValueName[i], 
 				rgdwValueType[i], rgpbValueData[i], rgcbValueData[i]
 		)); 
@@ -107,7 +107,7 @@ static BOOL CALLBACK FunctionExtensionOIDCallback(
 }
 
 std::map<std::wstring, std::shared_ptr<Windows::IRegistryValue> > 
-Windows::Crypto::FunctionExtensionOID::EnumRegistryValues() const
+Windows::Crypto::Extension::FunctionExtensionOID::EnumRegistryValues() const
 {
 	// создать список параметров регистрации
 	std::map<std::wstring, std::shared_ptr<IRegistryValue> > values; 
@@ -119,7 +119,7 @@ Windows::Crypto::FunctionExtensionOID::EnumRegistryValues() const
 	return values; 
 }
 
-BOOL Windows::Crypto::FunctionExtensionOID::EnumInstallFunctions(
+BOOL Windows::Crypto::Extension::FunctionExtensionOID::EnumInstallFunctions(
 	IFunctionExtensionEnumCallback* pCallback) const
 {
 	// инициализировать переменные 
@@ -137,7 +137,7 @@ BOOL Windows::Crypto::FunctionExtensionOID::EnumInstallFunctions(
 }
 
 // установить функцию обработки
-void Windows::Crypto::FunctionExtensionOID::InstallFunction(
+void Windows::Crypto::Extension::FunctionExtensionOID::InstallFunction(
 	HMODULE hModule, PVOID pvAddress, DWORD dwFlags) const
 {
 	// указать OID и адрес функции
@@ -149,8 +149,8 @@ void Windows::Crypto::FunctionExtensionOID::InstallFunction(
 	)); 
 }
 
-std::shared_ptr<Windows::Crypto::IFunctionExtension> 
-Windows::Crypto::FunctionExtensionOID::GetFunction(DWORD flags) const
+std::shared_ptr<Windows::Crypto::Extension::IFunctionExtension> 
+Windows::Crypto::Extension::FunctionExtensionOID::GetFunction(DWORD flags) const
 {
 	// инициализировать переменные 
     HCRYPTOIDFUNCADDR hFuncAddr = NULL; PVOID pvFuncAddr = nullptr;
@@ -168,7 +168,7 @@ Windows::Crypto::FunctionExtensionOID::GetFunction(DWORD flags) const
 ///////////////////////////////////////////////////////////////////////////////
 // Набор функций расширения по умолчанию
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::FunctionExtensionDefaultOID::FunctionExtensionDefaultOID(PCSTR szFuncName, DWORD dwEncodingType)
+Windows::Crypto::Extension::FunctionExtensionDefaultOID::FunctionExtensionDefaultOID(PCSTR szFuncName, DWORD dwEncodingType)
 	
 	// сохранить переданные параметры
 	: _strFuncName(szFuncName), _dwEncodingType(dwEncodingType)
@@ -178,7 +178,7 @@ Windows::Crypto::FunctionExtensionDefaultOID::FunctionExtensionDefaultOID(PCSTR 
 }
 
 std::map<std::wstring, std::shared_ptr<Windows::IRegistryValue> > 
-Windows::Crypto::FunctionExtensionDefaultOID::EnumRegistryValues() const
+Windows::Crypto::Extension::FunctionExtensionDefaultOID::EnumRegistryValues() const
 {
 	// создать список параметров регистрации
 	std::map<std::wstring, std::shared_ptr<IRegistryValue> > values; 
@@ -190,7 +190,7 @@ Windows::Crypto::FunctionExtensionDefaultOID::EnumRegistryValues() const
 	return values; 
 }
 
-std::vector<std::wstring> Windows::Crypto::FunctionExtensionDefaultOID::EnumModules() const
+std::vector<std::wstring> Windows::Crypto::Extension::FunctionExtensionDefaultOID::EnumModules() const
 {
 	// создать пустой список модулей
 	std::vector<std::wstring> modules; DWORD cchDllList = 0; 
@@ -213,19 +213,19 @@ std::vector<std::wstring> Windows::Crypto::FunctionExtensionDefaultOID::EnumModu
 	return modules; 
 }
 
-void Windows::Crypto::FunctionExtensionDefaultOID::AddModule(PCWSTR szModule, DWORD dwIndex) const 
+void Windows::Crypto::Extension::FunctionExtensionDefaultOID::AddModule(PCWSTR szModule, DWORD dwIndex) const 
 {
 	// установить модуль для обработки по умолчанию
 	AE_CHECK_WINAPI(::CryptRegisterDefaultOIDFunction(_dwEncodingType, _strFuncName.c_str(), dwIndex, szModule)); 
 }
 
-void Windows::Crypto::FunctionExtensionDefaultOID::RemoveModule(PCWSTR szModule) const 
+void Windows::Crypto::Extension::FunctionExtensionDefaultOID::RemoveModule(PCWSTR szModule) const 
 {
 	// удалить модуль для обработки по умолчанию
 	::CryptUnregisterDefaultOIDFunction(_dwEncodingType, _strFuncName.c_str(), szModule); 
 }
 
-BOOL Windows::Crypto::FunctionExtensionDefaultOID::EnumInstallFunctions(
+BOOL Windows::Crypto::Extension::FunctionExtensionDefaultOID::EnumInstallFunctions(
 	IFunctionExtensionEnumCallback* pCallback) const
 {
 	// инициализировать переменные 
@@ -244,7 +244,7 @@ BOOL Windows::Crypto::FunctionExtensionDefaultOID::EnumInstallFunctions(
 	return TRUE; 
 }
 
-void Windows::Crypto::FunctionExtensionDefaultOID::InstallFunction(
+void Windows::Crypto::Extension::FunctionExtensionDefaultOID::InstallFunction(
 	HMODULE hModule, PVOID pvAddress, DWORD dwFlags) const
 {
 	// указать OID и адрес функции
@@ -256,8 +256,8 @@ void Windows::Crypto::FunctionExtensionDefaultOID::InstallFunction(
 	)); 
 }
 
-std::shared_ptr<Windows::Crypto::IFunctionExtension> 
-Windows::Crypto::FunctionExtensionDefaultOID::GetFunction(PCWSTR szModule) const
+std::shared_ptr<Windows::Crypto::Extension::IFunctionExtension> 
+Windows::Crypto::Extension::FunctionExtensionDefaultOID::GetFunction(PCWSTR szModule) const
 {
 	// функция CryptGetDefaultOIDFunctionAddress загружает модуль при помощи 
 	// LoadLibrary, поэтому во избежание излишних загрузок модулей мы требуем,
@@ -285,8 +285,8 @@ Windows::Crypto::FunctionExtensionDefaultOID::GetFunction(PCWSTR szModule) const
 	); 
 }
 
-std::shared_ptr<Windows::Crypto::IFunctionExtension> 
-Windows::Crypto::FunctionExtensionDefaultOID::GetFunction(DWORD flags) const
+std::shared_ptr<Windows::Crypto::Extension::IFunctionExtension> 
+Windows::Crypto::Extension::FunctionExtensionDefaultOID::GetFunction(DWORD flags) const
 {
 	// инициализировать переменные 
 	HCRYPTOIDFUNCADDR hFuncAddr = NULL; PVOID pvFuncAddr = nullptr; 
@@ -323,7 +323,7 @@ Windows::Crypto::FunctionExtensionDefaultOID::GetFunction(DWORD flags) const
 ///////////////////////////////////////////////////////////////////////////////
 // Набор функций расширения 
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::FunctionExtensionSet::FunctionExtensionSet(PCSTR szFuncName) : _strFuncName(szFuncName) 
+Windows::Crypto::Extension::FunctionExtensionSet::FunctionExtensionSet(PCSTR szFuncName) : _strFuncName(szFuncName) 
 {
 	// получить набор функций расширения 
 	AE_CHECK_WINAPI(_hFuncSet = ::CryptInitOIDFunctionSet(szFuncName, 0)); 
@@ -334,7 +334,7 @@ static BOOL CALLBACK FunctionExtensionSetEnumOIDsCallback(
 	CONST DWORD*, LPCWSTR CONST*, CONST BYTE* CONST*, CONST DWORD*, PVOID pvArg
 ){
 	// указать тип параметра
-	typedef std::vector<std::shared_ptr<Windows::Crypto::IFunctionExtensionOID> > arg_type; 
+	typedef std::vector<std::shared_ptr<Windows::Crypto::Extension::IFunctionExtensionOID> > arg_type; 
 
 	// указать тип итератора
 	typedef arg_type::const_iterator const_iterator; 
@@ -349,14 +349,14 @@ static BOOL CALLBACK FunctionExtensionSetEnumOIDsCallback(
 		if (::lstrcmpiA(szOID, CRYPT_DEFAULT_OID) == 0) return TRUE; 
 	}
 	// добавить OID в список
-	names.push_back(std::shared_ptr<Windows::Crypto::IFunctionExtensionOID>(
-		new Windows::Crypto::FunctionExtensionOID(pszFuncName, dwEncodingType, szOID)
+	names.push_back(std::shared_ptr<Windows::Crypto::Extension::IFunctionExtensionOID>(
+		new Windows::Crypto::Extension::FunctionExtensionOID(pszFuncName, dwEncodingType, szOID)
 	)); 
 	return TRUE; 
 }
 
-std::vector<std::shared_ptr<Windows::Crypto::IFunctionExtensionOID> > 
-Windows::Crypto::FunctionExtensionSet::EnumOIDs(DWORD dwEncodingType) const
+std::vector<std::shared_ptr<Windows::Crypto::Extension::IFunctionExtensionOID> > 
+Windows::Crypto::Extension::FunctionExtensionSet::EnumOIDs(DWORD dwEncodingType) const
 {
 	// создать список поддерживаемых OID
 	std::vector<std::shared_ptr<IFunctionExtensionOID> > oidSets; 
@@ -368,7 +368,7 @@ Windows::Crypto::FunctionExtensionSet::EnumOIDs(DWORD dwEncodingType) const
 	return oidSets; 
 }
 
-void Windows::Crypto::FunctionExtensionSet::RegisterOID(
+void Windows::Crypto::Extension::FunctionExtensionSet::RegisterOID(
 	DWORD dwEncodingType, PCSTR szOID, PCWSTR szModule, PCSTR szFunction, DWORD dwFlags) const 
 {
 	// добавить поддержку OID
@@ -394,7 +394,7 @@ void Windows::Crypto::FunctionExtensionSet::RegisterOID(
 	}
 }
 
-void Windows::Crypto::FunctionExtensionSet::UnregisterOID(DWORD dwEncodingType, PCSTR szOID) const 
+void Windows::Crypto::Extension::FunctionExtensionSet::UnregisterOID(DWORD dwEncodingType, PCSTR szOID) const 
 {
 	// удалить поддержку OID
 	::CryptUnregisterOIDFunction(dwEncodingType, _strFuncName.c_str(), szOID); 
@@ -422,7 +422,7 @@ static BOOL CALLBACK EnumFunctionExtensionSetCallback(
 	return TRUE; 
 }
 
-std::vector<std::string> Windows::Crypto::EnumFunctionExtensionSets()
+std::vector<std::string> Windows::Crypto::Extension::EnumFunctionExtensionSets()
 {
 	// создать список имен функций расширения 
 	std::vector<std::string> names; 
@@ -434,7 +434,7 @@ std::vector<std::string> Windows::Crypto::EnumFunctionExtensionSets()
 	return names; 
 }
 
-std::shared_ptr<Windows::Crypto::IFunctionExtensionSet> Windows::Crypto::GetFunctionExtensionSet(PCSTR szFuncName)
+std::shared_ptr<Windows::Crypto::Extension::IFunctionExtensionSet> Windows::Crypto::Extension::GetFunctionExtensionSet(PCSTR szFuncName)
 {
 	// вернуть набор функций расширения 
 	return std::shared_ptr<IFunctionExtensionSet>(new FunctionExtensionSet(szFuncName)); 

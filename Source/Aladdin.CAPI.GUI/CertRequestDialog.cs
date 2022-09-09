@@ -83,7 +83,7 @@ namespace Aladdin.CAPI.GUI
             if (checkBoxCodeSigning    .Checked) extKeyUsages.Add(ASN1.ISO.PKIX.OID.kp_codeSigning    ); 
             if (checkBoxEmailProtection.Checked) extKeyUsages.Add(ASN1.ISO.PKIX.OID.kp_emailProtection); 
             if (checkBoxTimeStamping   .Checked) extKeyUsages.Add(ASN1.ISO.PKIX.OID.kp_timeStamping   ); 
-            if (checkBoxOCSPSigning    .Checked) extKeyUsages.Add(ASN1.ISO.PKIX.OID.kp_OCSPSigning    ); 
+            if (checkBoxOCSPSigning    .Checked) extKeyUsages.Add(ASN1.ISO.PKIX.OID.kp_ocspSigning    ); 
             if (checkBoxAnyExtKeyUsage .Checked) extKeyUsages.Add(ASN1.ISO.PKIX.OID.ce_extKeyUsage_any); 
             
             // вернуть список расширенных способов использования

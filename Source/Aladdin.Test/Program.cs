@@ -291,7 +291,6 @@ namespace Aladdin.CAPI.Test
                   // CAPI.Rnd.Bio              .Test.Entry(); 
             }
             catch (Exception ex) { Console.WriteLine(ex); Console.ReadKey(); }
-*/
-        }
+*/      }
     }
 }

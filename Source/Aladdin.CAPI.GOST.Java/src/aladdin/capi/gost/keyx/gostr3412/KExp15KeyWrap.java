@@ -56,9 +56,7 @@ public class KExp15KeyWrap extends aladdin.capi.TransportKeyWrap
                 new OctetString(agreementData.random)
             );
             // вернуть параметры обмена ключа и зашифрованный ключ
-            return new TransportKeyData(
-                ephemeralPublicKey.algorithm(), encodedEncryptedKey.encoded()
-            ); 
+            return new TransportKeyData(algorithmParameters, encodedEncryptedKey.encoded()); 
         }
     }
     protected ITransportAgreement createAgreementAlgorithm(

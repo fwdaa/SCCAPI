@@ -22,7 +22,7 @@ namespace Aladdin.CAPI.GOST.Keyx.GOSTR3412
         protected override void OnDispose() 
         { 
             // освободить выделенные ресурсы
-            RefObject.Release(hmac_gostr3411_2012_256); base.Dispose();         
+            RefObject.Release(hmac_gostr3411_2012_256); base.OnDispose();         
         } 
         // размер случайных данных
         protected override int RandomSize { get { return 32; }}

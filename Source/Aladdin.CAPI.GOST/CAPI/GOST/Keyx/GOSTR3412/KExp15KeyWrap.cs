@@ -52,9 +52,7 @@ namespace Aladdin.CAPI.GOST.Keyx.GOSTR3412
                         new ASN1.OctetString(agreementData.Random)
                 );
                 // вернуть параметры обмена ключа и зашифрованный ключ
-                return new TransportKeyData(
-                    ephemeralPublicKey.Algorithm, encodedEncryptedKey.Encoded
-                ); 
+                return new TransportKeyData(algorithmParameters, encodedEncryptedKey.Encoded); 
             }
         }
         protected virtual ITransportAgreement CreateAgreementAlgorithm(

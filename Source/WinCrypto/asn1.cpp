@@ -9,26 +9,6 @@
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
-// —пособ выделени€ пам€ти 
-///////////////////////////////////////////////////////////////////////////////
-static void* __stdcall AllocMemory(size_t cbSize) 
-{ 
-	// проверить корректность параметра
-	if (cbSize > ULONG_MAX) AE_CHECK_WINERROR(ERROR_BAD_LENGTH); 
-
-	// выделить пам€ть 
-	void* pv = ::CryptMemAlloc((ULONG)cbSize); 
-
-	// проверить отсутстие ошибок
-	if (!pv) AE_CHECK_WINERROR(ERROR_NOT_ENOUGH_MEMORY); return pv; 
-}
-// освободить пам€ть 
-static void __stdcall FreeMemory(void* pv) { ::CryptMemFree(pv); }
-
-// способ освобождени€ пам€ти
-struct Deallocator { void operator()(void* pv) { FreeMemory(pv); }};  
-
-///////////////////////////////////////////////////////////////////////////////
 //  одирование произвольных данных
 ///////////////////////////////////////////////////////////////////////////////
 static DWORD EncodeObject(PCSTR szType, LPCVOID pvStructInfo, DWORD dwFlags, 
@@ -87,7 +67,7 @@ std::vector<BYTE> Windows::ASN1::EncodeData(
 	}
 	else {
 		// указать способ выделени€ пам€ти
-		CRYPT_ENCODE_PARA parameters = { sizeof(parameters), &AllocMemory, &FreeMemory }; 
+		CRYPT_ENCODE_PARA parameters = { sizeof(parameters), &Crypto::AllocateMemory, &Crypto::FreeMemory }; 
 
 		// указать выделение пам€ти 
 		PBYTE pbBlob = nullptr; dwFlags |= CRYPT_ENCODE_ALLOC_FLAG; 
@@ -110,7 +90,7 @@ DWORD Windows::ASN1::DecodeData(PCSTR szType,
 PVOID Windows::ASN1::DecodeDataPtr(PCSTR szStructType, LPCVOID pvEncoded, DWORD cbEncoded, DWORD dwFlags)
 {
 	// указать способ выделени€ пам€ти
-	CRYPT_DECODE_PARA parameters = { sizeof(parameters), &AllocMemory, &FreeMemory }; 
+	CRYPT_DECODE_PARA parameters = { sizeof(parameters), &Crypto::AllocateMemory, &Crypto::FreeMemory }; 
 
 	// указать выделение пам€ти 
 	PVOID pvBlob = nullptr; dwFlags |= CRYPT_DECODE_ALLOC_FLAG; 
@@ -148,6 +128,25 @@ std::wstring Windows::ASN1::FormatData(
 ///////////////////////////////////////////////////////////////////////////////
 //  одирование INTEGER
 ///////////////////////////////////////////////////////////////////////////////
+Windows::ASN1::Integer::Integer(const CRYPT_INTEGER_BLOB& value, BOOL bigEndian)
+{
+	// сохранить переданные параметры
+	if (!bigEndian) { _ptr = &value; _fDelete = FALSE; return; } 
+
+	// выделить буфер требуемого размера
+	CRYPT_INTEGER_BLOB* ptr = (CRYPT_INTEGER_BLOB*)
+		::CryptMemAlloc(sizeof(value) + value.cbData); 
+
+	// изменить пор€док следовани€ байтов
+	for (DWORD i = 0; i < value.cbData; i++)
+	{
+		// изменить пор€док следовани€ байтов
+		((PBYTE)(ptr + 1))[value.cbData - i - 1] = value.pbData[i]; 
+	}
+	// сохранить адрес буфера
+	*ptr = value; _ptr = ptr; _fDelete = TRUE; 
+}
+
 INT32 Windows::ASN1::Integer::ToInt32() const
 {
 	// инициализировать значение
@@ -278,7 +277,7 @@ Windows::ASN1::String::String(DWORD type, PCWSTR szStr, size_t cch) : _fDelete(T
 	if (cch == size_t(-1)) cch = wcslen(szStr); DWORD cb = (DWORD)(cch * sizeof(WCHAR));
 
 	// выделить пам€ть требуемого размера
-	PCERT_NAME_VALUE ptr = (PCERT_NAME_VALUE)AllocMemory(sizeof(CERT_NAME_VALUE));  
+	PCERT_NAME_VALUE ptr = (PCERT_NAME_VALUE)Crypto::AllocateMemory(sizeof(CERT_NAME_VALUE));  
 
 	// указать адрес и размер строки
 	ptr->dwValueType = type; ptr->Value.pbData = (PBYTE)szStr; ptr->Value.cbData = cb; _ptr = ptr; 
@@ -607,10 +606,10 @@ Windows::ASN1::ANSI::X942::DHPublicKey::DHPublicKey(LPCVOID pvEncoded, DWORD cbE
 {
 	// раскодировать данные
 	std::shared_ptr<CRYPT_UINT_BLOB> pBlob(
-		(PCRYPT_UINT_BLOB)DecodeDataPtr(X509_DH_PUBLICKEY, pvEncoded, cbEncoded, 0), Deallocator()
+		(PCRYPT_UINT_BLOB)DecodeDataPtr(X509_DH_PUBLICKEY, pvEncoded, cbEncoded, 0), Crypto::Deallocator()
 	);
 	// выделить буфер требуемого размера
-	PUBLICKEYSTRUC* pBlobCSP = (PUBLICKEYSTRUC*) AllocMemory(pBlob->cbData); 
+	PUBLICKEYSTRUC* pBlobCSP = (PUBLICKEYSTRUC*)Crypto::AllocateMemory(pBlob->cbData); 
 
 	// скопировать данные
 	memcpy(pBlobCSP, pBlob->pbData, pBlob->cbData); _ptr = pBlobCSP; 
@@ -643,10 +642,10 @@ Windows::ASN1::ANSI::X957::DSSPublicKey::DSSPublicKey(LPCVOID pvEncoded, DWORD c
 {
 	// раскодировать данные
 	std::shared_ptr<CRYPT_UINT_BLOB> pBlob(
-		(PCRYPT_UINT_BLOB)DecodeDataPtr(X509_DSS_PUBLICKEY, pvEncoded, cbEncoded, 0), Deallocator()
+		(PCRYPT_UINT_BLOB)DecodeDataPtr(X509_DSS_PUBLICKEY, pvEncoded, cbEncoded, 0), Crypto::Deallocator()
 	);
 	// выделить буфер требуемого размера
-	PUBLICKEYSTRUC* pBlobCSP = (PUBLICKEYSTRUC*) AllocMemory(pBlob->cbData); 
+	PUBLICKEYSTRUC* pBlobCSP = (PUBLICKEYSTRUC*)Crypto::AllocateMemory(pBlob->cbData); 
 
 	// скопировать данные
 	memcpy(pBlobCSP, pBlob->pbData, pBlob->cbData); _ptr = pBlobCSP; 
@@ -681,7 +680,7 @@ Windows::ASN1::ANSI::X957::DSSSignature::DSSSignature(
 	size_t cb = sizeof(CERT_ECC_SIGNATURE) + 40; 
 
 	// выделить пам€ть требуемого размера
-	CERT_ECC_SIGNATURE* ptr = (CERT_ECC_SIGNATURE*) AllocMemory(cb); 
+	CERT_ECC_SIGNATURE* ptr = (CERT_ECC_SIGNATURE*)Crypto::AllocateMemory(cb); 
 
 	// раскодировать подпись 
 	DecodeData(X509_DSS_SIGNATURE, pvEncoded, cbEncoded, dwFlags, ptr + 1, 40); 

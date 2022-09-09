@@ -27,7 +27,7 @@ public class Test extends aladdin.capi.Test
         {
             SecurityStore scope = null; 
             
-            CMS.test(factory);             
+            try (IRand rand = new aladdin.capi.Rand(null)) { CMS.test(factory, rand); }
             
             // идентификаторы наборов параметров
             String[] hashOIDs = new String[] {
@@ -203,12 +203,12 @@ public class Test extends aladdin.capi.Test
                 testGOSTR3410_2012_512(factory, scope, rand, true, KeyFlags.NONE,
                     OID.ECC_TC26_2012_512C, keySizes, wrapFlags
                 ); 
+                /////////////////////////////////////////////////////////////////////
+                // CMS/PKCS12
+                ////////////////////////////////////////////////////////////////////
+                CMS   .test(factory, rand); 
+                PKCS12.test(factory);
             }
-            /////////////////////////////////////////////////////////////////////
-            // CMS/PKCS12
-            ////////////////////////////////////////////////////////////////////
-            CMS   .test(factory); 
-            PKCS12.test(factory);
         }
         catch (Throwable e) { e.printStackTrace(System.err); throw e; }
     }
@@ -1727,7 +1727,50 @@ public class Test extends aladdin.capi.Test
             return aladdin.capi.CMS.keyxDecryptData(privateKey, 
                 certificate, otherCertificate, envelopedData).content; 
         }
-        public static void test(Factory factory) throws Exception
+        public void testEnvelopedMessage(IRand rand, Culture[] cultures) throws IOException
+        {
+            // проверить наличие сертификата 
+            if (certificate == null) return; String message = "Test"; 
+
+            // закодировать данные 
+            CMSData cmsData = new CMSData(aladdin.asn1.iso.pkcs.pkcs7.OID.DATA, message.getBytes("UTF-8")); 
+            
+            // для всех культур
+            for (Culture culture : cultures)
+            {
+                // зашифровать данные
+                ContentInfo contentInfo = Culture.keyxEncryptData(
+                    culture, privateKey.factory(), null, rand, 
+                    certificate, new KeyUsage(KeyUsage.KEY_ENCIPHERMENT), cmsData, null
+                ); 
+                // расшифровать данные
+                CMSData decrypted = aladdin.capi.CMS.keyxDecryptData(
+                    privateKey, certificate, null, new EnvelopedData(contentInfo.inner())
+                ); 
+                // проверить совпадение данных
+                if (!new String(decrypted.content, "UTF-8").equals(message)) 
+                {
+                    // при ошибке выбросить исключение
+                    throw new IllegalArgumentException();
+                }
+                // зашифровать данные
+                contentInfo = Culture.keyxEncryptData(
+                    culture, privateKey.factory(), null, rand, 
+                    certificate, new KeyUsage(KeyUsage.KEY_AGREEMENT), cmsData, null
+                ); 
+                // расшифровать данные
+                decrypted = aladdin.capi.CMS.keyxDecryptData(
+                    privateKey, certificate, null, new EnvelopedData(contentInfo.inner())
+                ); 
+                // проверить совпадение данных
+                if (!new String(decrypted.content, "UTF-8").equals(message)) 
+                {
+                    // при ошибке выбросить исключение
+                    throw new IllegalArgumentException();
+                }
+            }
+        }        
+        public static void test(Factory factory, IRand rand) throws Exception
         {
             String certificateCA = null; 
             try (CMS pki2001 = new CMS(factory, null, new byte[] {
@@ -2019,6 +2062,10 @@ public class Test extends aladdin.capi.Test
                     "0wC71EBE42ap6gKxklT800cu2FvbLu972GJYNSI7+UeanVU37OVWyenEXi2E5HkU" + 
                     "94kBe8Q="                    
                 ), "windows-1251")); 
+                pki2012_256.testEnvelopedMessage(rand, new Culture[] { 
+                    new aladdin.capi.gost.culture.GOSTR2012_256_ACPKM( 8), 
+                    new aladdin.capi.gost.culture.GOSTR2012_256_ACPKM(16)
+                }); 
                 // ОШИБКА
 /*              aladdin.capi.Test.println(new String(pki2012_256.testEnvelopedMessage( 
                     "MIIBawYJKoZIhvcNAQcDoIIBXDCCAVgCAQIxgfehgfQCAQOgQjBAMDgxDTALBgNV" + 
@@ -2112,6 +2159,11 @@ public class Test extends aladdin.capi.Test
                     "+L3+W09A7d5uyyTEbvgtdllUG0OyqFwKmJEaYsMin87SFVs0cn1PGV1fOKeLluZa" + 
                     "bLx5whxd+mzlpekL5i6ImRX+TpERxrA/xSe5"                
                 ), "windows-1251")); 
+                
+                pki2012_512.testEnvelopedMessage(rand, new Culture[] { 
+                    new aladdin.capi.gost.culture.GOSTR2012_512_ACPKM( 8), 
+                    new aladdin.capi.gost.culture.GOSTR2012_512_ACPKM(16)
+                }); 
                 aladdin.capi.Test.println(new String(pki2012_512.testEnvelopedMessage( 
                     "MIIB/gYJKoZIhvcNAQcDoIIB7zCCAesCAQIxggFioYIBXgIBA6CBo6GBoDAXBggq" + 
                     "hQMHAQEBAjALBgkqhQMHAQIBAgEDgYQABIGAe+itJVNbHM35RHfzuwFJPYdPXqtW" + 

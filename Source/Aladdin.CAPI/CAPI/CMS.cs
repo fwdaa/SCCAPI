@@ -1043,17 +1043,33 @@ namespace Aladdin.CAPI
             Factory factory, SecurityStore scope, IRand rand, ISecretKey key, 
             Certificate[] recipientCertificates, ASN1.ISO.AlgorithmIdentifier[] keyxParameters)
         {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+		    // зашифровать ключ для получателей
+            return KeyxEncryptKey(factory, scope, rand, key, 
+                recipientCertificates, recipientUsages, keyxParameters
+            ); 
+        }
+        public static ASN1.ISO.PKCS.PKCS7.RecipientInfos KeyxEncryptKey(
+            Factory factory, SecurityStore scope, IRand rand, ISecretKey key, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+            ASN1.ISO.AlgorithmIdentifier[] keyxParameters)
+        {
             // создать список для зашифрованных ключей
             List<ASN1.IEncodable> listRecipientInfos = new List<ASN1.IEncodable>(); 
 
 			// для каждого получателя
 			for (int i = 0; i < recipientCertificates.Length; i++)
 			{
-                // получить способ использования ключа
-                KeyUsage keyUsage = recipientCertificates[i].KeyUsage; 
-
                 // при допустимости транспорта ключа
-                if ((keyUsage & KeyUsage.KeyEncipherment) != KeyUsage.None)
+                if ((recipientUsages[i] & KeyUsage.KeyEncipherment) != KeyUsage.None)
                 {
                     // получить алгоритм транспорта ключа
                     IAlgorithm algorithm = factory.
@@ -1073,7 +1089,7 @@ namespace Aladdin.CAPI
                     }
                 }
                 // при допустимости согласования ключа
-                if ((keyUsage & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) != KeyUsage.None)
+                if ((recipientUsages[i] & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) != KeyUsage.None)
                 {
                     // получить алгоритм согласования ключа
                     IAlgorithm algorithm = factory.
@@ -1119,17 +1135,33 @@ namespace Aladdin.CAPI
             Certificate[] recipientCertificates, ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
             out ASN1.ISO.PKCS.PKCS7.OriginatorInfo originatorInfo)
         {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+		    // зашифровать ключ для получателей
+            return KeyxEncryptKey(rand, privateKey, certificateChain, key, 
+                recipientCertificates, recipientUsages, keyxParameters, out originatorInfo
+            ); 
+        }
+        public static ASN1.ISO.PKCS.PKCS7.RecipientInfos KeyxEncryptKey(
+            IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, ISecretKey key, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+            ASN1.ISO.AlgorithmIdentifier[] keyxParameters, out ASN1.ISO.PKCS.PKCS7.OriginatorInfo originatorInfo)
+        {
             // создать список для зашифрованных ключей
             List<ASN1.IEncodable> listRecipientInfos = new List<ASN1.IEncodable>(); originatorInfo = null;
 
             // для каждого получателя
             for (int i = 0; i < recipientCertificates.Length; i++)
 	        {
-                // получить способ использования ключа
-                KeyUsage keyUsage = recipientCertificates[i].KeyUsage; 
-
                 // при допустимости транспорта ключа
-                if ((keyUsage & KeyUsage.KeyEncipherment) != KeyUsage.None)
+                if ((recipientUsages[i] & KeyUsage.KeyEncipherment) != KeyUsage.None)
                 {
                     // получить алгоритм транспорта ключа
                     IAlgorithm algorithm = privateKey.Factory.
@@ -1149,17 +1181,14 @@ namespace Aladdin.CAPI
                     }
                 }
                 // при допустимости согласования ключа
-                if ((keyUsage & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) != KeyUsage.None)
+                if ((recipientUsages[i] & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) != KeyUsage.None)
                 {
-                    // получить способ использования ключа
-                    keyUsage = certificateChain[0].KeyUsage; 
-
                     // проверить допустимость операции
-                    if ((keyUsage & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) == KeyUsage.None)
-                    {
-                        // при ошибке выбросить исключение
-                        throw new NotSupportedException(); 
-                    }
+                    // if ((certificateChain[0].KeyUsage & (KeyUsage.KeyEncipherment | KeyUsage.KeyAgreement)) == KeyUsage.None)
+                    // {
+                    //     // при ошибке выбросить исключение
+                    //     throw new NotSupportedException(); 
+                    // }
                     // получить алгоритм согласования ключа
                     IAlgorithm algorithm = privateKey.Factory.
                         CreateAlgorithm<ITransportAgreement>(privateKey.Scope, keyxParameters[i]
@@ -1274,6 +1303,27 @@ namespace Aladdin.CAPI
             ASN1.ISO.AlgorithmIdentifier hashParameters, CMSData data, 
             ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
         {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+	        // вычислить имитовставку через алгоритм обмена или согласования
+            return KeyxMacData(factory, scope, rand, recipientCertificates, recipientUsages, 
+                keyxParameters, macParameters, hashParameters, data, authAttributes, unauthAttributes
+            ); 
+        }
+        public static ASN1.ISO.PKCS.PKCS9.AuthenticatedData KeyxMacData(
+            Factory factory, SecurityStore scope, IRand rand, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+		    ASN1.ISO.AlgorithmIdentifier[] keyxParameters, ASN1.ISO.AlgorithmIdentifier macParameters, 
+            ASN1.ISO.AlgorithmIdentifier hashParameters, CMSData data, 
+            ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
+        {
             // закодировать исходные данные
             ASN1.ISO.PKCS.PKCS7.EncapsulatedContentInfo encapContentInfo = 
                 new ASN1.ISO.PKCS.PKCS7.EncapsulatedContentInfo(
@@ -1355,7 +1405,7 @@ namespace Aladdin.CAPI
                 { 
                     // разделить ключ между получателями
                     ASN1.ISO.PKCS.PKCS7.RecipientInfos recipientInfos = KeyxEncryptKey(
-                        factory, scope, rand, key, recipientCertificates, keyxParameters
+                        factory, scope, rand, key, recipientCertificates, recipientUsages, keyxParameters
                     ); 
                     // вычислить имитовстаку
                     ASN1.OctetString mac = new ASN1.OctetString(macAlgorithm.MacData(
@@ -1371,6 +1421,27 @@ namespace Aladdin.CAPI
         }
         public static ASN1.ISO.PKCS.PKCS9.AuthenticatedData KeyxMacData(IRand rand, 
             IPrivateKey privateKey, Certificate[] certificateChain, Certificate[] recipientCertificates, 
+		    ASN1.ISO.AlgorithmIdentifier[] keyxParameters, ASN1.ISO.AlgorithmIdentifier macParameters, 
+            ASN1.ISO.AlgorithmIdentifier hashParameters, CMSData data, 
+            ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
+        {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+	        // вычислить имитовставку через алгоритм обмена или согласования
+            return KeyxMacData(rand, privateKey, certificateChain, recipientCertificates, recipientUsages, 
+                keyxParameters, macParameters, hashParameters, data, authAttributes, unauthAttributes
+            ); 
+        }
+        public static ASN1.ISO.PKCS.PKCS9.AuthenticatedData KeyxMacData(
+            IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
 		    ASN1.ISO.AlgorithmIdentifier[] keyxParameters, ASN1.ISO.AlgorithmIdentifier macParameters, 
             ASN1.ISO.AlgorithmIdentifier hashParameters, CMSData data, 
             ASN1.ISO.Attributes authAttributes, ASN1.ISO.Attributes unauthAttributes)
@@ -1460,7 +1531,7 @@ namespace Aladdin.CAPI
                     // разделить ключ между получателями
                     ASN1.ISO.PKCS.PKCS7.RecipientInfos recipientInfos = KeyxEncryptKey(
                         rand, privateKey, certificateChain, key, recipientCertificates, 
-                        keyxParameters, out originatorInfo
+                        recipientUsages, keyxParameters, out originatorInfo
                     ); 
                     // вычислить имитовстаку
                     ASN1.OctetString mac = new ASN1.OctetString(macAlgorithm.MacData(
@@ -1608,8 +1679,29 @@ namespace Aladdin.CAPI
         public static ASN1.ISO.PKCS.PKCS7.EnvelopedData KeyxEncryptData(
             Factory factory, SecurityStore scope, IRand rand, 
             Certificate[] recipientCertificates, 
-            ASN1.ISO.AlgorithmIdentifier cipherParameters, 
 			ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
+            ASN1.ISO.AlgorithmIdentifier cipherParameters, 
+            CMSData data, ASN1.ISO.Attributes attributes)
+        {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+		    // зашифровать данные через алгоритм обмена или согласования
+            return KeyxEncryptData(factory, scope, rand, recipientCertificates, 
+                recipientUsages, keyxParameters, cipherParameters, data, attributes
+            ); 
+        }
+        public static ASN1.ISO.PKCS.PKCS7.EnvelopedData KeyxEncryptData(
+            Factory factory, SecurityStore scope, IRand rand, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+			ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
+            ASN1.ISO.AlgorithmIdentifier cipherParameters, 
             CMSData data, ASN1.ISO.Attributes attributes)
 		{
 			// создать алгоритм шифрования данных
@@ -1632,7 +1724,8 @@ namespace Aladdin.CAPI
 			    {
 		            // разделить ключ между получателями
                     ASN1.ISO.PKCS.PKCS7.RecipientInfos recipientInfos = KeyxEncryptKey(
-                        factory, scope, rand, CEK, recipientCertificates, keyxParameters
+                        factory, scope, rand, CEK, 
+                        recipientCertificates, recipientUsages, keyxParameters
                     ); 
 			        // зашифровать данные
 			        ASN1.ISO.PKCS.PKCS7.EncryptedData encryptedData = CMS.EncryptData(
@@ -1649,6 +1742,27 @@ namespace Aladdin.CAPI
         public static ASN1.ISO.PKCS.PKCS7.EnvelopedData KeyxEncryptData(
             IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
             Certificate[] recipientCertificates, 
+            ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
+            ASN1.ISO.AlgorithmIdentifier cipherParameters, 
+            CMSData data, ASN1.ISO.Attributes attributes)
+        {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+		    // зашифровать данные через алгоритм обмена или согласования
+            return KeyxEncryptData(rand, privateKey, certificateChain, recipientCertificates, 
+                recipientUsages, keyxParameters, cipherParameters, data, attributes
+            ); 
+        }
+        public static ASN1.ISO.PKCS.PKCS7.EnvelopedData KeyxEncryptData(
+            IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
             ASN1.ISO.AlgorithmIdentifier[] keyxParameters, 
             ASN1.ISO.AlgorithmIdentifier cipherParameters, 
             CMSData data, ASN1.ISO.Attributes attributes)
@@ -1678,7 +1792,7 @@ namespace Aladdin.CAPI
 		            // разделить ключ между получателями
                     ASN1.ISO.PKCS.PKCS7.RecipientInfos recipientInfos = KeyxEncryptKey(
                         rand, privateKey, certificateChain, CEK, 
-                        recipientCertificates, keyxParameters, out originatorInfo
+                        recipientCertificates, recipientUsages, keyxParameters, out originatorInfo
                     ); 
                     // зашифровать данные
                     ASN1.ISO.PKCS.PKCS7.EncryptedData encryptedData = CMS.EncryptData(

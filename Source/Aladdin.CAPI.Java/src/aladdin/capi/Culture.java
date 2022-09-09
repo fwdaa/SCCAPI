@@ -84,13 +84,44 @@ public abstract class Culture
         Attributes attributes) throws IOException
 	{
         // зашифровать данные
+        return Culture.keyxEncryptData(culture, factory, scope, rand, 
+            recipientCertificate, recipientCertificate.keyUsage(), data, attributes
+        ); 
+    }
+    public static ContentInfo keyxEncryptData(Culture culture, 
+        Factory factory, SecurityStore scope, IRand rand, 
+        Certificate recipientCertificate, KeyUsage recipientUsage, 
+        CMSData data, Attributes attributes) throws IOException
+	{
+        // зашифровать данные
         return Culture.keyxEncryptData(culture, factory, scope,
             rand, new Certificate[] { recipientCertificate }, 
+            new KeyUsage[] { recipientUsage }, 
             new Culture[] { culture }, data, attributes
         ); 
     }
-	public static ContentInfo keyxEncryptData(Culture culture, Factory factory, 
-        SecurityStore scope, IRand rand, Certificate[] recipientCertificates, 
+	public static ContentInfo keyxEncryptData(
+        Culture culture, Factory factory, SecurityStore scope, 
+        IRand rand, Certificate[] recipientCertificates, 
+        Culture[] cultures, CMSData data, Attributes attributes) throws IOException
+    {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+        // зашифровать данные
+        return keyxEncryptData(culture, factory, scope, rand, 
+            recipientCertificates, recipientUsages, cultures, data, attributes
+        ); 
+    }
+	public static ContentInfo keyxEncryptData(
+        Culture culture, Factory factory, SecurityStore scope, IRand rand, 
+        Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
         Culture[] cultures, CMSData data, Attributes attributes) throws IOException
 	{
         // проверить указание алгоритмов
@@ -117,15 +148,14 @@ public abstract class Culture
             Culture keyxCulture = (cultures != null) ? cultures[i] : culture; 
             
             // получить параметры алгоритма
-            keyxParameters[i] = keyxCulture.keyxParameters(
-                factory, scope, rand, recipientCertificates[i].keyUsage()
-            ); 
+            keyxParameters[i] = keyxCulture.keyxParameters(factory, scope, rand, recipientUsages[i]); 
+            
             // проверить отсутствие ошибок
             if (keyxParameters[i] == null) throw new UnsupportedOperationException(); 
         }
         // зашифровать данные
         EnvelopedData envelopedData = CMS.keyxEncryptData(
-            factory, scope, rand, recipientCertificates, 
+            factory, scope, rand, recipientCertificates, recipientUsages, 
             keyxParameters, cipherParameters, data, attributes
         ); 
         // вернуть закодированную структуру
@@ -138,7 +168,17 @@ public abstract class Culture
     {
         // зашифровать данные
         return keyxEncryptData(culture, rand, privateKey, certificateChain, 
-            new Certificate[] { recipientCertificate }, 
+            recipientCertificate, recipientCertificate.keyUsage(), data, attributes
+        ); 
+    }
+	public static ContentInfo keyxEncryptData(
+        Culture culture, IRand rand, IPrivateKey privateKey, 
+        Certificate[] certificateChain, Certificate recipientCertificate, 
+        KeyUsage recipientUsage, CMSData data, Attributes attributes) throws IOException
+    {
+        // зашифровать данные
+        return keyxEncryptData(culture, rand, privateKey, certificateChain, 
+            new Certificate[] { recipientCertificate }, new KeyUsage[] { recipientUsage }, 
             new Culture[] { culture }, data, attributes
         ); 
     }
@@ -146,6 +186,25 @@ public abstract class Culture
         IPrivateKey privateKey, Certificate[] certificateChain, 
         Certificate[] recipientCertificates, Culture[] cultures, 
         CMSData data, Attributes attributes) throws IOException
+    {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+        // зашифровать данные
+        return keyxEncryptData(culture, rand, privateKey, certificateChain, 
+            recipientCertificates, recipientUsages, cultures, data, attributes
+        ); 
+    }
+	public static ContentInfo keyxEncryptData(Culture culture, IRand rand, 
+        IPrivateKey privateKey, Certificate[] certificateChain, 
+        Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+        Culture[] cultures, CMSData data, Attributes attributes) throws IOException
 	{
         // указать идентификатор типа 
         ObjectIdentifier dataType = new ObjectIdentifier(
@@ -169,8 +228,7 @@ public abstract class Culture
                 
             // получить параметры алгоритма
             keyxParameters[i] = keyxCulture.keyxParameters( 
-                privateKey.factory(), privateKey.scope(), 
-                rand, recipientCertificates[i].keyUsage()
+                privateKey.factory(), privateKey.scope(), rand, recipientUsages[i]
             ); 
             // проверить отсутствие ошибок
             if (keyxParameters[i] == null) throw new UnsupportedOperationException(); 
@@ -178,7 +236,7 @@ public abstract class Culture
         // зашифровать данные
         EnvelopedData envelopedData = CMS.keyxEncryptData( 
             rand, privateKey, certificateChain, recipientCertificates, 
-            keyxParameters, cipherParameters, data, attributes
+            recipientUsages, keyxParameters, cipherParameters, data, attributes
         ); 
         // вернуть закодированную структуру
         return new ContentInfo(dataType, envelopedData); 

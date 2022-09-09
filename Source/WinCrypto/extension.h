@@ -1,7 +1,7 @@
 #pragma once
 #include "crypto.h"
 
-namespace Windows { namespace Crypto {
+namespace Windows { namespace Crypto { namespace Extension { 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Значение в реестре для функций расширения
@@ -214,4 +214,5 @@ class FunctionExtensionSet : public IFunctionExtensionSet
 	}
 };
 
-}}
+}}}
+

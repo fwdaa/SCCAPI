@@ -1034,17 +1034,33 @@ public final class CMS
         IRand rand, ISecretKey key, Certificate[] recipientCertificates, 
         AlgorithmIdentifier[] keyxParameters) throws IOException, InvalidKeyException
     {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+	    // зашифровать ключ для получателей
+        return keyxEncryptKey(factory, scope, rand, key, 
+            recipientCertificates, recipientUsages, keyxParameters
+        ); 
+    }
+    public static RecipientInfos keyxEncryptKey(
+        Factory factory, SecurityStore scope, IRand rand, ISecretKey key, 
+        Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+        AlgorithmIdentifier[] keyxParameters) throws IOException, InvalidKeyException
+    {
         // создать список для зашифрованных ключей
         List<IEncodable> listRecipientInfos = new ArrayList<IEncodable>(); 
 
         // для каждого получателя
         for (int i = 0; i < recipientCertificates.length; i++)
         {
-            // получить способ использования ключа
-            KeyUsage keyUsage = recipientCertificates[i].keyUsage(); 
-
             // при допустимости транспорта ключа
-            if (keyUsage.contains(KeyUsage.KEY_ENCIPHERMENT))
+            if (recipientUsages[i].contains(KeyUsage.KEY_ENCIPHERMENT))
             {
                 // получить алгоритм транспорта ключа
                 IAlgorithm algorithm = factory.createAlgorithm(
@@ -1063,7 +1079,7 @@ public final class CMS
                 }
             }
             // при допустимости согласования ключа
-            if (keyUsage.containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
+            if (recipientUsages[i].containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
             {
                 // получить алгоритм согласования ключа
                 IAlgorithm algorithm = factory.createAlgorithm(
@@ -1108,17 +1124,34 @@ public final class CMS
         Certificate[] recipientCertificates, AlgorithmIdentifier[] keyxParameters, 
         OriginatorInfo[] originatorInfo) throws IOException, InvalidKeyException
     {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+        // зашифровать ключ для получателей
+        return keyxEncryptKey(rand, privateKey, certificateChain, key, 
+            recipientCertificates, recipientUsages, keyxParameters, originatorInfo
+        ); 
+    }
+    public static RecipientInfos keyxEncryptKey(IRand rand, 
+        IPrivateKey privateKey, Certificate[] certificateChain, ISecretKey key, 
+        Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+        AlgorithmIdentifier[] keyxParameters, OriginatorInfo[] originatorInfo) 
+        throws IOException, InvalidKeyException
+    {
         // создать список для зашифрованных ключей
         List<IEncodable> listRecipientInfos = new ArrayList<IEncodable>(); originatorInfo[0] = null; 
         
         // для каждого получателя
         for (int i = 0; i < recipientCertificates.length; i++)
         {
-            // получить способ использования ключа
-            KeyUsage keyUsage = recipientCertificates[i].keyUsage(); 
-
             // при допустимости транспорта ключа
-            if ((keyUsage.contains(KeyUsage.KEY_ENCIPHERMENT)))
+            if ((recipientUsages[i].contains(KeyUsage.KEY_ENCIPHERMENT)))
             {
                 // получить алгоритм транспорта ключа
                 IAlgorithm algorithm = privateKey.factory().createAlgorithm(
@@ -1137,17 +1170,15 @@ public final class CMS
                 }
             }
             // при допустимости согласования ключа
-            if (keyUsage.containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
+            if (recipientUsages[i].containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
             {
-                // получить способ использования ключа
-                keyUsage = certificateChain[0].keyUsage(); 
-
                 // проверить допустимость операции
-                if (!keyUsage.containsAny(KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
-                {
-                    // при ошибке выбросить исключение
-                    throw new UnsupportedOperationException(); 
-                }
+                // if (!certificateChain[0].keyUsage().containsAny(
+                //     KeyUsage.KEY_ENCIPHERMENT | KeyUsage.KEY_AGREEMENT))
+                // {
+                //     // при ошибке выбросить исключение
+                //     throw new UnsupportedOperationException(); 
+                // }
                 // получить алгоритм согласования ключа
                 IAlgorithm algorithm = privateKey.factory().createAlgorithm(
                     privateKey.scope(), keyxParameters[i], ITransportAgreement.class
@@ -1265,6 +1296,26 @@ public final class CMS
         AlgorithmIdentifier hashParameters, CMSData data, 
         Attributes authAttributes, Attributes unauthAttributes) throws IOException
     {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+        // вычислить имитовставку через алгоритм обмена или согласования
+        return keyxMacData(factory, scope, rand, recipientCertificates, recipientUsages, 
+            keyxParameters, macParameters, hashParameters, data, authAttributes, unauthAttributes
+        ); 
+    }
+    public static AuthenticatedData keyxMacData(Factory factory, 
+        SecurityStore scope, IRand rand, Certificate[] recipientCertificates, 
+		KeyUsage[] recipientUsages, AlgorithmIdentifier[] keyxParameters, 
+        AlgorithmIdentifier macParameters, AlgorithmIdentifier hashParameters, 
+        CMSData data, Attributes authAttributes, Attributes unauthAttributes) throws IOException
+    {
         // закодировать исходные данные
         EncapsulatedContentInfo encapContentInfo = new EncapsulatedContentInfo(
             new ObjectIdentifier(data.type), new OctetString(data.content)
@@ -1346,7 +1397,8 @@ public final class CMS
             { 
                 // разделить ключ между получателями
                 RecipientInfos recipientInfos = keyxEncryptKey(
-                    factory, scope, rand, key, recipientCertificates, keyxParameters
+                    factory, scope, rand, key, 
+                    recipientCertificates, recipientUsages, keyxParameters
                 ); 
                 // вычислить имитовстаку
                 OctetString mac = new OctetString(macAlgorithm.macData(key, macData, 0, macData.length)); 
@@ -1366,6 +1418,26 @@ public final class CMS
 		AlgorithmIdentifier[] keyxParameters, AlgorithmIdentifier macParameters, 
         AlgorithmIdentifier hashParameters, CMSData data, 
         Attributes authAttributes, Attributes unauthAttributes) throws IOException
+    {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+        // вычислить имитовставку через алгоритм обмена или согласования
+        return keyxMacData(rand, privateKey, certificateChain, recipientCertificates, recipientUsages, 
+            keyxParameters, macParameters, hashParameters, data, authAttributes, unauthAttributes
+        ); 
+    }
+    public static AuthenticatedData keyxMacData(IRand rand, IPrivateKey privateKey, 
+        Certificate[] certificateChain, Certificate[] recipientCertificates, 
+		KeyUsage[] recipientUsages, AlgorithmIdentifier[] keyxParameters, 
+        AlgorithmIdentifier macParameters, AlgorithmIdentifier hashParameters, 
+        CMSData data, Attributes authAttributes, Attributes unauthAttributes) throws IOException
     {
         // закодировать исходные данные
         EncapsulatedContentInfo encapContentInfo = new EncapsulatedContentInfo(
@@ -1453,7 +1525,7 @@ public final class CMS
                 // разделить ключ между получателями
                 RecipientInfos recipientInfos = keyxEncryptKey(
                     rand, privateKey, certificateChain, key, 
-                    recipientCertificates, keyxParameters, originatorInfo
+                    recipientCertificates, recipientUsages, keyxParameters, originatorInfo
                 ); 
                 // вычислить имитовстаку
                 OctetString mac = new OctetString(macAlgorithm.macData(key, macData, 0, macData.length)); 
@@ -1608,6 +1680,26 @@ public final class CMS
         SecurityStore scope, IRand rand, Certificate[] recipientCertificates, 
 		AlgorithmIdentifier[] keyxParameters, AlgorithmIdentifier cipherParameters, 
         CMSData data, Attributes unprotectedAttributes) throws IOException
+    {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+        // зашифровать данные через алгоритм обмена или согласования
+        return keyxEncryptData(factory, scope, rand, recipientCertificates, 
+            recipientUsages, keyxParameters, cipherParameters, data, unprotectedAttributes
+        ); 
+    }
+    public static EnvelopedData keyxEncryptData(
+        Factory factory, SecurityStore scope, IRand rand, 
+        Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+        AlgorithmIdentifier[] keyxParameters, AlgorithmIdentifier cipherParameters, 
+        CMSData data, Attributes unprotectedAttributes) throws IOException
 	{
 		// создать алгоритм шифрования данных
 		try (Cipher cipher = (Cipher)factory.createAlgorithm(
@@ -1630,7 +1722,8 @@ public final class CMS
             { 
                 // разделить ключ между получателями
                 RecipientInfos recipientInfos = keyxEncryptKey(
-                    factory, scope, rand, CEK, recipientCertificates, keyxParameters
+                    factory, scope, rand, CEK, 
+                    recipientCertificates, recipientUsages, keyxParameters
                 ); 
                 // зашифровать данные
                 EncryptedData encryptedData = CMS.encryptData(
@@ -1649,6 +1742,26 @@ public final class CMS
         IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
         Certificate[] recipientCertificates, AlgorithmIdentifier[] keyxParameters,
         AlgorithmIdentifier cipherParameters, 
+        CMSData data, Attributes attributes) throws IOException
+    {
+        // создать список использований ключа
+        KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.length]; 
+
+        // заполнить список использования ключа
+        for (int i = 0; i < recipientCertificates.length; i++)
+        {
+            // указать использование ключа
+            recipientUsages[i] = recipientCertificates[i].keyUsage(); 
+        }
+	    // зашифровать данные через алгоритм обмена или согласования
+        return keyxEncryptData(rand, privateKey, certificateChain, recipientCertificates, 
+            recipientUsages, keyxParameters, cipherParameters, data, attributes
+        ); 
+    }
+    public static EnvelopedData keyxEncryptData(
+        IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
+        Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+        AlgorithmIdentifier[] keyxParameters,AlgorithmIdentifier cipherParameters, 
         CMSData data, Attributes attributes) throws IOException
     {
 		// создать алгоритм шифрования данных
@@ -1676,7 +1789,7 @@ public final class CMS
                 // разделить ключ между получателями
                 RecipientInfos recipientInfos = keyxEncryptKey(
                     rand, privateKey, certificateChain, CEK, 
-                    recipientCertificates, keyxParameters, originatorInfo
+                    recipientCertificates, recipientUsages, keyxParameters, originatorInfo
                 ); 
                 // зашифровать данные
                 EncryptedData encryptedData = CMS.encryptData(privateKey.factory(), 

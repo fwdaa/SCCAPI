@@ -75,14 +75,43 @@ namespace Aladdin.CAPI
 		{
             // зашифровать данные
             return Culture.KeyxEncryptData(culture, factory, scope, rand, 
-                new Certificate[] { recipientCertificate }, 
+                recipientCertificate, recipientCertificate.KeyUsage, data, attributes
+            ); 
+        }
+		public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(Culture culture, 
+            Factory factory, SecurityStore scope, IRand rand, 
+            Certificate recipientCertificate, KeyUsage recipientUsage, 
+            CMSData data, ASN1.ISO.Attributes attributes)
+		{
+            // зашифровать данные
+            return Culture.KeyxEncryptData(culture, factory, scope, rand, 
+                new Certificate[] { recipientCertificate }, new KeyUsage[] { recipientUsage }, 
                 new Culture[] { culture }, data, attributes
             ); 
         }
 		public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(Culture culture, 
             Factory factory, SecurityStore scope, IRand rand, 
-            Certificate[] recipientCertificates, Culture[] cultures,
-            CMSData data, ASN1.ISO.Attributes attributes)
+            Certificate[] recipientCertificates, 
+            Culture[] cultures, CMSData data, ASN1.ISO.Attributes attributes)
+        {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+            // зашифровать данные
+            return KeyxEncryptData(culture, factory, scope, rand, 
+                recipientCertificates, recipientUsages, cultures, data, attributes
+            ); 
+        }
+		public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(Culture culture, 
+            Factory factory, SecurityStore scope, IRand rand, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
+            Culture[] cultures, CMSData data, ASN1.ISO.Attributes attributes)
 		{
             // указать идентификатор типа 
             ASN1.ObjectIdentifier dataType = new ASN1.ObjectIdentifier(
@@ -105,16 +134,15 @@ namespace Aladdin.CAPI
                 Culture keyxCulture = (cultures != null) ? cultures[i] : culture; 
 
                 // получить параметры алгоритма
-                keyxParameters[i] = keyxCulture.KeyxParameters(
-                    factory, scope, rand, recipientCertificates[i].KeyUsage
-                ); 
+                keyxParameters[i] = keyxCulture.KeyxParameters(factory, scope, rand, recipientUsages[i]); 
+
                 // проверить отсутствие ошибок
                 if (keyxParameters[i] == null) throw new NotSupportedException(); 
             }
             // зашифровать данные
             ASN1.ISO.PKCS.PKCS7.EnvelopedData envelopedData = CMS.KeyxEncryptData(
-                factory, scope, rand, recipientCertificates, 
-                cipherParameters, keyxParameters, data, attributes
+                factory, scope, rand, recipientCertificates, recipientUsages, 
+                keyxParameters, cipherParameters, data, attributes
             ); 
             // вернуть закодированную структуру
             return new ASN1.ISO.PKCS.ContentInfo(dataType, envelopedData); 
@@ -125,14 +153,43 @@ namespace Aladdin.CAPI
             CMSData data, ASN1.ISO.Attributes attributes)
         {
             // зашифровать данные
+            return Culture.KeyxEncryptData(culture, rand, privateKey, certificateChain, 
+                recipientCertificate, recipientCertificate.KeyUsage, data, attributes
+            ); 
+        }
+	    public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(
+            Culture culture, IRand rand, IPrivateKey privateKey, 
+            Certificate[] certificateChain, Certificate recipientCertificate, 
+            KeyUsage recipientUsage, CMSData data, ASN1.ISO.Attributes attributes)
+        {
+            // зашифровать данные
             return KeyxEncryptData(culture, rand, privateKey, certificateChain, 
-                new Certificate[] { recipientCertificate }, 
+                new Certificate[] { recipientCertificate }, new KeyUsage[] { recipientUsage }, 
                 new Culture[] { culture }, data, attributes
             ); 
         }
 	    public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(
             Culture culture, IRand rand, IPrivateKey privateKey, 
             Certificate[] certificateChain, Certificate[] recipientCertificates, 
+            Culture[] cultures, CMSData data, ASN1.ISO.Attributes attributes)
+        {
+            // создать список использований ключа
+            KeyUsage[] recipientUsages = new KeyUsage[recipientCertificates.Length]; 
+
+            // заполнить список использования ключа
+            for (int i = 0; i < recipientCertificates.Length; i++)
+            {
+                // указать использование ключа
+                recipientUsages[i] = recipientCertificates[i].KeyUsage; 
+            }
+            // зашифровать данные
+            return KeyxEncryptData(culture, rand, privateKey, certificateChain, 
+                recipientCertificates, recipientUsages, cultures, data, attributes
+            ); 
+        }
+	    public static ASN1.ISO.PKCS.ContentInfo KeyxEncryptData(
+            Culture culture, IRand rand, IPrivateKey privateKey, Certificate[] certificateChain, 
+            Certificate[] recipientCertificates, KeyUsage[] recipientUsages, 
             Culture[] cultures, CMSData data, ASN1.ISO.Attributes attributes) 
 	    {
             // указать идентификатор типа 
@@ -157,8 +214,7 @@ namespace Aladdin.CAPI
 
                 // получить параметры алгоритма
                 keyxParameters[i] = keyxCulture.KeyxParameters( 
-                    privateKey.Factory, privateKey.Scope, 
-                    rand, recipientCertificates[i].KeyUsage
+                    privateKey.Factory, privateKey.Scope, rand, recipientUsages[i]
                 ); 
                 // проверить отсутствие ошибок
                 if (keyxParameters[i] == null) throw new NotSupportedException(); 
@@ -166,7 +222,7 @@ namespace Aladdin.CAPI
             // зашифровать данные
             ASN1.ISO.PKCS.PKCS7.EnvelopedData envelopedData = CMS.KeyxEncryptData( 
                 rand, privateKey, certificateChain, recipientCertificates, 
-                keyxParameters, cipherParameters, data, attributes
+                recipientUsages, keyxParameters, cipherParameters, data, attributes
             ); 
             // вернуть закодированную структуру
             return new ASN1.ISO.PKCS.ContentInfo(dataType, envelopedData); 

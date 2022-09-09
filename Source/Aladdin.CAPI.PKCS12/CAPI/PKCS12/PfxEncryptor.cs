@@ -256,9 +256,9 @@ namespace Aladdin.CAPI.PKCS12
             
                 // зашифровать данные
                 return CMS.KeyxEncryptData(factory, null, container.Rand,  
-                    new Certificate[] { container.EnvelopeCertificate }, cipherParameters,  
+                    new Certificate[] { container.EnvelopeCertificate }, 
                     new ASN1.ISO.AlgorithmIdentifier[] { transportParameters }, 
-                    cmsData, attributes).Encoded; 
+                    cipherParameters, cmsData, attributes).Encoded; 
             }
         }
     }

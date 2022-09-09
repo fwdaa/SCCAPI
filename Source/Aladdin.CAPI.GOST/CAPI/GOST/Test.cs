@@ -11,7 +11,7 @@ namespace Aladdin.CAPI.GOST
             {
                 SecurityStore scope = null; 
 
-                CMS.Test(factory); 
+                using (IRand rand = new CAPI.Rand(null)) CMS.Test(factory, rand); 
 
                 // идентификаторы наборов параметров
                 string[] hashOIDs = new string[] {
@@ -213,12 +213,13 @@ namespace Aladdin.CAPI.GOST
                     TestGOSTR3410_2012_512(factory, scope, rand, true, KeyFlags.None,
                         ASN1.GOST.OID.ecc_tc26_2012_512C, keySizes, wrapFlags
                     ); 
+
+                    /////////////////////////////////////////////////////////////////////
+                    // CMS/PKCS12
+                    ////////////////////////////////////////////////////////////////////
+                    CMS.Test(factory, rand); 
+                    PKCS12.Test(factory);
                 }
-                /////////////////////////////////////////////////////////////////////
-                // CMS/PKCS12
-                ////////////////////////////////////////////////////////////////////
-                CMS   .Test(factory); 
-                PKCS12.Test(factory);
             }
         }
         ////////////////////////////////////////////////////////////////////////////
@@ -1697,7 +1698,44 @@ namespace Aladdin.CAPI.GOST
                 return CAPI.CMS.KeyxDecryptData(privateKey, 
                     certificate, otherCertificate, envelopedData).Content; 
             }
-            public static void Test(CAPI.Factory factory)
+            public void TestEnvelopedMessage(IRand rand, CAPI.Culture[] cultures)
+            {
+                // проверить наличие сертификата 
+                if (certificate == null) return; string message = "Test"; 
+
+                // закодировать данные 
+                CMSData cmsData = new CMSData(ASN1.ISO.PKCS.PKCS7.OID.data, 
+                    Encoding.UTF8.GetBytes(message)
+                ); 
+                // для всех культур
+                foreach (CAPI.Culture culture in cultures)
+                {
+                    // зашифровать данные
+                    ASN1.ISO.PKCS.ContentInfo contentInfo = CAPI.Culture.KeyxEncryptData(
+                        culture, privateKey.Factory, null, rand, 
+                        certificate, KeyUsage.KeyEncipherment, cmsData, null
+                    ); 
+                    // расшифровать данные
+                    CMSData decrypted = CAPI.CMS.KeyxDecryptData(privateKey, certificate, null, 
+                        new ASN1.ISO.PKCS.PKCS7.EnvelopedData(contentInfo.Inner)
+                    ); 
+                    // проверить совпадение данных
+                    if (Encoding.UTF8.GetString(decrypted.Content) != message) throw new ArgumentException();
+
+                    // зашифровать данные
+                    contentInfo = CAPI.Culture.KeyxEncryptData(
+                        culture, privateKey.Factory, null, rand, 
+                        certificate, KeyUsage.KeyAgreement, cmsData, null
+                    ); 
+                    // расшифровать данные
+                    decrypted = CAPI.CMS.KeyxDecryptData(privateKey, certificate, null, 
+                        new ASN1.ISO.PKCS.PKCS7.EnvelopedData(contentInfo.Inner)
+                    ); 
+                    // проверить совпадение данных
+                    if (Encoding.UTF8.GetString(decrypted.Content) != message) throw new ArgumentException();
+                }
+            }
+            public static void Test(CAPI.Factory factory, CAPI.IRand rand)
             {
                 // указать используемую кодировку
                 Encoding encoding = Encoding.GetEncoding(1251); 
@@ -1993,6 +2031,10 @@ namespace Aladdin.CAPI.GOST
                         "0wC71EBE42ap6gKxklT800cu2FvbLu972GJYNSI7+UeanVU37OVWyenEXi2E5HkU" + 
                         "94kBe8Q="                    
                     )); 
+                    pki2012_256.TestEnvelopedMessage(rand, new CAPI.Culture[] { 
+                        new Culture.GOSTR2012_256_ACPKM( 8), 
+                        new Culture.GOSTR2012_256_ACPKM(16)
+                    }); 
 /*                    string msg2012_256_2 = encoding.GetString(pki2012_256.TestEnvelopedMessage( 
                         "MIIBawYJKoZIhvcNAQcDoIIBXDCCAVgCAQIxgfehgfQCAQOgQjBAMDgxDTALBgNV" + 
                         "BAoTBFRLMjYxJzAlBgNVBAMTHkNBIFRLMjY6IEdPU1QgMzQuMTAtMTIgMjU2LWJp" + 
@@ -2084,6 +2126,10 @@ namespace Aladdin.CAPI.GOST
                         "+L3+W09A7d5uyyTEbvgtdllUG0OyqFwKmJEaYsMin87SFVs0cn1PGV1fOKeLluZa" + 
                         "bLx5whxd+mzlpekL5i6ImRX+TpERxrA/xSe5"                
                     )); 
+                    pki2012_512.TestEnvelopedMessage(rand, new CAPI.Culture[] { 
+                        new Culture.GOSTR2012_512_ACPKM( 8), 
+                        new Culture.GOSTR2012_512_ACPKM(16)
+                    }); 
                     string msg2012_512_2 = encoding.GetString(pki2012_512.TestEnvelopedMessage( 
                         "MIIB/gYJKoZIhvcNAQcDoIIB7zCCAesCAQIxggFioYIBXgIBA6CBo6GBoDAXBggq" + 
                         "hQMHAQEBAjALBgkqhQMHAQIBAgEDgYQABIGAe+itJVNbHM35RHfzuwFJPYdPXqtW" + 
@@ -2175,6 +2221,10 @@ namespace Aladdin.CAPI.GOST
                         "jLqCMAoGCCqFAwcBAQICMAoGCCqFAwcBAQEBBEAVAajM7ZUSj46D6eEG48jGY4BI" + 
                         "MaME8XwiOc2OZeDulzxJc3My8o3M53erK4OUab1i2KYZ66mOLoEC7KsN+FDr"
                     )); 
+                    pki2012_256.TestEnvelopedMessage(rand, new CAPI.Culture[] { 
+                        new Culture.GOSTR2012_256_ACPKM( 8), 
+                        new Culture.GOSTR2012_256_ACPKM(16)
+                    }); 
                     // ОШИБКА
 /*                  string msg2012_256_2 = encoding.GetString(pki2012_256.TestEnvelopedMessage( 
                         "MIIDYgYJKoZIhvcNAQcDoIIDUzCCA08CAQKgggHzoIIB7zCCAeswggGYoAMCAQIC" + 
@@ -2278,6 +2328,10 @@ namespace Aladdin.CAPI.GOST
                         "zFBYqzM27z1K6nV4P2A62+mHT0T12dn21EFDsPKi1NrakbrNCAE994k1+TD0l4zE" + 
                         "A51nxbmE7+PY2wI+QDx+MK0ohg=="                    
                     )); 
+                    pki2012_512.TestEnvelopedMessage(rand, new CAPI.Culture[] { 
+                        new Culture.GOSTR2012_512_ACPKM( 8), 
+                        new Culture.GOSTR2012_512_ACPKM(16)
+                    }); 
                     string msg2012_512_2 = encoding.GetString(pki2012_512.TestEnvelopedMessage( 
                         "MIIB/gYJKoZIhvcNAQcDoIIB7zCCAesCAQIxggFioYIBXgIBA6CBo6GBoDAXBggq" + 
                         "hQMHAQEBAjALBgkqhQMHAQIBAgEDgYQABIGAqMw92ZqXqO6FkoNouow+elnNsutl" + 
