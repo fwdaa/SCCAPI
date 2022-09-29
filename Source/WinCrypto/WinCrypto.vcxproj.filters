@@ -33,10 +33,28 @@
     <ClInclude Include="..\..\Include\cert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\csp.h">
+    <ClInclude Include="rsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\cng.h">
+    <ClInclude Include="cryptox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dsa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bcng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ncng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\scard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -62,10 +80,25 @@
     <ClCompile Include="csp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cng.cpp">
+    <ClCompile Include="bcng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crypto.cpp">
+    <ClCompile Include="cryptox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ncng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rsa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dsa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
