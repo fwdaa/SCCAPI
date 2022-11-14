@@ -3,7 +3,7 @@
 #include "crypto.h"
 
 namespace Windows { namespace PCSC {
-	
+
 ///////////////////////////////////////////////////////////////////////
 // Сеанс работы со считывателем
 ///////////////////////////////////////////////////////////////////////
@@ -147,6 +147,6 @@ class Card
     public: DWORD GetState() const; GUID GetGUID() const;
 
 	// криптографический провайдер
-	public: std::shared_ptr<Crypto::IProvider> GetProvider(DWORD providerID) const; 
+    public: std::shared_ptr<Crypto::ICardStore> GetProvider(DWORD providerID) const; 
 };
 }}

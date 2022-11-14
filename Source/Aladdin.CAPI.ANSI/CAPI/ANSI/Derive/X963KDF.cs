@@ -38,12 +38,12 @@ namespace Aladdin.CAPI.ANSI.Derive
             // проверить наличие дополнительных данных
             if (random == null) random = new byte[0]; 
         
-            // закодировать данные для хэширования
-            byte[] buffer = Arrays.Concat(z, new byte[4], random);
-        
             // выделить требуемую память и определить размер хэш-значения
             byte[] KEK = new byte[deriveSize]; int hashLen = hashAlgorithm.HashSize;
 
+            // закодировать данные для хэширования
+            byte[] buffer = Arrays.Concat(z, new byte[4], random);
+        
             // для каждого блока ключа шифрования ключа
             for (uint i = 0; i < (deriveSize + hashLen - 1) / hashLen; i++)
             {

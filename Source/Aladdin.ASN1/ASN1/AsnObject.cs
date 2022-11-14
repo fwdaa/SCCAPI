@@ -12,9 +12,9 @@ namespace Aladdin.ASN1
     [Serializable]
 	public abstract class AsnObject : IEncodable, ISerializable
 	{
-		private Tag			tag;	// тип объекта
-		private IEncodable	ber;	// закодированное BER-представление
-		private IEncodable	der;	// закодированное DER-представление
+		[NonSerialized] private Tag			tag;	// тип объекта
+		[NonSerialized] private IEncodable	ber;	// закодированное BER-представление
+		[NonSerialized] private IEncodable	der;	// закодированное DER-представление
 
         // конструктор при сериализации
         protected AsnObject(SerializationInfo info, StreamingContext context)

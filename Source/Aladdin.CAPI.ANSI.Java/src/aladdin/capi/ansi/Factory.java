@@ -763,6 +763,72 @@ public final class Factory extends aladdin.capi.Factory
                         ); 
                     }
                 }
+		        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH_HKDF_SHA256))
+                {
+    		        // раскодировать параметры
+			        AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
+
+                    // указать параметры алгоритма наследования ключа
+                    AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
+        	            new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_HKDF_SHA256), null
+                    ); 
+                    // получить алгоритм наследования ключа
+                    try (KeyDerive kdfAlgorithm = (KeyDerive)factory.createAlgorithm(
+                        scope, kdfParameters, KeyDerive.class))
+                    {
+                        // проверить поддержку алгоритма
+                        if (kdfAlgorithm == null) break; 
+
+                        // создать алгоритм согласования общего ключа
+                        return new aladdin.capi.ansi.keyx.ecdh.KeyAgreement(
+                            false, kdfAlgorithm, wrapParameters
+                        ); 
+                    }
+                }
+		        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH_HKDF_SHA384))
+                {
+    		        // раскодировать параметры
+			        AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
+
+                    // указать параметры алгоритма наследования ключа
+                    AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
+        	            new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_HKDF_SHA384), null
+                    ); 
+                    // получить алгоритм наследования ключа
+                    try (KeyDerive kdfAlgorithm = (KeyDerive)factory.createAlgorithm(
+                        scope, kdfParameters, KeyDerive.class))
+                    {
+                        // проверить поддержку алгоритма
+                        if (kdfAlgorithm == null) break; 
+
+                        // создать алгоритм согласования общего ключа
+                        return new aladdin.capi.ansi.keyx.ecdh.KeyAgreement(
+                            false, kdfAlgorithm, wrapParameters
+                        ); 
+                    }
+                }
+		        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_ESDH_HKDF_SHA512))
+                {
+    		        // раскодировать параметры
+			        AlgorithmIdentifier wrapParameters = new AlgorithmIdentifier(parameters); 
+
+                    // указать параметры алгоритма наследования ключа
+                    AlgorithmIdentifier kdfParameters = new AlgorithmIdentifier(
+        	            new ObjectIdentifier(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_HKDF_SHA512), null
+                    ); 
+                    // получить алгоритм наследования ключа
+                    try (KeyDerive kdfAlgorithm = (KeyDerive)factory.createAlgorithm(
+                        scope, kdfParameters, KeyDerive.class))
+                    {
+                        // проверить поддержку алгоритма
+                        if (kdfAlgorithm == null) break; 
+
+                        // создать алгоритм согласования общего ключа
+                        return new aladdin.capi.ansi.keyx.ecdh.KeyAgreement(
+                            false, kdfAlgorithm, wrapParameters
+                        ); 
+                    }
+                }
             }
         }
         // вызвать базовую функцию
@@ -2915,6 +2981,45 @@ public final class Factory extends aladdin.capi.Factory
             {
                 // проверить поддержку алгоритма
                 if (hash == null) return null; return new X963KDF(hash);
+            }
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_HKDF_SHA256))
+		{
+		    // указать параметры алгоритма HMAC
+		    AlgorithmIdentifier hmacParameters = new AlgorithmIdentifier(
+		        new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_256), Null.INSTANCE
+		    );
+            // создать алгоритм HMAC
+            try (Mac hmacAlgorithm = (Mac)factory.createAlgorithm(scope, hmacParameters, Mac.class))
+            {
+                // проверить наличие алгоритма хэширования
+                if (hmacAlgorithm == null) return null; return new HKDF(hmacAlgorithm); 
+            }
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_HKDF_SHA384))
+		{
+		    // указать параметры алгоритма HMAC
+		    AlgorithmIdentifier hmacParameters = new AlgorithmIdentifier(
+		        new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_384), Null.INSTANCE
+		    );
+            // создать алгоритм HMAC
+            try (Mac hmacAlgorithm = (Mac)factory.createAlgorithm(scope, hmacParameters, Mac.class))
+            {
+                // проверить наличие алгоритма хэширования
+                if (hmacAlgorithm == null) return null; return new HKDF(hmacAlgorithm); 
+            }
+        }
+        if (oid.equals(aladdin.asn1.iso.pkcs.pkcs9.OID.SMIME_HKDF_SHA512))
+		{
+		    // указать параметры алгоритма HMAC
+		    AlgorithmIdentifier hmacParameters = new AlgorithmIdentifier(
+		        new ObjectIdentifier(aladdin.asn1.ansi.OID.NIST_SHA2_512), Null.INSTANCE
+		    );
+            // создать алгоритм HMAC
+            try (Mac hmacAlgorithm = (Mac)factory.createAlgorithm(scope, hmacParameters, Mac.class))
+            {
+                // проверить наличие алгоритма хэширования
+                if (hmacAlgorithm == null) return null; return new HKDF(hmacAlgorithm); 
             }
         }
         // вызвать базовую функцию

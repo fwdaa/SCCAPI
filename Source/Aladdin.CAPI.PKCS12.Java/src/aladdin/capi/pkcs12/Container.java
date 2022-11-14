@@ -921,7 +921,7 @@ public class Container extends aladdin.capi.software.Container
         ); 
         // получить параметры алгоритма
         AlgorithmIdentifier signParameters = new AlgorithmIdentifier(
-            new ObjectIdentifier("2.5.8.0"), null
+            new ObjectIdentifier("1.3.6.1.5.5.7.6.2"), null
         ); 
         // создать запрос на сертификат
         return PKI.createCertificationRequest(container.rand(), subject, 

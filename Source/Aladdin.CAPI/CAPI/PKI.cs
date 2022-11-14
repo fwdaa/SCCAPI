@@ -192,7 +192,7 @@ namespace Aladdin.CAPI
 			byte[] data = certificationRequestInfo.Encoded; 
 
             // при отсутствии алгоритма
-            if (signParameters.Algorithm.Value == "2.5.8.0")
+            if (signParameters.Algorithm.Value == "1.3.6.1.5.5.7.6.2")
             {
                 // создать пустую подпись
                 ASN1.BitString signature = new ASN1.BitString(new byte[0]); 

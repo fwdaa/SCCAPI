@@ -1,5 +1,8 @@
 #pragma once
-#include "registry.h"
+#include "cryptdef.h"
+#include <memory>       
+#include <string>
+#include <vector>
 #include <map>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -11,11 +14,86 @@
 #define WINCRYPT_CALL __declspec(dllimport)
 #endif 
 
-#ifndef _KEY_DERIVATION_INTERFACE
-#define _KEY_DERIVATION_INTERFACE         0x00000007
-#endif
+///////////////////////////////////////////////////////////////////////////////
+// Тип реализации провайдера 
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_IMPL_UNKNOWN						= 0x00;	// неизвестный 
+const uint32_t CRYPTO_IMPL_HARDWARE						= 0x01;	// аппаратный 
+const uint32_t CRYPTO_IMPL_SOFTWARE						= 0x02;	// программный
+const uint32_t CRYPTO_IMPL_MIXED						= 0x03;	// программно-аппаратный
 
-namespace Windows { namespace Crypto { 
+///////////////////////////////////////////////////////////////////////////////
+// Тип алгоритма (совпадают с BCRYPT_*_INTERFACE)
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_INTERFACE_CIPHER					= 0x01;	// симметричное шифрование
+const uint32_t CRYPTO_INTERFACE_HASH					= 0x02;	// хэширование и имитовставка
+const uint32_t CRYPTO_INTERFACE_ASYMMETRIC_ENCRYPTION	= 0x03;	// асимметричное шифрование
+const uint32_t CRYPTO_INTERFACE_SECRET_AGREEMENT		= 0x04;	// выработка общего ключа
+const uint32_t CRYPTO_INTERFACE_SIGNATURE				= 0x05;	// электронная подпись
+const uint32_t CRYPTO_INTERFACE_RNG						= 0x06;	// генератор случайных данных
+const uint32_t CRYPTO_INTERFACE_KEY_DERIVATION			= 0x07;	// наследование ключа 
+
+///////////////////////////////////////////////////////////////////////////////
+// Используемые области видимости
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_SCOPE_SYSTEM						= 0x00;	// системная область видимости
+const uint32_t CRYPTO_SCOPE_USER						= 0x01;	// область видимости пользователя
+
+///////////////////////////////////////////////////////////////////////////////
+// Блочные режимы шифрования
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_BLOCK_MODE_ECB					= 0x00;	// режим ECB
+const uint32_t CRYPTO_BLOCK_MODE_CBC					= 0x01;	// режим CBC
+const uint32_t CRYPTO_BLOCK_MODE_CFB					= 0x02;	// режим CFB
+const uint32_t CRYPTO_BLOCK_MODE_OFB					= 0x03;	// режим OFB
+
+///////////////////////////////////////////////////////////////////////////////
+// Дополнение в блочных алгоритмах шифрования 
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_PADDING_NONE						= 0x00;	// отсутствие дополнения 
+const uint32_t CRYPTO_PADDING_PKCS5						= 0x01;	// дополнение PKCS5
+const uint32_t CRYPTO_PADDING_ISO10126					= 0x02;	// дополнение ISO10126
+const uint32_t CRYPTO_PADDING_CTS						= 0x03;	// дополнение CTS для CBC
+
+///////////////////////////////////////////////////////////////////////////////
+// Типы асимметричных ключей (совпадают с AT_*)
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_AT_KEYEXCHANGE					= 0x01;	// экспортируемый ключ 
+const uint32_t CRYPTO_AT_SIGNATURE						= 0x02;	// экспортируемый ключ 
+
+///////////////////////////////////////////////////////////////////////////////
+// Политика использования асимметричных ключей
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_POLICY_EXPORTABLE					= 0x01;	// экспортируемый ключ 
+const uint32_t CRYPTO_POLICY_USER_PROTECTED				= 0x02;	// защищенный ключ (например, паролем)
+const uint32_t CRYPTO_POLICY_FORCE_PROTECTION			= 0x04;	// отображение GUI при каждом доступе
+
+///////////////////////////////////////////////////////////////////////////////
+// Типы параметров алгоримов (совпадают с KDF_*)
+///////////////////////////////////////////////////////////////////////////////
+const uint32_t CRYPTO_KDF_HASH_ALGORITHM				= 0x00;
+const uint32_t CRYPTO_KDF_SECRET_PREPEND				= 0x01;
+const uint32_t CRYPTO_KDF_SECRET_APPEND					= 0x02;
+const uint32_t CRYPTO_KDF_HMAC_KEY						= 0x03;
+const uint32_t CRYPTO_KDF_TLS_PRF_LABEL					= 0x04;
+const uint32_t CRYPTO_KDF_TLS_PRF_SEED					= 0x05;
+const uint32_t CRYPTO_KDF_SECRET_HANDLE					= 0x06;
+const uint32_t CRYPTO_KDF_TLS_PRF_PROTOCOL				= 0x07;
+const uint32_t CRYPTO_KDF_ALGORITHMID					= 0x08;
+const uint32_t CRYPTO_KDF_PARTYUINFO					= 0x09;
+const uint32_t CRYPTO_KDF_PARTYVINFO					= 0x0A;
+const uint32_t CRYPTO_KDF_SUPPPUBINFO					= 0x0B;
+const uint32_t CRYPTO_KDF_SUPPPRIVINFO					= 0x0C;
+const uint32_t CRYPTO_KDF_LABEL							= 0x0D;
+const uint32_t CRYPTO_KDF_CONTEXT						= 0x0E;
+const uint32_t CRYPTO_KDF_SALT							= 0x0F;
+const uint32_t CRYPTO_KDF_ITERATION_COUNT				= 0x10;
+const uint32_t CRYPTO_KDF_GENERIC_PARAMETER				= 0x11;
+const uint32_t CRYPTO_KDF_KEYBITLENGTH					= 0x12;
+const uint32_t CRYPTO_KDF_HKDF_SALT						= 0x13;
+const uint32_t CRYPTO_KDF_HKDF_INFO						= 0x14;
+
+namespace Crypto { 
 	
 ///////////////////////////////////////////////////////////////////////////////
 // Способ выделения памяти 
@@ -41,101 +119,174 @@ inline std::shared_ptr<T> AllocateStruct(size_t cbExtra)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Описание параметра
+///////////////////////////////////////////////////////////////////////////////
+template <typename T> 
+struct ParameterT {
+    T			type;		// тип параметра
+    const void* pvData;		// адрес  буфера
+    size_t      cbData;		// размер буфера
+};
+typedef ParameterT<size_t> Parameter; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Размеры ключей в битах
+///////////////////////////////////////////////////////////////////////////////
+struct KeyLengths {
+    size_t		minLength;	// минимальный размер ключа/хэша в битах
+    size_t		maxLength;	// максимальный размер ключа/хэша в битах
+    size_t		increment;	// шаг увеличения размера в битах
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Разделяемый секрет
+///////////////////////////////////////////////////////////////////////////////
+struct ISharedSecret { virtual ~ISharedSecret() {} }; 
+
+///////////////////////////////////////////////////////////////////////////////
 // Ключ симметричного алгоритма шифрования 
 ///////////////////////////////////////////////////////////////////////////////
 struct ISecretKey { virtual ~ISecretKey() {}
 
 	// тип ключа (класса провайдера)
-	virtual DWORD KeyType() const = 0;  
+	virtual uint32_t KeyType() const = 0;  
 
 	// размер ключа в байтах
-	virtual DWORD KeySize() const = 0; 
+	virtual size_t KeySize() const = 0; 
 
+	// значение открытой части 
+	virtual std::vector<uint8_t> Salt() const { return std::vector<uint8_t>(); } 
 	// значение ключа
-	virtual std::vector<BYTE> Value() const = 0; 
+	virtual std::vector<uint8_t> Value() const = 0; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Параметры асимметричных ключей
+///////////////////////////////////////////////////////////////////////////////
+struct IKeyParameters { virtual ~IKeyParameters() {}
+
+	// идентификатор ключа
+	virtual const char* OID() const = 0; 
+
+	// закодированное представление параметров
+	virtual std::vector<uint8_t> Encode() const = 0; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Открытый ключ асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-struct IPublicKey { virtual ~IPublicKey() {} }; /* TODO */
+struct IPublicKey { virtual ~IPublicKey() {} 
+
+	// параметры ключа
+	virtual const std::shared_ptr<IKeyParameters>& Parameters() const = 0; 
+
+	// X.509-представление
+	virtual std::vector<uint8_t> Encode() const = 0; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Личный ключ асимметричного алгоритма
+///////////////////////////////////////////////////////////////////////////////
+struct IPrivateKey { virtual ~IPrivateKey() {} 
+
+	// параметры ключа
+	virtual const std::shared_ptr<IKeyParameters>& Parameters() const = 0; 
+	// размер ключа в битах
+	virtual size_t KeyBits() const = 0;  
+
+	// PKCS8-представление
+	virtual std::vector<uint8_t> Encode(const CRYPT_ATTRIBUTES* pAttributes) const = 0; 
+
+	// PKCS8-представление
+	std::vector<uint8_t> Encode(uint32_t keyUsage) const; 
+}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Пара ключей асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
 struct IKeyPair { virtual ~IKeyPair() {} 
 
-	// размер ключа в битах
-	virtual DWORD KeyBits() const = 0; 
-
+	// получить личный ключ
+	virtual const IPrivateKey& PrivateKey() const = 0; 
 	// получить открытый ключ
 	virtual std::shared_ptr<IPublicKey> GetPublicKey() const = 0; 
 }; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Фабрика ключей симметричного алгоритма шифрования 
+///////////////////////////////////////////////////////////////////////////////
+struct ISecretKeyFactory { virtual ~ISecretKeyFactory() {}
+
+	// размер ключей
+	virtual KeyLengths KeyBits() const = 0; 
+
+	// сгенерировать ключ
+	virtual std::shared_ptr<ISecretKey> Generate(size_t cbKey) const = 0; 
+	// создать ключ 
+	virtual std::shared_ptr<ISecretKey> Create(const std::vector<uint8_t>& key) const = 0; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Фабрика ключей асимметричного алгоритма
+///////////////////////////////////////////////////////////////////////////////
+struct IKeyFactory { virtual ~IKeyFactory() {}
+
+	// параметры ключа
+	virtual const std::shared_ptr<IKeyParameters>& Parameters() const = 0; 
+	// размер ключей
+	virtual KeyLengths KeyBits() const = 0; 
+
+	// сгенерировать пару ключей
+	virtual std::shared_ptr<IKeyPair> GenerateKeyPair(size_t keyBits = 0) const = 0; 
+
+	// получить открытый ключ из X.509-представления 
+	virtual std::shared_ptr<IPublicKey > DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const = 0; 
+
+	// получить пару ключей из X.509- и PKCS8-представления 
+	virtual std::shared_ptr<IKeyPair> ImportKeyPair(
+		const void* pvPublicEncoded , size_t cbPublicEncoded, 
+		const void* pvPrivateEncoded, size_t cbPrivateEncoded) const = 0;
+
+	// импортировать пару ключей 
+	virtual std::shared_ptr<IKeyPair> ImportKeyPair(
+		const IPublicKey& publicKey, const IPrivateKey& privateKey) const; 
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Информация об алгоритме
 ///////////////////////////////////////////////////////////////////////////////
 struct IAlgorithmInfo { virtual ~IAlgorithmInfo() {}
 
-	// имя алгоритма и поддерживаемые режимы
-	virtual PCWSTR Name() const = 0; virtual DWORD Modes() const { return 0; }
-
-	// размер ключей
-	virtual BCRYPT_KEY_LENGTHS_STRUCT KeyBits() const = 0; 
+	// имя алгоритма
+	virtual const wchar_t* Name() const { return nullptr; }
+	// поддерживаемые режимы
+	virtual uint32_t Mode() const { return 0; }
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// Фабрика ключей симметричного алгоритма шифрования 
-///////////////////////////////////////////////////////////////////////////////
-struct ISecretKeyFactory : IAlgorithmInfo
+class AlgorithmInfo : public IAlgorithmInfo
 {
-	// сгенерировать ключ
-	virtual std::shared_ptr<ISecretKey> Generate(DWORD cbKey) const = 0; 
-	// создать ключ 
-	virtual std::shared_ptr<ISecretKey> Create(LPCVOID pvKey, DWORD cbKey) const = 0; 
+	// имя алгоритма и режимы 
+	private: std::wstring _name; uint32_t _modes; 
+
+	// конструктор
+	public: AlgorithmInfo(const wchar_t* szName, uint32_t modes) 
+		
+		// сохранить переданные параметры
+		: _name(szName ? szName : L""), _modes(modes) {}
+
+	// имя алгоритма
+	public: virtual const wchar_t* Name() const override { return _name.c_str(); }
+	// поддерживаемые режимы 
+	public: virtual uint32_t Mode() const override { return _modes; }
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// Фабрика ключей асимметричного алгоритма
-///////////////////////////////////////////////////////////////////////////////
-struct IKeyFactory : IAlgorithmInfo
-{
-	// сгенерировать пару ключей
-	virtual std::shared_ptr<IKeyPair> GenerateKeyPair(DWORD keyBits) const = 0; 
-	// импортировать пару ключей 
-	virtual std::shared_ptr<IKeyPair> ImportKeyPair(LPCVOID pvBLOB, DWORD cbBLOB) const = 0; 
-
-	// экспортировать пару ключей
-	virtual std::vector<BYTE> ExportKeyPair(const IKeyPair& keyPair) const = 0; 
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// Контейнер ключей
-///////////////////////////////////////////////////////////////////////////////
-struct IContainer { virtual ~IContainer() {}
-
-	// область видимости и имя контейнера
-	virtual DWORD Scope() const = 0; virtual std::wstring Name(BOOL fullName) const = 0; 
-	// уникальное имя контейнера
-	virtual std::wstring UniqueName() const = 0; 
-
-	// получить фабрику ключей
-	virtual std::shared_ptr<IKeyFactory> GetKeyFactory(
-		DWORD keySpec, PCWSTR szAlgName, DWORD policyFlags) const = 0; 
-	// получить пару ключей
-	virtual std::shared_ptr<IKeyPair> GetKeyPair(DWORD keySpec) const = 0; 
-}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм
 ///////////////////////////////////////////////////////////////////////////////
-struct IAlgorithm { virtual ~IAlgorithm() {}
-
-	// имя и тип алгоритма
-	virtual PCWSTR Name() const = 0; virtual DWORD Type() const = 0; 
-
-	// получить информацию об алгоритме
-	virtual std::shared_ptr<IAlgorithmInfo> GetInfo() const = 0; 
+struct IAlgorithm : IAlgorithmInfo 
+{
+	// тип алгоритма
+	virtual uint32_t Type() const = 0;  
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,16 +294,11 @@ struct IAlgorithm { virtual ~IAlgorithm() {}
 ///////////////////////////////////////////////////////////////////////////////
 struct IRand : IAlgorithm 
 { 
-	// имя алгоритма
-	virtual PCWSTR Name() const override { return nullptr; } 
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_RNG_INTERFACE; } 
-
-	// получить информацию об алгоритме
-	virtual std::shared_ptr<IAlgorithmInfo> GetInfo() const override; 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_RNG; } 
 
 	// сгенерировать случайные данные
-	virtual void Generate(PVOID pvBuffer, DWORD cbBuffer) = 0; 
+	virtual void Generate(void* pvBuffer, size_t cbBuffer) = 0; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,71 +307,84 @@ struct IRand : IAlgorithm
 struct IDigest : IAlgorithm 
 { 
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_HASH_INTERFACE; } 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_HASH; } 
 
 	// захэшировать данные
-	virtual void Update(LPCVOID pvData, DWORD cbData) = 0; 
+	virtual void Update(const void* pvData, size_t cbData) = 0; 
 	// захэшировать сеансовый ключ
 	virtual void Update(const ISecretKey& key)
 	{
 		// получить значение ключа
-		std::vector<BYTE> value = key.Value(); if (value.size() != 0) 
-		{
-			// захэшировать данные
-			Update(&value[0], (DWORD)value.size()); 
-		}
+		std::vector<uint8_t> value = key.Value(); 
+		
+		// захэшировать данные
+		if (value.size() != 0) Update(&value[0], value.size()); 
 	}
 	// получить хэш-значение
-	virtual DWORD Finish(PVOID pvDigest, DWORD cbDigest) = 0; 
+	virtual size_t Finish(void* pvDigest, size_t cbDigest) = 0; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм хэширования
 ///////////////////////////////////////////////////////////////////////////////
-struct Hash : IDigest
+struct IHash : IDigest
 {
-	// получить информацию об алгоритме
-	virtual std::shared_ptr<IAlgorithmInfo> GetInfo() const override; 
+	// размер хэш-значения 
+	virtual size_t HashSize() const = 0; 
 
 	// инициализировать алгоритм
-	virtual DWORD Init() = 0; 
+	virtual size_t Init() = 0; 
 
 	// захэшировать данные
-	std::vector<BYTE> HashData(LPCVOID pvData, DWORD cbData)
+	std::vector<uint8_t> HashData(const void* pvData, size_t cbData)
 	{
 		// захэшировать данные
-		std::vector<BYTE> hash(Init(), 0); Update(pvData, cbData); 
+		std::vector<uint8_t> hash(Init(), 0); Update(pvData, cbData); 
 		
 		// вернуть хэш-значение
-		hash.resize(Finish(&hash[0], (DWORD)hash.size())); return hash; 
+		hash.resize(Finish(&hash[0], hash.size())); return hash; 
 	}
 	// захэшировать ключ
-	std::vector<BYTE> HashData(const ISecretKey& key)
+	std::vector<uint8_t> HashData(const ISecretKey& key)
 	{
 		// захэшировать данные
-		std::vector<BYTE> hash(Init(), 0); Update(key); 
+		std::vector<uint8_t> hash(Init(), 0); Update(key); 
 		
 		// вернуть хэш-значение
-		hash.resize(Finish(&hash[0], (DWORD)hash.size())); return hash; 
+		hash.resize(Finish(&hash[0], hash.size())); return hash; 
 	}
+	// создать имитовставку HMAC
+	virtual std::shared_ptr<struct IMac> CreateHMAC() const = 0; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм вычисления имитовставки
 ///////////////////////////////////////////////////////////////////////////////
-struct Mac : IDigest
+struct IMac : IDigest
 {
 	// инициализировать алгоритм
-	virtual DWORD Init(const ISecretKey& key) = 0; 
+	virtual size_t Init(const ISecretKey& key) = 0; 
+
+	// инициализировать алгоритм (только для HMAC)
+	virtual size_t Init(const std::vector<uint8_t>& key) { return 0; }
 
 	// вычислить имитовставку от данных
-	std::vector<BYTE> MacData(const ISecretKey& key, LPCVOID pvData, DWORD cbData)
+	std::vector<uint8_t> MacData(const ISecretKey& key, const void* pvData, size_t cbData)
 	{
 		// захэшировать данные
-		std::vector<BYTE> hash(Init(key), 0); Update(pvData, cbData); 
+		std::vector<uint8_t> hash(Init(key), 0); Update(pvData, cbData); 
 		
 		// вернуть имитовставку
-		hash.resize(Finish(&hash[0], (DWORD)hash.size())); return hash; 
+		hash.resize(Finish(&hash[0], hash.size())); return hash; 
+	}
+	// вычислить имитовставку от данных
+	std::vector<uint8_t> MacData(const std::vector<uint8_t>& key, const void* pvData, size_t cbData)
+	{
+		// захэшировать данные
+		std::vector<uint8_t> hash(Init(key), 0); Update(pvData, cbData); 
+		
+		// вернуть имитовставку
+		hash.resize(Finish(&hash[0], hash.size())); return hash; 
 	}
 };
 
@@ -235,13 +394,18 @@ struct Mac : IDigest
 struct IKeyDerive : IAlgorithm 
 { 
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_KEY_DERIVATION_OPERATION; } 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_KEY_DERIVATION; } 
 
 	// наследовать ключ
 	virtual std::shared_ptr<ISecretKey> DeriveKey(
-		const ISecretKeyFactory& keyFactory, DWORD cbKey, 
-		const ISecretKey* pKey, LPCVOID pvSecret, DWORD cbSecret) const = 0; 
-}; 
+		const ISecretKeyFactory& keyFactory, size_t cbKey, 
+		const ISharedSecret& secret) const = 0; 
+
+	// наследовать ключ
+	virtual std::shared_ptr<ISecretKey> DeriveKey(
+		const ISecretKeyFactory& keyFactory, size_t cbKey, 
+		const void* pvSecret, size_t cbSecret) const = 0; 
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм шифрования ключа
@@ -249,44 +413,149 @@ struct IKeyDerive : IAlgorithm
 struct IKeyWrap { virtual ~IKeyWrap() {}
  
 	// экспортировать ключ
-	virtual std::vector<BYTE> WrapKey(const ISecretKey& KEK, 
+	virtual std::vector<uint8_t> WrapKey(const ISecretKey& KEK, 
 		const ISecretKeyFactory& keyFactory, const ISecretKey& CEK) const = 0; 
 	// импортировать ключ
 	virtual std::shared_ptr<ISecretKey> UnwrapKey(const ISecretKey& KEK, 
-		const ISecretKeyFactory& keyFactory, LPCVOID pvData, DWORD cbData) const = 0; 
+		const ISecretKeyFactory& keyFactory, const std::vector<uint8_t>& wrapped) const = 0; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Преобразование данных
 ///////////////////////////////////////////////////////////////////////////////
-struct Transform { virtual ~Transform() {}
+struct ITransform { virtual ~ITransform() {}
+
+    // размер блока алгоритма
+	virtual size_t BlockSize() const { return 0; }
+	// способ дополнения блока
+    virtual uint32_t Padding() const { return CRYPTO_PADDING_NONE; } 
 
 	// инициализировать алгоритм
-	virtual DWORD Init(const ISecretKey& key) = 0; 
-
+	virtual size_t Init(const ISecretKey& key) = 0; 
 	// обработать данные
-	virtual DWORD Update(LPCVOID pvData, DWORD cbData, PVOID pvBuffer, DWORD cbBuffer) = 0; 
+	virtual size_t Update(const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer) = 0; 
 	// завершить обработку данных
-	virtual DWORD Finish(LPCVOID pvData, DWORD cbData, PVOID pvBuffer, DWORD cbBuffer) = 0; 
+	virtual size_t Finish(const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer) = 0; 
 
 	// обработать данные
-	std::vector<BYTE> TransformData(const ISecretKey& key, LPCVOID pvData, DWORD cbData)
+	WINCRYPT_CALL std::vector<uint8_t> TransformData(
+		const ISecretKey& key, const void* pvData, size_t cbData
+	); 
+};
+
+///////////////////////////////////////////////////////////////////////////
+// Режим дополнения
+///////////////////////////////////////////////////////////////////////////
+struct BlockPadding { virtual ~BlockPadding() {}
+
+	// создать режим дополнения 
+	static WINCRYPT_CALL std::shared_ptr<BlockPadding> Create(uint32_t padding); 
+    // идентификатор режима
+    virtual uint32_t ID() const = 0; 
+
+	// требуемый размер буфера
+	virtual size_t GetEncryptLength(size_t cb, size_t cbBlock) const { return cb; }  
+	virtual size_t GetDecryptLength(size_t cb, size_t cbBlock) const { return cb; }  
+
+	// алгоритм зашифрования данных
+	virtual std::shared_ptr<ITransform> CreateEncryption(
+		const std::shared_ptr<ITransform>&, uint32_t, const std::vector<uint8_t>&) const;  
+
+	// алгоритм расшифрования данных
+	virtual std::shared_ptr<ITransform> CreateDecryption(
+		const std::shared_ptr<ITransform>&, uint32_t, const std::vector<uint8_t>&) const;  
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Преобразование зашифрования данных. Функция Encrypt при (last = true) 
+// вызывается для 
+// 1) для двух последних блоков (при их наличии) при условии, что функции 
+// Finish были переданы данные; 
+// 2) для последнего блока (при его наличии), если функции Finish не были 
+// переданы данные. 
+///////////////////////////////////////////////////////////////////////////////
+class Encryption : public ITransform
+{
+	// инициализировать алгоритм
+	public: virtual size_t Init(const ISecretKey& key) 
+	
+		// инициализировать алгоритм
+		{ _lastBlock.resize(0); return 0; } private: std::vector<uint8_t> _lastBlock;	
+
+	// обработать данные
+	public: virtual size_t Update(const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer) override
 	{
-		// определить размер блока
-		DWORD blockSize = Init(key); DWORD cbBlocks = cbData / blockSize * blockSize; 
-
-		// выделить буфер требуемого размера
-		DWORD cbBuffer = cbBlocks + blockSize; std::vector<BYTE> buffer(cbBuffer, 0); 
-
-		// зашифровать данные
-		DWORD cb = Update(pvData, cbBlocks, &buffer[0], cbBuffer); 
-
-		// изменить текущую позицию
-		pvData = (const BYTE*)pvData + cbBlocks; cbData -= cbBlocks; 
-
-		// завершить зашифрование данных
-		cb += Finish(pvData, cbData, &buffer[cb], cbBuffer - cb); buffer.resize(cb); return buffer; 
+		// обработать данные
+		return Update(pvData, cbData, pvBuffer, cbBuffer, nullptr); 
 	}
+	// обработать данные
+	public: WINCRYPT_CALL size_t Update(const void*, size_t, void*, size_t, void*); 
+	// завершить обработку данных
+	public: virtual size_t Finish(const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer) override
+	{
+		// завершить обработку данных
+		return Finish(pvData, cbData, pvBuffer, cbBuffer, nullptr); 
+	}
+	// завершить обработку данных
+	public: WINCRYPT_CALL size_t Finish(const void*, size_t, void*, size_t, void*); 
+
+	// требуемый размер буфера
+	protected: virtual size_t GetLength(size_t cb) const
+	{
+		// создать режим дополнения 
+		std::shared_ptr<BlockPadding> padding = BlockPadding::Create(Padding()); 
+
+		// определить требуемый размер буфера
+		return (padding) ? padding->GetEncryptLength(cb, BlockSize()) : cb; 
+	}
+	// зашифровать данные
+	protected: virtual size_t Encrypt(const void*, size_t, void*, size_t, bool, void*) = 0; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Преобразование расшифрования данных. Функция Decrypt при (last = true) 
+// вызывается для 
+// 1) для двух последних блоков (при их наличии) при условии, что функции 
+// Finish были переданы данные; 
+// 2) для последнего блока (при его наличии), если функции Finish не были 
+// переданы данные. 
+///////////////////////////////////////////////////////////////////////////////
+class Decryption : public ITransform
+{
+	// инициализировать алгоритм
+	public: virtual size_t Init(const ISecretKey& key) 
+	
+		// инициализировать алгоритм
+		{ _lastBlock.resize(0); return 0; } private: std::vector<uint8_t> _lastBlock;	
+
+	// обработать данные
+	public: virtual size_t Update(const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer) override
+	{
+		// обработать данные
+		return Update(pvData, cbData, pvBuffer, cbBuffer, nullptr); 
+	}
+	// обработать данные
+	public: WINCRYPT_CALL size_t Update(const void*, size_t, void*, size_t, void*); 
+	// завершить обработку данных
+	public: virtual size_t Finish(const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer) override
+	{
+		// завершить обработку данных
+		return Finish(pvData, cbData, pvBuffer, cbBuffer, nullptr); 
+	}
+	// завершить обработку данных
+	public: WINCRYPT_CALL size_t Finish(const void*, size_t, void*, size_t, void*); 
+
+	// требуемый размер буфера
+	protected: virtual size_t GetLength(size_t cb) const
+	{
+		// создать режим дополнения 
+		std::shared_ptr<BlockPadding> padding = BlockPadding::Create(Padding()); 
+
+		// определить требуемый размер буфера
+		return (padding) ? padding->GetDecryptLength(cb, BlockSize()) : cb; 
+	}
+	// расшифровать данные
+	protected: virtual size_t Decrypt(const void*, size_t, void*, size_t, bool, void*) = 0; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -295,15 +564,18 @@ struct Transform { virtual ~Transform() {}
 struct ICipher : IAlgorithm 
 {
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_CIPHER_INTERFACE; } 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_CIPHER; } 
 
 	// создать алгоритм шифрования ключа
-	virtual std::shared_ptr<IKeyWrap> CreateKeyWrap() const { return nullptr; }
-
+	virtual std::shared_ptr<IKeyWrap> CreateKeyWrap() const 
+	{ 
+		// алгоритм не реализован
+		return std::shared_ptr<IKeyWrap>(); 
+	}
 	// создать преобразование зашифрования 
-	virtual std::shared_ptr<Transform> CreateEncryption() const = 0; 
+	virtual std::shared_ptr<ITransform> CreateEncryption() const = 0; 
 	// создать преобразование расшифрования 
-	virtual std::shared_ptr<Transform> CreateDecryption() const = 0; 
+	virtual std::shared_ptr<ITransform> CreateDecryption() const = 0; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,28 +584,28 @@ struct ICipher : IAlgorithm
 struct IBlockCipher : ICipher
 { 	
 	// создать преобразование зашифрования 
-	virtual std::shared_ptr<Transform> CreateEncryption() const override
+	virtual std::shared_ptr<ITransform> CreateEncryption() const override
 	{
 		// создать преобразование зашифрования ECB
-		return CreateECB(0)->CreateEncryption(); 
+		return CreateECB(CRYPTO_PADDING_NONE)->CreateEncryption(); 
 	}
 	// создать преобразование расшифрования 
-	virtual std::shared_ptr<Transform> CreateDecryption() const override
+	virtual std::shared_ptr<ITransform> CreateDecryption() const override
 	{
 		// создать преобразование расшифрования ECB
-		return CreateECB(0)->CreateDecryption(); 
+		return CreateECB(CRYPTO_PADDING_NONE)->CreateDecryption(); 
 	}
 	// создать режим ECB
-	virtual std::shared_ptr<ICipher> CreateECB(DWORD padding) const = 0; 
+	virtual std::shared_ptr<ICipher> CreateECB(uint32_t padding) const = 0; 
 	// создать режим CBC
-	virtual std::shared_ptr<ICipher> CreateCBC(LPCVOID pvIV, DWORD cbIV, DWORD padding) const = 0; 
+	virtual std::shared_ptr<ICipher> CreateCBC(const std::vector<uint8_t>& iv, uint32_t padding) const = 0; 
 	// создать режим OFB
-	virtual std::shared_ptr<ICipher> CreateOFB(LPCVOID pvIV, DWORD cbIV, DWORD modeBits = 0) const = 0; 
+	virtual std::shared_ptr<ICipher> CreateOFB(const std::vector<uint8_t>& iv, size_t modeBits = 0) const = 0; 
 	// создать режим CFB
-	virtual std::shared_ptr<ICipher> CreateCFB(LPCVOID pvIV, DWORD cbIV, DWORD modeBits = 0) const = 0; 
+	virtual std::shared_ptr<ICipher> CreateCFB(const std::vector<uint8_t>& iv, size_t modeBits = 0) const = 0; 
 
 	// создать имитовставку CBC-MAC
-	virtual std::shared_ptr<Mac> CreateCBC_MAC(LPCVOID pvIV, DWORD cbIV) const = 0; 
+	virtual std::shared_ptr<IMac> CreateCBC_MAC(const std::vector<uint8_t>& iv) const = 0; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -342,32 +614,29 @@ struct IBlockCipher : ICipher
 struct IKeyxCipher : IAlgorithm 
 {
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_ASYMMETRIC_ENCRYPTION_INTERFACE; } 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_ASYMMETRIC_ENCRYPTION; } 
 
 	// зашифровать данные
-	virtual std::vector<BYTE> Encrypt(const IPublicKey& publicKey, LPCVOID pvData, DWORD cbData) const = 0; 
+	virtual std::vector<uint8_t> Encrypt(const IPublicKey& publicKey, const void* pvData, size_t cbData) const = 0; 
 	// расшифровать данные
-	virtual std::vector<BYTE> Decrypt(const IKeyPair& keyPair, LPCVOID pvData, DWORD cbData) const = 0; 
+	virtual std::vector<uint8_t> Decrypt(const IPrivateKey& privateKey, const void* pvData, size_t cbData) const = 0; 
 
 	// зашифровать ключ 
 	virtual std::vector<BYTE> WrapKey(const IPublicKey& publicKey, 
 		const ISecretKeyFactory& keyFactory, const ISecretKey& key) const
 	{
 		// получить значение ключа
-		std::vector<BYTE> value = key.Value(); 
+		std::vector<uint8_t> value = key.Value(); 
 
 		// зашифровать ключ 
-		return Encrypt(publicKey, &value[0], (DWORD)value.size()); 
+		return Encrypt(publicKey, &value[0], value.size()); 
 	}
 	// расшифровать ключ
-	virtual std::shared_ptr<ISecretKey> UnwrapKey(const IKeyPair& keyPair, 
-		const ISecretKeyFactory& keyFactory, LPCVOID pvData, DWORD cbData) const 
+	virtual std::shared_ptr<ISecretKey> UnwrapKey(const IPrivateKey& privateKey, 
+		const ISecretKeyFactory& keyFactory, const void* pvData, size_t cbData) const 
 	{
 		// расшифровать значение ключа
-		std::vector<BYTE> value = Decrypt(keyPair, pvData, cbData); 
-
-		// создать ключ 
-		return keyFactory.Create(&value[0], (DWORD)value.size()); 
+		return keyFactory.Create(Decrypt(privateKey, pvData, cbData)); 
 	}
 };
 
@@ -377,30 +646,110 @@ struct IKeyxCipher : IAlgorithm
 struct IKeyxAgreement : IAlgorithm 
 {
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_SECRET_AGREEMENT_INTERFACE; } 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_SECRET_AGREEMENT; } 
 
 	// согласовать общий ключ 
 	virtual std::shared_ptr<ISecretKey> AgreeKey(const IKeyDerive* pDerive, 
-		const IKeyPair& keyPair, const IPublicKey& publicKey, 
-		const ISecretKeyFactory& keyFactory, DWORD cbKey) const = 0; 
+		const IPrivateKey& privateKey, const IPublicKey& publicKey, 
+		const ISecretKeyFactory& keyFactory, size_t cbKey) const = 0; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Алгоритм выработки и проверки подписи хэш-значения
+// Алгоритм выработки и проверки подписи
 ///////////////////////////////////////////////////////////////////////////////
 struct ISignHash : IAlgorithm 
 {
 	// тип алгоритма
-	virtual DWORD Type() const override { return BCRYPT_SIGNATURE_INTERFACE; } 
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_SIGNATURE; } 
 
 	// подписать данные
-	virtual std::vector<BYTE> Sign(const IKeyPair& keyPair, 
-		const Hash& hash, LPCVOID pvHash, DWORD cbHash) const = 0; 
+	virtual std::vector<uint8_t> Sign(const IPrivateKey& privateKey, 
+		const IHash& algorithm, const std::vector<uint8_t>& hash) const = 0; 
 
 	// проверить подпись данных
-	virtual void Verify(const IPublicKey& publicKey, const Hash& hash, 
-		LPCVOID pvHash, DWORD cbHash, LPCVOID pvSignature, DWORD cbSignature) const = 0; 
+	virtual void Verify(const IPublicKey& publicKey, const IHash& algorithm, 
+		const std::vector<uint8_t>& hash, const std::vector<uint8_t>& signature) const = 0; 
 };
+
+struct ISignData : IAlgorithm
+{
+	// тип алгоритма
+	virtual uint32_t Type() const override { return CRYPTO_INTERFACE_SIGNATURE; } 
+
+	// инициализировать алгоритм
+	virtual void Init() = 0; 
+
+	// захэшировать данные
+	virtual void Update(const void* pvData, size_t cbData) = 0; 
+	// захэшировать сеансовый ключ
+	virtual void Update(const ISecretKey& key) = 0; 
+
+	// подписать данные
+	virtual std::vector<uint8_t> Sign(const IPrivateKey& privateKey) = 0; 
+	// проверить подпись данных
+	virtual void Verify(const IPublicKey& publicKey, const std::vector<uint8_t>& signature) = 0; 
+
+	// подписать данные
+	std::vector<uint8_t> SignData(const IPrivateKey& privateKey, const void* pvData, size_t cbData)
+	{
+		// подписать данные
+		Init(); Update(pvData, cbData); return Sign(privateKey); 
+	}
+	// проверить подпись данных
+	std::vector<uint8_t> VerifyData(const IPublicKey& publicKey, 
+		const void* pvData, size_t cbData, const std::vector<uint8_t>& signature)
+	{
+		// проверить подпись данных
+		Init(); Update(pvData, cbData); Verify(publicKey, signature); 
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Контейнер ключей
+///////////////////////////////////////////////////////////////////////////////
+struct IContainer { virtual ~IContainer() {}
+
+	// имя контейнера
+	virtual std::wstring Name(bool fullName) const = 0; 
+
+	// уникальное имя контейнера
+	virtual std::wstring UniqueName() const = 0; virtual bool Machine() const = 0;
+
+	// получить фабрику ключей
+	virtual std::shared_ptr<IKeyFactory> GetKeyFactory(
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters, 
+		uint32_t keySpec, uint32_t policyFlags) const = 0; 
+
+	// получить пару ключей
+	virtual std::shared_ptr<IKeyPair> GetKeyPair(uint32_t keySpec) const = 0; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Область видимости провайдера
+///////////////////////////////////////////////////////////////////////////////
+struct IProviderStore { virtual ~IProviderStore() {}
+
+	// провайдер области видимости
+	virtual const struct IProvider& BaseProvider() const = 0; 
+
+	// перечислить контейнеры
+	virtual std::vector<std::wstring> EnumContainers(DWORD dwFlags) const = 0; 
+	// создать контейнер
+	virtual std::shared_ptr<IContainer> CreateContainer(const wchar_t* szName, DWORD dwFlags) = 0; 
+	// получить контейнер
+	virtual std::shared_ptr<IContainer> OpenContainer(const wchar_t* szName, DWORD dwFlags) const = 0; 
+	// удалить контейнер
+	virtual void DeleteContainer(const wchar_t* szName, DWORD dwFlags) = 0; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Смарт-карта провайдера 
+///////////////////////////////////////////////////////////////////////////////
+struct ICardStore : IProviderStore
+{ 
+	// имя считывателя
+	virtual std::wstring GetReaderName() const = 0; 
+}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Криптографический провайдер
@@ -408,27 +757,110 @@ struct ISignHash : IAlgorithm
 struct IProvider { virtual ~IProvider() {}
 
 	// имя и тип реализации провайдера
-	virtual PCWSTR Name() const = 0; virtual DWORD ImplementationType() const = 0; 
+	virtual std::wstring Name() const = 0; virtual uint32_t ImplType() const = 0; 
 
 	// перечислить алгоритмы отдельной категории
-	virtual std::vector<std::wstring> EnumAlgorithms(DWORD type, DWORD dwFlags) const = 0; 
-	// получить информацию об алгоритме
-	virtual std::shared_ptr<IAlgorithmInfo> GetAlgorithmInfo(PCWSTR szAlg, DWORD type) const = 0; 
-	// получить алгоритм 
-	virtual std::shared_ptr<IAlgorithm> CreateAlgorithm(DWORD type, 
-		PCWSTR szName, DWORD mode, const BCryptBufferDesc* pParameters, DWORD dwFlags) const = 0; 
+	virtual std::vector<std::wstring> EnumAlgorithms(uint32_t type) const = 0; 
+
+	// создать генератор случайных данных
+	virtual std::shared_ptr<IRand> CreateRand(const wchar_t* szAlgName, uint32_t mode) const = 0; 
+	// создать алгоритм хэширования 
+	virtual std::shared_ptr<IHash> CreateHash(const wchar_t* szAlgName, uint32_t mode) const = 0; 
+	// создать алгоритм вычисления имитовставки
+	virtual std::shared_ptr<IMac> CreateMac(const wchar_t* szAlgName, uint32_t mode) const = 0; 
+	// создать алгоритм симметричного шифрования 
+	virtual std::shared_ptr<ICipher> CreateCipher(const wchar_t* szAlgName, uint32_t mode) const = 0; 
+	// создать алгоритм наследования ключа
+	virtual std::shared_ptr<IKeyDerive> CreateDerive(
+		const wchar_t* szAlgName, uint32_t mode, const Parameter* pParameters, size_t cParameters) const = 0; 
+
+	// создать алгоритм хэширования 
+	virtual std::shared_ptr<IHash> CreateHash(
+		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const = 0; 
+	// создать алгоритм симметричного шифрования 
+	virtual std::shared_ptr<ICipher> CreateCipher(
+		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const = 0; 
+	// создать алгоритм асимметричного шифрования 
+	virtual std::shared_ptr<IKeyxCipher> CreateKeyxCipher(
+		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const = 0; 
+	// создать алгоритм согласования ключа
+	virtual std::shared_ptr<IKeyxAgreement> CreateKeyxAgreement(
+		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const = 0; 
+	// создать алгоритм подписи
+	virtual std::shared_ptr<ISignHash> CreateSignHash(
+		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const = 0; 
+	// создать алгоритм подписи
+	virtual std::shared_ptr<ISignData> CreateSignData(
+		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const = 0; 
 
 	// получить фабрику ключей
-	virtual std::shared_ptr<IKeyFactory> GetKeyFactory(PCWSTR szAlgName, DWORD keySpec) const = 0; 
+	virtual std::shared_ptr<ISecretKeyFactory> GetSecretKeyFactory(const wchar_t* szAlgName) const = 0; 
+	// получить фабрику ключей (только для открытых и эфемерных ключей)
+	virtual std::shared_ptr<IKeyFactory> GetKeyFactory(
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const = 0; 
 
-	// перечислить контейнеры
-	virtual std::vector<std::wstring> EnumContainers(DWORD scope, DWORD dwFlags) const = 0; 
-	// создать контейнер
-	virtual std::shared_ptr<IContainer> CreateContainer(DWORD scope, PCWSTR szName, DWORD dwFlags) const = 0; 
-	// получить контейнер
-	virtual std::shared_ptr<IContainer> OpenContainer(DWORD scope, PCWSTR szName, DWORD dwFlags) const = 0; 
-	// удалить контейнер
-	virtual void DeleteContainer(DWORD scope, PCWSTR szName, DWORD dwFlags) const = 0; 
+	// получить открытый ключ из X.509-представления 
+	std::shared_ptr<IPublicKey> DecodePublicKey(const CERT_PUBLIC_KEY_INFO& info, uint32_t keySpec) const
+	{
+		// получить фабрику кодирования 
+		std::shared_ptr<IKeyFactory> pKeyFactory = GetKeyFactory(info.Algorithm, keySpec); 
+
+		// проверить наличие фабрики
+		if (!pKeyFactory) return std::shared_ptr<IPublicKey>(); 
+
+		// раскодировать открытый ключ
+		return pKeyFactory->DecodePublicKey(info.PublicKey.pbData, info.PublicKey.cbData); 
+	}
+	// получить пару ключей из X.509- и PKCS8-представления 
+	std::shared_ptr<IKeyPair> DecodeKeyPair(const CERT_PUBLIC_KEY_INFO& publicInfo, 
+		const CRYPT_PRIVATE_KEY_INFO& privateInfo) const; 
+
+	// используемые области видимости
+	virtual const IProviderStore& GetScope(uint32_t type) const = 0; 
+	virtual       IProviderStore& GetScope(uint32_t type)       = 0; 
+
+	// получить смарт-карту 
+	virtual std::shared_ptr<ICardStore> GetCard(const wchar_t* szReader)
+	{
+		// смарт-карты не поддерживаются
+		return std::shared_ptr<ICardStore>();
+	}
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Криптографическая среда
+///////////////////////////////////////////////////////////////////////////////
+struct IEnvironment { virtual ~IEnvironment() {}
+
+	// перечислить провайдеры
+	virtual std::vector<std::wstring> EnumProviders() const = 0; 
+	// открыть провайдер
+	virtual std::shared_ptr<IProvider> OpenProvider(const wchar_t* szName) const = 0; 
+
+	// найти провайдеры для ключа
+	virtual std::vector<std::wstring> FindProviders(
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const
+	{
+		// создать список имен
+		std::vector<std::wstring> names;
+
+		// перечислить все провайдеры
+		std::vector<std::wstring> providers = EnumProviders(); 
+
+		// для всех провайдеров
+		for (size_t i = 0; i < providers.size(); i++)
+		{
+			// открыть провайдер
+			std::shared_ptr<IProvider> provider = OpenProvider(providers[i].c_str()); 
+
+			// проверить поддержку ключа
+			std::shared_ptr<IKeyFactory> pFactory = provider->GetKeyFactory(parameters, keySpec); 
+
+			// добавить провайдер в список
+			if (pFactory) names.push_back(providers[i].c_str()); 
+		}
+		return names; 
+	}
 }; 
 
 namespace ANSI { 
@@ -436,50 +868,33 @@ namespace ANSI {
 ///////////////////////////////////////////////////////////////////////////////
 // Ключи RSA
 ///////////////////////////////////////////////////////////////////////////////
-namespace RSA  {
-struct IPublicKey : Crypto::IPublicKey
+namespace RSA  
 {
-	// значение модуля 
-	virtual const CRYPT_UINT_BLOB& Modulus() const = 0; 
-	// значение открытой экспоненты
-	virtual const CRYPT_UINT_BLOB& PublicExponent() const = 0; 
-};
+// закодировать открытый ключ
+std::vector<uint8_t> EncodePublicKey(const CRYPT_RSA_PUBLIC_KEY_INFO&); 
+// раскодировать открытый ключ
+std::shared_ptr<CRYPT_RSA_PUBLIC_KEY_INFO> DecodePublicKey(const void* pvEncoded, size_t cbEncoded); 
 
-struct IKeyPair : Crypto::IKeyPair
-{
-	// значение модуля 
-	virtual const CRYPT_UINT_BLOB& Modulus() const = 0; 
+// закодировать личный ключ
+std::vector<uint8_t> EncodePrivateKey(const CRYPT_RSA_PRIVATE_KEY_INFO&); 
+// раскодировать личный ключ
+std::shared_ptr<CRYPT_RSA_PRIVATE_KEY_INFO> DecodePrivateKey(const void* pvEncoded, size_t cbEncoded); 
 
-	// значение открытой/личной экспоненты
-	virtual const CRYPT_UINT_BLOB& PublicExponent () const = 0; 
-	virtual const CRYPT_UINT_BLOB& PrivateExponent() const = 0; 
+// закодировать параметры RC2-CBC
+std::vector<uint8_t> EncodeRC2CBCParameters(const CRYPT_RC2_CBC_PARAMETERS& parameters); 
+// раскодировать параметры RC2-CBC
+std::shared_ptr<CRYPT_RC2_CBC_PARAMETERS> DecodeRC2CBCParameters(const void* pvEncoded, size_t cbEncoded); 
 
-	// параметры личного ключа 
-	virtual const CRYPT_UINT_BLOB& Prime1     () const = 0;  
-	virtual const CRYPT_UINT_BLOB& Prime2     () const = 0; 
-	virtual const CRYPT_UINT_BLOB& Exponent1  () const = 0; 
-	virtual const CRYPT_UINT_BLOB& Exponent2  () const = 0; 
-	virtual const CRYPT_UINT_BLOB& Coefficient() const = 0; 
-}; 
+// закодировать параметры RSA-OAEP
+std::vector<uint8_t> EncodeRSAOAEPParameters(const CRYPT_RSAES_OAEP_PARAMETERS& parameters); 
+// раскодировать параметры RSA-OAEP
+std::shared_ptr<CRYPT_RSAES_OAEP_PARAMETERS> DecodeRSAOAEPParameters(const void* pvEncoded, size_t cbEncoded); 
 
-struct IKeyFactory : Crypto::IKeyFactory
-{
-	// создать открытый ключ 
-	virtual std::shared_ptr<IPublicKey> CreatePublicKey( 
-		const CRYPT_UINT_BLOB& modulus, const CRYPT_UINT_BLOB& publicExponent
-	) const = 0; 
+// закодировать параметры RSA-PSS
+std::vector<uint8_t> EncodeRSAPSSParameters(const CRYPT_RSA_SSA_PSS_PARAMETERS& parameters); 
+// раскодировать параметры RSA-PSS
+std::shared_ptr<CRYPT_RSA_SSA_PSS_PARAMETERS> DecodeRSAPSSParameters(const void* pvEncoded, size_t cbEncoded); 
 
-	// создать пару ключей
-	virtual std::shared_ptr<IKeyPair> CreateKeyPair( 
-		const CRYPT_UINT_BLOB& modulus,   
-		const CRYPT_UINT_BLOB& publicExponent, const CRYPT_UINT_BLOB& privateExponent,
-		const CRYPT_UINT_BLOB& prime1,         const CRYPT_UINT_BLOB& prime2, 
-		const CRYPT_UINT_BLOB& exponent1,      const CRYPT_UINT_BLOB& exponent2, 
-		const CRYPT_UINT_BLOB& coefficient) const = 0; 
-
-	// импортировать пару ключей 
-	virtual std::shared_ptr<Crypto::IKeyPair> ImportKeyPair(const IKeyPair& keyPair) const = 0; 
-};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -487,73 +902,27 @@ struct IKeyFactory : Crypto::IKeyFactory
 ///////////////////////////////////////////////////////////////////////////////
 namespace X942 
 {
-struct IPublicKey : Crypto::IPublicKey
-{
-	// параметры открытого ключа
-	virtual const CERT_X942_DH_PARAMETERS& Parameters() const = 0; 
-	// значение открытого ключа 
-	virtual const CRYPT_UINT_BLOB& Y() const = 0; 
-};
+// закодировать параметры
+std::vector<uint8_t> EncodeParameters(const CERT_DH_PARAMETERS     &); 
+std::vector<uint8_t> EncodeParameters(const CERT_X942_DH_PARAMETERS&); 
+// раскодировать параметры 
+template <typename T> std::shared_ptr<T> DecodeParameters(const void* pvEncoded, size_t cbEncoded); 
 
-struct IKeyPair : Crypto::IKeyPair
-{
-	// параметры открытого ключа
-	virtual const CERT_X942_DH_PARAMETERS& Parameters() const = 0; 
-	// значение открытого ключа 
-	virtual const CRYPT_UINT_BLOB& Y() const = 0; 
-	// значение личного ключа 
-	virtual const CRYPT_UINT_BLOB& X() const = 0; 
-}; 
+// закодировать открытый ключ
+std::vector<uint8_t> EncodePublicKey(const CRYPT_UINT_BLOB&); 
+// раскодировать открытый ключ
+std::shared_ptr<CRYPT_UINT_BLOB> DecodePublicKey(const void* pvEncoded, size_t cbEncoded); 
 
-struct IKeyFactory : Crypto::IKeyFactory
-{
-	// сгенерировать ключевую пару
-	virtual std::shared_ptr<Crypto::IKeyPair> GenerateKeyPair(
-		const CERT_DH_PARAMETERS& parameters) const
-	{
-		// указать параметры ключа 
-		CERT_X942_DH_PARAMETERS dhParameters = { parameters.p, parameters.g }; 
+// закодировать личный ключ
+std::vector<uint8_t> EncodePrivateKey(const CRYPT_UINT_BLOB&); 
+// раскодировать личный ключ
+std::shared_ptr<CRYPT_UINT_BLOB> DecodePrivateKey(const void* pvEncoded, size_t cbEncoded); 
 
-		// сгенерировать ключевую пару
-		return GenerateKeyPair(dhParameters); 
-	}
-	// сгенерировать ключевую пару
-	virtual std::shared_ptr<Crypto::IKeyPair> GenerateKeyPair(
-		const CERT_X942_DH_PARAMETERS& parameters) const = 0; 
+// закодировать данные
+std::vector<uint8_t> EncodeOtherInfo(const CRYPT_X942_OTHER_INFO& parameters); 
+// раскодировать данные
+std::shared_ptr<CRYPT_X942_OTHER_INFO> DecodeOtherInfo(const void* pvEncoded, size_t cbEncoded); 
 
-	// создать открытый ключ 
-	virtual std::shared_ptr<IPublicKey> CreatePublicKey( 
-		const CERT_DH_PARAMETERS& parameters, const CRYPT_UINT_BLOB& y) const
-	{
-		// указать параметры ключа 
-		CERT_X942_DH_PARAMETERS dhParameters = { parameters.p, parameters.g }; 
-
-		// создать открытый ключ
-		return CreatePublicKey(dhParameters, y); 
-	}
-	// создать пару ключей
-	virtual std::shared_ptr<IPublicKey> CreatePublicKey( 
-		const CERT_X942_DH_PARAMETERS& parameters, const CRYPT_UINT_BLOB& y) const = 0; 
-
-	// создать пару ключей
-	virtual std::shared_ptr<IKeyPair> CreateKeyPair( 
-		const CERT_DH_PARAMETERS& parameters, 
-		const CRYPT_UINT_BLOB& y, const CRYPT_UINT_BLOB& x) const
-	{
-		// указать параметры ключа 
-		CERT_X942_DH_PARAMETERS dhParameters = { parameters.p, parameters.g }; 
-
-		// создать пару ключей
-		return CreateKeyPair(dhParameters, y, x); 
-	}
-	// создать пару ключей
-	virtual std::shared_ptr<IKeyPair> CreateKeyPair( 
-		const CERT_X942_DH_PARAMETERS& parameters, 
-		const CRYPT_UINT_BLOB& y, const CRYPT_UINT_BLOB& x) const = 0; 
-
-	// импортировать пару ключей 
-	virtual std::shared_ptr<Crypto::IKeyPair> ImportKeyPair(const IKeyPair& keyPair) const = 0; 
-};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -561,53 +930,77 @@ struct IKeyFactory : Crypto::IKeyFactory
 ///////////////////////////////////////////////////////////////////////////////
 namespace X957 
 {
-struct IPublicKey : Crypto::IPublicKey
+
+// закодировать параметры
+std::vector<uint8_t> EncodeParameters(const CERT_DSS_PARAMETERS&); 
+// раскодировать параметры 
+std::shared_ptr<CERT_DSS_PARAMETERS> DecodeParameters(const void* pvEncoded, size_t cbEncoded); 
+
+// закодировать открытый ключ
+std::vector<uint8_t> EncodePublicKey(const CRYPT_UINT_BLOB&); 
+// раскодировать открытый ключ
+std::shared_ptr<CRYPT_UINT_BLOB> DecodePublicKey(const void* pvEncoded, size_t cbEncoded); 
+
+// закодировать личный ключ
+std::vector<uint8_t> EncodePrivateKey(const CRYPT_UINT_BLOB&); 
+// раскодировать личный ключ
+std::shared_ptr<CRYPT_UINT_BLOB> DecodePrivateKey(const void* pvEncoded, size_t cbEncoded); 
+
+// закодировать подпись
+std::vector<uint8_t> EncodeSignature(const CERT_DSS_SIGNATURE&, bool reverse = true); 
+// раскодировать подпись
+std::shared_ptr<CERT_DSS_SIGNATURE> DecodeSignature(const std::vector<uint8_t>&, bool reverse = true); 
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Ключи ECC
+///////////////////////////////////////////////////////////////////////////////
+namespace X962 
 {
-	// параметры открытого ключа
-	virtual const CERT_DSS_PARAMETERS& Parameters() const = 0; 
-	// параметры проверки
-	virtual const CERT_X942_DH_VALIDATION_PARAMS* ValidationParameters() const = 0; 
+// закодировать параметры
+std::vector<uint8_t> EncodeParameters(const char* szCurveOID); 
+// раскодировать параметры 
+std::string DecodeParameters(const void* pvEncoded, size_t cbEncoded); 
 
-	// значение открытого ключа 
-	virtual const CRYPT_UINT_BLOB& Y() const = 0;  
-};
+// закодировать открытый ключ
+std::vector<uint8_t> EncodePublicKey(const CRYPT_ECC_PUBLIC_KEY_INFO&); 
+// раскодировать открытый ключ
+std::shared_ptr<CRYPT_ECC_PUBLIC_KEY_INFO> DecodePublicKey(const void* pvEncoded, size_t cbEncoded); 
 
-struct IKeyPair : Crypto::IKeyPair
-{
-	// параметры открытого ключа
-	virtual const CERT_DSS_PARAMETERS& Parameters() const = 0; 
-	// параметры проверки
-	virtual const CERT_X942_DH_VALIDATION_PARAMS* ValidationParameters() const = 0; 
+// закодировать личный ключ
+std::vector<uint8_t> EncodePrivateKey(const CRYPT_ECC_PRIVATE_KEY_INFO&); 
+// раскодировать личный ключ
+std::shared_ptr<CRYPT_ECC_PRIVATE_KEY_INFO> DecodePrivateKey(const void* pvEncoded, size_t cbEncoded); 
 
-	// значение открытого ключа 
-	virtual const CRYPT_UINT_BLOB& Y() const = 0; 
-	// значение личного ключа 
-	virtual const CRYPT_UINT_BLOB& X() const = 0; 
+// закодировать подпись
+std::vector<uint8_t> EncodeSignature(const CERT_ECC_SIGNATURE& signature, bool reverse = true); 
+// раскодировать подпись
+std::shared_ptr<CERT_ECC_SIGNATURE> DecodeSignature(const std::vector<uint8_t>& encoded, bool reverse = true); 
+
+// закодировать данные
+std::vector<uint8_t> EncodeSharedInfo(const CRYPT_ECC_CMS_SHARED_INFO& parameters); 
+// раскодировать данные
+std::shared_ptr<CRYPT_ECC_CMS_SHARED_INFO> DecodeSharedInfo(const void* pvEncoded, size_t cbEncoded); 
+
+}
+}
+}
+
+#ifdef _WINDOWS_
+#include "registry.h"
+namespace Windows { namespace Crypto { 
+
+using namespace ::Crypto; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Смарт-карта провайдера 
+///////////////////////////////////////////////////////////////////////////////
+struct ICardStore : ::Crypto::ICardStore
+{ 
+	// GUID смарт-карты
+	virtual GUID GetCardGUID() const = 0;  
 }; 
-
-struct IKeyFactory : Crypto::IKeyFactory
-{
-	// сгенерировать ключевую пару
-	virtual std::shared_ptr<Crypto::IKeyPair> GenerateKeyPair(
-		const CERT_DSS_PARAMETERS& parameters, 
-		const CERT_X942_DH_VALIDATION_PARAMS* validationParameters) const = 0; 
-
-	// создать открытый ключ 
-	virtual std::shared_ptr<IPublicKey> CreatePublicKey( 
-		const CERT_DSS_PARAMETERS& parameters, 
-		const CERT_X942_DH_VALIDATION_PARAMS* validationParameters, const CRYPT_UINT_BLOB& y) const = 0; 
-
-	// создать пару ключей
-	virtual std::shared_ptr<IKeyPair> CreateKeyPair( 
-		const CERT_DSS_PARAMETERS& parameters, 
-		const CERT_X942_DH_VALIDATION_PARAMS* validationParameters, 
-		const CRYPT_UINT_BLOB& y, const CRYPT_UINT_BLOB& x) const = 0; 
-
-	// импортировать пару ключей 
-	virtual std::shared_ptr<Crypto::IKeyPair> ImportKeyPair(const IKeyPair& keyPair) const = 0; 
-};
-}
-}
 
 namespace Extension {
 
@@ -742,4 +1135,6 @@ WINCRYPT_CALL std::vector<std::string> EnumFunctionExtensionSets();
 // получить набор функций расширения 
 WINCRYPT_CALL std::shared_ptr<IFunctionExtensionSet> GetFunctionExtensionSet(PCSTR szFuncName); 
 
-}}}
+}
+}}
+#endif 

@@ -698,6 +698,69 @@ namespace Aladdin.CAPI.ANSI
                             return new Keyx.ECDH.KeyAgreement(true, kdfAlgorithm, wrapParameters); 
                         }
                     }
+		            if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_esdh_hkdf_sha256)
+                    {
+    		            // раскодировать параметры
+			            ASN1.ISO.AlgorithmIdentifier wrapParameters = 
+			                new ASN1.ISO.AlgorithmIdentifier(parameters); 
+
+                        // указать параметры алгоритма наследования ключа
+                        ASN1.ISO.AlgorithmIdentifier kdfParameters = new ASN1.ISO.AlgorithmIdentifier(
+        	                new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS9.OID.smime_hkdf_sha256), null
+                        ); 
+                        // получить алгоритм наследования ключа
+                        using (KeyDerive kdfAlgorithm = 
+                            factory.CreateAlgorithm<KeyDerive>(scope, kdfParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (kdfAlgorithm == null) break; 
+
+                            // создать алгоритм согласования общего ключа
+                            return new Keyx.ECDH.KeyAgreement(false, kdfAlgorithm, wrapParameters); 
+                        }
+                    }
+		            if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_esdh_hkdf_sha384)
+                    {
+    		            // раскодировать параметры
+			            ASN1.ISO.AlgorithmIdentifier wrapParameters = 
+			                new ASN1.ISO.AlgorithmIdentifier(parameters); 
+
+                        // указать параметры алгоритма наследования ключа
+                        ASN1.ISO.AlgorithmIdentifier kdfParameters = new ASN1.ISO.AlgorithmIdentifier(
+        	                new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS9.OID.smime_hkdf_sha384), null
+                        ); 
+                        // получить алгоритм наследования ключа
+                        using (KeyDerive kdfAlgorithm = 
+                            factory.CreateAlgorithm<KeyDerive>(scope, kdfParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (kdfAlgorithm == null) break; 
+
+                            // создать алгоритм согласования общего ключа
+                            return new Keyx.ECDH.KeyAgreement(false, kdfAlgorithm, wrapParameters); 
+                        }
+                    }
+		            if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_esdh_hkdf_sha512)
+                    {
+    		            // раскодировать параметры
+			            ASN1.ISO.AlgorithmIdentifier wrapParameters = 
+			                new ASN1.ISO.AlgorithmIdentifier(parameters); 
+
+                        // указать параметры алгоритма наследования ключа
+                        ASN1.ISO.AlgorithmIdentifier kdfParameters = new ASN1.ISO.AlgorithmIdentifier(
+        	                new ASN1.ObjectIdentifier(ASN1.ISO.PKCS.PKCS9.OID.smime_hkdf_sha512), null
+                        ); 
+                        // получить алгоритм наследования ключа
+                        using (KeyDerive kdfAlgorithm = 
+                            factory.CreateAlgorithm<KeyDerive>(scope, kdfParameters))
+                        {
+                            // проверить поддержку алгоритма
+                            if (kdfAlgorithm == null) break; 
+
+                            // создать алгоритм согласования общего ключа
+                            return new Keyx.ECDH.KeyAgreement(false, kdfAlgorithm, wrapParameters); 
+                        }
+                    }
                 }
             }
             // вызвать базовую функцию
@@ -2698,10 +2761,49 @@ namespace Aladdin.CAPI.ANSI
 			        // получить алгоритм хэширования
 			        using (CAPI.Hash hash = factory.CreateAlgorithm<CAPI.Hash>(scope, hashParameters))
                     {  
-                        // проверить поддержку алгоритма
+                        // создать алгоритм наследования 
                         if (hash == null) return null; return new Derive.X963KDF(hash);
                     }
 			    }
+			    if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_hkdf_sha256)
+			    {
+			        // указать параметры алгоритма HMAC
+			        ASN1.ISO.AlgorithmIdentifier hmacParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.nist_sha2_256), ASN1.Null.Instance
+			        );
+                    // создать алгоритм HMAC
+                    using (Mac hmacAlgorithm = factory.CreateAlgorithm<Mac>(scope, hmacParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hmacAlgorithm == null) return null; return new Derive.HKDF(hmacAlgorithm); 
+                    }
+                }
+			    if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_hkdf_sha384)
+			    {
+			        // указать параметры алгоритма HMAC
+			        ASN1.ISO.AlgorithmIdentifier hmacParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.nist_sha2_384), ASN1.Null.Instance
+			        );
+                    // создать алгоритм HMAC
+                    using (Mac hmacAlgorithm = factory.CreateAlgorithm<Mac>(scope, hmacParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hmacAlgorithm == null) return null; return new Derive.HKDF(hmacAlgorithm); 
+                    }
+                }
+			    if (oid == ASN1.ISO.PKCS.PKCS9.OID.smime_hkdf_sha512)
+			    {
+			        // указать параметры алгоритма HMAC
+			        ASN1.ISO.AlgorithmIdentifier hmacParameters = new ASN1.ISO.AlgorithmIdentifier(
+				        new ASN1.ObjectIdentifier(ASN1.ANSI.OID.nist_sha2_512), ASN1.Null.Instance
+			        );
+                    // создать алгоритм HMAC
+                    using (Mac hmacAlgorithm = factory.CreateAlgorithm<Mac>(scope, hmacParameters))
+                    {
+                        // проверить наличие алгоритма хэширования
+                        if (hmacAlgorithm == null) return null; return new Derive.HKDF(hmacAlgorithm); 
+                    }
+                }
 		    }
 		    // для алгоритмов выработки подписи
 		    else if (type == typeof(SignHash))

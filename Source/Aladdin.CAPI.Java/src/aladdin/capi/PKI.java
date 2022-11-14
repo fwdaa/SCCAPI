@@ -200,7 +200,7 @@ public abstract class PKI
 		byte[] data = certificationRequestInfo.encoded(); 
         
         // при отсутствии алгоритма
-        if (signParameters.algorithm().value().equals("2.5.8.0"))
+        if (signParameters.algorithm().value().equals("1.3.6.1.5.5.7.6.2"))
         {
             // создать пустую подпись
             BitString signature = new BitString(new byte[0]); 

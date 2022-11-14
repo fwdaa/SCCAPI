@@ -1,5 +1,12 @@
 #include "pch.h"
 #include "extension.h"
+#include "cryptox.h"
+#include "csp.h"
+#include "bcng.h"
+#include "rsa.h"
+#include "dh.h"
+#include "dsa.h"
+#include "ecc.h"
 #include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -8,6 +15,754 @@
 #ifdef WPP_CONTROL_GUIDS
 #include "extension.tmh"
 #endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Фисированный набор расширений 
+///////////////////////////////////////////////////////////////////////////////
+static Windows::Crypto::ANSI::RSA ::KeyFactory ExtensionRSA; 
+static Windows::Crypto::ANSI::X942::KeyFactory ExtensionX942; 
+static Windows::Crypto::ANSI::X957::KeyFactory ExtensionX957; 
+static Windows::Crypto::ANSI::X962::KeyFactory ExtensionX962; 
+
+// элемент таблицы расширений
+struct EXTENSION_ENTRY { PCSTR szKeyOID; 
+	const Windows::Crypto::Extension::KeyFactory* pExtension; 
+};
+// таблица расширений
+static EXTENSION_ENTRY Extensions[] = {
+	{ szOID_RSA_RSA			, &ExtensionRSA }, 
+	{ szOID_RSA_DH			, &ExtensionX942 }, 
+	{ szOID_ANSI_X942_DH	, &ExtensionX942 }, 
+	{ szOID_X957_DSA		, &ExtensionX957 }, 
+	{ szOID_ECC_PUBLIC_KEY	, &ExtensionX962 }, 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Функции расширения 
+///////////////////////////////////////////////////////////////////////////////
+BOOL Windows::Crypto::Extension::CryptDllEncodePublicKeyAndParameters(
+	DWORD	dwEncoding,	// [in    ] способ кодирования ключа
+	PCSTR	szKeyOID,	// [in    ] идентификатор ключа (OID)
+	PVOID	pvBlob,		// [in    ] закодированный буфер в формате BLOB
+	DWORD	cbBlob,		// [in    ] размер закодированного буфера
+	DWORD	dwFlags,	// [in    ] зарезервировано на будущее
+	PVOID	pvAuxInfo,	// [in    ] зарезервировано на будущее
+	PVOID*	ppvKey,		// [   out] закодированный ключ в кодировке X.509      (LocalAlloc)
+	PDWORD	pcbKey,		// [   out] размер закодированного ключа
+	PVOID*	ppvParams,	// [   out] закодированные параметры в кодировке X.509 (LocalAlloc)
+	PDWORD	pcbParams	// [   out] размер закодированных параметров
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllEncodePublicKeyAndParameters(
+			szKeyOID, pvBlob, cbBlob, dwFlags, pvAuxInfo, ppvKey, pcbKey, ppvParams, pcbParams
+		); 
+	}
+	// указать прототип функции расширения 
+	typedef BOOL (WINAPI* PFN_CRYPT_ENCODE_PUBLIC_KEY_AND_PARAMETERS)(
+		DWORD, PCSTR, PVOID, DWORD, DWORD, PVOID, PVOID*, PDWORD, PVOID*, PDWORD	        
+	);
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet("CryptDllEncodePublicKeyAndParameters", dwEncoding, szKeyOID); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_ENCODE_PUBLIC_KEY_AND_PARAMETERS pfn = 
+			(PFN_CRYPT_ENCODE_PUBLIC_KEY_AND_PARAMETERS)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(dwEncoding, szKeyOID, pvBlob, cbBlob, dwFlags, pvAuxInfo, ppvKey, pcbKey, ppvParams, pcbParams);
+	}
+	return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllConvertPublicKeyInfo(
+	DWORD						dwEncoding,	// [in    ] способ кодирования ключа
+	CONST CERT_PUBLIC_KEY_INFO*	pInfo,		// [in    ] описание ключа в кодировке X.509
+	ALG_ID						algID,		// [in    ] идентификатор алгоритма
+	DWORD						dwFlags,	// [in    ] зарезервировано на будущее
+	PVOID*						ppvBlob,	// [   out] закодированный буфер в формате BLOB (LocalAlloc)
+	PDWORD						pcbBlob		// [   out] размер закодированного буфера
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, pInfo->Algorithm.pszObjId) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllConvertPublicKeyInfo(
+			pInfo, algID, dwFlags, ppvBlob, pcbBlob
+		); 
+	}
+	// указать прототип функции расширения 
+	typedef BOOL (WINAPI* PFN_CRYPT_CONVERT_PUBLIC_KEY_INFO)(
+		DWORD, PCERT_PUBLIC_KEY_INFO, ALG_ID, DWORD, PVOID*, PDWORD
+	);
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet("CryptDllConvertPublicKeyInfo", dwEncoding, pInfo->Algorithm.pszObjId); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_CONVERT_PUBLIC_KEY_INFO pfn = (PFN_CRYPT_CONVERT_PUBLIC_KEY_INFO)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(dwEncoding, (PCERT_PUBLIC_KEY_INFO)pInfo, algID, dwFlags, ppvBlob, pcbBlob);
+	}
+	return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllExportPublicKeyInfoEx(
+	HCRYPTPROV_OR_NCRYPT_KEY_HANDLE	hProviderOrKey,	// [in    ] описатель провайдера или ключа
+	DWORD							dwKeySpec,		// [in    ] слот ключа для провайдера (только для провайдера)
+	DWORD							dwEncoding,		// [in    ] способ кодирования ключа
+	PCSTR							szKeyOID,		// [in    ] идентификатор ключа (OID)
+	DWORD							dwFlags,		// [in    ] назначение ключа
+	PVOID							pvAuxInfo,		// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO			pInfo,			// [   out] описание ключа в кодировке X.509
+	PDWORD							pcbInfo			// [in/out] размер описания ключа
+){
+	// определить тип описателя 
+	if (::NCryptIsKeyHandle(hProviderOrKey)) { NCRYPT_KEY_HANDLE hKey = hProviderOrKey; 
+
+		// вызвать специальную функцию
+		return CryptDllExportPublicKeyInfoEx2(hKey, dwEncoding, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo); 
+	}
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+		try { 		
+			// получить описатель ключа
+			CSP::KeyHandle hKeyPair = CSP::KeyHandle::FromContainer(hProviderOrKey, dwKeySpec); 
+		
+			// вызвать функцию расширения 
+			return Extensions[i].pExtension->CryptDllExportPublicKeyInfoEx(
+				hKeyPair, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo
+			); 
+		}
+		// обработать возможную ошибку
+		catch (...) { return FALSE; }
+	}
+	// указать прототип функции расширения 
+	typedef BOOL (WINAPI* PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX_FUNC)(
+		HCRYPTPROV_OR_NCRYPT_KEY_HANDLE, DWORD, DWORD, PCSTR, DWORD, PVOID, PCERT_PUBLIC_KEY_INFO, PDWORD
+	);
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet(CRYPT_OID_EXPORT_PUBLIC_KEY_INFO_FUNC, dwEncoding, szKeyOID); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX_FUNC pfn = (PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX_FUNC)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(hProviderOrKey, dwKeySpec, dwEncoding, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo);
+	}
+	try { 
+		// получить описатель ключа
+		CSP::KeyHandle hKeyPair = CSP::KeyHandle::FromContainer(hProviderOrKey, dwKeySpec); 
+
+		// определить тип экспорта
+		DWORD dwExportFlags = 0; CERT_PUBLIC_KEY_INFO publicInfo = { (PSTR)szKeyOID }; 
+
+		// экспортировать открытый ключ
+		std::vector<BYTE> blob = hKeyPair.Export(PUBLICKEYBLOB, NULL, dwExportFlags); 
+
+		// выполнить преобразование формата 
+		if (CryptDllEncodePublicKeyAndParameters(dwEncoding, szKeyOID, &blob[0], (DWORD)blob.size(), 
+			dwFlags, pvAuxInfo, (PVOID*)&publicInfo.PublicKey.pbData, &publicInfo.PublicKey.cbData, 
+			(PVOID*)&publicInfo.Algorithm.Parameters.pbData, &publicInfo.Algorithm.Parameters.cbData))
+		{
+			// скопировать информацию открытого ключа 
+			*pcbInfo = (DWORD)ASN1::ISO::PKIX::PublicKeyInfo(publicInfo).CopyTo(pInfo, pInfo + 1, *pcbInfo); 
+
+			// освободить выделенную память 
+			if (publicInfo.Algorithm.Parameters.pbData) ::LocalFree(publicInfo.Algorithm.Parameters.pbData); 
+
+			// освободить выделенную память 
+			::LocalFree(publicInfo.PublicKey.pbData); return TRUE; 
+		}
+	}
+	catch (...) {} return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllExportPublicKeyInfoEx(
+	HCRYPTKEY				hKey,			// [in    ] описатель ключа
+	DWORD					dwEncoding,		// [in    ] способ кодирования ключа
+	PCSTR					szKeyOID,		// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,		// [in    ] назначение ключа
+	PVOID					pvAuxInfo,		// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO	pInfo,			// [   out] описание ключа в кодировке X.509
+	PDWORD					pcbInfo			// [in/out] размер описания ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllExportPublicKeyInfoEx(
+			hKey, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo
+		); 
+	}
+	// определить тип экспорта
+	DWORD dwExportFlags = 0; DWORD cb = 0; CERT_PUBLIC_KEY_INFO publicInfo = { (PSTR)szKeyOID }; 
+
+	// определить требуемый размер буфера
+	if (!::CryptExportKey(hKey, NULL, PUBLICKEYBLOB, dwExportFlags, nullptr, &cb)) return FALSE;  
+
+	// выделить буфер требуемого размера 
+	std::vector<BYTE> blob(cb, 0); 
+
+	// экспортировать открытый ключ
+	if (!::CryptExportKey(hKey, NULL, PUBLICKEYBLOB, dwExportFlags, &blob[0], &cb)) return FALSE;  
+
+	// выполнить преобразование формата 
+	if (CryptDllEncodePublicKeyAndParameters(dwEncoding, szKeyOID, &blob[0], cb, dwFlags, 
+		pvAuxInfo, (PVOID*)&publicInfo.PublicKey.pbData, &publicInfo.PublicKey.cbData, 
+		(PVOID*)&publicInfo.Algorithm.Parameters.pbData, &publicInfo.Algorithm.Parameters.cbData))
+	try {
+		// скопировать информацию открытого ключа 
+		*pcbInfo = (DWORD)ASN1::ISO::PKIX::PublicKeyInfo(publicInfo).CopyTo(pInfo, pInfo + 1, *pcbInfo); 
+
+		// освободить выделенную память 
+		if (publicInfo.Algorithm.Parameters.pbData) ::LocalFree(publicInfo.Algorithm.Parameters.pbData); 
+
+		// освободить выделенную память 
+		::LocalFree(publicInfo.PublicKey.pbData); return TRUE; 
+	}
+	catch (...) {} return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllExportPrivateKeyInfoEx(
+	HCRYPTPROV				hProvider,		// [in    ] описатель провайдера
+	DWORD					dwKeySpec,		// [in    ] слот ключа для провайдера (только для провайдера)
+	DWORD					dwEncoding,		// [in    ] способ кодирования ключа
+	PCSTR					szKeyOID,		// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,		// [in    ] 0 (при pInfo = 0) или 0x8000
+	PVOID					pvAuxInfo,		// [in    ] дополнительные данные
+	PCRYPT_PRIVATE_KEY_INFO	pInfo,			// [   out] описание ключа в кодировке PKCS8
+	PDWORD					pcbInfo			// [in/out] размер описания ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+		try { 		
+			// получить описатель ключа
+			CSP::KeyHandle hKeyPair = CSP::KeyHandle::FromContainer(hProvider, dwKeySpec); 
+		
+			// вызвать функцию расширения 
+			return Extensions[i].pExtension->CryptDllExportPrivateKeyInfoEx(
+				hKeyPair, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo
+			); 
+		}
+		// обработать возможную ошибку
+		catch (...) { return FALSE; }
+	}
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet(CRYPT_OID_EXPORT_PRIVATE_KEY_INFO_FUNC, dwEncoding, szKeyOID); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_EXPORT_PRIV_KEY_FUNC pfn = (PFN_EXPORT_PRIV_KEY_FUNC)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(hProvider, dwKeySpec, (PSTR)szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo);
+	}
+	return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllExportPrivateKeyInfoEx(
+	HCRYPTKEY				hKey,			// [in    ] описатель ключа
+	DWORD					dwEncoding,		// [in    ] способ кодирования ключа
+	PCSTR					szKeyOID,		// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,		// [in    ] 0 (при pInfo = 0) или 0x8000
+	PVOID					pvAuxInfo,		// [in    ] дополнительные данные
+	PCRYPT_PRIVATE_KEY_INFO	pInfo,			// [   out] описание ключа в кодировке PKCS8
+	PDWORD					pcbInfo			// [in/out] размер описания ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllExportPrivateKeyInfoEx(
+			hKey, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo
+		); 
+	}
+	return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllExportPublicKeyInfoEx2(
+	NCRYPT_KEY_HANDLE		hKey,		// [in    ] описатель провайдера или ключа
+	DWORD					dwEncoding,	// [in    ] способ кодирования ключа
+	PCSTR					szKeyOID,	// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,	// [in    ] назначение ключа
+	PVOID					pvAuxInfo,	// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO	pInfo,		// [   out] описание ключа в кодировке X.509
+	PDWORD					pcbInfo		// [in/out] размер описания ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllExportPublicKeyInfoEx2(
+			hKey, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo
+		); 
+	}
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet2(CRYPT_OID_EXPORT_PUBLIC_KEY_INFO_EX2_FUNC, dwEncoding, szKeyOID); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension2 = extensionSet2.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX2_FUNC pfn = (PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX2_FUNC)pExtension2->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(hKey, dwEncoding, (PSTR)szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo);
+	}
+	// указать прототип функции расширения 
+	typedef BOOL (WINAPI* PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX_FUNC)(
+		HCRYPTPROV_OR_NCRYPT_KEY_HANDLE, DWORD, DWORD, PCSTR, DWORD, PVOID, PCERT_PUBLIC_KEY_INFO, PDWORD
+	);
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet(CRYPT_OID_EXPORT_PUBLIC_KEY_INFO_FUNC, dwEncoding, szKeyOID); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX_FUNC pfn = (PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX_FUNC)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(hKey, 0, dwEncoding, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo);
+	}
+	return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllImportPublicKeyInfoEx(
+	HCRYPTPROV					hProvider,	// [in    ] описатель провайдера
+	DWORD						dwEncoding,	// [in    ] способ кодирования ключа
+	CONST CERT_PUBLIC_KEY_INFO*	pInfo,		// [in    ] описание ключа в кодировке X.509
+	ALG_ID						algID,		// [in    ] идентификатор алгориитма
+	DWORD						dwFlags,	// [in    ] зарезервировано на будущее
+	PVOID						pvAuxInfo,	// [in    ] дополнительные данные
+	HCRYPTKEY*					phPublicKey	// [   out] описатель импортированного ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, pInfo->Algorithm.pszObjId) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllImportPublicKeyInfoEx(
+			hProvider, pInfo, algID, dwFlags, pvAuxInfo, phPublicKey
+		); 
+	}
+	// указать прототип функции расширения 
+	typedef BOOL (WINAPI* PFN_CRYPT_IMPORT_PUBLIC_KEY_INFO_EX_FUNC)(
+		HCRYPTPROV, DWORD, PCERT_PUBLIC_KEY_INFO, ALG_ID, DWORD, PVOID, HCRYPTKEY*
+	);
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet(CRYPT_OID_IMPORT_PUBLIC_KEY_INFO_FUNC, dwEncoding, pInfo->Algorithm.pszObjId); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_IMPORT_PUBLIC_KEY_INFO_EX_FUNC pfn = (PFN_CRYPT_IMPORT_PUBLIC_KEY_INFO_EX_FUNC)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(hProvider, dwEncoding, (PCERT_PUBLIC_KEY_INFO)pInfo, algID, dwFlags, pvAuxInfo, phPublicKey);
+	}
+	// инициализировать переменные 
+	else { PVOID pvBlob = nullptr; DWORD cbBlob = 0; 
+
+		// преобразовать формат данных
+		if (!CryptDllConvertPublicKeyInfo(dwEncoding, pInfo, algID, dwFlags, &pvBlob, &cbBlob)) return FALSE; 
+
+		// импортировать ключ
+		BOOL fOK = ::CryptImportKey(hProvider, (const BYTE*)pvBlob, cbBlob, NULL, 0, phPublicKey); 
+
+		// освободить выделенную память 
+		::LocalFree(pvBlob); return fOK; 
+	}
+}
+
+BOOL Windows::Crypto::Extension::CryptDllExportPublicKeyInfoFromBCryptKeyHandle(
+	BCRYPT_KEY_HANDLE		hKey,		// [in    ] описатель открытого ключа
+	DWORD					dwEncoding,	// [in    ] способ кодирования ключа
+	PCSTR					szKeyOID,	// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,	// [in    ] назначение ключа
+	PVOID					pvAuxInfo,	// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO	pInfo,		// [   out] описание ключа в кодировке X.509
+	PDWORD					pcbInfo		// [in/out] размер описания ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, szKeyOID) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllExportPublicKeyInfoFromBCryptKeyHandle(
+			hKey, szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo
+		); 
+	}
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet(CRYPT_OID_EXPORT_PUBLIC_KEY_INFO_FROM_BCRYPT_HANDLE_FUNC, dwEncoding, szKeyOID); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_FROM_BCRYPT_HANDLE_FUNC pfn = 
+			(PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_FROM_BCRYPT_HANDLE_FUNC)pExtension->Address(); 
+
+		// получить закодированное значение ключа
+		return (*pfn)(hKey, dwEncoding, (PSTR)szKeyOID, dwFlags, pvAuxInfo, pInfo, pcbInfo);
+	}
+	return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::CryptDllImportPublicKeyInfoEx2(
+	PCWSTR						szProvider,		// [in    ] имя провайдера 
+	DWORD						dwEncoding,		// [in    ] способ кодирования ключа
+	CONST CERT_PUBLIC_KEY_INFO*	pInfo,			// [in    ] описание ключа в кодировке X.509
+	DWORD						dwFlags,		// [in    ] назначение ключа
+	PVOID						pvAuxInfo,		// [in    ] дополнительные данные
+	BCRYPT_KEY_HANDLE*			phPublicKey		// [   out] описатель импортированного ключа
+){
+	// для всех элементов таблицы расширений
+	if ((dwEncoding & X509_ASN_ENCODING) != 0) for (size_t i = 0; i < _countof(Extensions); i++)
+	{
+		// сравнить идентификатор ключа
+		if (strcmp(Extensions[i].szKeyOID, pInfo->Algorithm.pszObjId) != 0) continue; 
+
+		// вызвать функцию расширения 
+		return Extensions[i].pExtension->CryptDllImportPublicKeyInfoEx2(
+			szProvider, pInfo, dwFlags, pvAuxInfo, phPublicKey
+		); 
+	}
+	DWORD keySpec = 0; 
+
+	// определить назначение ключа
+	if (dwFlags & CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG   ) keySpec = AT_SIGNATURE; 
+	if (dwFlags & CRYPT_OID_INFO_PUBKEY_ENCRYPT_KEY_FLAG) keySpec = AT_KEYEXCHANGE; 
+
+	// найти инфомацию ключа
+	PCCRYPT_OID_INFO pKeyInfo = ASN1::FindPublicKeyOID(pInfo->Algorithm.pszObjId, keySpec); 
+
+	// проверить наличие информации
+	if (!pKeyInfo) return FALSE; if (!IS_SPECIAL_OID_INFO_ALGID(pKeyInfo->Algid))
+	{
+		// указать способ использования ключа
+		keySpec = (GET_ALG_CLASS(pKeyInfo->Algid) == ALG_CLASS_SIGNATURE) ? AT_SIGNATURE : AT_KEYEXCHANGE; 
+	}
+	// создать перечислитель функций-расширения
+	FunctionExtensionOID extensionSet(CRYPT_OID_IMPORT_PUBLIC_KEY_INFO_EX2_FUNC, dwEncoding, pInfo->Algorithm.pszObjId); 
+
+	// получить функцию расширения 
+	if (std::shared_ptr<IFunctionExtension> pExtension = extensionSet.GetFunction(0))
+	{
+		// получить адрес функции 
+		PFN_IMPORT_PUBLIC_KEY_INFO_EX2_FUNC pfn = (PFN_IMPORT_PUBLIC_KEY_INFO_EX2_FUNC)pExtension->Address(); 
+
+		// TODO сделать szProvider приоритетным для pKeyInfo->pwszCNGAlgid
+
+		// получить закодированное значение ключа 
+		if (!(*pfn)(dwEncoding, (PCERT_PUBLIC_KEY_INFO)pInfo, dwFlags, pvAuxInfo, phPublicKey)) return FALSE; 
+
+		// TODO отменить приоритетность для szProvider для pKeyInfo->pwszCNGAlgid
+		return TRUE; 
+	}
+	return FALSE; 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Функции расширения 
+///////////////////////////////////////////////////////////////////////////////
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllEncodePublicKeyAndParameters(
+	PCSTR	pszKeyOID,	// [in    ] идентификатор ключа (OID)
+	PVOID	pvBlob,		// [in    ] закодированный буфер в формате BLOB
+	DWORD	cbBlob,		// [in    ] размер закодированного буфера
+	DWORD	dwFlags,	// [in    ] зарезервировано на будущее
+	PVOID	pvAuxInfo,	// [in    ] зарезервировано на будущее
+	PVOID*	ppvKey,		// [   out] закодированный ключ в кодировке X.509      (LocalAlloc)
+	PDWORD	pcbKey,		// [   out] размер закодированного ключа
+	PVOID*	ppvParams,	// [   out] закодированные параметры в кодировке X.509 (LocalAlloc)
+	PDWORD	pcbParams	// [   out] размер закодированных параметров
+) const
+{
+	// раскодировать ключ
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(pszKeyOID, (const PUBLICKEYSTRUC*)pvBlob, cbBlob); 
+
+	// получить представление открытого ключа
+	std::vector<BYTE> encodedPublicInfo = pPublicKey->Encode(); 
+
+	// раскодировать представление открытого ключа
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&encodedPublicInfo[0], encodedPublicInfo.size()); 
+
+	// получить представление открытого ключа
+	const CERT_PUBLIC_KEY_INFO& publicInfo = decodedPublicInfo.Value(); 
+
+	// указать размеры буферов
+	*pcbKey = publicInfo.PublicKey.cbData; *pcbParams = publicInfo.Algorithm.Parameters.cbData; 
+
+	// выделить память требуемого размера
+	*ppvKey = ::LocalAlloc(LMEM_FIXED, *pcbKey); if (!*ppvKey) return FALSE; 
+
+	// выделить память требуемого размера
+	if (*pcbParams) { *ppvParams = ::LocalAlloc(LMEM_FIXED, *pcbParams); 
+
+		// проверить отсутствие ошибок
+		if (!*ppvParams) { ::LocalFree(*ppvKey); return FALSE; }
+
+		// скопировать закодированные параметры
+		memcpy(*ppvParams, publicInfo.Algorithm.Parameters.pbData, *pcbParams); 
+	}
+	// скопировать закодированный ключ
+	memcpy(*ppvKey, publicInfo.PublicKey.pbData, *pcbKey); return TRUE; 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllConvertPublicKeyInfo(
+	CONST CERT_PUBLIC_KEY_INFO*	pInfo,		// [in    ] описание ключа в кодировке X.509
+	ALG_ID						algID,		// [in    ] идентификатор алгоритма
+	DWORD						dwFlags,	// [in    ] зарезервировано на будущее
+	PVOID*						ppvBlob,	// [   out] закодированный буфер в формате BLOB
+	PDWORD						pcbBlob		// [   out] размер закодированного буфера
+) const
+{
+	// раскодировать ключ
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(*pInfo); 
+
+	// получить закодированное представление
+	std::vector<BYTE> blob = pPublicKey->BlobCSP(algID); *pcbBlob = (DWORD)blob.size(); 
+
+	// выделить память требуемого размера
+	*ppvBlob = ::LocalAlloc(LMEM_FIXED, *pcbBlob); if (!*ppvBlob) return FALSE; 
+
+	// скопировать закодированное представление
+	memcpy(*ppvBlob, &blob[0], *pcbBlob); return TRUE; 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllExportPublicKeyInfoEx(
+	HCRYPTKEY				hKey,		// [in    ] описатель ключа
+	PCSTR					pszKeyOID,	// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,	// [in    ] назначение ключа
+	PVOID					pvAuxInfo,	// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO	pInfo,		// [   out] описание ключа в кодировке X.509
+	PDWORD					pcbInfo		// [in/out] размер описания ключа
+) const
+{
+	// определить тип экспорта
+	DWORD cb = 0; DWORD dwExportFlags = ExportFlagsCSP(); 
+
+	// определить требуемый размер буфера
+	if (!::CryptExportKey(hKey, NULL, PUBLICKEYBLOB, dwExportFlags, nullptr, &cb)) return FALSE;
+
+	// выделить буфер требуемого размера 
+	std::vector<BYTE> blob(cb, 0); 
+
+	// экспортировать открытый ключ
+	if (!::CryptExportKey(hKey, NULL, PUBLICKEYBLOB, dwExportFlags, &blob[0], &cb)) return FALSE;  
+
+	// раскодировать ключ
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(pszKeyOID, (const PUBLICKEYSTRUC*)&blob[0], cb); 
+
+	// получить представление открытого ключа
+	std::vector<BYTE> encodedPublicInfo = pPublicKey->Encode(); 
+
+	// раскодировать представление открытого ключа
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&encodedPublicInfo[0], encodedPublicInfo.size()); 
+
+	// скопировать представление открытого ключа
+	try { *pcbInfo = (DWORD)decodedPublicInfo.CopyTo(pInfo, pInfo + 1, *pcbInfo); return TRUE; } catch (...) {} return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllExportPrivateKeyInfoEx(
+	HCRYPTKEY				hKey,				// [in    ] описатель ключа
+	PCSTR					pszKeyOID,			// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,			// [in    ] 0 (при pInfo = 0) или 0x8000
+	PVOID					pvAuxInfo,			// [in    ] дополнительные данные
+	PCRYPT_PRIVATE_KEY_INFO	pInfo,				// [   out] описание ключа в кодировке PKCS8
+	PDWORD					pcbInfo				// [in/out] размер описания ключа
+) const
+{
+	// определить тип экспорта
+	DWORD cb = 0; DWORD dwExportFlags = ExportFlagsCSP(); 
+
+	// определить требуемый размер буфера
+	if (!::CryptExportKey(hKey, NULL, PRIVATEKEYBLOB, dwExportFlags, nullptr, &cb)) return FALSE;
+
+	// выделить буфер требуемого размера 
+	std::vector<BYTE> blob(cb, 0); 
+
+	// экспортировать открытый ключ
+	if (!::CryptExportKey(hKey, NULL, PRIVATEKEYBLOB, dwExportFlags, &blob[0], &cb)) return FALSE;  
+
+	// раскодировать ключ
+	std::shared_ptr<KeyPair> pKeyPair = DecodeKeyPair(pszKeyOID, (const BLOBHEADER*)&blob[0], cb); 
+
+	// получить представление личного ключа
+	std::vector<BYTE> encodedPrivateInfo = pKeyPair->PrivateKey().Encode(nullptr); 
+
+	// раскодировать представление открытого ключа
+	ASN1::ISO::PKCS::PrivateKeyInfo decodedPrivateInfo(&encodedPrivateInfo[0], encodedPrivateInfo.size()); 
+
+	// скопировать представление личного ключа
+	try { *pcbInfo = (DWORD)decodedPrivateInfo.CopyTo(pInfo, pInfo + 1, *pcbInfo); return TRUE; } catch (...) {} return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllExportPublicKeyInfoEx2(
+	NCRYPT_KEY_HANDLE		hKey,		// [in    ] описатель провайдера или ключа
+	PCSTR					szKeyOID,	// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,	// [in    ] назначение ключа
+	PVOID					pvAuxInfo,	// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO	pInfo,		// [   out] описание ключа в кодировке X.509
+	PDWORD					pcbInfo		// [in/out] размер описания ключа
+) const
+{
+	// определить тип экспорта
+	DWORD cb = 0; PCWSTR szExportType = ExportPublicTypeCNG(); 
+
+	// определить требуемый размер буфера
+	if (ERROR_SUCCESS != ::NCryptExportKey(hKey, NULL, szExportType, nullptr, nullptr, cb, &cb, 0)) return FALSE;  
+
+	// выделить буфер требуемого размера 
+	std::vector<BYTE> blob(cb, 0); 
+
+	// экспортировать открытый ключ
+	if (ERROR_SUCCESS != ::NCryptExportKey(hKey, NULL, szExportType, nullptr, &blob[0], cb, &cb, 0)) return FALSE;  
+
+	// раскодировать ключ
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(szKeyOID, (const BCRYPT_KEY_BLOB*)&blob[0], cb); 
+
+	// получить представление открытого ключа
+	std::vector<BYTE> encodedPublicInfo = pPublicKey->Encode(); 
+
+	// раскодировать представление открытого ключа
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&encodedPublicInfo[0], encodedPublicInfo.size()); 
+
+	// скопировать представление открытого ключа
+	try { *pcbInfo = (DWORD)decodedPublicInfo.CopyTo(pInfo, pInfo + 1, *pcbInfo); return TRUE; } catch (...) {} return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllImportPublicKeyInfoEx(
+	HCRYPTPROV					hProvider,	// [in    ] описатель провайдера или ключа
+	CONST CERT_PUBLIC_KEY_INFO*	pInfo,		// [in    ] описание ключа в кодировке X.509
+	ALG_ID						algID,		// [in    ] идентификатор алгориитма
+	DWORD						dwFlags,	// [in    ] зарезервировано на будущее
+	PVOID						pvAuxInfo,	// [in    ] дополнительные данные
+	HCRYPTKEY*					phPublicKey	// [   out] описатель импортированного ключа
+) const
+{
+	// раскодировать ключ
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(*pInfo); 
+
+	// получить закодированное представление 
+	std::vector<BYTE> blob = pPublicKey->BlobCSP(algID); 
+
+	// импортировать ключ
+	return ::CryptImportKey(hProvider, &blob[0], (DWORD)blob.size(), NULL, 0, phPublicKey); 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllExportPublicKeyInfoFromBCryptKeyHandle(
+	BCRYPT_KEY_HANDLE		hKey,		// [in    ] описатель открытого ключа
+	PCSTR					szKeyOID,	// [in    ] идентификатор ключа (OID)
+	DWORD					dwFlags,	// [in    ] назначение ключа
+	PVOID					pvAuxInfo,	// [in    ] дополнительные данные
+	PCERT_PUBLIC_KEY_INFO	pInfo,		// [   out] описание ключа в кодировке X.509
+	PDWORD					pcbInfo		// [in/out] размер описания ключа
+) const
+{
+	// определить тип экспорта
+	DWORD cb = 0; PCWSTR szExportType = ExportPublicTypeCNG(); 
+
+	// определить требуемый размер буфера
+	if (FAILED(::BCryptExportKey(hKey, NULL, szExportType, nullptr, cb, &cb, 0))) return FALSE;  
+
+	// выделить буфер требуемого размера 
+	std::vector<BYTE> blob(cb, 0); 
+
+	// экспортировать открытый ключ
+	if (FAILED(::BCryptExportKey(hKey, NULL, szExportType, &blob[0], cb, &cb, 0))) return FALSE;  
+
+	// раскодировать открытый ключ 
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(szKeyOID, (const BCRYPT_KEY_BLOB*)&blob[0], cb); 
+
+	// получить представление открытого ключа
+	std::vector<BYTE> encodedPublicInfo = pPublicKey->Encode(); 
+
+	// раскодировать представление открытого ключа
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&encodedPublicInfo[0], encodedPublicInfo.size()); 
+
+	// скопировать представление открытого ключа
+	try { *pcbInfo = (DWORD)decodedPublicInfo.CopyTo(pInfo, pInfo + 1, *pcbInfo); return TRUE; } catch (...) {} return FALSE; 
+}
+
+BOOL Windows::Crypto::Extension::KeyFactory::CryptDllImportPublicKeyInfoEx2(
+	PCWSTR						szProvider,	// [in    ] имя провайдера 
+	CONST CERT_PUBLIC_KEY_INFO*	pInfo,		// [in    ] описание ключа в кодировке X.509
+	DWORD						dwFlags,	// [in    ] назначение ключа
+	PVOID						pvAuxInfo,	// [in    ] дополнительные данные
+	BCRYPT_KEY_HANDLE*			phKey		// [   out] описатель импортированного ключа
+) const
+{
+	DWORD keySpec = 0; 
+
+	// определить назначение ключа
+	if (dwFlags & CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG   ) keySpec = AT_SIGNATURE; 
+	if (dwFlags & CRYPT_OID_INFO_PUBKEY_ENCRYPT_KEY_FLAG) keySpec = AT_KEYEXCHANGE; 
+
+	// найти инфомацию ключа
+	PCCRYPT_OID_INFO pKeyInfo = ASN1::FindPublicKeyOID(pInfo->Algorithm.pszObjId, keySpec); 
+
+	// проверить наличие информации
+	if (!pKeyInfo) return FALSE; if (!IS_SPECIAL_OID_INFO_ALGID(pKeyInfo->Algid))
+	{
+		// указать способ использования ключа
+		keySpec = (GET_ALG_CLASS(pKeyInfo->Algid) == ALG_CLASS_SIGNATURE) ? AT_SIGNATURE : AT_KEYEXCHANGE; 
+	}
+	// раскодировать ключ
+	std::shared_ptr<PublicKey> pPublicKey = DecodePublicKey(*pInfo); 
+	try {
+		// создать алгоритм для ключа
+		BCrypt::AlgorithmHandle hAlgorithm(szProvider, pKeyInfo->pwszCNGAlgid, 0); 
+
+		// получить закодированное представление 
+		std::vector<BYTE> blob = pPublicKey->BlobCNG(keySpec); PCWSTR szImportType = pPublicKey->TypeCNG(); 
+
+		// импортировать ключ
+		return ::BCryptImportKey(hAlgorithm, NULL, szImportType, phKey, nullptr, 0, &blob[0], (ULONG)blob.size(), 0); 
+	}
+	// обработать возможную ошибку
+	catch (...) { return FALSE;  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Значение в реестре для функций расширения
@@ -156,13 +911,13 @@ Windows::Crypto::Extension::FunctionExtensionOID::GetFunction(DWORD flags) const
     HCRYPTOIDFUNCADDR hFuncAddr = NULL; PVOID pvFuncAddr = nullptr;
 
 	// получить функцию обработки отдельного OID
-	AE_CHECK_WINAPI(::CryptGetOIDFunctionAddress(
-		_hFuncSet, _dwEncodingType, OID(), flags, &pvFuncAddr, &hFuncAddr
-	)); 
+	if (!::CryptGetOIDFunctionAddress(_hFuncSet, _dwEncodingType, OID(), flags, &pvFuncAddr, &hFuncAddr))
+	{
+		// проверить отсутствие ошибок
+		return std::shared_ptr<IFunctionExtension>(); 
+	}
 	// вернуть функцию обработки отдельного OID
-	return std::shared_ptr<IFunctionExtension>(
-		new FunctionExtension(hFuncAddr, pvFuncAddr, TRUE)
-	); 
+	return std::shared_ptr<IFunctionExtension>(new FunctionExtension(hFuncAddr, pvFuncAddr, TRUE)); 
 } 
 
 ///////////////////////////////////////////////////////////////////////////////

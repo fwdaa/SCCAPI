@@ -43,12 +43,12 @@ public class X963KDF extends KeyDerive
         // проверить наличие дополнительных данных
         if (random == null) random = new byte[0]; 
         
-        // закодировать данные для хэширования
-        byte[] buffer = Array.concat(z, new byte[4], random);
-        
         // выделить требуемую память и определить размер хэш-значения
         byte[] KEK = new byte[deriveSize]; int hashLen = hashAlgorithm.hashSize();
 
+        // закодировать данные для хэширования
+        byte[] buffer = Array.concat(z, new byte[4], random);
+        
         // для каждого блока ключа шифрования ключа
         for (int i = 0; i < (deriveSize + hashLen - 1) / hashLen; i++)
         {

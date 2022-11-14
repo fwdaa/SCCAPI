@@ -67,7 +67,10 @@ namespace Aladdin.ASN1
 		protected override byte[] GetContent() { return value.Encoded; }
 
 		// исходный объект
-		public IEncodable Inner { get { return value; } } protected IEncodable value; 
+		public IEncodable Inner { get { return value; } } 
+		
+		// исходный объект
+		[NonSerialized] protected IEncodable value; 
 
         /////////////////////////////////////////////////////////////////////////////
         // Сохранение данных

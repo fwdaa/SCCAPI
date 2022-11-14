@@ -227,16 +227,13 @@ DWORD Windows::PCSC::Card::GetState() const
 GUID Windows::PCSC::Card::GetGUID() const
 {
     // получить криптографический провайдер
-    std::shared_ptr<Crypto::IProvider> pProvider = GetProvider(SCARD_PROVIDER_CSP); 
-
-    // проверить наличие провайдера
-    if (!pProvider) return GUID_NULL; 
+    std::shared_ptr<Crypto::ICardStore> pProvider = GetProvider(SCARD_PROVIDER_CSP); 
 
     // вернуть GUID смарт-карты
-    return ((const Crypto::CSP::CardProvider*)pProvider.get())->GetCardGUID(); 
+    return pProvider ? pProvider->GetCardGUID() : GUID_NULL; 
 }
 
-std::shared_ptr<Windows::Crypto::IProvider> 
+std::shared_ptr<Windows::Crypto::ICardStore> 
 Windows::PCSC::Card::GetProvider(DWORD providerID) const
 {
     // перечислить типы смарт-карты
@@ -254,25 +251,18 @@ Windows::PCSC::Card::GetProvider(DWORD providerID) const
         // проверить наличие имени
         if (providerName.length() == 0) continue; switch (providerID)
         {
-        case SCARD_PROVIDER_CSP: {
-
+        case SCARD_PROVIDER_CSP: 
+        {
             // вернуть объект провайдера 
-            return std::shared_ptr<Crypto::IProvider>(
-                new Crypto::CSP::CardProvider(providerName.c_str(), _reader.Name())
-            ); 
+            return Crypto::CSP::CardStore::Create(providerName.c_str(), _reader.Name()); 
         }
-        case SCARD_PROVIDER_KSP: {
-
-            // указать считыватель
-            std::wstring reader = L"\\\\.\\" + std::wstring(_reader.Name()) + L"\\"; 
-
+        case SCARD_PROVIDER_KSP: 
+        {
             // вернуть объект провайдера 
-            return std::shared_ptr<Crypto::IProvider>(
-                new Crypto::NCrypt::Provider(providerName.c_str(), reader.c_str(), 0)
-            ); 
+            return Crypto::NCrypt::CardStore::Create(providerName.c_str(), _reader.Name()); 
         }}
     }
-    return nullptr; 
+    return std::shared_ptr<Crypto::ICardStore>(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////

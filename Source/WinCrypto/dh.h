@@ -1,5 +1,5 @@
 #pragma once
-#include "cryptox.h"
+#include "extension.h"
 
 namespace Windows { namespace Crypto { namespace ANSI { namespace X942 { 
 
@@ -11,8 +11,7 @@ class ValidationParameters
 	// параметры проверки
 	private: std::vector<BYTE> _seed; CERT_X942_DH_VALIDATION_PARAMS _parameters; 
 
-	// конструктор
-	public: ValidationParameters(const CRYPT_BIT_BLOB& seed, DWORD counter);  
+	// конструктор по умолчанию
 	public: ValidationParameters()
 	{
 		// инициализировать переменные
@@ -23,22 +22,19 @@ class ValidationParameters
 	}
 	// конструктор
 	public: ValidationParameters(const CERT_X942_DH_VALIDATION_PARAMS* pParameters);  
-	public: ValidationParameters(const DSSSEED*                        pParameters); 
+	public: ValidationParameters(const DSSSEED&                        parameters ); 
 
-	// оператор присваивания 
-	public: ValidationParameters& operator=(const ValidationParameters& other)
+	// конструктор
+	public: ValidationParameters(const CRYPT_BIT_BLOB& seed, DWORD counter);  
+
+	// конструктор копирования 
+	public: ValidationParameters(const ValidationParameters& other)  
+
+		// скопировать параметры 
+		: _seed(other._seed), _parameters(other._parameters)
 	{
-		// скопировать буфер с параметрами
-		_seed = other._seed; _parameters.seed.cUnusedBits = 0; 
-
-		// проверить наличие параметров
-		if (_seed.size() == 0) _parameters.seed.pbData = nullptr; 
-
 		// указать адрес параметров 
-		else _parameters.seed.pbData = &_seed[0]; 
-
-		// указать размер параметров 
-		_parameters.seed.cbData = (DWORD)_seed.size(); return *this; 
+		_parameters.seed.pbData = _seed.size() ? &_seed[0] : nullptr; 
 	}
 	// признак наличия параметров
 	public: operator bool () const { return _parameters.seed.cbData != 0; }
@@ -50,7 +46,8 @@ class ValidationParameters
 		// параметры проверки
 		return *this ? &_parameters : nullptr; 
 	}  
-	public: CERT_X942_DH_VALIDATION_PARAMS* get()
+	// параметры проверки
+	public: CERT_X942_DH_VALIDATION_PARAMS* get()  
 	{ 
 		// параметры проверки
 		return *this ? &_parameters : nullptr; 
@@ -62,128 +59,269 @@ class ValidationParameters
 ///////////////////////////////////////////////////////////////////////////////
 // Параметры ключей  
 ///////////////////////////////////////////////////////////////////////////////
-class Parameters 
+class Parameters : public IKeyParameters
 {
 	// параметры ключа 		   
-	private: std::vector<BYTE> _buffer; CERT_X942_DH_PARAMETERS _parameters; 
+	private: std::string _oid; std::vector<BYTE> _buffer; CERT_X942_DH_PARAMETERS _parameters; 
 	// параметры проверки
 	private: ValidationParameters _validationParameters; 
+	// дополнительные параметры при импорте
+	private: NCryptBufferDesc _cngParameters; NCryptBuffer _cngParameter; 
 
 	// конструктор
-	public: Parameters(const CERT_X942_DH_PARAMETERS& parameters); 
+	public: static std::shared_ptr<Parameters> Decode(const CRYPT_ALGORITHM_IDENTIFIER& info); 
 	// конструктор
-	public: Parameters(const DHPUBKEY          * pBlob, DWORD cbBlob); 
-	public: Parameters(const BCRYPT_DH_KEY_BLOB* pBlob, DWORD cbBlob); 
+	public: static std::shared_ptr<Parameters> Decode(const CERT_X942_DH_PARAMETERS& parameters)
+	{
+		// вернуть раскодированные параметры
+		return std::shared_ptr<Parameters>(new Parameters(szOID_ANSI_X942_DH, 
+			parameters.p, parameters.g, parameters.q, parameters.j, parameters.pValidationParams
+		)); 
+	}
+	// конструктор
+	public: static std::shared_ptr<Parameters> Decode(const CERT_DH_PARAMETERS& parameters)
+	{
+		// указать отсутствующие параметры 
+		CRYPT_UINT_BLOB q = {0}; CRYPT_UINT_BLOB j = {0};
 
-	// параметры открытого ключа
-	public: const CERT_X942_DH_PARAMETERS& operator *() const { return  _parameters; }  
-	public: const CERT_X942_DH_PARAMETERS* operator->() const { return &_parameters; }  
+		// вернуть раскодированные параметры
+		return std::shared_ptr<Parameters>(new Parameters(szOID_RSA_DH, parameters.p, parameters.g, q, j, nullptr)); 
+	}
+	// конструктор
+	public: static std::shared_ptr<Parameters> Decode(PCSTR szOID, const DHPUBKEY       * pBlob, size_t cbBlob); 
+	public: static std::shared_ptr<Parameters> Decode(PCSTR szOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob); 
+
+	// конструктор
+	public: Parameters(PCSTR szOID, const CRYPT_UINT_BLOB& p, const CRYPT_UINT_BLOB& g, 
+		const CRYPT_UINT_BLOB& q, const CRYPT_UINT_BLOB& j, 
+		const ValidationParameters& validationParameters
+	); 
+	// конструктор
+	public: Parameters(PCSTR szOID, const CRYPT_UINT_REVERSE_BLOB& p, const CRYPT_UINT_REVERSE_BLOB& g, 
+		const CRYPT_UINT_REVERSE_BLOB& q, const CRYPT_UINT_REVERSE_BLOB& j, 
+		const ValidationParameters& validationParameters
+	); 
+	// идентификатор ключа
+	public: virtual const char* OID() const override { return _oid.c_str(); }
+	// значения параметров 
+	public: virtual const CERT_X942_DH_PARAMETERS& Value() const { return _parameters; }
+
+	// размер ключа в битах
+	public: size_t KeyBits() const { return GetBits(Value().p); }
 
 	// представление параметров 
 	public: std::vector<BYTE> BlobCSP(DWORD bitsX) const; 
 	public: std::vector<BYTE> BlobCNG(           ) const; 
+
+	// параметры при импорте CNG
+	public: std::shared_ptr<NCryptBufferDesc> ParamsCNG() const; 
+
+	// X.509-представление
+	public: virtual std::vector<BYTE> Encode() const override; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Открытый ключ 
 ///////////////////////////////////////////////////////////////////////////////
-class PublicKey : public PublicKeyT<IPublicKey>
+class PublicKey : public Extension::PublicKey
 {
 	// параметры ключа
-	private: X942::Parameters _parameters; 
+	private: std::shared_ptr<IKeyParameters> _pParameters; 
 	// значение открытого ключа
 	private: std::vector<BYTE> _buffer; CRYPT_UINT_BLOB _y; 
 		   
 	// конструктор
-	public: PublicKey(const CERT_X942_DH_PARAMETERS& parameters, const CRYPT_UINT_BLOB& y); 
+	public: static std::shared_ptr<PublicKey> Decode(const CERT_PUBLIC_KEY_INFO& info); 
 	// конструктор
-	public: PublicKey(const PUBLICKEYSTRUC    * pBlob, DWORD cbBlob); 
-	public: PublicKey(const BCRYPT_DH_KEY_BLOB* pBlob, DWORD cbBlob); 
+	public: static std::shared_ptr<PublicKey> Decode(PCSTR szOID, const PUBLICKEYSTRUC * pBlob, size_t cbBlob); 
+	public: static std::shared_ptr<PublicKey> Decode(PCSTR szOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob); 
 
-	// параметры открытого ключа
-	public: virtual const CERT_X942_DH_PARAMETERS& Parameters() const override { return *_parameters; }  
-	// значение открытого ключа 
-	public: virtual const CRYPT_UINT_BLOB& Y() const override { return _y; } 
+	// конструктор
+	public: PublicKey(const std::shared_ptr<X942::Parameters>& pParameters, const CRYPT_UINT_BLOB        & y); 
+	public: PublicKey(const std::shared_ptr<X942::Parameters>& pParameters, const CRYPT_UINT_REVERSE_BLOB& y); 
 
+	// параметры ключа
+	public: virtual const std::shared_ptr<IKeyParameters>& Parameters() const override { return _pParameters; }  
+	// параметры ключа
+	public: const CERT_X942_DH_PARAMETERS& DecodedParameters() const 
+	{ 
+		// параметры ключа
+		return ((const X942::Parameters*)_pParameters.get())->Value(); 
+	}  
 	// тип импорта CSP
 	public: virtual PCWSTR TypeCSP () const override { return LEGACY_DH_PUBLIC_BLOB; }
 	// представление ключа для CSP
-	public: virtual std::vector<BYTE> BlobCSP(DWORD) const override; 
+	public: virtual std::vector<BYTE> BlobCSP(ALG_ID algID) const override; 
 
 	// тип импорта CNG
 	public: virtual PCWSTR TypeCNG() const override { return BCRYPT_DH_PUBLIC_BLOB; }
+	// параметры при импорте CNG
+	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD) const override 
+	{ 
+		// дополнительные параметры при импорте
+		return ((const X942::Parameters*)_pParameters.get())->ParamsCNG(); 
+	}
 	// представление ключа для CNG
-	public: virtual std::vector<BYTE> BlobCNG() const override; 
+	public: virtual std::vector<BYTE> BlobCNG(DWORD keySpec) const override; 
+
+	// X.509-представление
+	public: virtual std::vector<BYTE> Encode() const override; 
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// Личный ключ
+///////////////////////////////////////////////////////////////////////////////
+class PrivateKey : public IPrivateKey
+{
+	// параметры ключа
+	private: std::shared_ptr<IKeyParameters> _pParameters; 
+	// значение личного ключа
+	private: std::vector<BYTE> _buffer; CRYPT_UINT_BLOB _x;
+
+	// конструктор
+	public: static std::shared_ptr<PrivateKey> Decode(const CRYPT_PRIVATE_KEY_INFO& privateInfo); 
+	// конструктор
+	public: static std::shared_ptr<PrivateKey> Decode(PCSTR szOID, const BLOBHEADER     * pBlob, size_t cbBlob); 
+	public: static std::shared_ptr<PrivateKey> Decode(PCSTR szOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob); 
+
+	// конструктор
+	public: PrivateKey(const std::shared_ptr<X942::Parameters>& pParameters, const CRYPT_UINT_BLOB        & x); 
+	public: PrivateKey(const std::shared_ptr<X942::Parameters>& pParameters, const CRYPT_UINT_REVERSE_BLOB& x); 
+
+	// параметры ключа
+	public: virtual const std::shared_ptr<IKeyParameters>& Parameters() const override { return _pParameters; }  
+
+	// размер ключа в битах
+	public: virtual size_t KeyBits() const override 
+	{ 
+		// размер ключа в битах
+		return ((const X942::Parameters*)_pParameters.get())->KeyBits(); 
+	}
+	// PKCS8-представление
+	public: virtual std::vector<BYTE> Encode(const CRYPT_ATTRIBUTES* pAttributes) const override; 
+}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Пара ключей
 ///////////////////////////////////////////////////////////////////////////////
-class KeyPair : public KeyPairT<IKeyPair>
+class KeyPair : public Extension::KeyPair, public Crypto::IPrivateKey
 {
 	// параметры ключа
-	private: X942::Parameters _parameters; std::vector<BYTE> _buffer; 
+	private: std::shared_ptr<IKeyParameters> _pParameters; 
 	// значение открытого и личного ключа
-	private: CRYPT_UINT_BLOB _y; CRYPT_UINT_BLOB _x;
+	private: std::vector<BYTE> _buffer; CRYPT_UINT_BLOB _y; CRYPT_UINT_BLOB _x;
 
 	// конструктор
-	public: KeyPair(const CERT_X942_DH_PARAMETERS& parameters, 
+	public: static std::shared_ptr<KeyPair> Decode(PCSTR szOID, const BLOBHEADER     * pBlob, size_t cbBlob); 
+	public: static std::shared_ptr<KeyPair> Decode(PCSTR szOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob); 
+
+	// конструктор
+	public: KeyPair(const std::shared_ptr<X942::Parameters>& pParameters, 
 		const CRYPT_UINT_BLOB& y, const CRYPT_UINT_BLOB& x
 	); 
 	// конструктор
-	public: KeyPair(const BLOBHEADER        * pBlob, DWORD cbBlob); 
-	public: KeyPair(const BCRYPT_DH_KEY_BLOB* pBlob, DWORD cbBlob); 
+	public: KeyPair(const std::shared_ptr<X942::Parameters>& pParameters, 
+		const CRYPT_UINT_REVERSE_BLOB& y, const CRYPT_UINT_REVERSE_BLOB& x
+	); 
+	// параметры ключа
+	public: virtual const std::shared_ptr<IKeyParameters>& Parameters() const override { return _pParameters; }  
+	// параметры ключа
+	public: const CERT_X942_DH_PARAMETERS& DecodedParameters() const 
+	{ 
+		// параметры ключа
+		return ((const X942::Parameters*)_pParameters.get())->Value(); 
+	}  
+	// получить личный ключ
+	public: virtual const IPrivateKey& PrivateKey() const override { return *this; }
+	// получить открытый ключ
+	public: virtual std::shared_ptr<::Crypto::IPublicKey> GetPublicKey() const override
+	{
+		// выполнить преобразование типа 
+		const std::shared_ptr<X942::Parameters>& pParameters = (const std::shared_ptr<X942::Parameters>&)Parameters(); 
 
+		// создать открытый ключ 
+		return std::shared_ptr<::Crypto::IPublicKey>(new PublicKey(pParameters, _y)); 
+	}
 	// размер ключа в битах
-	public: virtual DWORD KeyBits() const override { return GetBits(_parameters->p); }
-
-	// параметры открытого ключа
-	public: virtual const CERT_X942_DH_PARAMETERS& Parameters() const override { return *_parameters; }  
-	// значение открытого ключа 
-	public: virtual const CRYPT_UINT_BLOB& Y() const override { return _y; } 
-	// значение личного ключа 
-	public: virtual const CRYPT_UINT_BLOB& X() const override { return _x; } 
-
+	public: virtual size_t KeyBits() const override 
+	{ 
+		// размер ключа в битах
+		return ((const X942::Parameters*)_pParameters.get())->KeyBits(); 
+	}
 	// тип импорта CSP
-	public: virtual PCWSTR TypeCSP () const override { return LEGACY_DH_PRIVATE_BLOB; }
+	public: virtual PCWSTR TypeCSP() const override { return LEGACY_DH_PRIVATE_BLOB; }
 	// представление ключа для CSP
-	public: virtual std::vector<BYTE> BlobCSP(DWORD) const override; 
+	public: virtual std::vector<BYTE> BlobCSP(ALG_ID algID) const override; 
 
 	// тип импорта CNG
 	public: virtual PCWSTR TypeCNG() const override { return BCRYPT_DH_PRIVATE_BLOB; }
-	// представление ключа для CNG
-	public: virtual std::vector<BYTE> BlobCNG() const override; 
-
-	// получить открытый ключ
-	public: virtual std::shared_ptr<Crypto::IPublicKey> GetPublicKey() const override
-	{
-		// получить открытый ключ
-		return std::shared_ptr<Crypto::IPublicKey>(new PublicKey(Parameters(), Y())); 
+	// параметры при импорте CNG
+	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD) const override 
+	{ 
+		// дополнительные параметры при импорте
+		return ((const X942::Parameters*)_pParameters.get())->ParamsCNG(); 
 	}
+	// представление ключа для CNG
+	public: virtual std::vector<BYTE> BlobCNG(DWORD keySpec) const override; 
+
+	// PKCS8-представление
+	public: virtual std::vector<BYTE> Encode(const CRYPT_ATTRIBUTES* pAttributes) const override; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Фабрика ключей 
 ///////////////////////////////////////////////////////////////////////////////
+/*
 class KeyFactory : public IKeyFactory
 {
-	// создать открытый ключ 
-	public: virtual std::shared_ptr<IPublicKey> CreatePublicKey( 
-		const CERT_X942_DH_PARAMETERS& parameters, const CRYPT_UINT_BLOB& y) const override
+	// дополнительные параметры при импорте
+	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG() const
 	{
-		// создать открытый ключ 
-		return std::shared_ptr<IPublicKey>(new PublicKey(parameters, y)); 
+		// получить дополнительные параметры при импорте
+		return ((const X942::Parameters*)Parameters().get())->ParamsCNG(); 
 	}
-	// создать пару ключей
-	public: virtual std::shared_ptr<IKeyPair> CreateKeyPair( 
-		const CERT_X942_DH_PARAMETERS& parameters, 
-		const CRYPT_UINT_BLOB& y, const CRYPT_UINT_BLOB& x) const override
+};
+*/
+///////////////////////////////////////////////////////////////////////////////
+// Расширение фабрики ключей 
+///////////////////////////////////////////////////////////////////////////////
+class KeyFactory : public Extension::KeyFactory
+{
+	// тип экспорта CSP
+	public: virtual DWORD ExportFlagsCSP() const { return CRYPT_BLOB_VER3; } 
+
+	// тип экспорта CNG
+	public: virtual PCWSTR ExportPublicTypeCNG () const override { return BCRYPT_DH_PUBLIC_BLOB;  }
+	public: virtual PCWSTR ExportPrivateTypeCNG() const override { return BCRYPT_DH_PRIVATE_BLOB; }
+
+	// раскодировать открытый ключ
+	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
+		const CERT_PUBLIC_KEY_INFO& publicInfo) const override
 	{
-		// создать пару ключей
-		return std::shared_ptr<IKeyPair>(new KeyPair(parameters, y, x)
-		); 
+		// раскодировать открытый ключ
+		return PublicKey::Decode(publicInfo); 
+	}
+	// раскодировать открытый ключ
+	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
+		PCSTR szKeyOID, const PUBLICKEYSTRUC* pBlob, size_t cbBlob) const override
+	{
+		// раскодировать открытый ключ
+		return PublicKey::Decode(szKeyOID, pBlob, cbBlob); 
+	}
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		PCSTR szKeyOID, const BLOBHEADER* pBlob, size_t cbBlob) const override
+	{
+		// раскодировать пару ключей
+		return KeyPair::Decode(szKeyOID, pBlob, cbBlob); 
+	}
+	// раскодировать открытый ключ
+	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
+		PCSTR szKeyOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+	{
+		// раскодировать открытый ключ
+		return PublicKey::Decode(szKeyOID, pBlob, cbBlob); 
 	}
 };
 
 }}}}
-

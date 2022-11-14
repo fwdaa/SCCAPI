@@ -28,6 +28,12 @@ namespace Aladdin.ASN1.ISO.PKCS.PKCS9
 		public const string	smime_rc2_128_wrap			    = "1.2.840.113549.1.9.16.3.7";
 		public const string	smime_pwri_kek			        = "1.2.840.113549.1.9.16.3.9";
 		public const string	smime_ssdh		                = "1.2.840.113549.1.9.16.3.10";
+		public const string	smime_esdh_hkdf_sha256          = "1.2.840.113549.1.9.16.3.19";
+		public const string	smime_esdh_hkdf_sha384          = "1.2.840.113549.1.9.16.3.20";
+		public const string	smime_esdh_hkdf_sha512          = "1.2.840.113549.1.9.16.3.21";
+		public const string	smime_hkdf_sha256               = "1.2.840.113549.1.9.16.3.28";
+		public const string	smime_hkdf_sha384               = "1.2.840.113549.1.9.16.3.29";
+		public const string	smime_hkdf_sha512               = "1.2.840.113549.1.9.16.3.30";
 		public const string	friendlyName					= "1.2.840.113549.1.9.20";
 		public const string	localKeyId						= "1.2.840.113549.1.9.21";
 		public const string	certTypes						= "1.2.840.113549.1.9.22";

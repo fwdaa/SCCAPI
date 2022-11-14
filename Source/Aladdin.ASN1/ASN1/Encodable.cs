@@ -51,10 +51,10 @@ namespace Aladdin.ASN1
 			this.content = content;				// содержимое объекта
 			this.encoded = encoded;				// закодированное представление
 		}
-        private Tag     tag;                    // тип объекта
-        private PC      pc;                     // способ кодирования
-		private byte[]  content;				// содержимое объекта
-		private byte[]	encoded;				// закодированное представление
+        [NonSerialized] private Tag     tag;                    // тип объекта
+        [NonSerialized] private PC      pc;                     // способ кодирования
+		[NonSerialized] private byte[]  content;				// содержимое объекта
+		[NonSerialized] private byte[]	encoded;				// закодированное представление
 
         // тип и способ кодирования
 		public Tag Tag { get { return tag; }}

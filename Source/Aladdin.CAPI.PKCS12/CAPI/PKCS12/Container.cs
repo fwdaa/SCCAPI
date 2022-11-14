@@ -926,7 +926,7 @@ namespace Aladdin.CAPI.PKCS12
             ); 
             // получить параметры алгоритма
             ASN1.ISO.AlgorithmIdentifier signParameters = new ASN1.ISO.AlgorithmIdentifier(
-                new ASN1.ObjectIdentifier("2.5.8.0"), null
+                new ASN1.ObjectIdentifier("1.3.6.1.5.5.7.6.2"), null
             ); 
     	    // создать запрос на сертификат
 		    return PKI.CreateCertificationRequest(container.Rand, subject, 

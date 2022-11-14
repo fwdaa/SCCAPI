@@ -108,6 +108,9 @@
     <Compile Include="CAPI\ANSI\Cipher\RC4.cs" />
     <Compile Include="CAPI\ANSI\Cipher\RC5.cs" />
     <Compile Include="CAPI\ANSI\Cipher\TDES.cs" />
+    <Compile Include="CAPI\ANSI\Derive\HKDF.cs" />
+    <Compile Include="CAPI\ANSI\Derive\SP800_108.cs" />
+    <Compile Include="CAPI\ANSI\Derive\SP800_56A.cs" />
     <Compile Include="CAPI\ANSI\Engine\AES.cs" />
     <Compile Include="CAPI\ANSI\Engine\DES.cs" />
     <Compile Include="CAPI\ANSI\Engine\DESX.cs" />

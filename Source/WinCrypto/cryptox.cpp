@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "cryptox.h"
+//#include "extension.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
@@ -8,32 +9,17 @@
 #include "cryptox.tmh"
 #endif 
 
-///////////////////////////////////////////////////////////////////////////////
-// Извлечь имя алгоритма
-///////////////////////////////////////////////////////////////////////////////
-PCWSTR Windows::Crypto::GetString(
-	const BCryptBufferDesc* pParameters, DWORD paramID)
-{
-	// для всех параметров 
-	for (DWORD i = 0; i < pParameters->cBuffers; i++)
-	{
-		// перейти на параметр
-		const BCryptBuffer* pParameter = &pParameters->pBuffers[i]; 
+using namespace Crypto; 
 
-		// проверить тип параметра
-		if (pParameter->BufferType != paramID) break; 
-
-		// получить имя алгоритма
-		return (PCWSTR)pParameter->pvBuffer; 
-	}
-	// при ошибке выбросить исключение 
-	AE_CHECK_HRESULT(E_INVALIDARG); return nullptr;
-}
+///////////////////////////////////////////////////////////////////////////
+// Операция не реализована
+///////////////////////////////////////////////////////////////////////////
+void ThrowNotSupported() { AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Способ выделения памяти 
 ///////////////////////////////////////////////////////////////////////////////
-void* __stdcall Windows::Crypto::AllocateMemory(size_t cbSize) 
+void* __stdcall Crypto::AllocateMemory(size_t cbSize) 
 { 
 	// проверить корректность параметра
 	if (cbSize > ULONG_MAX) AE_CHECK_WINERROR(ERROR_BAD_LENGTH); 
@@ -45,198 +31,342 @@ void* __stdcall Windows::Crypto::AllocateMemory(size_t cbSize)
 	if (!pv) AE_CHECK_WINERROR(ERROR_NOT_ENOUGH_MEMORY); return pv; 
 }
 // освободить память 
-void __stdcall Windows::Crypto::FreeMemory(void* pv) { ::CryptMemFree(pv); }
+void __stdcall Crypto::FreeMemory(void* pv) { ::CryptMemFree(pv); }
+
+///////////////////////////////////////////////////////////////////////////////
+// Преобразование данных
+///////////////////////////////////////////////////////////////////////////////
+std::vector<uint8_t> Windows::Crypto::ITransform::TransformData(
+	const ISecretKey& key, const void* pvData, size_t cbData)
+{
+	// для блочного алгоритма шифрования
+	if (size_t cbBlock = Init(key)) 
+	{ 
+        // выделить буфер для результата
+        std::vector<uint8_t> buffer((cbData / cbBlock + 1) * cbBlock);
+
+        // определить число блоков данных кроме последнего
+		if (cbData) { size_t cbBlocks = (cbData - 1) / cbBlock * cbBlock; 
+
+            // преобразовать данные
+            size_t cb = Update(pvData, cbBlocks, &buffer[0], buffer.size()); 
+
+			// изменить текущую позицию
+			pvData = (const uint8_t*)pvData + cbBlocks; cbData -= cbBlocks; 
+
+            // завершить преобразование
+            cb += Finish(pvData, cbData, &buffer[cb], buffer.size() - cb); 
+
+            // переразместить буфер
+            buffer.resize(cb); return buffer; 
+		}
+		else {
+            // завершить преобразование
+            size_t cb = Finish(pvData, cbData, &buffer[0], buffer.size()); 
+
+            // переразместить буфер
+            buffer.resize(cb); return buffer; 
+		}
+	}
+    // выделить буфер для результата
+	else { std::vector<uint8_t> buffer(cbData); 
+
+		// преобразовать данные
+		if (cbData != 0) { size_t cb = Update(pvData, cbData, &buffer[0], cbData); 
+
+			// изменить текущую позицию
+			pvData = (const uint8_t*)pvData + cbData; cbData = 0; 
+			
+			// преобразовать данные
+			cb += Finish(pvData, cbData, &buffer[0] + cb, cbData - cb); 
+			
+			// переразместить буфер
+			buffer.resize(cb); return buffer; 
+		}
+        // завершить преобразование
+		else { Finish(pvData, cbData, nullptr, cbData); return buffer; }
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Преобразование зашифрования данных
 ///////////////////////////////////////////////////////////////////////////////
-DWORD Windows::Crypto::Encryption::Update(
-	LPCVOID pvData, DWORD cbData, PVOID pvBuffer, DWORD cbBuffer, PVOID pvContext)
+size_t Windows::Crypto::Encryption::Update(
+	const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer, void* pvContext)
 {
-	// указать размер блока
-	DWORD blockSize = BlockSize(); if (blockSize == 0) blockSize = 1; 
+	// получить размер блока 
+	size_t cbBlock = BlockSize(); if (cbData == 0) return 0; 
+	
+	// для поточного алгоритма шифрования 
+	if (cbBlock == 0) { if (!pvBuffer) return cbData; 
+	
+		// проверить достаточность буфера
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
 
-	// проверить кратность размеру блока
-	if ((cbData % blockSize) != 0) AE_CHECK_HRESULT(NTE_BAD_DATA);
+		// зашифровать данные
+		return Encrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
+	}
+    // проверить корректность данных
+    if ((cbData % cbBlock) != 0) AE_CHECK_HRESULT(NTE_BAD_LEN);
 
-	// проверить указание размера
-	if (!pvBuffer && cbBuffer == 0) return cbData; if (cbData == 0) return 0;
+	// при отсутствии дополнения 
+	if (Padding() == CRYPTO_PADDING_NONE) { if (!pvBuffer) return cbData; 
 
-	// проверить достаточность буфера
-	if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BAD_LEN);
+		// проверить достаточность буфера
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
 
-	// зашифровать полные блоки кроме последнего
-	return Encrypt(pvData, cbData, pvBuffer, cbBuffer, FALSE, pvContext);
+		// зашифровать данные
+		return Encrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
+	}
+    // выполнить преобразование типа 
+    const uint8_t* pbData = (const uint8_t*)pvData; uint8_t* pbBuffer = (uint8_t*)pvBuffer;
+
+    // при наличии последнего блока 
+	if (_lastBlock.size() != 0) { if (!pvBuffer) return cbData; 
+
+        // проверить достаточность буфера
+        if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL);
+
+		// сохранить последний блок
+		std::vector<BYTE> last(pbData + cbData - cbBlock, pbData + cbData); 
+
+		// скопировать данные
+		memmove(pbBuffer + cbBlock, pbData, cbData - cbBlock); 
+
+        // скопировать прошлый последний блок
+        memcpy(pbBuffer, &_lastBlock[0], cbBlock); _lastBlock = last;
+
+	    // зашифровать полные блоки кроме последнего
+	    Encrypt(pbBuffer, cbData, pbBuffer, cbBuffer, false, pvContext); return cbData; 
+	}
+	// проверить указание буфера 
+	else { if (!pvBuffer) return cbData - cbBlock; 
+
+        // проверить достаточность буфера
+        if (cbBuffer < cbData - cbBlock) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL);
+        
+	    // зашифровать полные блоки кроме последнего
+		Encrypt(pbData, cbData - cbBlock, pbBuffer, cbBuffer, false, pvContext);
+
+	    // сохранить последний блок
+	    _lastBlock.assign(pbData + cbData - cbBlock, pbData + cbData); return cbData - cbBlock; 
+	}
 }
 
-DWORD Windows::Crypto::Encryption::Finish(
-	LPCVOID pvData, DWORD cbData, PVOID pvBuffer, DWORD cbBuffer, PVOID pvContext)
+size_t Windows::Crypto::Encryption::Finish(
+	const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer, void* pvContext)
 {
-	// определить размер блока и способ дополнения
-	DWORD blockSize = BlockSize(); DWORD padding = Padding(); DWORD cbTotal = 0; 
-
-	// при наличии дополнения 
-	DWORD cbRequired = cbData; if (blockSize != 0 && padding != 0) 
+	// для поточного алгоритма шифрования 
+	size_t cbBlock = BlockSize(); if (cbBlock == 0)
 	{
-		// определить требуемый размер
-		cbRequired = ((cbData + blockSize - 1) / blockSize) * blockSize; 
+		// проверить указание буфера
+		if (!pvBuffer) return cbData; if (cbData == 0) return 0; 
+	
+		// проверить достаточность буфера
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
+
+		// зашифровать данные
+		return Encrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
 	}
-	// вернуть требуемый размер 
-	if (!pvBuffer && cbBuffer == 0) return cbRequired; 
+	// при отсутствии дополнения 
+	if (Padding() == CRYPTO_PADDING_NONE) 
+	{ 
+		// проверить корректность данных
+		if ((cbData % cbBlock) != 0) AE_CHECK_HRESULT(NTE_BAD_LEN);
+
+		// проверить указание буфера
+		if (!pvBuffer) return cbData; if (cbData == 0) return 0; 
+
+		// проверить достаточность буфера
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
+
+		// зашифровать данные
+		return Encrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
+	}
+	// определить требуемый размер буфера 
+	size_t cbRequired = GetLength(_lastBlock.size() + cbData); 
+
+	// проверить допустимость размера
+	if (cbRequired == size_t(-1)) AE_CHECK_HRESULT(NTE_BAD_LEN);
+
+	// проверить указание буфера
+	if (!pvBuffer) return cbRequired; std::vector<BYTE> last; size_t cb = 0; 
 
 	// проверить достаточность буфера
-	if (cbBuffer < cbRequired) AE_CHECK_HRESULT(NTE_BAD_LEN); 
-	if (cbData > 0)
-	{
-		// определить размер полных блоков кроме последнего
-		DWORD cbBlocks = blockSize ? ((cbData - 1) / blockSize) * blockSize : cbData;
+	if (cbBuffer < cbRequired) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
+
+	// определить размер полных блоков кроме последнего
+	if (cbData > 0) { size_t cbBlocks = ((cbData - 1) / cbBlock) * cbBlock;
+
+		// сохранить последний блок
+		last.assign((uint8_t*)pvData + cbBlocks, (uint8_t*)pvData + cbData); 
 
 		// преобразовать полные блоки
-		cbTotal = Update(pvData, cbBlocks, pvBuffer, cbBuffer, pvContext); 
+		cb = Update(pvData, cbBlocks, pvBuffer, cbBuffer, pvContext); 
 
-		// перейти на неполный блок
-		(const BYTE*&)pvData += cbBlocks; cbData -= cbBlocks; 
-		
 		// перейти на новую позицию в буфере
-		(BYTE*&)pvBuffer += cbTotal; cbBuffer -= cbTotal; 
+		(uint8_t*&)pvBuffer += cb; cbBuffer -= cb; 
 	}
-	// при наличии дополнительной обработки
-	if (cbData != 0 || padding != 0) 
-	{ 
-		// зашифровать последний неполный блок
-		cbTotal += Encrypt(pvData, cbData, pvBuffer, cbBuffer, padding != 0, pvContext); 
-	}
-	return cbTotal; 
+	// объединить последние блоки
+	last.insert(last.begin(), _lastBlock.begin(), _lastBlock.end()); 
+
+	// зашифровать последние блоки
+	return cb + Encrypt(last.size() ? &last[0] : nullptr, last.size(), 
+		pvBuffer, cbBuffer, true, pvContext
+	); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Преобразование расшифрования данных
 ///////////////////////////////////////////////////////////////////////////////
-DWORD Windows::Crypto::Decryption::Update(
-	LPCVOID pvData, DWORD cbData, PVOID pvBuffer, DWORD cbBuffer, PVOID pvContext)
+size_t Windows::Crypto::Decryption::Update(
+	const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer, void* pvContext)
 {
-	// определить размер блока
-	DWORD blockSize = BlockSize(); if (blockSize == 0) blockSize = 1; 
-
-	// проверить кратность размеру блока
-	if ((cbData % blockSize) != 0) AE_CHECK_HRESULT(NTE_BAD_DATA);
-
-	// проверить указание размера
-	if (!pvBuffer && cbBuffer == 0) return cbData; if (cbData == 0) return 0; 
+	// получить размер блока 
+	size_t cbBlock = BlockSize(); if (cbData == 0) return 0; 
 	
-	// при отсутствии дополнения 
-	if (Padding() == 0)
-	{
+	// для поточного алгоритма шифрования 
+	if (cbBlock == 0) { if (!pvBuffer) return cbData; 
+	
 		// проверить достаточность буфера
-		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
 
 		// расшифровать данные
-		return Decrypt(pvData, cbData, pvBuffer, cbBuffer, FALSE, pvContext); 
+		return Decrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
 	}
-	// определить размер полных блоков кроме последнего
-	DWORD cbBlocks = cbData - blockSize; if (_lastBlock.size() != 0) 
-	{ 
+    // проверить корректность данных
+    if ((cbData % cbBlock) != 0) AE_CHECK_HRESULT(NTE_BAD_LEN);
+
+	// при отсутствии дополнения 
+	if (Padding() == CRYPTO_PADDING_NONE) { if (!pvBuffer) return cbData; 
+
 		// проверить достаточность буфера
-		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
+
+		// расшифровать данные
+		return Decrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
+	}
+    // выполнить преобразование типа 
+    const uint8_t* pbData = (const uint8_t*)pvData; uint8_t* pbBuffer = (uint8_t*)pvBuffer;
+
+    // при наличии последнего блока 
+	if (_lastBlock.size() != 0) { if (!pvBuffer) return cbData; 
+
+        // проверить достаточность буфера
+        if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL);
 
 		// сохранить последний блок
-		std::vector<BYTE> temp((PBYTE)pvData + cbBlocks, (PBYTE)pvData + cbData); 
-
-		// скопировать последний блок
-		memcpy(pvBuffer, &_lastBlock[0], blockSize); _lastBlock = temp;
+		std::vector<BYTE> last(pbData + cbData - cbBlock, pbData + cbData); 
 
 		// скопировать данные
-		memmove((PBYTE)pvBuffer + blockSize, pvData, cbBlocks); 
+		memmove(pbBuffer + cbBlock, pbData, cbData - cbBlock); 
 
-		// расшифровать полные блоки кроме последнего
-		return Decrypt(pvBuffer, cbData, pvBuffer, cbData, FALSE, pvContext);
+        // скопировать прошлый последний блок
+        memcpy(pbBuffer, &_lastBlock[0], cbBlock); _lastBlock = last;
+
+	    // расшифровать полные блоки кроме последнего
+	    Decrypt(pbBuffer, cbData, pbBuffer, cbBuffer, false, pvContext); return cbData; 
 	}
-	else { 
-		// проверить достаточность буфера
-		if (cbBuffer < cbBlocks) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+	// проверить указание буфера
+	else { if (!pvBuffer) return cbData - cbBlock; 
 
-		// скопировать данные
-		DWORD cb = cbBlocks; memcpy(pvBuffer, pvData, cbBlocks); 
-		 
-		// расшифровать полные блоки кроме последнего
-		Decrypt(pvData, cbBlocks, pvBuffer, cbBuffer, FALSE, pvContext);  
-			
-		// перейти на последний блок
-		(const BYTE*&)pvData += cbBlocks; cbData -= cbBlocks; 
+        // проверить достаточность буфера
+        if (cbBuffer < cbData - cbBlock) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL);
+        
+	    // расшифровать полные блоки кроме последнего
+		Decrypt(pbData, cbData - cbBlock, pbBuffer, cbBuffer, false, pvContext);
 
-		// сохранить последний блок
-		_lastBlock.resize(blockSize); memcpy(&_lastBlock[0], pvData, blockSize); return cbBlocks;
+	    // сохранить последний блок
+	    _lastBlock.assign(pbData + cbData - cbBlock, pbData + cbData); return cbData - cbBlock; 
 	}
 }
 
-DWORD Windows::Crypto::Decryption::Finish(
-	LPCVOID pvData, DWORD cbData, PVOID pvBuffer, DWORD cbBuffer, PVOID pvContext)
+size_t Windows::Crypto::Decryption::Finish(
+	const void* pvData, size_t cbData, void* pvBuffer, size_t cbBuffer, void* pvContext)
 {
-	// определить размер блока
-	DWORD blockSize = BlockSize(); if (blockSize == 0) blockSize = 1; 
-
-	// при отсутствии дополнения 
-	if (Padding() == 0)
+	// для поточного алгоритма шифрования 
+	size_t cbBlock = BlockSize(); if (cbBlock == 0)
 	{
-		// проверить указание размера
-		if (!pvBuffer && cbBuffer == 0) return cbData; if (cbData == 0) return 0; 
-
+		// проверить указание буфера
+		if (!pvBuffer) return cbData; if (cbData == 0) return 0; 
+	
 		// проверить достаточность буфера
-		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
 
 		// расшифровать данные
-		return Decrypt(pvData, cbData, pvBuffer, cbBuffer, FALSE, pvContext); 
+		return Decrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
 	}
-	else {
+	// при отсутствии дополнения 
+	if (Padding() == CRYPTO_PADDING_NONE) 
+	{ 
 		// проверить корректность данных
-		if (cbData == 0 && _lastBlock.size() == 0) AE_CHECK_HRESULT(NTE_BAD_DATA);
-			
-		// проверить корректность данных
-		if ((cbData % blockSize) != 0) AE_CHECK_HRESULT(NTE_BAD_DATA);
+		if ((cbData % cbBlock) != 0) AE_CHECK_HRESULT(NTE_BAD_LEN);
 
-		// определить требуемый размер буфера 
-		DWORD cbRequired = cbData + ((_lastBlock.size() != 0) ? blockSize - 1 : 0); 
+		// проверить указание буфера
+		if (!pvBuffer) return cbData; if (cbData == 0) return 0; 
 
 		// проверить достаточность буфера
-		if (cbBuffer < cbRequired) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+		if (cbBuffer < cbData) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
 
-		// расшифровать данные 
-		DWORD cbTotal = Update(pvData, cbData, pvBuffer, cbBuffer, pvContext); 
-
-		// перейти на следующую позицию в буфере
-		(PBYTE&)pvBuffer += cbTotal; cbBuffer -= cbTotal; 
-
-		// расшифровать последний блок
-		DWORD cb = Decrypt(&_lastBlock[0], blockSize, &_lastBlock[0], blockSize, TRUE, pvContext); 
-
-		// скопировать расшифрованный блок
-		memcpy(pvBuffer, &_lastBlock[0], cb); return cbTotal + cb; 
+		// расшифровать данные
+		return Decrypt(pvData, cbData, pvBuffer, cbBuffer, false, pvContext); 
 	}
+	// определить требуемый размер буфера 
+	size_t cbRequired = GetLength(_lastBlock.size() + cbData); 
+
+	// проверить допустимость размера
+	if (cbRequired == size_t(-1)) AE_CHECK_HRESULT(NTE_BAD_LEN);
+
+	// проверить указание буфера
+	if (!pvBuffer) return cbRequired; std::vector<BYTE> last; size_t cb = 0; 
+
+	// проверить достаточность буфера
+	if (cbBuffer < cbRequired) AE_CHECK_HRESULT(NTE_BUFFER_TOO_SMALL); 
+
+	// определить размер полных блоков кроме последнего
+	if (cbData > 0) { size_t cbBlocks = ((cbData - 1) / cbBlock) * cbBlock;
+
+		// сохранить последний блок
+		last.assign((uint8_t*)pvData + cbBlocks, (uint8_t*)pvData + cbData); 
+
+		// преобразовать полные блоки
+		cb = Update(pvData, cbBlocks, pvBuffer, cbBuffer, pvContext); 
+
+		// перейти на новую позицию в буфере
+		(uint8_t*&)pvBuffer += cb; cbBuffer -= cb; 
+	}
+	// объединить последние блоки
+	last.insert(last.begin(), _lastBlock.begin(), _lastBlock.end()); 
+
+	// расшифровать последние блоки
+	return cb + Decrypt(last.size() ? &last[0] : nullptr, last.size(), 
+		pvBuffer, cbBuffer, true, pvContext
+	); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Ключ симметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-static void AdjustParityDES(PVOID pvKey, DWORD cbKey)
+static void AdjustParityDES(void* pvKey, size_t cbKey)
 {
 	// выполнить преобразование типа
-	PBYTE pbKey = static_cast<PBYTE>(pvKey); 
+	uint8_t* pbKey = static_cast<uint8_t*>(pvKey); 
 
     // для всех байтов ключа
-    for (DWORD i = 0; i < cbKey; i++)
+    for (size_t i = 0, ones = 0; i < cbKey; i++, ones = 0)
     {
-        // для вех битов
-        DWORD ones = 0; for (int j = 0; j < 8; j++)
+        // для всех битов
+        for (size_t j = 0; j < 8; j++)
         {
             // определить число установленных битов
-            if ((pbKey[i] & (0x1 << j)) != 0) ones++;
+            if ((pbKey[i] & (1 << j)) != 0) ones++;
         }
         // число установленных битов должно быть нечетным
         if((ones & 1) == 0) pbKey[i] ^= 0x01;
     }
 } 
 
-void Windows::Crypto::SecretKey::Normalize(ALG_ID algID, PVOID pvKey, DWORD cbKey)
+void Windows::Crypto::SecretKey::Normalize(ALG_ID algID, void* pvKey, size_t cbKey)
 {
 	// для алгоритма TDES
 	if (algID == CALG_3DES || algID == CALG_3DES_112)
@@ -252,7 +382,7 @@ void Windows::Crypto::SecretKey::Normalize(ALG_ID algID, PVOID pvKey, DWORD cbKe
 	}
 }
 
-void Windows::Crypto::SecretKey::Normalize(PCWSTR szAlgName, PVOID pvKey, DWORD cbKey)
+void Windows::Crypto::SecretKey::Normalize(PCWSTR szAlgName, void* pvKey, size_t cbKey)
 {
 	// для алгоритма TDES
 	if (wcscmp(szAlgName, BCRYPT_3DES_112_ALGORITHM) == 0 || 
@@ -270,25 +400,25 @@ void Windows::Crypto::SecretKey::Normalize(PCWSTR szAlgName, PVOID pvKey, DWORD 
 	}
 }
 
-std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobCSP(ALG_ID algID, LPCVOID pvKey, DWORD cbKey)
+std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobCSP(ALG_ID algID, const std::vector<BYTE>& key)
 {
 	// выделить буфер требуемого размера
-	std::vector<BYTE> blob(sizeof(BLOBHEADER) + sizeof(DWORD) + cbKey); 
+	std::vector<BYTE> blob(sizeof(BLOBHEADER) + sizeof(DWORD) + key.size()); 
 
 	// выполнить преобразование типа 
 	BLOBHEADER* pBLOB = (BLOBHEADER*)&blob[0]; PDWORD pcbKey = (PDWORD)(pBLOB + 1); 
 		
 	// указать тип импорта
-	pBLOB->bType = PLAINTEXTKEYBLOB; pBLOB->bVersion = CUR_BLOB_VERSION; 
+	pBLOB->bType = PLAINTEXTKEYBLOB; pBLOB->bVersion = CUR_BLOB_VERSION; pBLOB->aiKeyAlg = algID; 
 
 	// скопировать значение ключа
-	pBLOB->aiKeyAlg = algID; *pcbKey = cbKey; memcpy(pcbKey + 1, pvKey, cbKey); return blob; 
+	if (*pcbKey = (DWORD)key.size()) memcpy(pcbKey + 1, &key[0], *pcbKey); return blob; 
 }
 
-std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobBCNG(LPCVOID pvKey, DWORD cbKey) 
+std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobBCNG(const std::vector<UCHAR>& key) 
 {
 	// выделить буфер требуемого размера
-	std::vector<UCHAR> blob(sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + cbKey); 
+	std::vector<UCHAR> blob(sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + key.size()); 
 
 	// выполнить преобразование типа
 	BCRYPT_KEY_DATA_BLOB_HEADER* pBLOB = (BCRYPT_KEY_DATA_BLOB_HEADER*)&blob[0]; 
@@ -297,59 +427,275 @@ std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobBCNG(LPCVOID pvKey, DWORD cb
 	pBLOB->dwMagic = BCRYPT_KEY_DATA_BLOB_MAGIC; pBLOB->dwVersion = BCRYPT_KEY_DATA_BLOB_VERSION1; 
 
 	// скопировать ключ
-	pBLOB->cbKeyData = cbKey; memcpy(pBLOB + 1, pvKey, cbKey); return blob; 
+	if (pBLOB->cbKeyData = (ULONG)key.size()) memcpy(pBLOB + 1, &key[0], key.size()); return blob; 
 }
 
-std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobNCNG(PCWSTR szAlgName, LPCVOID pvKey, DWORD cbKey)
+std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobNCNG(PCWSTR szAlgName, const std::vector<BYTE>& key)
 {
 	// определить размер имени
-	ULONG cbAlgName = (wcslen(szAlgName) + 1) * sizeof(WCHAR); 
+	size_t cbAlgName = (wcslen(szAlgName) + 1) * sizeof(WCHAR); 
 
 	// выделить буфер требуемого размера
-	std::vector<UCHAR> blob(sizeof(NCRYPT_KEY_BLOB_HEADER) + cbAlgName + cbKey); 
+	std::vector<UCHAR> blob(sizeof(NCRYPT_KEY_BLOB_HEADER) + cbAlgName + key.size()); 
 
 	// выполнить преобразование типа
 	NCRYPT_KEY_BLOB_HEADER* pBLOB = (NCRYPT_KEY_BLOB_HEADER*)&blob[0]; 
 
 	// указать тип данных
-	pBLOB->dwMagic = NCRYPT_CIPHER_KEY_BLOB_MAGIC; pBLOB->cbSize = (ULONG)blob.size(); 
+	pBLOB->dwMagic = NCRYPT_CIPHER_KEY_BLOB_MAGIC; pBLOB->cbSize = sizeof(*pBLOB); 
 
 	// скопировать имя алгоритма 
-	pBLOB->cbAlgName = cbAlgName; memcpy(pBLOB + 1, szAlgName, cbAlgName); 
+	pBLOB->cbAlgName = (ULONG)cbAlgName; memcpy(pBLOB + 1, szAlgName, cbAlgName); 
 	
-	// скопировать ключа	
-	pBLOB->cbKeyData = cbKey; memcpy((PBYTE)(pBLOB + 1) + cbAlgName, pvKey, cbKey); return blob; 
+	// скопировать ключ	
+	if (pBLOB->cbKeyData = (ULONG)key.size()) memcpy((PBYTE)(pBLOB + 1) + cbAlgName, &key[0], key.size()); return blob; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Открытый ключ асимметричного алгоритма
+// Пара ключей 
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<BYTE> Windows::Crypto::PublicKey::BlobCSP(DWORD keySpec) const
+std::vector<BYTE> Crypto::IPrivateKey::Encode(uint32_t keyUsage) const
 {
-	// функция должна быть переопределена
-	AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); return std::vector<BYTE>(); 
+	// указать адрес закодированного значения 
+	CRYPT_ATTR_BLOB blob = { 0 }; PCRYPT_ATTRIBUTES pAttributes = nullptr; 
+		
+	// указать тип атрибута
+	CRYPT_ATTRIBUTE attribute = { (PSTR)szOID_KEY_USAGE, 1, &blob }; 
+
+	// указать набор атрибутов
+	CRYPT_ATTRIBUTES attributes = { 1, &attribute }; 
+
+	// закодировать использование ключа
+	std::vector<BYTE> encodedKeyUsage = ASN1::ISO::PKIX::KeyUsage::Encode(keyUsage); 
+
+	// проверить наличие представления 
+	blob.cbData = (DWORD)encodedKeyUsage.size(); if (blob.cbData != 0)
+	{
+		// указать адрес закодированного значения 
+		blob.pbData = &encodedKeyUsage[0]; pAttributes = &attributes; 
+	}
+	// создать PKCS8-представление
+	return Encode(pAttributes); 
 }
 
-std::vector<BYTE> Windows::Crypto::PublicKey::BlobCNG() const
+///////////////////////////////////////////////////////////////////////////////
+// Фабрика ключей асимметричного алгоритма
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IKeyPair> Crypto::IKeyFactory::ImportKeyPair(
+	const IPublicKey& publicKey, const IPrivateKey& privateKey) const
 {
-	// функция должна быть переопределена
-	AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); return std::vector<BYTE>();
+	// получить X.509-представление
+	std::vector<uint8_t> encodedPublic = publicKey.Encode(); 
+
+	// раскодировать X.509-представление
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&encodedPublic[0], encodedPublic.size()); 
+
+	// получить структуру X.509-представления
+	const CERT_PUBLIC_KEY_INFO& publicInfo = decodedPublicInfo.Value(); 
+
+	// получить PKCS8-представление
+	std::vector<uint8_t> encodedPrivate = privateKey.Encode(nullptr); 
+
+	// раскодировать PKCS8-представление
+	ASN1::ISO::PKCS::PrivateKeyInfo decodedPrivateInfo(&encodedPrivate[0], encodedPrivate.size()); 
+
+	// получить структуру PKCS8-представления
+	const CRYPT_PRIVATE_KEY_INFO& privateInfo = decodedPrivateInfo.Value(); 
+
+	// импортировать пару ключей
+	return ImportKeyPair(publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData, 
+		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
+	); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Алгоритмы наследования ключа 
+// Алгоритм выработки и проверки подписи
 ///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Windows::Crypto::ISecretKey> 
-Windows::Crypto::KeyDeriveTruncate::DeriveKey(
-	const ISecretKeyFactory& keyFactory, DWORD cbKey, 
-	const ISecretKey*, LPCVOID pvSecret, DWORD cbSecret) const 
+void Crypto::SignDataFromHash::Verify(const IPublicKey& publicKey, 
+	const std::vector<uint8_t>& signature)
 {
-	// проверить достаточность данных
-	if (cbSecret < cbKey) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+	// выделить буфер требуемого размера
+	std::vector<uint8_t> value(_hash->HashSize()); 
+		
+	// получить хэш-значение
+	value.resize(_hash->Finish(&value[0], value.size())); 
+		
+	// проверить совпадение размера
+	if (value.size() != signature.size()) AE_CHECK_HRESULT(NTE_BAD_SIGNATURE); 
 
-	// создать значение ключа 
-	std::vector<BYTE> key((PBYTE)pvSecret, (PBYTE)pvSecret + cbKey); 
+	// проверить совпадение хэш-значения 
+	if (memcmp(&value[0], &signature[0], signature.size()) != 0)
+	{
+		// некорректная подпись
+		AE_CHECK_HRESULT(NTE_BAD_SIGNATURE); 
+	}
+}
 
-	// создать ключ
-	return keyFactory.Create(&key[0], cbKey); 
-} 
+///////////////////////////////////////////////////////////////////////////////
+// Криптографический провайдер
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IKeyPair> Crypto::IProvider::DecodeKeyPair(
+	const CERT_PUBLIC_KEY_INFO& publicInfo, const CRYPT_PRIVATE_KEY_INFO& privateInfo) const
+{
+	// инициализировать переменные 
+	DWORD keySpec = 0; DWORD keyUsage = 0; 
+
+	// для всех атрибутов
+	if (privateInfo.pAttributes) for (DWORD i = 0; privateInfo.pAttributes->cAttr; i++)
+	{
+		// извлечь описание атрибута
+		const CRYPT_ATTRIBUTE& attribute = privateInfo.pAttributes->rgAttr[i]; 
+
+		// проверить тип атрибута
+		if (strcmp(attribute.pszObjId, szOID_KEY_USAGE) != 0) continue; 
+
+		// раскодировать способ использования ключа
+		keyUsage = ASN1::ISO::PKIX::KeyUsage::Decode(
+			attribute.rgValue->pbData, attribute.rgValue->cbData
+		); 
+		break; 
+	}
+	if (keyUsage & CERT_KEY_ENCIPHERMENT_KEY_USAGE ) keySpec = AT_KEYEXCHANGE; else 
+	if (keyUsage & CERT_DATA_ENCIPHERMENT_KEY_USAGE) keySpec = AT_KEYEXCHANGE; else 
+	if (keyUsage & CERT_DIGITAL_SIGNATURE_KEY_USAGE) keySpec = AT_SIGNATURE  ; else 
+	if (keyUsage & CERT_KEY_CERT_SIGN_KEY_USAGE    ) keySpec = AT_SIGNATURE  ; else 
+	if (keyUsage & CERT_CRL_SIGN_KEY_USAGE         ) keySpec = AT_SIGNATURE  ; else 
+
+	// указать способ использования ключа
+	keySpec = (strcmp(publicInfo.Algorithm.pszObjId, szOID_RSA_RSA) == 0) ? AT_KEYEXCHANGE : AT_SIGNATURE;
+
+	// получить фабрику кодирования 
+	std::shared_ptr<IKeyFactory> pKeyFactory = GetKeyFactory(publicInfo.Algorithm, keySpec); 
+
+	// проверить наличие фабрики
+	if (!pKeyFactory) return std::shared_ptr<IKeyPair>(); 
+
+	// раскодировать личный ключ
+	return pKeyFactory->ImportKeyPair(
+		publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData, 
+		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
+	); 
+}
+
+/*
+///////////////////////////////////////////////////////////////////////////////
+// Ключи RSA
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IPublicKey> 
+Crypto::ANSI::RSA::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
+{
+	// инициализировать переменные 
+	CERT_PUBLIC_KEY_INFO info = { (PSTR)szOID_RSA_RSA }; 
+
+	// указать отсутствие параметров 
+	info.Algorithm.Parameters.pbData = nullptr; 
+	info.Algorithm.Parameters.cbData = 0; 
+
+	// указать представление ключа
+	info.PublicKey.pbData = (PBYTE)pvEncoded; 
+	info.PublicKey.cbData = (DWORD)cbEncoded; 
+
+	// вернуть открытый ключ 
+	return Windows::Crypto::ANSI::RSA::PublicKey::Decode(info); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Ключи DH
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IPublicKey> 
+Crypto::ANSI::X942::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
+{
+	// получить закодированное представление параметров
+	std::vector<BYTE> encodedParameters = Parameters()->Encoded(); 
+
+	// раскодировать параметры
+	ASN1::ISO::AlgorithmIdentifier decodedParameters(&encodedParameters[0], encodedParameters.size()); 
+
+	// инициализировать переменные 
+	CERT_PUBLIC_KEY_INFO info = { decodedParameters.Value() }; 
+
+	// указать представление ключа
+	info.PublicKey.pbData = (PBYTE)pvEncoded; 
+	info.PublicKey.cbData = (DWORD)cbEncoded; 
+
+	// вернуть открытый ключ 
+	return Windows::Crypto::ANSI::X942::PublicKey::Decode(info); 
+}
+
+std::shared_ptr<::Crypto::IKeyPair> 
+Crypto::ANSI::X942::IKeyFactory::GenerateKeyPair(size_t keyBits) const
+{
+	// проверить размер ключа
+	if (keyBits != 0 && keyBits != KeyBits().maxLength) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+
+	// сгенерировать пару ключей
+	return GenerateKeyPair(); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Ключи DSA
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IPublicKey> 
+Crypto::ANSI::X957::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
+{
+	// получить закодированное представление параметров
+	std::vector<BYTE> encodedParameters = Parameters()->Encoded(); 
+
+	// раскодировать параметры
+	ASN1::ISO::AlgorithmIdentifier decodedParameters(&encodedParameters[0], encodedParameters.size()); 
+
+	// инициализировать переменные 
+	CERT_PUBLIC_KEY_INFO info = { decodedParameters.Value() }; 
+
+	// указать представление ключа
+	info.PublicKey.pbData = (PBYTE)pvEncoded; 
+	info.PublicKey.cbData = (DWORD)cbEncoded; 
+
+	// вернуть открытый ключ 
+	return Windows::Crypto::ANSI::X957::PublicKey::Decode(info); 
+}
+
+std::shared_ptr<::Crypto::IKeyPair> 
+Crypto::ANSI::X957::IKeyFactory::GenerateKeyPair(size_t keyBits) const
+{
+	// проверить размер ключа
+	if (keyBits != 0 && keyBits != KeyBits().maxLength) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+
+	// сгенерировать пару ключей
+	return GenerateKeyPair(); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Ключи ECC
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IPublicKey> 
+Crypto::ANSI::X962::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
+{
+	// получить закодированное представление параметров
+	std::vector<BYTE> encodedParameters = Parameters()->Encoded(); 
+
+	// раскодировать параметры
+	ASN1::ISO::AlgorithmIdentifier decodedParameters(&encodedParameters[0], encodedParameters.size()); 
+
+	// инициализировать переменные 
+	CERT_PUBLIC_KEY_INFO info = { decodedParameters.Value() }; 
+
+	// указать представление ключа
+	info.PublicKey.pbData = (PBYTE)pvEncoded; 
+	info.PublicKey.cbData = (DWORD)cbEncoded; 
+
+	// вернуть открытый ключ 
+	return Windows::Crypto::ANSI::X962::PublicKey::Decode(info); 
+}
+
+std::shared_ptr<::Crypto::IKeyPair> 
+Crypto::ANSI::X962::IKeyFactory::GenerateKeyPair(size_t keyBits) const
+{
+	// проверить размер ключа
+	if (keyBits != 0 && keyBits != KeyBits().maxLength) AE_CHECK_HRESULT(NTE_BAD_LEN); 
+
+	// сгенерировать пару ключей
+	return GenerateKeyPair(); 
+}
+
+*/

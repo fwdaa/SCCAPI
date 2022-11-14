@@ -26,6 +26,12 @@ public class OID
 	public static final String SMIME_RC2_128_WRAP               = "1.2.840.113549.1.9.16.3.7";
 	public static final String SMIME_PWRI_KEK                   = "1.2.840.113549.1.9.16.3.9";
 	public static final String SMIME_SSDH                       = "1.2.840.113549.1.9.16.3.10";
+    public static final	String SMIME_ESDH_HKDF_SHA256           = "1.2.840.113549.1.9.16.3.19";
+	public static final	String SMIME_ESDH_HKDF_SHA384           = "1.2.840.113549.1.9.16.3.20";
+	public static final	String SMIME_ESDH_HKDF_SHA512           = "1.2.840.113549.1.9.16.3.21";
+    public static final	String SMIME_HKDF_SHA256                = "1.2.840.113549.1.9.16.3.28";
+	public static final	String SMIME_HKDF_SHA384                = "1.2.840.113549.1.9.16.3.29";
+	public static final	String SMIME_HKDF_SHA512                = "1.2.840.113549.1.9.16.3.30";
 	public static final String FRIENDLY_NAME					= "1.2.840.113549.1.9.20";
 	public static final String LOCAL_KEY_ID						= "1.2.840.113549.1.9.21";
 	public static final String CERT_TYPES						= "1.2.840.113549.1.9.22";
