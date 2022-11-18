@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "ecc.h"
 #include "asn1.h"
+#include "bcng.h"
+#include "ncng.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
@@ -510,6 +512,21 @@ Windows::Crypto::ANSI::X962::Parameters::Parameters(PCSTR szCurveOID) : _curveOI
 	}
 	// параметры не поддерживаются
 	else AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); 
+
+	// закодировать идентификатор параметров
+	std::vector<BYTE> encoded = ::Crypto::ANSI::X962::EncodeParameters(szCurveOID); 
+
+	// выделить буфер требуемого размера 
+	_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+	// указать адрес идентификатора
+	PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_ECC_PUBLIC_KEY; 
+
+	// скопировать закодированные параметры 
+	memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+	// указать адрес и размер закодированных параметров
+	_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
 }
 
 Windows::Crypto::ANSI::X962::Parameters::Parameters(PCWSTR szCurveName) 
@@ -519,6 +536,24 @@ Windows::Crypto::ANSI::X962::Parameters::Parameters(PCWSTR szCurveName)
 {
 	// определить идентификатор параметров
 	if (PCSTR szCurveOID = GetCurveOID(szCurveName)) _curveOID = szCurveOID; 
+
+	// параметры не поддерживаются
+	else AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); 
+
+	// закодировать идентификатор параметров
+	std::vector<BYTE> encoded = ::Crypto::ANSI::X962::EncodeParameters(_curveOID.c_str()); 
+
+	// выделить буфер требуемого размера 
+	_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+	// указать адрес идентификатора
+	PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_ECC_PUBLIC_KEY; 
+
+	// скопировать закодированные параметры 
+	memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+	// указать адрес и размер закодированных параметров
+	_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
 }
 
 std::shared_ptr<NCryptBufferDesc> Windows::Crypto::ANSI::X962::Parameters::ParamsCNG(DWORD keySpec) const
@@ -545,28 +580,6 @@ std::shared_ptr<NCryptBufferDesc> Windows::Crypto::ANSI::X962::Parameters::Param
 		BufferSetString(&pParameters->pBuffers[1], NCRYPTBUFFER_ECC_CURVE_NAME, CurveName());
 	}
 	return pParameters; 
-}
-
-std::vector<BYTE> Windows::Crypto::ANSI::X962::Parameters::Encode() const 
-{
-	// получить идентификатор эллиптической кривой
-	PCSTR szCurveOID = CurveOID(); 
-
-	// проверить наличие идентификатора
-	if (!szCurveOID || szCurveOID[0] == 0) AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); 
-
-	// закодировать идентификатор параметров
-	std::vector<BYTE> encoded = ::Crypto::ANSI::X962::EncodeParameters(szCurveOID); 
-
-	// инициализировать переменные 
-	CRYPT_ALGORITHM_IDENTIFIER info = { (PSTR)OID() }; 
-
-	// указать представление параметров
-	info.Parameters.pbData = &encoded[0]; 
-	info.Parameters.cbData = (DWORD)encoded.size(); 
-
-	// вернуть закодированное представление
-	return ASN1::ISO::AlgorithmIdentifier(info).Encode(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1026,4 +1039,70 @@ std::vector<BYTE> Windows::Crypto::ANSI::X962::KeyPair::Encode(
 
 	// закодировать представление ключа
 	return ASN1::ISO::PKCS::PrivateKeyInfo(info).Encode(); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Расширение фабрики ключей 
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<void> Windows::Crypto::ANSI::X962::KeyFactory::GetAuxDataCNG(
+	BCRYPT_KEY_HANDLE hKey, ULONG magic) const
+{
+	// определить имя кривой
+	if (PCWSTR szCurveName = GetCurveName(GetAlgName(magic)))
+	{
+		// выделить память для строки
+		size_t cch = wcslen(szCurveName); PWSTR szCopy = new WCHAR[cch + 1]; 
+
+		// скопировать строку
+		memcpy(szCopy, szCurveName, (cch + 1) * sizeof(WCHAR)); 
+
+		// вернуть имя кривой
+		return std::shared_ptr<void>(szCopy, std::default_delete<WCHAR[]>()); 
+	}
+	else {
+		// получить описатель аогоритма 
+		BCrypt::AlgorithmHandle hAlgorithm = BCrypt::AlgorithmHandle::ForHandle(hKey); 
+
+		// определить имя кривой
+		std::wstring curveName = hAlgorithm.GetString(BCRYPT_ECC_CURVE_NAME, 0); 
+
+		// выделить память для строки
+		size_t cch = curveName.length(); PWSTR szCopy = new WCHAR[cch + 1]; 
+
+		// скопировать строку
+		memcpy(szCopy, curveName.c_str(), (cch + 1) * sizeof(WCHAR)); 
+
+		// вернуть имя кривой
+		return std::shared_ptr<void>(szCopy, std::default_delete<WCHAR[]>()); 
+	}
+}
+
+std::shared_ptr<void> Windows::Crypto::ANSI::X962::KeyFactory::GetAuxDataCNG(
+	NCRYPT_KEY_HANDLE hKey, ULONG magic) const
+{
+	// определить имя кривой
+	if (PCWSTR szCurveName = GetCurveName(GetAlgName(magic)))
+	{
+		// выделить память для строки
+		size_t cch = wcslen(szCurveName); PWSTR szCopy = new WCHAR[cch + 1]; 
+
+		// скопировать строку
+		memcpy(szCopy, szCurveName, (cch + 1) * sizeof(WCHAR)); 
+
+		// вернуть имя кривой
+		return std::shared_ptr<void>(szCopy, std::default_delete<WCHAR[]>()); 
+	}
+	else { 
+		// определить имя кривой
+		std::wstring curveName = NCrypt::Handle::GetString(hKey, NCRYPT_ECC_CURVE_NAME_PROPERTY, 0); 
+
+		// выделить память для строки
+		size_t cch = curveName.length(); PWSTR szCopy = new WCHAR[cch + 1]; 
+
+		// скопировать строку
+		memcpy(szCopy, curveName.c_str(), (cch + 1) * sizeof(WCHAR)); 
+
+		// вернуть имя кривой
+		return std::shared_ptr<void>(szCopy, std::default_delete<WCHAR[]>()); 
+	}
 }

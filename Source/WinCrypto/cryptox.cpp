@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "cryptox.h"
-//#include "extension.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
@@ -452,8 +451,18 @@ std::vector<BYTE> Windows::Crypto::SecretKey::ToBlobNCNG(PCWSTR szAlgName, const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Параметры ключа
+///////////////////////////////////////////////////////////////////////////////
+std::vector<uint8_t> Crypto::IKeyParameters::Encode() const
+{
+	// вернуть закодированное представление
+	return ASN1::ISO::AlgorithmIdentifier(Decoded()).Encode(); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Пара ключей 
 ///////////////////////////////////////////////////////////////////////////////
+/*
 std::vector<BYTE> Crypto::IPrivateKey::Encode(uint32_t keyUsage) const
 {
 	// указать адрес закодированного значения 
@@ -477,7 +486,7 @@ std::vector<BYTE> Crypto::IPrivateKey::Encode(uint32_t keyUsage) const
 	// создать PKCS8-представление
 	return Encode(pAttributes); 
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////
 // Фабрика ключей асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
@@ -534,168 +543,24 @@ void Crypto::SignDataFromHash::Verify(const IPublicKey& publicKey,
 ///////////////////////////////////////////////////////////////////////////////
 // Криптографический провайдер
 ///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Crypto::IKeyPair> Crypto::IProvider::DecodeKeyPair(
-	const CERT_PUBLIC_KEY_INFO& publicInfo, const CRYPT_PRIVATE_KEY_INFO& privateInfo) const
+std::vector<std::wstring> Crypto::IEnvironment::FindProviders(
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const
 {
-	// инициализировать переменные 
-	DWORD keySpec = 0; DWORD keyUsage = 0; 
+	// перечислить все провайдеры
+	std::vector<std::wstring> providers = EnumProviders(); std::vector<std::wstring> names;
 
-	// для всех атрибутов
-	if (privateInfo.pAttributes) for (DWORD i = 0; privateInfo.pAttributes->cAttr; i++)
+	// для всех провайдеров
+	for (size_t i = 0; i < providers.size(); i++)
 	{
-		// извлечь описание атрибута
-		const CRYPT_ATTRIBUTE& attribute = privateInfo.pAttributes->rgAttr[i]; 
+		// открыть провайдер
+		std::shared_ptr<IProvider> provider = OpenProvider(providers[i].c_str()); 
 
-		// проверить тип атрибута
-		if (strcmp(attribute.pszObjId, szOID_KEY_USAGE) != 0) continue; 
+		// проверить поддержку ключа
+		std::shared_ptr<IKeyFactory> pFactory = provider->GetKeyFactory(parameters, keySpec); 
 
-		// раскодировать способ использования ключа
-		keyUsage = ASN1::ISO::PKIX::KeyUsage::Decode(
-			attribute.rgValue->pbData, attribute.rgValue->cbData
-		); 
-		break; 
+		// добавить провайдер в список
+		if (pFactory) names.push_back(providers[i].c_str()); 
 	}
-	if (keyUsage & CERT_KEY_ENCIPHERMENT_KEY_USAGE ) keySpec = AT_KEYEXCHANGE; else 
-	if (keyUsage & CERT_DATA_ENCIPHERMENT_KEY_USAGE) keySpec = AT_KEYEXCHANGE; else 
-	if (keyUsage & CERT_DIGITAL_SIGNATURE_KEY_USAGE) keySpec = AT_SIGNATURE  ; else 
-	if (keyUsage & CERT_KEY_CERT_SIGN_KEY_USAGE    ) keySpec = AT_SIGNATURE  ; else 
-	if (keyUsage & CERT_CRL_SIGN_KEY_USAGE         ) keySpec = AT_SIGNATURE  ; else 
-
-	// указать способ использования ключа
-	keySpec = (strcmp(publicInfo.Algorithm.pszObjId, szOID_RSA_RSA) == 0) ? AT_KEYEXCHANGE : AT_SIGNATURE;
-
-	// получить фабрику кодирования 
-	std::shared_ptr<IKeyFactory> pKeyFactory = GetKeyFactory(publicInfo.Algorithm, keySpec); 
-
-	// проверить наличие фабрики
-	if (!pKeyFactory) return std::shared_ptr<IKeyPair>(); 
-
-	// раскодировать личный ключ
-	return pKeyFactory->ImportKeyPair(
-		publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData, 
-		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
-	); 
+	return names; 
 }
 
-/*
-///////////////////////////////////////////////////////////////////////////////
-// Ключи RSA
-///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Crypto::IPublicKey> 
-Crypto::ANSI::RSA::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
-{
-	// инициализировать переменные 
-	CERT_PUBLIC_KEY_INFO info = { (PSTR)szOID_RSA_RSA }; 
-
-	// указать отсутствие параметров 
-	info.Algorithm.Parameters.pbData = nullptr; 
-	info.Algorithm.Parameters.cbData = 0; 
-
-	// указать представление ключа
-	info.PublicKey.pbData = (PBYTE)pvEncoded; 
-	info.PublicKey.cbData = (DWORD)cbEncoded; 
-
-	// вернуть открытый ключ 
-	return Windows::Crypto::ANSI::RSA::PublicKey::Decode(info); 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Ключи DH
-///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Crypto::IPublicKey> 
-Crypto::ANSI::X942::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
-{
-	// получить закодированное представление параметров
-	std::vector<BYTE> encodedParameters = Parameters()->Encoded(); 
-
-	// раскодировать параметры
-	ASN1::ISO::AlgorithmIdentifier decodedParameters(&encodedParameters[0], encodedParameters.size()); 
-
-	// инициализировать переменные 
-	CERT_PUBLIC_KEY_INFO info = { decodedParameters.Value() }; 
-
-	// указать представление ключа
-	info.PublicKey.pbData = (PBYTE)pvEncoded; 
-	info.PublicKey.cbData = (DWORD)cbEncoded; 
-
-	// вернуть открытый ключ 
-	return Windows::Crypto::ANSI::X942::PublicKey::Decode(info); 
-}
-
-std::shared_ptr<::Crypto::IKeyPair> 
-Crypto::ANSI::X942::IKeyFactory::GenerateKeyPair(size_t keyBits) const
-{
-	// проверить размер ключа
-	if (keyBits != 0 && keyBits != KeyBits().maxLength) AE_CHECK_HRESULT(NTE_BAD_LEN); 
-
-	// сгенерировать пару ключей
-	return GenerateKeyPair(); 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Ключи DSA
-///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Crypto::IPublicKey> 
-Crypto::ANSI::X957::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
-{
-	// получить закодированное представление параметров
-	std::vector<BYTE> encodedParameters = Parameters()->Encoded(); 
-
-	// раскодировать параметры
-	ASN1::ISO::AlgorithmIdentifier decodedParameters(&encodedParameters[0], encodedParameters.size()); 
-
-	// инициализировать переменные 
-	CERT_PUBLIC_KEY_INFO info = { decodedParameters.Value() }; 
-
-	// указать представление ключа
-	info.PublicKey.pbData = (PBYTE)pvEncoded; 
-	info.PublicKey.cbData = (DWORD)cbEncoded; 
-
-	// вернуть открытый ключ 
-	return Windows::Crypto::ANSI::X957::PublicKey::Decode(info); 
-}
-
-std::shared_ptr<::Crypto::IKeyPair> 
-Crypto::ANSI::X957::IKeyFactory::GenerateKeyPair(size_t keyBits) const
-{
-	// проверить размер ключа
-	if (keyBits != 0 && keyBits != KeyBits().maxLength) AE_CHECK_HRESULT(NTE_BAD_LEN); 
-
-	// сгенерировать пару ключей
-	return GenerateKeyPair(); 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Ключи ECC
-///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Crypto::IPublicKey> 
-Crypto::ANSI::X962::IKeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
-{
-	// получить закодированное представление параметров
-	std::vector<BYTE> encodedParameters = Parameters()->Encoded(); 
-
-	// раскодировать параметры
-	ASN1::ISO::AlgorithmIdentifier decodedParameters(&encodedParameters[0], encodedParameters.size()); 
-
-	// инициализировать переменные 
-	CERT_PUBLIC_KEY_INFO info = { decodedParameters.Value() }; 
-
-	// указать представление ключа
-	info.PublicKey.pbData = (PBYTE)pvEncoded; 
-	info.PublicKey.cbData = (DWORD)cbEncoded; 
-
-	// вернуть открытый ключ 
-	return Windows::Crypto::ANSI::X962::PublicKey::Decode(info); 
-}
-
-std::shared_ptr<::Crypto::IKeyPair> 
-Crypto::ANSI::X962::IKeyFactory::GenerateKeyPair(size_t keyBits) const
-{
-	// проверить размер ключа
-	if (keyBits != 0 && keyBits != KeyBits().maxLength) AE_CHECK_HRESULT(NTE_BAD_LEN); 
-
-	// сгенерировать пару ключей
-	return GenerateKeyPair(); 
-}
-
-*/

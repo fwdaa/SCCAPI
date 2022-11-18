@@ -6,103 +6,109 @@ namespace Windows { namespace Crypto { namespace Extension {
 ///////////////////////////////////////////////////////////////////////////////
 // Функции расширения 
 ///////////////////////////////////////////////////////////////////////////////
-BOOL CryptDllEncodePublicKeyAndParameters(
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	PVOID							pvBlob,					// [in    ] закодированный буфер в формате BLOB
-	DWORD							cbBlob,					// [in    ] размер закодированного буфера
-	DWORD							dwFlags,				// [in    ] зарезервировано на будущее
-	PVOID							pvAuxInfo,				// [in    ] зарезервировано на будущее
-	PVOID*							ppvKey,					// [   out] закодированный ключ в кодировке X.509      (LocalAlloc)
-	PDWORD							pcbKey,					// [   out] размер закодированного ключа
-	PVOID*							ppvParams,				// [   out] закодированные параметры в кодировке X.509 (LocalAlloc)
-	PDWORD							pcbParams				// [   out] размер закодированных параметров
+
+// получить X.509-представление открытого ключа
+std::vector<BYTE> CspExportPublicKey(HCRYPTPROV hContainer, DWORD keySpec, PCSTR szKeyOID);
+std::vector<BYTE> CspExportPublicKey(HCRYPTKEY  hKey,                      PCSTR szKeyOID);
+
+// импортировать X.509-представление открытого ключа
+HCRYPTKEY CspImportPublicKey(HCRYPTPROV hProvider, const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID);
+
+// получить PKCS8-представление личного ключа из контейнера  
+std::vector<BYTE> CspExportPrivateKey(HCRYPTPROV hContainer, DWORD keySpec, PCSTR szKeyOID);
+
+// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+HCRYPTKEY CspImportKeyPair(HCRYPTPROV hContainer, DWORD keySpec, 
+	const CERT_PUBLIC_KEY_INFO* pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, ALG_ID algID, DWORD dwFlags
+);
+// получить X.509-представление открытого ключа для описателя 
+std::vector<BYTE> BCryptExportPublicKey(BCRYPT_KEY_HANDLE hKey, PCSTR szKeyOID, DWORD keySpec);
+
+// импортировать X.509-представление открытого ключа
+BCRYPT_KEY_HANDLE BCryptImportPublicKey(PCWSTR szProvider, const CERT_PUBLIC_KEY_INFO* pInfo, DWORD keySpec);
+
+// получить PKCS8-представление личного ключа
+std::vector<BYTE> BCryptExportPrivateKey(BCRYPT_KEY_HANDLE hKeyPair, PCSTR szKeyOID, DWORD keySpec); 
+
+// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+BCRYPT_KEY_HANDLE BCryptImportKeyPair(PCWSTR szProvider,
+	const CERT_PUBLIC_KEY_INFO* pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, DWORD keySpec
 ); 
-BOOL CryptDllConvertPublicKeyInfo(
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	CONST CERT_PUBLIC_KEY_INFO*		pInfo,					// [in    ] описание ключа в кодировке X.509
-	ALG_ID							algID,					// [in    ] идентификатор алгоритма
-	DWORD							dwFlags,				// [in    ] зарезервировано на будущее
-	PVOID*							ppvBlob,				// [   out] закодированный буфер в формате BLOB
-	PDWORD							pcbBlob					// [   out] размер закодированного буфера
-); 
-BOOL CryptDllExportPublicKeyInfoEx(
-	HCRYPTPROV_OR_NCRYPT_KEY_HANDLE	hProviderOrKey,			// [in    ] описатель провайдера или ключа
-	DWORD							dwKeySpec,				// [in    ] слот ключа для провайдера
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	DWORD							dwFlags,				// [in    ] назначение ключа
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-	PDWORD							pcbInfo					// [in/out] размер описания ключа
+// получить X.509-представление открытого ключа для описателя 
+std::vector<BYTE> NCryptExportPublicKey(NCRYPT_KEY_HANDLE hKey, PCSTR szKeyOID, DWORD keySpec); 
+
+// импортировать X.509-представление открытого ключа
+NCRYPT_KEY_HANDLE NCryptImportPublicKey(NCRYPT_PROV_HANDLE hProvider, const CERT_PUBLIC_KEY_INFO* pInfo, DWORD keySpec);
+
+// получить PKCS8-представление личного ключа
+std::vector<BYTE> NCryptExportPrivateKey(NCRYPT_KEY_HANDLE hKeyPair, PCSTR szKeyOID, DWORD keySpec); 
+
+// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+void NCryptImportKeyPair(NCRYPT_KEY_HANDLE hKeyPair,
+	const CERT_PUBLIC_KEY_INFO*	pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, DWORD keySpec
 );
-BOOL CryptDllExportPublicKeyInfoEx(
-	HCRYPTKEY						hKey,					// [in    ] описатель провайдера или ключа
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	DWORD							dwFlags,				// [in    ] назначение ключа
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-	PDWORD							pcbInfo					// [in/out] размер описания ключа
-);
-BOOL CryptDllExportPrivateKeyInfoEx(
-	HCRYPTPROV						hProvider,				// [in    ] описатель провайдера
-	DWORD							dwKeySpec,				// [in    ] слот ключа для провайдера
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	DWORD							dwFlags,				// [in    ] 0 (при pInfo = 0) или 0x8000
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	PCRYPT_PRIVATE_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке PKCS8
-	PDWORD							pcbInfo					// [in/out] размер описания ключа
-);
-BOOL CryptDllExportPrivateKeyInfoEx(
-	HCRYPTKEY						hKey,					// [in    ] описатель провайдера или ключа
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	DWORD							dwFlags,				// [in    ] 0 (при pInfo = 0) или 0x8000
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	PCRYPT_PRIVATE_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке PKCS8
-	PDWORD							pcbInfo					// [in/out] размер описания ключа
-);
-BOOL CryptDllExportPublicKeyInfoEx2(
-	NCRYPT_KEY_HANDLE				hKey,					// [in    ] описатель провайдера или ключа
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	DWORD							dwFlags,				// [in    ] назначение ключа
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-	PDWORD							pcbInfo					// [in/out] размер описания ключа
-);
-BOOL CryptDllImportPublicKeyInfoEx(
-	HCRYPTPROV						hProvider,				// [in    ] описатель провайдера
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	CONST CERT_PUBLIC_KEY_INFO*		pInfo,					// [in    ] описание ключа в кодировке X.509
-	ALG_ID							algID,					// [in    ] идентификатор алгориитма
-	DWORD							dwFlags,				// [in    ] зарезервировано на будущее
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	HCRYPTKEY*						phPublicKey				// [   out] описатель импортированного ключа
-);
-BOOL CryptDllExportPublicKeyInfoFromBCryptKeyHandle(
-	BCRYPT_KEY_HANDLE				hKey,					// [in    ] описатель открытого ключа
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	PCSTR							szKeyOID,				// [in    ] идентификатор ключа (OID)
-	DWORD							dwFlags,				// [in    ] назначение ключа
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-	PDWORD							pcbInfo					// [in/out] размер описания ключа
-);
-BOOL CryptDllImportPublicKeyInfoEx2(
-	PCWSTR							szProvider,				// [in    ] имя провайдера 
-	DWORD							dwEncoding,				// [in    ] способ кодирования ключа
-	CONST CERT_PUBLIC_KEY_INFO*		pInfo,					// [in    ] описание ключа в кодировке X.509
-	DWORD							dwFlags,				// [in    ] назначение ключа
-	PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-	BCRYPT_KEY_HANDLE*				phPublicKey				// [   out] описатель импортированного ключа
-);
+
+///////////////////////////////////////////////////////////////////////////////
+// Интерфейс расширения 
+///////////////////////////////////////////////////////////////////////////////
+struct IKeyFactory { virtual ~IKeyFactory() {}
+
+	// получить X.509-представление открытого ключа для BLOB
+	virtual std::vector<BYTE> CspEncodePublicKey(PCSTR szKeyOID, const PUBLICKEYSTRUC* pBlob, size_t cbBlob) const; 
+
+	// получить BLOB открытого ключа для X.509-представления
+	virtual std::vector<BYTE> CspConvertPublicKey(const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID) const; 
+
+	// получить X.509-представление открытого ключа
+	virtual std::vector<BYTE> CspExportPublicKey(HCRYPTPROV hContainer, DWORD keySpec, PCSTR szKeyOID) const;
+	virtual std::vector<BYTE> CspExportPublicKey(HCRYPTKEY  hKey,                      PCSTR szKeyOID) const;
+
+	// импортировать X.509-представление открытого ключа
+	virtual HCRYPTKEY CspImportPublicKey(HCRYPTPROV hProvider, const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID) const;
+
+	// получить PKCS8-представление личного ключа из контейнера  
+	virtual std::vector<BYTE> CspExportPrivateKey(HCRYPTPROV hContainer, DWORD keySpec, PCSTR szKeyOID) const;
+
+	// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+	virtual HCRYPTKEY CspImportKeyPair(HCRYPTPROV hContainer, DWORD keySpec, 
+		const CERT_PUBLIC_KEY_INFO* pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, ALG_ID algID, DWORD dwFlags) const;
+
+	// получить X.509-представление открытого ключа для описателя 
+	virtual std::vector<BYTE> BCryptExportPublicKey(BCRYPT_KEY_HANDLE hKey, PCSTR szKeyOID, DWORD keySpec) const;
+
+	// импортировать X.509-представление открытого ключа
+	virtual BCRYPT_KEY_HANDLE BCryptImportPublicKey(PCWSTR szProvider, const CERT_PUBLIC_KEY_INFO* pInfo, DWORD keySpec) const;
+
+	// получить PKCS8-представление личного ключа
+	virtual std::vector<BYTE> BCryptExportPrivateKey(BCRYPT_KEY_HANDLE, PCSTR, DWORD) const
+	{
+		// функция должна быть переопределена
+		ThrowNotSupported(); return std::vector<BYTE>(); 
+	}
+	// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+	virtual BCRYPT_KEY_HANDLE BCryptImportKeyPair(PCWSTR, const CERT_PUBLIC_KEY_INFO*, const CRYPT_PRIVATE_KEY_INFO*, DWORD) const
+	{
+		// функция должна быть переопределена
+		ThrowNotSupported(); return NULL; 
+	}
+	// получить X.509-представление открытого ключа для описателя 
+	virtual std::vector<BYTE> NCryptExportPublicKey(NCRYPT_KEY_HANDLE hKey, PCSTR szKeyOID, DWORD keySpec) const;
+
+	// импортировать X.509-представление открытого ключа
+	virtual NCRYPT_KEY_HANDLE NCryptImportPublicKey(NCRYPT_PROV_HANDLE hProvider, const CERT_PUBLIC_KEY_INFO* pInfo, DWORD keySpec) const;
+
+	// получить PKCS8-представление личного ключа
+	virtual std::vector<BYTE> NCryptExportPrivateKey(NCRYPT_KEY_HANDLE hKeyPair, PCSTR szKeyOID, DWORD keySpec) const;
+
+	// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+	virtual void NCryptImportKeyPair(NCRYPT_KEY_HANDLE hKeyPair,
+		const CERT_PUBLIC_KEY_INFO*	pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, DWORD keySpec) const;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // Открытый ключ асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-class PublicKey : public ::Crypto::IPublicKey 
+class PublicKey : public IPublicKey 
 { 
 	// тип импорта CSP
 	public: virtual const wchar_t* TypeCSP() const { return nullptr; }
@@ -131,7 +137,7 @@ class PublicKey : public ::Crypto::IPublicKey
 ///////////////////////////////////////////////////////////////////////////////
 // Пара ключей асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-class KeyPair : public ::Crypto::IKeyPair 
+class KeyPair : public IKeyPair 
 { 
 	// тип импорта CSP
 	public: virtual const wchar_t* TypeCSP() const { return nullptr; }
@@ -157,22 +163,11 @@ class KeyPair : public ::Crypto::IKeyPair
 	}
 }; 
 
-/*
 ///////////////////////////////////////////////////////////////////////////////
-// Функции расширения 
+// Функции расширения для известных типов ключей
 ///////////////////////////////////////////////////////////////////////////////
-BOOL WINAPI CryptDllImportPrivateKeyInfoEx(
-    HCRYPTPROV						hCryptProv,				// [in    ] описатель провайдера
-    PCRYPT_PRIVATE_KEY_INFO			pPrivateKeyInfo,		// [in    ] описание ключа в кодировке PKCS8
-    DWORD							dwFlags,				// [in    ] флаги способа импорта ключа
-    PVOID							pvAuxInfo				// [in    ] дополнительные данные
-);
-*/
-///////////////////////////////////////////////////////////////////////////////
-// Функции расширения 
-///////////////////////////////////////////////////////////////////////////////
-struct KeyFactory { virtual ~KeyFactory() {}
-
+struct KeyFactory : IKeyFactory
+{
 	// тип экспорта CSP
 	virtual DWORD ExportFlagsCSP() const { return 0; } 
 
@@ -180,93 +175,217 @@ struct KeyFactory { virtual ~KeyFactory() {}
 	virtual PCWSTR ExportPublicTypeCNG () const { return BCRYPT_PUBLIC_KEY_BLOB;  }
 	virtual PCWSTR ExportPrivateTypeCNG() const { return BCRYPT_PRIVATE_KEY_BLOB; }
 
+	// получить дополнительные данные для описателя
+	virtual std::shared_ptr<void> GetAuxDataCNG(BCRYPT_KEY_HANDLE hKey, ULONG magic) const { return std::shared_ptr<void>(); }
+	virtual std::shared_ptr<void> GetAuxDataCNG(NCRYPT_KEY_HANDLE hKey, ULONG magic) const { return std::shared_ptr<void>(); }
+
 	// раскодировать открытый ключ
 	virtual std::shared_ptr<PublicKey> DecodePublicKey(const CERT_PUBLIC_KEY_INFO&) const = 0; 
 	// раскодировать открытый ключ
-	virtual std::shared_ptr<PublicKey> DecodePublicKey(PCSTR szOID, const PUBLICKEYSTRUC* pBlob, size_t cbBlob) const
+	virtual std::shared_ptr<PublicKey> DecodePublicKey(PCSTR, const PUBLICKEYSTRUC*, size_t) const
+	{
+		// функция должна быть переопределена
+		ThrowNotSupported(); return std::shared_ptr<PublicKey>(); 
+	}
+	// раскодировать открытый ключ
+	virtual std::shared_ptr<PublicKey> DecodePublicKey(PCSTR, LPCVOID, const BCRYPT_KEY_BLOB*, size_t) const
 	{
 		// функция должна быть переопределена
 		ThrowNotSupported(); return std::shared_ptr<PublicKey>(); 
 	}
 	// раскодировать пару ключей
-	virtual std::shared_ptr<KeyPair> DecodeKeyPair(PCSTR szOID, const BLOBHEADER* pBlob, size_t cbBlob) const
+	virtual std::shared_ptr<KeyPair> DecodeKeyPair(const CRYPT_PRIVATE_KEY_INFO&, const CERT_PUBLIC_KEY_INFO*) const
 	{
 		// функция должна быть переопределена
 		ThrowNotSupported(); return std::shared_ptr<KeyPair>(); 
 	}
-	// раскодировать открытый ключ
-	virtual std::shared_ptr<PublicKey> DecodePublicKey(PCSTR szOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const
+	// раскодировать пару ключей
+	virtual std::shared_ptr<KeyPair> DecodeKeyPair(PCSTR, const BLOBHEADER*, size_t) const
 	{
 		// функция должна быть переопределена
-		ThrowNotSupported(); return std::shared_ptr<PublicKey>(); 
+		ThrowNotSupported(); return std::shared_ptr<KeyPair>(); 
 	}
-	// функции расширения 
-	BOOL CryptDllEncodePublicKeyAndParameters(
-		PCSTR							pszKeyOID,				// [in    ] идентификатор ключа (OID)
-		PVOID							pvBlob,					// [in    ] закодированный буфер в формате BLOB
-		DWORD							cbBlob,					// [in    ] размер закодированного буфера
-		DWORD							dwFlags,				// [in    ] зарезервировано на будущее
-		PVOID							pvAuxInfo,				// [in    ] зарезервировано на будущее
-		PVOID*							ppvKey,					// [   out] закодированный ключ в кодировке X.509      (LocalAlloc)
-		PDWORD							pcbKey,					// [   out] размер закодированного ключа
-		PVOID*							ppvParams,				// [   out] закодированные параметры в кодировке X.509 (LocalAlloc)
-		PDWORD							pcbParams				// [   out] размер закодированных параметров
-	) const; 
-	BOOL CryptDllConvertPublicKeyInfo(
-		CONST CERT_PUBLIC_KEY_INFO*		pInfo,					// [in    ] описание ключа в кодировке X.509
-		ALG_ID							algID,					// [in    ] идентификатор алгоритма
-		DWORD							dwFlags,				// [in    ] зарезервировано на будущее
-		PVOID*							ppvBlob,				// [   out] закодированный буфер в формате BLOB
-		PDWORD							pcbBlob					// [   out] размер закодированного буфера
-	) const; 
-	BOOL CryptDllExportPublicKeyInfoEx(
-		HCRYPTKEY						hKey,					// [in    ] описатель ключа
-		PCSTR							pszKeyOID,				// [in    ] идентификатор ключа (OID)
-		DWORD							dwFlags,				// [in    ] назначение ключа
-		PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-		PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-		PDWORD							pcbInfo					// [in/out] размер описания ключа
-	) const;
-	BOOL CryptDllExportPrivateKeyInfoEx(
-		HCRYPTKEY						hKey,					// [in    ] описатель ключа
-		PCSTR							pszKeyOID,				// [in    ] идентификатор ключа (OID)
-		DWORD							dwFlags,                // [in    ] 0 (при pcbPrivateKeyInfo = 0) или 0x8000
-		PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-		PCRYPT_PRIVATE_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке PKCS8
-		PDWORD							pcbInfo					// [in/out] размер описания ключа
-	) const;
-	BOOL CryptDllExportPublicKeyInfoEx2(
-		NCRYPT_KEY_HANDLE				hKey,					// [in    ] описатель провайдера
-		PCSTR							pszKeyOID,				// [in    ] идентификатор ключа (OID)
-		DWORD							dwFlags,				// [in    ] назначение ключа
-		PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-		PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-		PDWORD							pcbInfo					// [in/out] размер описания ключа
-	) const;
-	BOOL CryptDllImportPublicKeyInfoEx(
-		HCRYPTPROV						hProvider,				// [in    ] описатель провайдера
-		CONST CERT_PUBLIC_KEY_INFO*		pInfo,					// [in    ] описание ключа в кодировке X.509
-		ALG_ID							algID,					// [in    ] идентификатор алгориитма
-		DWORD							dwFlags,				// [in    ] зарезервировано на будущее
-		PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-		HCRYPTKEY*						phPublicKey				// [   out] описатель импортированного ключа
-	) const;
-	BOOL CryptDllExportPublicKeyInfoFromBCryptKeyHandle(
-		BCRYPT_KEY_HANDLE				hKey,					// [in    ] описатель открытого ключа
-		PCSTR							pszKeyOID,				// [in    ] идентификатор ключа (OID)
-		DWORD							dwFlags,				// [in    ] назначение ключа
-		PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-		PCERT_PUBLIC_KEY_INFO			pInfo,					// [   out] описание ключа в кодировке X.509
-		PDWORD							pcbInfo					// [in/out] размер описания ключа
-	) const;
-	BOOL CryptDllImportPublicKeyInfoEx2(
-		PCWSTR							szProvider,				// [in    ] имя провайдера 
-		CONST CERT_PUBLIC_KEY_INFO*		pInfo,					// [in    ] описание ключа в кодировке X.509
-		DWORD							dwFlags,				// [in    ] назначение ключа
-		PVOID							pvAuxInfo,				// [in    ] дополнительные данные
-		BCRYPT_KEY_HANDLE*				phKey					// [   out] описатель импортированного ключа
-	) const;
+	// раскодировать пару ключей
+	virtual std::shared_ptr<KeyPair> DecodeKeyPair(PCSTR, LPCVOID, const BCRYPT_KEY_BLOB*, size_t) const
+	{
+		// функция должна быть переопределена
+		ThrowNotSupported(); return std::shared_ptr<KeyPair>(); 
+	}
+	// получить X.509-представление открытого ключа для BLOB
+	virtual std::vector<BYTE> CspEncodePublicKey(PCSTR szKeyOID, const PUBLICKEYSTRUC* pBlob, size_t cbBlob) const override
+	{
+		// получить X.509-представление открытого ключа для BLOB
+		return DecodePublicKey(szKeyOID, pBlob, cbBlob)->Encode(); 
+	}
+	// получить BLOB открытого ключа для X.509-представления
+	virtual std::vector<BYTE> CspConvertPublicKey(const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID) const override
+	{
+		// получить BLOB открытого ключа для X.509-представления
+		return DecodePublicKey(*pInfo)->BlobCSP(algID); 
+	}
+	// получить X.509-представление открытого ключа из контейнера  
+	virtual std::vector<BYTE> CspExportPublicKey(HCRYPTPROV hContainer, DWORD keySpec, PCSTR szKeyOID) const override;
+
+	// получить X.509-представление открытого ключа для описателя 
+	virtual std::vector<BYTE> CspExportPublicKey(HCRYPTKEY hKey, PCSTR szKeyOID) const override;
+
+	// импортировать X.509-представление открытого ключа
+	virtual HCRYPTKEY CspImportPublicKey(HCRYPTPROV hProvider, const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID) const override;
+
+	// получить PKCS8-представление личного ключа из контейнера  
+	virtual std::vector<BYTE> CspExportPrivateKey(HCRYPTPROV hContainer, DWORD keySpec, PCSTR szKeyOID) const override;
+
+	// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+	virtual HCRYPTKEY CspImportKeyPair(HCRYPTPROV hContainer, DWORD keySpec,
+		const CERT_PUBLIC_KEY_INFO* pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, ALG_ID algID, DWORD dwFlags) const override;
+
+	// получить X.509-представление открытого ключа для описателя 
+	virtual std::vector<BYTE> BCryptExportPublicKey(BCRYPT_KEY_HANDLE hKey, PCSTR szKeyOID, DWORD keySpec) const override;
+
+	// импортировать X.509-представление открытого ключа
+	virtual BCRYPT_KEY_HANDLE BCryptImportPublicKey(PCWSTR szProvider, const CERT_PUBLIC_KEY_INFO* pInfo, DWORD keySpec) const override;
+
+	// получить PKCS8-представление личного ключа
+	virtual std::vector<BYTE> BCryptExportPrivateKey(BCRYPT_KEY_HANDLE hKeyPair, PCSTR szKeyOID, DWORD keySpec) const override;
+
+	// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+	virtual BCRYPT_KEY_HANDLE BCryptImportKeyPair(PCWSTR szProvider, 
+		const CERT_PUBLIC_KEY_INFO* pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, DWORD keySpec) const override;
+
+	// получить X.509-представление открытого ключа для описателя 
+	virtual std::vector<BYTE> NCryptExportPublicKey(NCRYPT_KEY_HANDLE hKey, PCSTR szKeyOID, DWORD keySpec) const override;
+
+	// импортировать X.509-представление открытого ключа
+	virtual NCRYPT_KEY_HANDLE NCryptImportPublicKey(NCRYPT_PROV_HANDLE hProvider, const CERT_PUBLIC_KEY_INFO* pInfo, DWORD keySpec) const override;
+
+	// получить PKCS8-представление личного ключа
+	virtual std::vector<BYTE> NCryptExportPrivateKey(NCRYPT_KEY_HANDLE hKeyPair, PCSTR szKeyOID, DWORD keySpec) const override;
+
+	// импортировать X.509- и PKCS8-представление пары клюючей в контейнер
+	virtual void NCryptImportKeyPair(NCRYPT_KEY_HANDLE hKeyPair,
+		const CERT_PUBLIC_KEY_INFO*	pPublicInfo, const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, DWORD keySpec) const override;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// Зарегистрированная информация для OID
+///////////////////////////////////////////////////////////////////////////////
+inline PCCRYPT_OID_INFO FindOIDInfo(DWORD dwGroupID, PCSTR szOID)
+{
+	// получить зарегистрированную информацию
+	return ::CryptFindOIDInfo(CRYPT_OID_INFO_OID_KEY, (PVOID)szOID, dwGroupID); 
+}
+// найти информацию открытого ключа 
+WINCRYPT_CALL PCCRYPT_OID_INFO FindPublicKeyOID(PCSTR szKeyOID, DWORD keySpec); 
+
+///////////////////////////////////////////////////////////////////////////////
+// Тип атрибута или расширения. Задает соответствие OID и отображаемого имени. 
+///////////////////////////////////////////////////////////////////////////////
+class AttributeType 
+{
+	// перечислить зарегистрированные типы атрибутов
+	public: static WINCRYPT_CALL std::vector<std::string> Enumerate(); 
+
+	// зарегистрировать тип атрибута
+	public: static WINCRYPT_CALL void Register(PCSTR szOID, PCWSTR szName, DWORD dwFlags); 
+	// отменить регистрацию типа атрибута
+	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
+
+	// идентификатор атрибута
+	private: std::string _strOID; std::wstring _name; 
+
+	// конструктор
+	public: AttributeType(const char* szOID) : _strOID(szOID), _name(L"OID.")
+	{
+ 		// указать отображаемое имя 
+		for (; *szOID; szOID++) _name += (wchar_t)*szOID; 
+	} 
+	// идентификатор атрибута
+	public: const char* OID() const { return _strOID.c_str(); }
+	// отображаемое имя
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Тип атрибута RDN. Задает соответствие OID, символьного X.500-идентификатора 
+// для OID, а также списка допустимых типов CERT_RDN_*, отсортированного в 
+// порядке предпочтения.
+///////////////////////////////////////////////////////////////////////////////
+class RDNAttributeType : public AttributeType
+{
+	// перечислить зарегистрированные атрибуты RDN
+	public: static WINCRYPT_CALL std::vector<std::string> Enumerate(); 
+
+	// зарегистрировать тип атрибута RDN
+	public: static WINCRYPT_CALL void Register(PCSTR szOID, 
+		PCWSTR szName, const std::vector<DWORD>& types, DWORD dwFlags
+	); 
+	// отменить регистрацию тип атрибута RDN
+	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
+
+	// конструктор
+	public: RDNAttributeType(const char* szOID) : AttributeType(szOID) {}
+
+	// допустимые типы значений атрибута
+	public: WINCRYPT_CALL std::vector<DWORD> ValueTypes() const; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Тип политики сертификата. Задает соответствие OID и отображаемого имени. 
+///////////////////////////////////////////////////////////////////////////////
+class CertificatePolicyType 
+{
+	// перечислить зарегистрированные атрибуты
+	public: static WINCRYPT_CALL std::vector<std::string> Enumerate(); 
+
+	// зарегистрировать тип атрибута
+	public: static WINCRYPT_CALL void Register(PCSTR szOID, PCWSTR szName, DWORD dwFlags); 
+	// отменить регистрацию типа атрибута
+	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
+
+	// идентификатор атрибута и его описание 
+	private: std::string _strOID; std::wstring _name; 
+
+	// конструктор
+	public: CertificatePolicyType(const char* szOID) : _strOID(szOID), _name(L"OID.")
+	{
+		// указать отображаемое имя 
+		for (; *szOID; szOID++) _name += (wchar_t)*szOID; 
+	}
+	// идентификатор способа использования
+	public: const char* OID() const { return _strOID.c_str(); }
+	// отображаемое имя 
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
+}; 
+
+///////////////////////////////////////////////////////////////////////////////
+// Тип расширенного использования ключа. Задает соответствие OID и 
+// отображаемого имени. 
+///////////////////////////////////////////////////////////////////////////////
+class EnhancedKeyUsageType 
+{
+	// перечислить зарегистрированные атрибуты
+	public: static WINCRYPT_CALL std::vector<std::string> Enumerate(); 
+
+	// зарегистрировать тип атрибута
+	public: static WINCRYPT_CALL void Register(PCSTR szOID, PCWSTR szName, DWORD dwFlags); 
+	// отменить регистрацию типа атрибута
+	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
+
+	// идентификатор атрибута и его описание 
+	private: std::string _strOID; std::wstring _name; 
+
+	// конструктор
+	public: EnhancedKeyUsageType(const char* szOID) : _strOID(szOID), _name(L"OID.")
+	{
+		// указать отображаемое имя 
+		for (; *szOID; szOID++) _name += (wchar_t)*szOID; 
+	}
+	// идентификатор способа использования
+	public: const char* OID() const { return _strOID.c_str(); }
+	// описание способа использования
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
+}; 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Значение в реестре для функций расширения
 ///////////////////////////////////////////////////////////////////////////////
@@ -367,7 +486,7 @@ class FunctionExtensionOID : public IFunctionExtensionOID
 	public: virtual PCSTR OID         () const override { return _szOID;               } 
 
 	// перечислить параметры регистрации
-	public: virtual std::map<std::wstring, std::shared_ptr<IRegistryValue> > EnumRegistryValues() const override; 
+	public: virtual std::vector<std::wstring> EnumRegistryValues() const override; 
 	// получить параметр регистрации
 	public: virtual std::shared_ptr<IRegistryValue> GetRegistryValue(PCWSTR szName) const override
 	{
@@ -410,7 +529,7 @@ class FunctionExtensionDefaultOID : public IFunctionExtensionDefaultOID
 	public: virtual PCSTR OID         () const override { return CRYPT_DEFAULT_OID;    } 
 
 	// перечислить параметры регистрации
-	public: virtual std::map<std::wstring, std::shared_ptr<IRegistryValue> > EnumRegistryValues() const override; 
+	public: virtual std::vector<std::wstring> EnumRegistryValues() const override; 
 
 	// получить параметр регистрации
 	public: virtual std::shared_ptr<IRegistryValue> GetRegistryValue(PCWSTR szName) const override
@@ -477,6 +596,4 @@ class FunctionExtensionSet : public IFunctionExtensionSet
 		); 
 	}
 };
-
 }}}
-

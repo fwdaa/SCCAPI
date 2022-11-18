@@ -216,13 +216,31 @@ Crypto::ANSI::RSA::DecodeRSAPSSParameters(const void* pvEncoded, size_t cbEncode
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Параметры ключей
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<NCryptBufferDesc> Windows::Crypto::ANSI::RSA::Parameters::ParamsCNG() const
+{
+	// выделить буфер требуемого размера
+	std::shared_ptr<NCryptBufferDesc> pParameters = AllocateStruct<NCryptBufferDesc>(sizeof(NCryptBuffer)); 
+
+	// указать номер версии
+	PCWSTR szAlgName = NCRYPT_RSA_ALGORITHM; pParameters->ulVersion = NCRYPTBUFFER_VERSION; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (NCryptBuffer*)(pParameters.get() + 1); pParameters->cBuffers = 1; 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], NCRYPTBUFFER_PKCS_ALG_ID, szAlgName); return pParameters; 
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Открытый ключ 
 ///////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<Windows::Crypto::ANSI::RSA::PublicKey>
 Windows::Crypto::ANSI::RSA::PublicKey::Decode(const CERT_PUBLIC_KEY_INFO& info)
 {
 	// выполнить преобразование кодировки
-	SIZE_T cbBlob = 0; std::shared_ptr<BCRYPT_RSAKEY_BLOB> pBlob = ASN1::DecodeStruct<BCRYPT_RSAKEY_BLOB>(
+	size_t cbBlob = 0; std::shared_ptr<BCRYPT_RSAKEY_BLOB> pBlob = ASN1::DecodeStruct<BCRYPT_RSAKEY_BLOB>(
 		CNG_RSA_PUBLIC_KEY_BLOB, info.PublicKey.pbData, info.PublicKey.cbData, 0, &cbBlob
 	); 
 	// раскодировать открытый ключ
@@ -286,7 +304,7 @@ Windows::Crypto::ANSI::RSA::PublicKey::PublicKey(
 	const CRYPT_UINT_BLOB& modulus, const CRYPT_UINT_BLOB& publicExponent)
 
 	// указать параметры
-	: _pParameters(KeyParameters::Create()) 
+	: _pParameters(Parameters::Create()) 
 {
 	// определить размер параметров в битах
 	DWORD bitsModulus = GetBits(modulus); DWORD bitsPublicExponent = GetBits(publicExponent); 
@@ -309,7 +327,7 @@ Windows::Crypto::ANSI::RSA::PublicKey::PublicKey(
 	const CRYPT_UINT_REVERSE_BLOB& modulus, const CRYPT_UINT_REVERSE_BLOB& publicExponent)
 
 	// указать параметры
-	: _pParameters(KeyParameters::Create()) 
+	: _pParameters(Parameters::Create()) 
 {
 	// определить размер параметров в битах
 	DWORD bitsModulus = GetBits(modulus); DWORD bitsPublicExponent = GetBits(publicExponent); 
@@ -350,21 +368,6 @@ std::vector<BYTE> Windows::Crypto::ANSI::RSA::PublicKey::BlobCSP(ALG_ID algID) c
 
 	// скопировать значение модуля
 	memcpy(pBlobRSA + 1, _info.modulus.pbData, _info.modulus.cbData); return blob; 
-}
-
-std::shared_ptr<NCryptBufferDesc> Windows::Crypto::ANSI::RSA::PublicKey::ParamsCNG(DWORD) const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<NCryptBufferDesc> pParameters = AllocateStruct<NCryptBufferDesc>(sizeof(NCryptBuffer)); 
-
-	// указать номер версии
-	PCWSTR szAlgName = NCRYPT_RSA_ALGORITHM; pParameters->ulVersion = NCRYPTBUFFER_VERSION; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (NCryptBuffer*)(pParameters.get() + 1); pParameters->cBuffers = 1; 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], NCRYPTBUFFER_PKCS_ALG_ID, szAlgName); return pParameters; 
 }
 
 std::vector<BYTE> Windows::Crypto::ANSI::RSA::PublicKey::BlobCNG(DWORD) const
@@ -416,7 +419,7 @@ std::shared_ptr<Windows::Crypto::ANSI::RSA::KeyPair>
 Windows::Crypto::ANSI::RSA::KeyPair::Decode(const CRYPT_PRIVATE_KEY_INFO& info)
 {
 	// выполнить преобразование кодировки
-	SIZE_T cbBlob = 0; std::shared_ptr<BCRYPT_RSAKEY_BLOB> pBlob = ASN1::DecodeStruct<BCRYPT_RSAKEY_BLOB>(
+	size_t cbBlob = 0; std::shared_ptr<BCRYPT_RSAKEY_BLOB> pBlob = ASN1::DecodeStruct<BCRYPT_RSAKEY_BLOB>(
 		CNG_RSA_PRIVATE_KEY_BLOB, info.PrivateKey.pbData, info.PrivateKey.cbData, 0, &cbBlob
 	); 
 	// раскодировать личный ключ
@@ -498,7 +501,7 @@ Windows::Crypto::ANSI::RSA::KeyPair::KeyPair(const CRYPT_UINT_BLOB& modulus,
 	const CRYPT_UINT_BLOB& coefficient) 
 
 	// указать параметры
-	: _pParameters(KeyParameters::Create()) 
+	: _pParameters(Parameters::Create()) 
 {
 	// определить размер параметров в битах
 	DWORD bitsModulus        = GetBits(modulus       ); DWORD bitsCoefficient     = GetBits(coefficient    );  
@@ -546,7 +549,7 @@ Windows::Crypto::ANSI::RSA::KeyPair::KeyPair(const CRYPT_UINT_REVERSE_BLOB& modu
 	const CRYPT_UINT_REVERSE_BLOB& coefficient) 
 
 	// указать параметры
-	: _pParameters(KeyParameters::Create()) 
+	: _pParameters(Parameters::Create()) 
 {
 	// определить размер параметров в битах
 	DWORD bitsModulus        = GetBits(modulus       ); DWORD bitsCoefficient     = GetBits(coefficient    );  
@@ -622,21 +625,6 @@ std::vector<BYTE> Windows::Crypto::ANSI::RSA::KeyPair::BlobCSP(ALG_ID algID) con
 	pDest = memcpy(pDest, _info.modulus.cbData / 2, _info.exponent2      ); 
 	pDest = memcpy(pDest, _info.modulus.cbData / 2, _info.coefficient    ); 
 	pDest = memcpy(pDest, _info.modulus.cbData,     _info.privateExponent); return blob; 
-}
-
-std::shared_ptr<NCryptBufferDesc> Windows::Crypto::ANSI::RSA::KeyPair::ParamsCNG(DWORD) const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<NCryptBufferDesc> pParameters = AllocateStruct<NCryptBufferDesc>(sizeof(NCryptBuffer)); 
-
-	// указать номер версии
-	PCWSTR szAlgName = NCRYPT_RSA_ALGORITHM; pParameters->ulVersion = NCRYPTBUFFER_VERSION; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (NCryptBuffer*)(pParameters.get() + 1); pParameters->cBuffers = 1; 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], NCRYPTBUFFER_PKCS_ALG_ID, szAlgName); return pParameters; 
 }
 
 std::vector<BYTE> Windows::Crypto::ANSI::RSA::KeyPair::BlobCNG(DWORD) const

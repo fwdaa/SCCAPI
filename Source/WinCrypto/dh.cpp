@@ -376,7 +376,7 @@ Windows::Crypto::ANSI::X942::Parameters::Parameters(PCSTR szOID, const CRYPT_UIN
 	const ValidationParameters& validationParameters)
 
 	// раскодировать параметры проверки
-	: _oid(szOID), _validationParameters(validationParameters) 
+	: _validationParameters(validationParameters) 
 {
 	// инициализировать параметры
 	PCWSTR szAlgName = NCRYPT_DH_ALGORITHM; _cngParameters.ulVersion = NCRYPTBUFFER_VERSION; 
@@ -412,6 +412,44 @@ Windows::Crypto::ANSI::X942::Parameters::Parameters(PCSTR szOID, const CRYPT_UIN
 
 	// указать параметры проверки
 	_parameters.pValidationParams = _validationParameters.get(); 
+
+	// в зависимости от идентификатора 
+	if (strcmp(szOID, szOID_ANSI_X942_DH) == 0)
+	{
+		// закодировать параметры
+		std::vector<BYTE> encoded = ::Crypto::ANSI::X942::EncodeParameters(_parameters); 
+
+		// выделить буфер требуемого размера 
+		_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+		// указать адрес идентификатора
+		PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_ANSI_X942_DH; 
+
+		// скопировать закодированные параметры 
+		memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+		// указать адрес и размер закодированных параметров
+		_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
+	}
+	else {
+		// указать параметры 
+		CERT_DH_PARAMETERS parameters = { _parameters.p, _parameters.g }; 
+
+		// закодировать параметры
+		std::vector<BYTE> encoded = ::Crypto::ANSI::X942::EncodeParameters(_parameters); 
+
+		// выделить буфер требуемого размера 
+		_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+		// указать адрес идентификатора
+		PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_RSA_DH; 
+
+		// скопировать закодированные параметры 
+		memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+		// указать адрес и размер закодированных параметров
+		_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
+	}
 }
  
 Windows::Crypto::ANSI::X942::Parameters::Parameters(PCSTR szOID, const CRYPT_UINT_REVERSE_BLOB& p, 
@@ -419,7 +457,7 @@ Windows::Crypto::ANSI::X942::Parameters::Parameters(PCSTR szOID, const CRYPT_UIN
 	const CRYPT_UINT_REVERSE_BLOB& j, const ValidationParameters& validationParameters)
 
 	// раскодировать параметры проверки
-	: _oid(szOID), _validationParameters(validationParameters) 
+	: _validationParameters(validationParameters) 
 {
 	// инициализировать параметры
 	PCWSTR szAlgName = NCRYPT_DH_ALGORITHM; _cngParameters.ulVersion = NCRYPTBUFFER_VERSION; 
@@ -455,6 +493,44 @@ Windows::Crypto::ANSI::X942::Parameters::Parameters(PCSTR szOID, const CRYPT_UIN
 
 	// указать параметры проверки
 	_parameters.pValidationParams = _validationParameters.get(); 
+
+	// в зависимости от идентификатора 
+	if (strcmp(szOID, szOID_ANSI_X942_DH) == 0)
+	{
+		// закодировать параметры
+		std::vector<BYTE> encoded = ::Crypto::ANSI::X942::EncodeParameters(_parameters); 
+
+		// выделить буфер требуемого размера 
+		_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+		// указать адрес идентификатора
+		PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_ANSI_X942_DH; 
+
+		// скопировать закодированные параметры 
+		memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+		// указать адрес и размер закодированных параметров
+		_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
+	}
+	else {
+		// указать параметры 
+		CERT_DH_PARAMETERS parameters = { _parameters.p, _parameters.g }; 
+
+		// закодировать параметры
+		std::vector<BYTE> encoded = ::Crypto::ANSI::X942::EncodeParameters(_parameters); 
+
+		// выделить буфер требуемого размера 
+		_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+		// указать адрес идентификатора
+		PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_RSA_DH; 
+
+		// скопировать закодированные параметры 
+		memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+		// указать адрес и размер закодированных параметров
+		_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
+	}
 }
 
 std::vector<BYTE> Windows::Crypto::ANSI::X942::Parameters::BlobCSP(DWORD bitsX) const
@@ -531,40 +607,6 @@ std::vector<BYTE> Windows::Crypto::ANSI::X942::Parameters::BlobCNG() const
 	// скопировать параметры
 	pDest = memrev(pDest, pBlob->cbKeyLength, _parameters.p); 
 	pDest = memrev(pDest, pBlob->cbKeyLength, _parameters.g); return blob; 
-}
-
-std::vector<BYTE> Windows::Crypto::ANSI::X942::Parameters::Encode() const
-{
-	// инициализировать переменные 
-	CRYPT_ALGORITHM_IDENTIFIER info = { (PSTR)OID() }; 
-
-	// в зависимости от идентификатора 
-	if (strcmp(OID(), szOID_ANSI_X942_DH) == 0)
-	{
-		// закодировать параметры
-		std::vector<BYTE> encoded = ::Crypto::ANSI::X942::EncodeParameters(_parameters); 
-
-		// указать представление параметров
-		info.Parameters.pbData = &encoded[0]; 
-		info.Parameters.cbData = (DWORD)encoded.size(); 
-
-		// вернуть закодированное представление
-		return ASN1::ISO::AlgorithmIdentifier(info).Encode(); 
-	}
-	else {
-		// указать параметры 
-		CERT_DH_PARAMETERS parameters = { _parameters.p, _parameters.g }; 
-
-		// закодировать параметры
-		std::vector<BYTE> encoded = ::Crypto::ANSI::X942::EncodeParameters(parameters); 
-
-		// указать представление параметров
-		info.Parameters.pbData = &encoded[0]; 
-		info.Parameters.cbData = (DWORD)encoded.size(); 
-
-		// вернуть закодированное представление
-		return ASN1::ISO::AlgorithmIdentifier(info).Encode(); 
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -924,6 +966,25 @@ std::vector<BYTE> Windows::Crypto::ANSI::X942::PrivateKey::Encode(const CRYPT_AT
 ///////////////////////////////////////////////////////////////////////////////
 // Пара ключей
 ///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Windows::Crypto::ANSI::X942::KeyPair> 
+Windows::Crypto::ANSI::X942::KeyPair::Decode(
+	const CRYPT_PRIVATE_KEY_INFO& privateInfo, const CERT_PUBLIC_KEY_INFO& publicInfo)
+{
+	// раскодировать параметры алгоритма
+	std::shared_ptr<X942::Parameters> pParameters = X942::Parameters::Decode(publicInfo.Algorithm); 
+
+	// раскодировать открытый ключ
+	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X942::DecodePublicKey(
+		publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData
+	); 
+	// раскодировать личный ключ
+	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X942::DecodePrivateKey(
+		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
+	); 
+	// вернуть пару ключей ключ 
+	return std::shared_ptr<KeyPair>(new KeyPair(pParameters, *pY, *pX)); 
+}
+
 std::shared_ptr<Windows::Crypto::ANSI::X942::KeyPair> 
 Windows::Crypto::ANSI::X942::KeyPair::Decode(PCSTR szOID, const BLOBHEADER* pBlob, size_t cbBlob)
 {

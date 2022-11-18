@@ -68,6 +68,11 @@ namespace Windows { namespace Crypto { namespace CSP {
 ///////////////////////////////////////////////////////////////////////////////
 class ProviderHandle { private: HCRYPTPROV _hProvider; 
 
+	// получить параметр 
+	public: static std::vector<BYTE> GetBinary(HCRYPTPROV hProvider, DWORD dwParam, DWORD dwFlags); 
+	public: static std::wstring      GetString(HCRYPTPROV hProvider, DWORD dwParam, DWORD dwFlags); 
+	public: static DWORD             GetUInt32(HCRYPTPROV hProvider, DWORD dwParam, DWORD dwFlags); 
+
 	// конструктор
 	public: ProviderHandle(DWORD, PCWSTR, PCWSTR, DWORD);  
 	// конструктор
@@ -83,12 +88,25 @@ class ProviderHandle { private: HCRYPTPROV _hProvider;
 	// признак наличия описателя
 	public: operator bool () const { return _hProvider != NULL; } 
 
-	// получить параметр алгоритма
-	public: std::vector<BYTE> GetBinary(DWORD dwParam, DWORD dwFlags) const; 
-	public: std::wstring      GetString(DWORD dwParam, DWORD dwFlags) const; 
-	public: DWORD             GetUInt32(DWORD dwParam, DWORD dwFlags) const; 
-
-	// установить параметр алгоритма
+	// получить параметр 
+	public: std::vector<BYTE> GetBinary(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return ProviderHandle::GetBinary(*this, dwParam, dwFlags); 
+	}
+	// получить параметр 
+	public: std::wstring GetString(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return ProviderHandle::GetString(*this, dwParam, dwFlags); 
+	}
+	// получить параметр 
+	public: DWORD GetUInt32(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return ProviderHandle::GetUInt32(*this, dwParam, dwFlags); 
+	}
+	// установить параметр 
 	public: void SetBinary(DWORD dwParam, const void* pvData, DWORD dwFlags); 
 	public: void SetUInt32(DWORD dwParam, DWORD       dwData, DWORD dwFlags)
 	{
@@ -106,6 +124,10 @@ class ProviderHandle { private: HCRYPTPROV _hProvider;
 ///////////////////////////////////////////////////////////////////////////////
 class DigestHandle { private: std::shared_ptr<void> _pDigestPtr; 
 
+	// получить параметр 
+	public: static std::vector<BYTE> GetBinary(HCRYPTHASH hHash, DWORD dwParam, DWORD dwFlags); 
+	public: static DWORD             GetUInt32(HCRYPTHASH hHash, DWORD dwParam, DWORD dwFlags); 
+
 	// конструктор
 	public: DigestHandle(HCRYPTPROV hProvider, HCRYPTKEY hKey, ALG_ID algID, DWORD dwFlags); 
 	// конструктор
@@ -121,10 +143,18 @@ class DigestHandle { private: std::shared_ptr<void> _pDigestPtr;
 	// создать копию алгоритма
 	public: DigestHandle Duplicate(DWORD dwFlags) const; 
 
-	// получить параметр алгоритма
-	public: std::vector<BYTE> GetBinary(DWORD dwParam, DWORD dwFlags) const; 
-	public: DWORD             GetUInt32(DWORD dwParam, DWORD dwFlags) const; 
-
+	// получить параметр 
+	public: std::vector<BYTE> GetBinary(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return DigestHandle::GetBinary(*this, dwParam, dwFlags); 
+	}
+	// получить параметр 
+	public: DWORD GetUInt32(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return DigestHandle::GetUInt32(*this, dwParam, dwFlags); 
+	}
 	// установить параметр алгоритма
 	public: void SetBinary(DWORD dwParam, const void* pvData, DWORD dwFlags); 
 	public: void SetUInt32(DWORD dwParam, DWORD       dwData, DWORD dwFlags)
@@ -138,6 +168,13 @@ class DigestHandle { private: std::shared_ptr<void> _pDigestPtr;
 // Описатель ключевого алгоритма
 ///////////////////////////////////////////////////////////////////////////////
 class KeyHandle { private: std::shared_ptr<void> _pKeyPtr; 
+
+	// получить параметр 
+	public: static std::vector<BYTE> GetBinary(HCRYPTKEY hKey, DWORD dwParam, DWORD dwFlags); 
+	public: static DWORD             GetUInt32(HCRYPTKEY hKey, DWORD dwParam, DWORD dwFlags); 
+
+	// экспортировать ключ
+	public: static std::vector<BYTE> Export(HCRYPTKEY hKey, DWORD typeBLOB, HCRYPTKEY hExportKey, DWORD dwFlags); 
 
 	// извлечь пару ключей из контейнера
 	public: static KeyHandle FromContainer(HCRYPTPROV hContainer, DWORD dwKeySpec); 
@@ -158,7 +195,12 @@ class KeyHandle { private: std::shared_ptr<void> _pKeyPtr;
 	}
 	// импортировать ключ 
 	public: static KeyHandle ImportX509(HCRYPTPROV hProvider, 
-		const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID, DWORD dwFlags
+		const CERT_PUBLIC_KEY_INFO* pInfo, ALG_ID algID
+	); 
+	// импортировать ключ 
+	public: static KeyHandle ImportPKCS8(HCRYPTPROV hProvider, 
+		DWORD keySpec, const CERT_PUBLIC_KEY_INFO* pPublicInfo, 
+		const CRYPT_PRIVATE_KEY_INFO* pPrivateInfo, ALG_ID algID, DWORD dwFlags
 	); 
 	// импортировать ключ 
 	public: static KeyHandle Import(HCRYPTPROV hProvider, 
@@ -179,10 +221,18 @@ class KeyHandle { private: std::shared_ptr<void> _pKeyPtr;
 	// создать копию алгоритма
 	public: KeyHandle Duplicate(DWORD dwFlags) const; 
 
-	// получить параметр алгоритма
-	public: std::vector<BYTE> GetBinary(DWORD dwParam, DWORD dwFlags) const; 
-	public: DWORD             GetUInt32(DWORD dwParam, DWORD dwFlags) const; 
-
+	// получить параметр 
+	public: std::vector<BYTE> GetBinary(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return KeyHandle::GetBinary(*this, dwParam, dwFlags); 
+	}
+	// получить параметр 
+	public: DWORD GetUInt32(DWORD dwParam, DWORD dwFlags) const
+	{
+		// получить параметр 
+		return KeyHandle::GetUInt32(*this, dwParam, dwFlags); 
+	}
 	// установить параметр алгоритма
 	public: void SetBinary(DWORD dwParam, const void* pvData, DWORD dwFlags); 
 	public: void SetUInt32(DWORD dwParam, DWORD       dwData, DWORD dwFlags)
@@ -191,7 +241,11 @@ class KeyHandle { private: std::shared_ptr<void> _pKeyPtr;
 		SetBinary(dwParam, &dwData, dwFlags); 
 	}
 	// экспортировать ключ
-	public: std::vector<BYTE> Export(DWORD typeBLOB, HCRYPTKEY hExportKey, DWORD dwFlags) const; 
+	public: std::vector<BYTE> Export(DWORD typeBLOB, HCRYPTKEY hExportKey, DWORD dwFlags) const
+	{
+		// экспортировать ключ
+		return KeyHandle::Export(*this, typeBLOB, hExportKey, dwFlags); 
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -407,8 +461,8 @@ class PublicKey : public IPublicKey
 	// X.509-представление
 	public: virtual std::vector<BYTE> Encode() const override { return _encoded; }
 
-	// представление ключа для CSP
-	public: virtual std::vector<BYTE> BlobCSP(ALG_ID) const; 
+	// импортировать ключ 
+	public: KeyHandle Import(const ProviderHandle& hProvider, ALG_ID algID) const; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -468,13 +522,13 @@ class KeyPair : public IKeyPair, public IPrivateKey
 	public: virtual std::shared_ptr<IPublicKey> GetPublicKey() const override; 
 
 	// PKCS8-представление
-	public: virtual std::vector<BYTE> Encode(const CRYPT_ATTRIBUTES* pAttributes) const; 
+	public: virtual std::vector<BYTE> Encode(const CRYPT_ATTRIBUTES* pAttributes) const override; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Фабрика ключей асимметричного алгоритма шифрования 
 ///////////////////////////////////////////////////////////////////////////////
-class KeyFactory : public Crypto::IKeyFactory, public AlgorithmInfo
+class KeyFactory : public IKeyFactory, public AlgorithmInfo
 { 
 	// описатель контейнера и идентификатор алгоритма
 	private: ProviderHandle _hContainer; ALG_ID _algID; DWORD _policyFlags; 
@@ -565,12 +619,9 @@ class Algorithm
 		// выполнить преобразование типа
 		const PublicKey& cspPublicKey = (const PublicKey&)publicKey; 
 
-		// получить представление ключа
-		std::vector<BYTE> blob = cspPublicKey.BlobCSP(_algID);
-
 		// импортировать ключ 
-		KeyHandle hKey = KeyHandle::Import(Provider(), NULL, blob, 0); 
-	
+		KeyHandle hKey = cspPublicKey.Import(Provider(), _algID); 
+			
 		// указать параметры ключа
 		Init(hKey); return hKey; 
 	}
@@ -1195,6 +1246,9 @@ class BlockCipher : public AlgorithmT<IBlockCipher>
 		// создать режим дополнения 
 		return std::shared_ptr<BlockPadding>(new Padding::ISO10126(rand)); 
 	}
+	// режим шифрования по умолчанию
+	public: virtual uint32_t GetDefaultMode() const override; 
+
 	// создать режим ECB
 	public: virtual std::shared_ptr<Crypto::ICipher> CreateECB(uint32_t padding) const override 
 	{ 
@@ -1603,17 +1657,7 @@ class Environment : public IEnvironment
 	}
 	// найти провайдеры для ключа
 	public: virtual std::vector<std::wstring> FindProviders(
-		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const override
-	{
-		// найти информацию идентификатора
-		PCCRYPT_OID_INFO pInfo = ASN1::FindPublicKeyOID(parameters.pszObjId, keySpec); 
-
-		// проверить наличие информации
-		if (!pInfo) return std::vector<std::wstring>(); 
-
-		// найти провайдеры для ключа
-		return IEnvironment::FindProviders(parameters, keySpec); 
-	}
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const override; 
 }; 
 
 namespace ANSI {
@@ -1725,10 +1769,7 @@ namespace RSA  {
 class KeyFactory : public CSP::KeyFactory
 { 
 	// конструктор
-	public: KeyFactory(const ProviderHandle& hContainer, const CRYPT_ALGORITHM_IDENTIFIER& parameters, ALG_ID algID, DWORD policyFlags) 
-		
-		// сохранить переданные параметры
-		: CSP::KeyFactory(hContainer, parameters, algID, policyFlags) {} 
+	public: KeyFactory(const ProviderHandle& hContainer, ALG_ID algID, DWORD policyFlags); 
 };
 
 ///////////////////////////////////////////////////////////////////////////////

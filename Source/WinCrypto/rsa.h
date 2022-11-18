@@ -6,32 +6,27 @@ namespace Windows { namespace Crypto { namespace ANSI { namespace RSA {
 ///////////////////////////////////////////////////////////////////////////////
 // Параметры ключа
 ///////////////////////////////////////////////////////////////////////////////
-class KeyParameters : public IKeyParameters
+class Parameters : public IKeyParameters
 {
+	private: CRYPT_ALGORITHM_IDENTIFIER _info; 
+
 	// конструктор
 	public: static std::shared_ptr<IKeyParameters> Create()
 	{
 		// сохранить параметры алгоритма
-		return std::shared_ptr<IKeyParameters>(new KeyParameters()); 
+		return std::shared_ptr<IKeyParameters>(new Parameters()); 
 	}
-	// идентификатор ключа
-	public: virtual const char* OID() const override { return szOID_RSA_RSA; }
+	// конструктор
+	private: Parameters() { _info.pszObjId = (PSTR)szOID_RSA_RSA; 
 
-	// закодированное представление параметров
-	public: virtual std::vector<uint8_t> Encode() const override 
-	{ 
-		// указать представление NULL
-		BYTE encodedParameters[2] = { 0x05, 0x00 }; 
+		// указать отсутствие параметров
+		_info.Parameters.pbData = nullptr; _info.Parameters.cbData = 0; 
+	}
+	// значение параметров 
+	public: virtual const CRYPT_ALGORITHM_IDENTIFIER& Decoded() const override { return _info; }
 
-		// инициализировать переменные 
-		CRYPT_ALGORITHM_IDENTIFIER info = { (PSTR)OID() }; 
-
-		// указать представление параметров
-		info.Parameters.pbData = encodedParameters; info.Parameters.cbData = 2; 
-
-		// вернуть закодированное представление
-		return ASN1::ISO::AlgorithmIdentifier(info).Encode(); 
-	} 
+	// параметры при импорте CNG
+	public: std::shared_ptr<NCryptBufferDesc> ParamsCNG() const;
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +60,11 @@ class PublicKey : public Extension::PublicKey
 	// тип импорта CNG
 	public: virtual PCWSTR TypeCNG() const override { return BCRYPT_RSAPUBLIC_BLOB; }
 	// параметры при импорте CNG
-	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD keySpec) const override;
+	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD) const override 
+	{ 
+		// дополнительные параметры при импорте
+		return ((const RSA::Parameters*)_pParameters.get())->ParamsCNG(); 
+	}
 	// представление ключа для CNG
 	public: virtual std::vector<BYTE> BlobCNG(DWORD keySpec) const override; 
 
@@ -124,7 +123,11 @@ class KeyPair : public Extension::KeyPair, public IPrivateKey
 	// тип импорта CNG
 	public: virtual PCWSTR TypeCNG() const override { return BCRYPT_RSAFULLPRIVATE_BLOB; }
 	// параметры при импорте CNG
-	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD keySpec) const override;
+	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD) const override 
+	{ 
+		// дополнительные параметры при импорте
+		return ((const RSA::Parameters*)_pParameters.get())->ParamsCNG(); 
+	}
 	// представление ключа для CNG
 	public: virtual std::vector<BYTE> BlobCNG(DWORD keySpec) const override; 
 
@@ -132,29 +135,6 @@ class KeyPair : public Extension::KeyPair, public IPrivateKey
 	public: virtual std::vector<BYTE> Encode(const CRYPT_ATTRIBUTES* pAttributes) const override; 
 }; 
 
-///////////////////////////////////////////////////////////////////////////////
-// Фабрика ключей 
-///////////////////////////////////////////////////////////////////////////////
-/*
-class KeyFactory : public IKeyFactory
-{	
-	// дополнительные параметры при импорте
-	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG() const
-	{
-		// выделить буфер требуемого размера
-		std::shared_ptr<NCryptBufferDesc> pParameters = AllocateStruct<NCryptBufferDesc>(sizeof(NCryptBuffer)); 
-
-		// указать номер версии
-		PCWSTR szAlgName = NCRYPT_RSA_ALGORITHM; pParameters->ulVersion = NCRYPTBUFFER_VERSION; 
-
-		// указать адрес параметров
-		pParameters->pBuffers = (NCryptBuffer*)(pParameters.get() + 1); pParameters->cBuffers = 1; 
-
-		// указать значения параметров 
-		BufferSetString(&pParameters->pBuffers[0], NCRYPTBUFFER_PKCS_ALG_ID, szAlgName); return pParameters; 
-	}
-};
-*/
 ///////////////////////////////////////////////////////////////////////////////
 // Расширение фабрики ключей 
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,6 +158,20 @@ class KeyFactory : public Extension::KeyFactory
 		// раскодировать открытый ключ
 		return PublicKey::Decode(pBlob, cbBlob); 
 	}
+	// раскодировать открытый ключ
+	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
+		PCSTR, LPCVOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+	{
+		// раскодировать открытый ключ
+		return PublicKey::Decode(pBlob, cbBlob); 
+	}
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		const CRYPT_PRIVATE_KEY_INFO& privateInfo, const CERT_PUBLIC_KEY_INFO*) const override
+	{
+		// раскодировать пару ключей
+		return KeyPair::Decode(privateInfo); 
+	}
 	// раскодировать пару ключей
 	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
 		PCSTR, const BLOBHEADER* pBlob, size_t cbBlob) const override
@@ -185,12 +179,12 @@ class KeyFactory : public Extension::KeyFactory
 		// раскодировать пару ключей
 		return KeyPair::Decode(pBlob, cbBlob); 
 	}
-	// раскодировать открытый ключ
-	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
-		PCSTR, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		PCSTR, LPCVOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
 	{
-		// раскодировать открытый ключ
-		return PublicKey::Decode(pBlob, cbBlob); 
+		// раскодировать пару ключей
+		return KeyPair::Decode(pBlob, cbBlob); 
 	}
 };
 

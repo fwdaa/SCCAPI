@@ -1,5 +1,6 @@
 #pragma once
 #include "asn1.h"
+#include "crypto.h"
 
 namespace Windows { namespace ASN1 {
 
@@ -59,22 +60,22 @@ class InvalidStringException : public windows_exception
 ///////////////////////////////////////////////////////////////////////////////
 
 // закодировать данные 
-WINCRYPT_CALL std::vector<BYTE> EncodeData(PCSTR szType, LPCVOID pvStructInfo, DWORD dwFlags, BOOL allocate = FALSE); 
+WINCRYPT_CALL std::vector<BYTE> EncodeData(PCSTR szType, const void* pvStructInfo, DWORD dwFlags); 
 // раскодировать данные
-WINCRYPT_CALL SIZE_T DecodeData(PCSTR szType, LPCVOID pvEncoded, SIZE_T cbEncoded, DWORD dwFlags, PVOID pvBuffer, SIZE_T cbBuffer); 
+WINCRYPT_CALL size_t DecodeData(PCSTR szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags, PVOID pvBuffer, size_t cbBuffer); 
 
 template <typename T>
-inline T DecodeData(PCSTR szType, LPCVOID pvEncoded, SIZE_T cbEncoded, DWORD dwFlags)
+inline T DecodeData(PCSTR szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags)
 {
 	// раскодировать данные 
 	T value; DecodeData(szType, pvEncoded, cbEncoded, dwFlags, &value, sizeof(value)); return value; 
 }
 // раскодировать данные
-WINCRYPT_CALL PVOID DecodeDataPtr(PCSTR szType, LPCVOID pvEncoded, SIZE_T cbEncoded, DWORD dwFlags, PSIZE_T pcb = nullptr); 
+WINCRYPT_CALL PVOID DecodeDataPtr(PCSTR szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags, size_t* pcb = nullptr); 
 
 // раскодировать данные
 template <typename T>
-inline std::shared_ptr<T> DecodeStruct(PCSTR szType, LPCVOID pvEncoded, SIZE_T cbEncoded, DWORD dwFlags, PSIZE_T pcb = nullptr)
+inline std::shared_ptr<T> DecodeStruct(PCSTR szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags, size_t* pcb = nullptr)
 {
 	// раскодировать данные 
 	T* ptr = (T*)DecodeDataPtr(szType, pvEncoded, cbEncoded, dwFlags, pcb); 
@@ -94,7 +95,7 @@ inline std::shared_ptr<T> DecodeStruct(PCSTR szType, LPCVOID pvEncoded, SIZE_T c
 // CRYPT_FORMAT_STR_NO_HEX установлен, возвращается признак ошибки. 
 ///////////////////////////////////////////////////////////////////////////////
 WINCRYPT_CALL std::wstring FormatData(
-	PCSTR szType, LPCVOID pvEncoded, SIZE_T cbEncoded, DWORD dwFlags
+	PCSTR szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags
 ); 
 inline std::wstring FormatData(
 	PCSTR szType, const std::vector<BYTE>& encoded, DWORD dwFlags)
@@ -102,15 +103,4 @@ inline std::wstring FormatData(
 	// получить строковое представление
 	return FormatData(szType, &encoded[0], encoded.size(), dwFlags); 
 }
-///////////////////////////////////////////////////////////////////////////////
-// Зарегистрированная информация для OID
-///////////////////////////////////////////////////////////////////////////////
-inline PCCRYPT_OID_INFO FindOIDInfo(DWORD dwGroupID, PCSTR szOID)
-{
-	// получить зарегистрированную информацию
-	return ::CryptFindOIDInfo(CRYPT_OID_INFO_OID_KEY, (PVOID)szOID, dwGroupID); 
-}
-// найти информацию открытого ключа 
-WINCRYPT_CALL PCCRYPT_OID_INFO FindPublicKeyOID(PCSTR szKeyOID, DWORD keySpec); 
-
 }}

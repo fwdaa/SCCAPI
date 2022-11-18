@@ -1,27 +1,26 @@
 #pragma once
-#include "crypto.h"
+#include "cryptdef.h"
+#include <memory>       
+#include <string>
+#include <vector>
 
 namespace ASN1 {
 
 ///////////////////////////////////////////////////////////////////////////////
-// Кодирование INTEGER. Целые числа в структурах CRYPT_INTEGER_BLOB и 
-// CRYPT_UINT_BLOB cодержатся в формате little-endian. При этом для знаковых 
-// чисел предполагается, что в последнем байте старший бит является знаковым. 
+// Кодирование INTEGER
 ///////////////////////////////////////////////////////////////////////////////
 class Integer 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_INTEGER_BLOB* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_INTEGER_BLOB> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Integer(const void* pvEncoded, size_t cbEncoded);
 	// конструктор
-	public: Integer(const CRYPT_INTEGER_BLOB& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Integer() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Integer(const CRYPT_INTEGER_BLOB& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_INTEGER_BLOB* operator &() const { return _ptr; }
+	public: const CRYPT_INTEGER_BLOB* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_INTEGER_BLOB& Value() const { return *_ptr; }
 
@@ -30,33 +29,31 @@ class Integer
 	public: WINCRYPT_CALL int64_t ToInt64() const; 
 
 	// сравнить два закодированных представления
-	public: bool operator != (const Integer& other) const { return *this != *other._ptr; }
-	// сравнить два закодированных представления
 	public: bool operator == (const Integer& other) const { return *this == *other._ptr; }
-
 	// сравнить два закодированных представления
-	public: bool operator != (const CRYPT_INTEGER_BLOB& blob) const { return !(*this == blob); }
+	public: bool operator != (const Integer& other) const { return *this != *other._ptr; }
+
 	// сравнить два закодированных представления
 	public: WINCRYPT_CALL bool operator == (const CRYPT_INTEGER_BLOB& blob) const; 
+	// сравнить два закодированных представления
+	public: WINCRYPT_CALL bool operator != (const CRYPT_INTEGER_BLOB& blob) const; 
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 class UInteger 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_UINT_BLOB* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_UINT_BLOB> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: UInteger(const void* pvEncoded, size_t cbEncoded); 
+	public: WINCRYPT_CALL UInteger(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: UInteger(const CRYPT_UINT_BLOB& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~UInteger() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL UInteger(const CRYPT_UINT_BLOB& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_UINT_BLOB* operator &() const { return _ptr; }
+	public: const CRYPT_UINT_BLOB* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_UINT_BLOB& Value() const { return *_ptr; }
 
@@ -65,63 +62,58 @@ class UInteger
 	public: WINCRYPT_CALL uint64_t ToUInt64() const; 
 
 	// сравнить два закодированных представления
-	public: bool operator != (const UInteger& other) const { return *this != *other._ptr; }
-	// сравнить два закодированных представления
 	public: bool operator == (const UInteger& other) const { return *this == *other._ptr; }
-
 	// сравнить два закодированных представления
-	public: bool operator != (const CRYPT_UINT_BLOB& blob) const { return !(*this == blob); }
+	public: bool operator != (const UInteger& other) const { return *this != *other._ptr; }
+
 	// сравнить два закодированных представления
 	public: WINCRYPT_CALL bool operator == (const CRYPT_UINT_BLOB& blob) const; 
+	// сравнить два закодированных представления
+	public: WINCRYPT_CALL bool operator != (const CRYPT_UINT_BLOB& blob) const; 
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Кодирование ENUMERATED 
 ///////////////////////////////////////////////////////////////////////////////
-class Enumerated { private: int _value; 
+class Enumerated { private: int _value; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Enumerated(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Enumerated(int value) : _value(value) {}
+	public: WINCRYPT_CALL Enumerated(int value); 
 
 	// значение
 	public: int Value() const { return _value; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Кодирование BIT STRING. Биты нумеруются от старшего (наиболее значимого) 
-// к младшему (наименее значимому) биту от первого байта до последнего. 
-// Неиспользуемыми битами (при их наличии) являются младшие биты последнего 
-// байта. При необходимости удаления последних незначимых нулевых битов 
-// при кодировании необходимо использовать в качестве типа szType значение 
-// X509_BITS_WITHOUT_TRAILING_ZEROES. 
+// Кодирование BIT STRING. При необходимости удаления последних незначимых 
+// нулевых битов при кодировании необходимо установить skipZeroes = true
 ///////////////////////////////////////////////////////////////////////////////
 class BitString 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_BIT_BLOB* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(const CRYPT_BIT_BLOB*, CRYPT_BIT_BLOB*, void*, size_t); 
+
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_BIT_BLOB> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL BitString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: BitString(const CRYPT_BIT_BLOB& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~BitString() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL BitString(const CRYPT_BIT_BLOB& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_BIT_BLOB* operator &() const { return _ptr; }
+	public: const CRYPT_BIT_BLOB* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_BIT_BLOB& Value() const { return *_ptr; }
 
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CRYPT_BIT_BLOB* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
 	public: WINCRYPT_CALL std::vector<uint8_t> Encode(bool skipZeroes = false) const; 
 };
@@ -131,83 +123,69 @@ class BitString
 ///////////////////////////////////////////////////////////////////////////////
 class OctetString 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_DATA_BLOB* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(const CRYPT_DATA_BLOB*, CRYPT_DATA_BLOB*, void*, size_t); 
+
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_DATA_BLOB> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL OctetString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: OctetString(const CRYPT_DATA_BLOB& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~OctetString() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL OctetString(const CRYPT_DATA_BLOB& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_DATA_BLOB* operator &() const { return _ptr; }
+	public: const CRYPT_DATA_BLOB* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_DATA_BLOB& Value() const { return *_ptr; }
 
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CRYPT_DATA_BLOB* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Кодирование OBJECT IDENTIFIER
 ///////////////////////////////////////////////////////////////////////////////
-class ObjectIdentifier { private: std::string _strOID; 
+class ObjectIdentifier { private: std::string _strOID; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL ObjectIdentifier(const void* pvEncoded, size_t cbEncoded); 
-
 	// конструктор
-	public: ObjectIdentifier(const char* szOID) : _strOID(szOID) {}
+	public: WINCRYPT_CALL ObjectIdentifier(const char* szValue); 
 
 	// значение 
 	public: const char* Value() const { return _strOID.c_str(); }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Кодирование UTCTime
 ///////////////////////////////////////////////////////////////////////////////
-class UTCTime { private: FILETIME _value; 
+class UTCTime { private: FILETIME _value; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL UTCTime(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: UTCTime(const FILETIME& value) : _value(value) {}
+	public: WINCRYPT_CALL UTCTime(const FILETIME& value); 
 
 	// значение
-	public: FILETIME Value() const { return _value; }
+	public: const FILETIME& Value() const { return _value; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Кодирование строк. При использовании типа X509_ANY_STRING (X509_NAME_VALUE) 
-// в поле dwValueType структуры CERT_NAME_VALUE допустимы значения 
-// CERT_RDN_ENCODED_BLOB, CERT_RDN_OCTET_STRING и CERT_RDN_*_STRING, а поле 
-// Value содержит соответственно ASN.1-закодированное значение строки 
-// (включая заголовок), содержимое байтовой строки OCTET STRING и 
-// ANSI-кодировку символьных строк. При использовании типа 
-// X509_UNICODE_ANY_STRING (X509_UNICODE_NAME_VALUE) в поле dwValueType 
-// допустимы только значения CERT_RDN_*_STRING, а поле Value содержит 
-// Unicode-кодировку символьных строк. 
-// 
+// Кодирование строк
+///////////////////////////////////////////////////////////////////////////////
 // При кодировании строк для X509_UNICODE_ANY_STRING выполняется проверка 
 // допустимости входных значений указанному типу строки. При указании 
 // флага CRYPT_UNICODE_NAME_ENCODE_DISABLE_CHECK_TYPE_FLAG такая проверка 
 // не производится и могут быть закодированы символы, не принадлежащие 
-// набору символов указанного типа строки. Нами указанный флаг не используется. 
-// Типы CERT_RDN_VIDEOTEX_STRING, CERT_RDN_GRAPHIC_STRING и 
-// CERT_RDN_GENERAL_STRING практически не применяются и могут быть не 
-// реализованы или не содержать точный набор своих символов, поэтому их 
-// не следует использовать. Тип CERT_RDN_TELETEX_STRING кодируется в 
-// кодировке UTF-8. 
+// набору символов указанного типа строки. Нами указанный флаг не 
+// используется. Тип CERT_RDN_TELETEX_STRING кодируется в кодировке UTF-8. 
 // 
 // При раскодировке значений типа CERT_RDN_TELETEX_STRING сначала производится 
 // попытка выполнить декодирование UTF-8 и если она неуспешна, то выполняется 
@@ -220,28 +198,23 @@ class UTCTime { private: FILETIME _value;
 ///////////////////////////////////////////////////////////////////////////////
 class String 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_NAME_VALUE* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_NAME_VALUE> _ptr; std::vector<uint8_t> _encoded; 
 
-	// раскодировать строку 
-	public: WINCRYPT_CALL String(DWORD type, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0);
-	// конструктор
-	public: WINCRYPT_CALL String(DWORD type, const wchar_t* szStr, size_t cch = -1); 
 	// раскодировать строку 
 	public: WINCRYPT_CALL String(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
-
 	// конструктор
-	public: String(const CERT_NAME_VALUE& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~String() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL String(DWORD type, const wchar_t* szStr, size_t cch = -1); 
+	// конструктор
+	public: WINCRYPT_CALL String(const CERT_NAME_VALUE& value); 
 
 	// оператор преобразования типа
-	public: const CERT_NAME_VALUE* operator &() const { return _ptr; }
+	public: const CERT_NAME_VALUE* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_NAME_VALUE& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encoded() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// значение строки
 	public: std::wstring ToString() const 
 	{
@@ -253,26 +226,13 @@ class String
 	}
 }; 
 
-// извлечь строковое представление
-WINCRYPT_CALL std::wstring DecodeStringValue(DWORD dwValueType, const void* pvContent, size_t cbContent, DWORD dwFlags = 0); 
-
 class NumericString : public String
 {
-	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_NUMERIC_STRING, pvEncoded, cbEncoded); 
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 
-		// раскодировать строку
-		return NumericString(pvEncoded, cbEncoded).ToString(); 
-	}
 	// раскодировать строку 
-	public: NumericString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_NUMERIC_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL NumericString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: NumericString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -281,21 +241,10 @@ class NumericString : public String
 }; 
 class PrintableString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_PRINTABLE_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return PrintableString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: PrintableString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_PRINTABLE_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL PrintableString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: PrintableString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -304,21 +253,10 @@ class PrintableString : public String
 }; 
 class VisibleString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_VISIBLE_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return VisibleString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: VisibleString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_VISIBLE_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL VisibleString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: VisibleString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -327,21 +265,10 @@ class VisibleString : public String
 }; 
 class IA5String : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_IA5_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return IA5String(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: IA5String(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_IA5_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL IA5String(const void* pvEncoded, size_t cbEncoded);  
 	// конструктор
 	public: IA5String(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -350,21 +277,10 @@ class IA5String : public String
 }; 
 class VideotexString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_VIDEOTEX_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return VideotexString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: VideotexString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_VIDEOTEX_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL VideotexString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: VideotexString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -373,21 +289,10 @@ class VideotexString : public String
 }; 
 class TeletexString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t, DWORD dwFlags = 0); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false, DWORD dwFlags = 0)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_TELETEX_STRING, pvEncoded, cbEncoded, dwFlags); 
-
-		// раскодировать строку
-		return TeletexString(pvEncoded, cbEncoded, dwFlags).ToString(); 
-	}
-	// раскодировать строку 
-	public: TeletexString(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_TELETEX_STRING, pvEncoded, cbEncoded, dwFlags) {} 
-
+	public: WINCRYPT_CALL TeletexString(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0);  
 	// конструктор
 	public: TeletexString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -396,21 +301,10 @@ class TeletexString : public String
 }; 
 class GraphicString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_GRAPHIC_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return GraphicString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: GraphicString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_GRAPHIC_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL GraphicString(const void* pvEncoded, size_t cbEncoded);  
 	// конструктор
 	public: GraphicString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -419,21 +313,10 @@ class GraphicString : public String
 }; 
 class GeneralString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_GENERAL_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return GeneralString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: GeneralString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_GENERAL_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL GeneralString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: GeneralString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -442,21 +325,10 @@ class GeneralString : public String
 }; 
 class UTF8String : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_UTF8_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return UTF8String(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: UTF8String(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_UTF8_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL UTF8String(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: UTF8String(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -465,21 +337,10 @@ class UTF8String : public String
 }; 
 class BMPString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_BMP_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return BMPString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: BMPString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_BMP_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL BMPString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: BMPString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -488,21 +349,10 @@ class BMPString : public String
 }; 
 class UniversalString : public String
 {
+	// раскодировать содержимое
+	public: WINCRYPT_CALL static std::wstring DecodeContent(const void*, size_t); 
 	// раскодировать строку 
-	public: static std::wstring Decode(const void* pvEncoded, size_t cbEncoded, bool content = false)
-	{
-		// раскодировать содержимое строки
-		if (content) return DecodeStringValue(CERT_RDN_UNIVERSAL_STRING, pvEncoded, cbEncoded); 
-
-		// раскодировать строку
-		return UniversalString(pvEncoded, cbEncoded).ToString(); 
-	}
-	// раскодировать строку 
-	public: UniversalString(const void* pvEncoded, size_t cbEncoded) 
-		
-		// раскодировать строку 
-		: String(CERT_RDN_UNIVERSAL_STRING, pvEncoded, cbEncoded, 0) {} 
-
+	public: WINCRYPT_CALL UniversalString(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
 	public: UniversalString(const wchar_t* szStr, size_t cch = -1) 
 		
@@ -515,18 +365,16 @@ class UniversalString : public String
 ///////////////////////////////////////////////////////////////////////////////
 class Sequence 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_SEQUENCE_OF_ANY* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_SEQUENCE_OF_ANY> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Sequence(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Sequence(const CRYPT_SEQUENCE_OF_ANY& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Sequence() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Sequence(const CRYPT_SEQUENCE_OF_ANY& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_SEQUENCE_OF_ANY* operator &() const { return _ptr; }
+	public: const CRYPT_SEQUENCE_OF_ANY* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_SEQUENCE_OF_ANY& Value() const { return *_ptr; }
 
@@ -536,100 +384,67 @@ class Sequence
 	public: const CRYPT_DER_BLOB& operator[](size_t i) const { return _ptr->rgValue[i]; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 namespace ISO 
 {
 ///////////////////////////////////////////////////////////////////////////////
-// Тип атрибута или расширения. Задает соответствие OID и строкового описания. 
-///////////////////////////////////////////////////////////////////////////////
-class AttributeType 
-{
-#ifdef __WINCRYPT_H__
-	// перечислить зарегистрированные типы атрибутов
-	public: static WINCRYPT_CALL std::vector<AttributeType> Enumerate(); 
-
-	// зарегистрировать тип атрибута
-	public: static WINCRYPT_CALL void Register(PCSTR szOID, PCWSTR szName, DWORD dwFlags); 
-	// отменить регистрацию типа атрибута
-	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
-#endif 
-	// идентификатор атрибута и его описание 
-	private: std::string _strOID; std::wstring _name; 
-
-	// конструктор
-	public: AttributeType(const char* szOID, const wchar_t* szName) : _strOID(szOID), _name(szName) {}
-
-	// конструктор
-	public: AttributeType(const char* szOID) : _strOID(szOID)
-	{
-		// указать отображаемое имя 
-		_name = L"OID."; for (; *szOID; szOID++) _name += (wchar_t)*szOID; 
-	}
-	// деструктор
-	public: ~AttributeType() {}
-
-	// идентификатор атрибута
-	public: const char* OID() const { return _strOID.c_str(); }
-	// описание атрибута
-	public: std::wstring Description() const { return _name.c_str(); }
-}; 
-
-///////////////////////////////////////////////////////////////////////////////
 // Атрибут
 ///////////////////////////////////////////////////////////////////////////////
 class Attribute 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_ATTRIBUTE* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(const CRYPT_ATTRIBUTE*, CRYPT_ATTRIBUTE*, void*, size_t); 
+
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_ATTRIBUTE> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Attribute(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Attribute(const CRYPT_ATTRIBUTE& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Attribute() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Attribute(const CRYPT_ATTRIBUTE& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_ATTRIBUTE* operator &() const { return _ptr; }
+	public: const CRYPT_ATTRIBUTE* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_ATTRIBUTE& Value() const { return *_ptr; }
 
 	// идентификатор атрибута
 	public: const char* OID() const { return _ptr->pszObjId; }
-	// тип атрибута
-	public: WINCRYPT_CALL AttributeType GetType() const; 
+	// отображаемое имя
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
 
 	// число элементов
 	public: size_t Count() const { return _ptr->cValue; }
 	// отдельный элемент
 	public: const CRYPT_ATTR_BLOB& operator[](size_t i) const { return _ptr->rgValue[i]; }
 
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CRYPT_ATTRIBUTE* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Атрибуты (параметр szType может быть PKCS_ATTRIBUTES или 
-// X509_SUBJECT_DIR_ATTRS) 
+// Атрибуты (при кодировании SET OF и при кодировании SEQUENCE OF) 
 ///////////////////////////////////////////////////////////////////////////////
 class Attributes 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_ATTRIBUTES* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(const CRYPT_ATTRIBUTES*, CRYPT_ATTRIBUTES*, void*, size_t); 
+}; 
+
+class AttributeSet : public Attributes
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_ATTRIBUTES> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL Attributes(const void* pvEncoded, size_t cbEncoded, bool subjectDirAttrs = false); 
+	public: WINCRYPT_CALL AttributeSet(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Attributes(const CRYPT_ATTRIBUTES& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Attributes() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL AttributeSet(const CRYPT_ATTRIBUTES& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_ATTRIBUTES* operator &() const { return _ptr; }
+	public: const CRYPT_ATTRIBUTES* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_ATTRIBUTES& Value() const { return *_ptr; }
 
@@ -638,41 +453,61 @@ class Attributes
 	// отдельный атрибут
 	public: Attribute operator[](size_t i) const { return _ptr->rgAttr[i]; }
 
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CRYPT_ATTRIBUTES* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(bool subjectDirAttrs = false) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+}; 
+
+class AttributeSequence : public Attributes
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_ATTRIBUTES> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL AttributeSequence(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL AttributeSequence(const CRYPT_ATTRIBUTES& value); 
+
+	// оператор преобразования типа
+	public: const CRYPT_ATTRIBUTES* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CRYPT_ATTRIBUTES& Value() const { return *_ptr; }
+
+	// число атрибутов
+	public: size_t Count() const { return _ptr->cAttr; }
+	// отдельный атрибут
+	public: Attribute operator[](size_t i) const { return _ptr->rgAttr[i]; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Параметры алгоритмов 
+// Параметры алгоритмов. Отсутствие закодированных параметров 
+// (Parameters.cbData = 0) по умолчанию кодируется в тип NULL (0x05, 0x00).
+// Для того, чтобы такого кодирования не происходило OID должен быть 
+// зарегистрирован с флагом CRYPT_OID_NO_NULL_ALGORITHM_PARA_FLAG. 
 ///////////////////////////////////////////////////////////////////////////////
 class AlgorithmIdentifier 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_ALGORITHM_IDENTIFIER* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(
+		const CRYPT_ALGORITHM_IDENTIFIER*, CRYPT_ALGORITHM_IDENTIFIER*, void*, size_t
+	); 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_ALGORITHM_IDENTIFIER> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL AlgorithmIdentifier(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: AlgorithmIdentifier(const CRYPT_ALGORITHM_IDENTIFIER& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~AlgorithmIdentifier() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL AlgorithmIdentifier(const CRYPT_ALGORITHM_IDENTIFIER& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_ALGORITHM_IDENTIFIER* operator &() const { return _ptr; }
+	public: const CRYPT_ALGORITHM_IDENTIFIER* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_ALGORITHM_IDENTIFIER& Value() const { return *_ptr; }
 
-	// идентификатор алгоритма
-	public: const char* OID() const { return _ptr->pszObjId; }
-	// закодированные параметры
-	public: const CRYPT_OBJID_BLOB& Parameters() const { return _ptr->Parameters; }
-
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CRYPT_ALGORITHM_IDENTIFIER* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 namespace PKIX 
@@ -680,33 +515,37 @@ namespace PKIX
 ///////////////////////////////////////////////////////////////////////////////
 // Кодирование CHOICE { utcTime UTCTime, generalTime GeneralizedTime }
 ///////////////////////////////////////////////////////////////////////////////
-class Time { private: FILETIME _value; 
+class Time { private: FILETIME _value; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Time(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Time(const FILETIME& value) : _value(value) {}
+	public: WINCRYPT_CALL Time(const FILETIME& value); 
 
 	// значение
-	public: FILETIME Value() const { return _value; }
+	public: const FILETIME& Value() const { return _value; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Кодирование имен хостов, Email-адресов и URL. В стандарте X.509 указанные 
-// имена представляются в виде IA5String. Однако иногда указанные имена могут 
-// содержать символы, не принадлежащие набору IA5String. Для их поддержки 
-// могут быть использованы Punycode(IDN)-кодирование (https://en.wikipedia.org/wiki/Punycode)
-// и Percent(URL)-кодирование (https://en.wikipedia.org/wiki/Percent-encoding). 
+// Кодирование имен хостов, Email-адресов и URL 
+///////////////////////////////////////////////////////////////////////////////
+// В стандарте X.509 указанные имена представляются в виде IA5String. Однако 
+// иногда указанные имена могут содержать символы, не принадлежащие набору 
+// IA5String. Для их поддержки могут быть использованы Punycode(IDN)-кодирование 
+// (https://en.wikipedia.org/wiki/Punycode) и Percent(URL)-кодирование 
+// (https://en.wikipedia.org/wiki/Percent-encoding). Если имена содержат 
+// недопустимые символы и специальное кодирование не применяется, то в функциях
+// CryptoAPI возникает ошибка CRYPT_E_INVALID_IA5_STRING. 
 // 
 // За использование указанных типов кодирования отвечают флаги 
 // CRYPT_ENCODE_ENABLE_PUNYCODE_FLAG и CRYPT_ENCODE_ENABLE_UTF8PERCENT_FLAG.
 // В различных функциях они называются по разному. Приведенные имена 
 // соответствуют функции EncоdeObject(Ex). Функция DecоdeObject(Ex)
-// использует имена CRYPT_DECODE_ENABLE_UTF8PERCENT_FLAG и 
-// CRYPT_DECODE_ENABLE_PUNYCODE_FLAG, функции CertStrToName и CertNameToStr 
+// использует имена CRYPT_DECODE_ENABLE_PUNYCODE_FLAG и 
+// CRYPT_DECODE_ENABLE_UTF8PERCENT_FLAG, функции CertStrToName и CertNameToStr 
 // используют имя CERT_NAME_STR_ENABLE_PUNYCODE_FLAG (для первого флага).  
 // Указание флага CRYPT_ENCODE_ENABLE_PUNYCODE_FLAG автоматически активирует 
 // флаг CRYPT_ENCODE_ENABLE_UTF8PERCENT_FLAG. 
@@ -717,27 +556,21 @@ class Time { private: FILETIME _value;
 // URL-адреса в поле pwszURL структуры CERT_ALT_NAME_ENTRY) заменяется на 
 // ASCII-эквивалент с использованием преобразования Punycode. Указание флага 
 // CRYPT_ENCODE_ENABLE_UTF8PERCENT_FLAG приводит к тому, что над URL-адресом 
-// дополнительно производится Percent-преобразование. Указанное преобразование 
-// производится после Punycode-преобразования (при его наличии). 
+// производится Percent-преобразование. Указанное преобразование производится 
+// после Punycode-преобразования (при его наличии). 
 // 
 ///////////////////////////////////////////////////////////////////////////////
-// Кодирование отличимых имен (Distinguished Name, DN). Каждое отличимое имя 
-// состоит из нескольких относительных отличимых имен (Relative Distinguished 
-// Name, RDN). Каждый RDN может иметь несколько атрибутов, каждый из которых 
-// содержит OID, который определяет тип и способ кодирования информации в 
-// атрибуте. На практике не рекомендуется использовать несколько атрибутов в 
-// одном RDN, а рекомендуется использовать несколько отдельных RDN с одним 
-// атрибутом.
-// 
-// При использовании типов X509_NAME и X509_UNICODE_NAME в поле dwValueType 
-// структур CERT_RDN_ATTR допустимы все значения CERT_RDN_ANY_TYPE, 
-// CERT_RDN_ENCODED_BLOB, CERT_RDN_OCTET_STRING и CERT_RDN_*_STRING. Отличием 
-// указанных типов является то, что при использовании значения CERT_RDN_*_STRING
-// поле Value содержит ANSI-кодировку символьных строк для типа X509_NAME
-// и Unicode-кодировку символьных строк для типа X509_UNICODE_NAME. 
+// Кодирование отличимых имен (Distinguished Name, DN)
+///////////////////////////////////////////////////////////////////////////////
+// Каждое отличимое имя состоит из нескольких относительных отличимых имен 
+// (Relative Distinguished Name, RDN). Каждый RDN может иметь несколько 
+// атрибутов, каждый из которых содержит OID, который определяет тип и способ 
+// кодирования информации в атрибуте. На практике не рекомендуется 
+// использовать несколько атрибутов в одном RDN, а рекомендуется использовать 
+// несколько отдельных RDN с одним атрибутом.
 // 
 // Типы атрибутов регистрируются функцией CryptRegisterOIDInfo с указанием OID, 
-// символьный X.500-идентификатор для OID (см. ниже), а также списка допустимых 
+// символьного X.500-идентификатора для OID (см. ниже), а также списка допустимых 
 // типов CERT_RDN_*, отсортированного в порядке предпочтения. Для атрибутов, 
 // которые могут иметь произвольный тип из объединения DirectoryString, список 
 // допустимых типов не указывается, что эквивалентно указанию 
@@ -746,7 +579,7 @@ class Time { private: FILETIME _value;
 // При кодировании для известных атрибутов производится проверка корректности 
 // переданного значения атрибута и его типа CERT_RDN_* в допустимых для него 
 // типах данных. Для атрибутов, которые могут иметь произвольный тип из 
-// объединения DirectoryString, указанный тип CERT_RDN_* может быть изменен 
+// объединения DirectoryString, используемый тип CERT_RDN_* может быть изменен 
 // согласно следующему алгоритму: 
 // 1) dwValueType = CERT_RDN_PRINTABLE_STRING -> PrintableString по умолчанию.  
 //    Если установлен флаг CRYPT_UNICODE_NAME_ENCODE_FORCE_UTF8_UNICODE_FLAG, 
@@ -835,11 +668,11 @@ class Time { private: FILETIME _value;
 // допускает использование флагов CERT_NAME_STR_DISABLE_IE4_UTF8_FLAG и 
 // CERT_NAME_STR_ENABLE_PUNYCODE_FLAG, значение которых совпадает со значением 
 // флагов CRYPT_UNICODE_NAME_DECODE_DISABLE_IE4_UTF8_FLAG и 
-// CRYPT_ENCODE_ENABLE_PUNYCODE_FLAG. 
+// CRYPT_DECODE_ENABLE_PUNYCODE_FLAG. 
 // 
 // Для представления OID функция CertNameToStr имеет три режима:  
 // 1) CERT_SIMPLE_NAME_STR - значения OID опускаются; 
-// 2) CERT_OID_NAME_STR    - значение OID используется без префикса; 
+// 2) CERT_OID_NAME_STR    - значение OID используется как есть (без префикса); 
 // 3) CERT_X500_NAME_STR   - используется X.500-идентификатор для OID. При 
 //    этом вместо идентификатора ST используется идентификатор S, а также   
 //    используются следующие дополнительные идентификаторы: 
@@ -893,41 +726,6 @@ class Time { private: FILETIME _value;
 //    применяется CERT_RDN_UTF8_STRING; 
 // 4) применяется CERT_RDN_BMP_STRING. 
 // 
-///////////////////////////////////////////////////////////////////////////////
-// Тип атрибута RDN. Задает соответствие OID, символьного X.500-идентификатора 
-// для OID, а также списка допустимых типов CERT_RDN_*, отсортированного в 
-// порядке предпочтения.
-///////////////////////////////////////////////////////////////////////////////
-class RDNAttributeType : public AttributeType
-{
-#ifdef __WINCRYPT_H__
-	// перечислить зарегистрированные атрибуты RDN
-	public: static WINCRYPT_CALL std::vector<RDNAttributeType> Enumerate(); 
-
-	// зарегистрировать тип атрибута RDN
-	public: static WINCRYPT_CALL void Register(PCSTR szOID, 
-		PCWSTR szName, const std::vector<DWORD>& types, DWORD dwFlags
-	); 
-	// отменить регистрацию тип атрибута RDN
-	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
-#endif 
-	// допустимые типы значений атрибута
-	private: std::vector<DWORD> _types; 
-
-	// конструктор
-	public: RDNAttributeType(const char* szOID, const std::vector<DWORD>& types) : AttributeType(szOID), _types(types) {}
-	// конструктор
-	public: RDNAttributeType(const char* szOID, DWORD type) : AttributeType(szOID), _types(1, type) {}
-
-	// отображаемое имя 
-	public: std::wstring DisplayName() const { return AttributeType::Description(); }
-	// описание атрибута 
-	public: WINCRYPT_CALL std::wstring Description() const; 
-
-	// допустимые типы значений атрибута
-	public: const std::vector<DWORD>& ValueTypes() const { return _types; }
-}; 
-
 class RDNAttribute { private: const CERT_RDN_ATTR* _ptr; 
 	   
 	// конструктор
@@ -938,8 +736,8 @@ class RDNAttribute { private: const CERT_RDN_ATTR* _ptr;
 
 	// идентификатор атрибута
 	public: const char* OID() const { return _ptr->pszObjId; }
-	// тип атрибута
-	public: WINCRYPT_CALL RDNAttributeType GetType() const; 
+	// отображаемое имя
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
 
 	// тип значения атрибута
 	public: DWORD ValueType() const { return _ptr->dwValueType; }
@@ -974,20 +772,20 @@ class RDN { private: const CERT_RDN* _ptr;
 	public: RDNAttribute operator[](size_t i) const { return _ptr->rgRDNAttr[i]; }
 }; 
 
-class DN { private: const CERT_NAME_INFO* _ptr; bool _fDelete; 
+class DN 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_NAME_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL DN(const wchar_t* szName, DWORD dwFlags);
 	// конструктор
 	public: WINCRYPT_CALL DN(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
-
 	// конструктор
-	public: DN(const CERT_NAME_INFO& value) : _ptr(&value), _fDelete(false) {} 
-	// деструктор
-	public: ~DN() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL DN(const CERT_NAME_INFO& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const CERT_NAME_INFO* operator &() const { return _ptr; }
+	public: const CERT_NAME_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_NAME_INFO& Value() const { return *_ptr; }
 
@@ -1000,7 +798,7 @@ class DN { private: const CERT_NAME_INFO* _ptr; bool _fDelete;
 	public: WINCRYPT_CALL const CERT_RDN_ATTR* FindAttribute(const char* szOID) const; 
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags = 0) const; 
 };
@@ -1010,40 +808,35 @@ class DN { private: const CERT_NAME_INFO* _ptr; bool _fDelete;
 ///////////////////////////////////////////////////////////////////////////////
 class PublicKeyInfo 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_PUBLIC_KEY_INFO* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(
+		const CERT_PUBLIC_KEY_INFO*, CERT_PUBLIC_KEY_INFO*, void*, size_t
+	); 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_PUBLIC_KEY_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL PublicKeyInfo(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: PublicKeyInfo(const CERT_PUBLIC_KEY_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~PublicKeyInfo() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL PublicKeyInfo(const CERT_PUBLIC_KEY_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_PUBLIC_KEY_INFO* operator &() const { return _ptr; }
+	public: const CERT_PUBLIC_KEY_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_PUBLIC_KEY_INFO& Value() const { return *_ptr; }
 
-	// параметры открытого ключа
-	public: AlgorithmIdentifier Algorithm() const { return _ptr->Algorithm; }
-	// значение открытого ключа
-	public: BitString PublicKey() const { return _ptr->PublicKey; }
-
-	// сравнить два закодированных представления
-	public: bool operator != (const PublicKeyInfo& other) const { return *this != *other._ptr; }
 	// сравнить два закодированных представления
 	public: bool operator == (const PublicKeyInfo& other) const { return *this == *other._ptr; }
-
 	// сравнить два закодированных представления
-	public: bool operator != (const CERT_PUBLIC_KEY_INFO& info) const { return !(*this == info); }
+	public: bool operator != (const PublicKeyInfo& other) const { return *this != *other._ptr; }
+
 	// сравнить два закодированных представления
 	public: WINCRYPT_CALL bool operator == (const CERT_PUBLIC_KEY_INFO& info) const; 
+	// сравнить два закодированных представления
+	public: WINCRYPT_CALL bool operator != (const CERT_PUBLIC_KEY_INFO& info) const; 
 
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CERT_PUBLIC_KEY_INFO* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1105,33 +898,27 @@ class Extension { private: const CERT_EXTENSION* _ptr;
 
 	// оператор преобразования типа
 	public: const CERT_EXTENSION* operator &() const { return _ptr; }
+	// значение 
+	public: const CERT_EXTENSION& Value() const { return *_ptr; }
 
 	// идентификатор атрибута
 	public: const char* OID() const { return _ptr->pszObjId; }
-	// тип атрибута
-	public: WINCRYPT_CALL AttributeType GetType() const; 
-
-	// признак критичности
-	public: bool Critical() const { return _ptr->fCritical != 0; }
-
-	// значение расширения 
-	public: const CRYPT_OBJID_BLOB& Value() const { return _ptr->Value; }
+	// отображаемое имя
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
 };
 
 class Extensions 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_EXTENSIONS* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_EXTENSIONS> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Extensions(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Extensions(const CERT_EXTENSIONS& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Extensions() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Extensions(const CERT_EXTENSIONS& value); 
 
 	// оператор преобразования типа
-	public: const CERT_EXTENSIONS* operator &() const { return _ptr; }
+	public: const CERT_EXTENSIONS* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_EXTENSIONS& Value() const { return *_ptr; }
 
@@ -1141,33 +928,29 @@ class Extensions
 	public: Extension operator[](size_t i) const { return _ptr->rgExtension[i]; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }  
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// AuthorityKeyIdentifier (2.5.29.1	) szOID_AUTHORITY_KEY_IDENTIFIER  -> CERT_AUTHORITY_KEY_ID_INFO	
-// AuthorityKeyIdentifier (2.5.29.35) szOID_AUTHORITY_KEY_IDENTIFIER2 -> CERT_AUTHORITY_KEY_ID2_INFO 
+// AuthorityKeyIdentifier (2.5.29.1) szOID_AUTHORITY_KEY_IDENTIFIER  -> CERT_AUTHORITY_KEY_ID_INFO	
 ///////////////////////////////////////////////////////////////////////////////
-template <typename T = CERT_AUTHORITY_KEY_ID2_INFO>
-class AuthorityKeyIdentifier
+class LegacyAuthorityKeyIdentifier
 {	
-	// используемое значение и необходимость удаления 
-	private: const T* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_AUTHORITY_KEY_ID_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL AuthorityKeyIdentifier(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL LegacyAuthorityKeyIdentifier(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: AuthorityKeyIdentifier(const T& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~AuthorityKeyIdentifier() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL LegacyAuthorityKeyIdentifier(const CERT_AUTHORITY_KEY_ID_INFO& value); 
 
 	// оператор преобразования типа
-	public: const T* operator &() const { return _ptr; }
+	public: const CERT_AUTHORITY_KEY_ID_INFO* operator &() const { return _ptr.get(); }
 	// значение 
-	public: const T& Value() const { return *_ptr; }
+	public: const CERT_AUTHORITY_KEY_ID_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -1177,98 +960,43 @@ class AuthorityKeyIdentifier
 ///////////////////////////////////////////////////////////////////////////////
 class KeyAttributes 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_KEY_ATTRIBUTES_INFO* _ptr; bool _fDelete;
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_KEY_ATTRIBUTES_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL KeyAttributes(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: KeyAttributes(const CERT_KEY_ATTRIBUTES_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~KeyAttributes() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL KeyAttributes(const CERT_KEY_ATTRIBUTES_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_KEY_ATTRIBUTES_INFO* operator &() const { return _ptr; }
+	public: const CERT_KEY_ATTRIBUTES_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_KEY_ATTRIBUTES_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// CertificatePolicies (2.5.29.3 ) szOID_CERT_POLICIES_95 -> CERT_POLICIES_INFO 
-// CertificatePolicies (2.5.29.32) szOID_CERT_POLICIES	  -> CERT_POLICIES_INFO
+// CertificatePolicies (2.5.29.3) szOID_CERT_POLICIES_95 -> CERT_POLICIES_INFO 
 ///////////////////////////////////////////////////////////////////////////////
-class CertificatePolicyType 
-{
-#ifdef __WINCRYPT_H__
-	// перечислить зарегистрированные атрибуты
-	public: static WINCRYPT_CALL std::vector<CertificatePolicyType> Enumerate(); 
-
-	// зарегистрировать тип атрибута
-	public: static WINCRYPT_CALL void Register(PCSTR szOID, PCWSTR szName, DWORD dwFlags); 
-	// отменить регистрацию типа атрибута
-	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
-#endif 
-	// идентификатор атрибута и его описание 
-	private: std::string _strOID; std::wstring _name; 
-
-	// конструктор
-	public: CertificatePolicyType(const char* szOID, const wchar_t* szName) : _strOID(szOID), _name(szName) {}
-
-	// конструктор
-	public: CertificatePolicyType(const char* szOID) : _strOID(szOID)
-	{
-		// указать отображаемое имя 
-		_name = L"OID."; for (; *szOID; szOID++) _name += (wchar_t)*szOID; 
-	}
-	// идентификатор способа использования
-	public: const char* OID() const { return _strOID.c_str(); }
-	// описание способа использования
-	public: std::wstring Description() const { return _name.c_str(); }
-}; 
-
 class CertificatePolicy95Qualifier1
 {
-	// уточнение политики использования сертификата
-	private: PCERT_POLICY95_QUALIFIER1 _ptr; std::vector<uint8_t> _encoded; 
-	
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICY95_QUALIFIER1> _ptr; std::vector<uint8_t> _encoded; 
+
 	// конструктор
 	public: WINCRYPT_CALL CertificatePolicy95Qualifier1(const void* pvEncoded, size_t cbEncoded); 
-	// деструктор
-	public: ~CertificatePolicy95Qualifier1() { Crypto::FreeMemory(_ptr); }
 
 	// оператор преобразования типа
-	public: const CERT_POLICY95_QUALIFIER1* operator &() const { return _ptr; }
+	public: const CERT_POLICY95_QUALIFIER1* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_POLICY95_QUALIFIER1& Value() const { return *_ptr; }
 
 	// закодированное представление
 	public: std::vector<uint8_t> Encode() const { return _encoded; }
-}; 
-
-class CertificatePolicyUserNotice
-{
-	// используемое значение и необходимость удаления 
-	private: const CERT_POLICY_QUALIFIER_USER_NOTICE* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL CertificatePolicyUserNotice(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: CertificatePolicyUserNotice(const CERT_POLICY_QUALIFIER_USER_NOTICE& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificatePolicyUserNotice() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CERT_POLICY_QUALIFIER_USER_NOTICE* operator &() const { return _ptr; }
-	// значение 
-	public: const CERT_POLICY_QUALIFIER_USER_NOTICE& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
 }; 
 
 class CertificatePolicy { private: const CERT_POLICY_INFO* _ptr; 
@@ -1283,37 +1011,39 @@ class CertificatePolicy { private: const CERT_POLICY_INFO* _ptr;
 
 	// идентификатор политики
 	public: const char* OID() const { return _ptr->pszPolicyIdentifier; }
-	// тип политики
-	public: WINCRYPT_CALL CertificatePolicyType GetType() const; 
+	// отображаемое имя
+	public: WINCRYPT_CALL std::wstring DisplayName() const; 
 
 	// число уточняющих элементов
 	public: size_t Count() const { return _ptr->cPolicyQualifier; }
 	// отдельный уточняющий элемент
 	public: const CERT_POLICY_QUALIFIER_INFO& operator[](size_t i) const { _ptr->rgPolicyQualifier[i]; }
+	// найти уточнение политики
+	public: const CERT_POLICY_QUALIFIER_INFO* FindQualifier(const char* szPolicyQualifierOID) const
+	{
+		// для всех уточнений
+		for (DWORD i = 0; i < _ptr->cPolicyQualifier; i++)
+		{
+			// перейти на описание уточнения
+			const CERT_POLICY_QUALIFIER_INFO& qualifier = _ptr->rgPolicyQualifier[i]; 
 
-	// получить уточнение политики
-	public: WINCRYPT_CALL std::shared_ptr<CertificatePolicy95Qualifier1> GetQualifier1() const; 
-	// получить уточнение политики
-	public: WINCRYPT_CALL std::wstring GetCertificationPracticeStatementURI() const; 
-	// получить уточнение политики
-	public: WINCRYPT_CALL std::shared_ptr<CertificatePolicyUserNotice> GetUserNotice() const; 
+			// проверить совпадение идентификатора
+			if (strcmp(qualifier.pszPolicyQualifierId, szPolicyQualifierOID) == 0) return &qualifier; 
+		}
+		return nullptr; 
+	}
 };
 
-template <bool Policies95 = false>
-class CertificatePolicies 
+class LegacyCertificatePolicies 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_POLICIES_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICIES_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL CertificatePolicies(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: CertificatePolicies(const CERT_POLICIES_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificatePolicies() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL LegacyCertificatePolicies(const void* pvEncoded, size_t cbEncoded); 
 
 	// оператор преобразования типа
-	public: const CERT_POLICIES_INFO* operator &() const { return _ptr; }
+	public: const CERT_POLICIES_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_POLICIES_INFO& Value() const { return *_ptr; }
 
@@ -1321,11 +1051,40 @@ class CertificatePolicies
 	public: size_t Count() const { return _ptr->cPolicyInfo; }
 	// отдельный элемент
 	public: CertificatePolicy operator[](size_t i) const { return _ptr->rgPolicyInfo[i]; }
+	// получить политику
+	public: const CERT_POLICY_INFO* FindPolicy(const char* szPolicyOID) const
+	{
+		// для всех политик
+		for (DWORD i = 0; i < _ptr->cPolicyInfo; i++)
+		{
+			// перейти на описание политики
+			const CERT_POLICY_INFO& policy = _ptr->rgPolicyInfo[i]; 
 
+			// проверить отсутствие идентификатора
+			if (policy.pszPolicyIdentifier && *policy.pszPolicyIdentifier)
+			{
+				// проверить совпадение идентификатора
+				if (strcmp(policy.pszPolicyIdentifier, szPolicyOID) == 0) return &policy; 
+			}
+			// для всех уточняющих элементов
+			else for (DWORD j = 0; j < policy.cPolicyQualifier; j++)
+			{
+				// перейти на уточняющий элемент
+				const CERT_POLICY_QUALIFIER_INFO& qualifier = policy.rgPolicyQualifier[j]; 
+
+				// проверить OID уточняющего элемента
+				if (strcmp(qualifier.pszPolicyQualifierId, szPolicyOID) == 0) return &policy; 
+			}
+		}
+		return nullptr; 
+	}
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
+
+	// получить уточнение политики
+	public: WINCRYPT_CALL std::shared_ptr<CertificatePolicy95Qualifier1> GetNetscapePolicy() const; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1333,65 +1092,50 @@ class CertificatePolicies
 ///////////////////////////////////////////////////////////////////////////////
 class KeyUsageRestriction 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_KEY_USAGE_RESTRICTION_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_KEY_USAGE_RESTRICTION_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL KeyUsageRestriction(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: KeyUsageRestriction(const CERT_KEY_USAGE_RESTRICTION_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~KeyUsageRestriction() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL KeyUsageRestriction(const CERT_KEY_USAGE_RESTRICTION_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_KEY_USAGE_RESTRICTION_INFO* operator &() const { return _ptr; }
+	public: const CERT_KEY_USAGE_RESTRICTION_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_KEY_USAGE_RESTRICTION_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// PolicyMappings (2.5.29.5	 ) szOID_LEGACY_POLICY_MAPPINGS	-> CERT_POLICY_MAPPINGS_INFO
-// PolicyMappings (2.5.29.33 ) szOID_POLICY_MAPPINGS		-> CERT_POLICY_MAPPINGS_INFO
+// PolicyMappings (2.5.29.5) szOID_LEGACY_POLICY_MAPPINGS	-> CERT_POLICY_MAPPINGS_INFO
 ///////////////////////////////////////////////////////////////////////////////
-template <bool legacy = false>
-class PolicyMapping 
+class LegacyPolicyMapping 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_POLICY_MAPPINGS_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICY_MAPPINGS_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL PolicyMapping(const void* pvEncoded, size_t cbEncoded); 
+	public: WINCRYPT_CALL LegacyPolicyMapping(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: PolicyMapping(const CERT_POLICY_MAPPINGS_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~PolicyMapping() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL LegacyPolicyMapping(const CERT_POLICY_MAPPINGS_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_POLICY_MAPPINGS_INFO* operator &() const { return _ptr; }
+	public: const CERT_POLICY_MAPPINGS_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_POLICY_MAPPINGS_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Кодирование альтернативных имен (Alternate Name). В качестве типа szType 
-// может быть szOID_SUBJECT_ALT_NAME2, szOID_ISSUER_ALT_NAME2 или 
-// szOID_SUBJECT_ALT_NAME, szOID_ISSUER_ALT_NAME. В альтернативных именах 
-// некоторые строки должны быть только из символов набора CERT_RDN_IA5_STRING. 
-// Если такого не происходит и не указано использование Punicode- и Percent-
-// преобразований, то возникает ошибка CRYPT_E_INVALID_IA5_STRING. 
-///////////////////////////////////////////////////////////////////////////////
-// SubjectAlternateName	(2.5.29.7 ) szOID_SUBJECT_ALT_NAME	-> CERT_ALT_NAME_INFO 
-// IssuerAlternateName	(2.5.29.8 ) szOID_ISSUER_ALT_NAME	-> CERT_ALT_NAME_INFO 
-// SubjectAlternateName	(2.5.29.17) szOID_SUBJECT_ALT_NAME2	-> CERT_ALT_NAME_INFO
-// IssuerAlternateName	(2.5.29.18) szOID_ISSUER_ALT_NAME2	-> CERT_ALT_NAME_INFO
+// SubjectAlternateName	(2.5.29.7) szOID_SUBJECT_ALT_NAME	-> CERT_ALT_NAME_INFO 
+// IssuerAlternateName	(2.5.29.8) szOID_ISSUER_ALT_NAME	-> CERT_ALT_NAME_INFO 
 ///////////////////////////////////////////////////////////////////////////////
 class AlternateNameEntry { private: const CERT_ALT_NAME_ENTRY* _ptr; 
 
@@ -1412,24 +1156,18 @@ class AlternateNameEntry { private: const CERT_ALT_NAME_ENTRY* _ptr;
 	public: WINCRYPT_CALL bool HasRDN(PCERT_RDN pRDN) const; 
 };
 
-class AlternateName 
+class LegacyAlternateName 
 { 
-	// используемое значение и необходимость удаления 
-	private: std::string _type; const CERT_ALT_NAME_INFO* _ptr; bool _fDelete; 
+	// OID, значение и его закодированное представление
+	private: std::string _oid; std::shared_ptr<CERT_ALT_NAME_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL AlternateName(const char* szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL LegacyAlternateName(const char* szOID, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
 	// конструктор
-	public: AlternateName(const char* szType, const CERT_ALT_NAME_INFO& value) 
-		
-		// сохранить переданные параметры
-		: _type(szType), _ptr(&value), _fDelete(false) {} 
-
-	// деструктор
-	public: ~AlternateName() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL LegacyAlternateName(const char* szOID, const CERT_ALT_NAME_INFO& value, DWORD dwFlags); 
 
 	// оператор преобразования типа
-	public: const CERT_ALT_NAME_INFO* operator &() const { return _ptr; }
+	public: const CERT_ALT_NAME_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_ALT_NAME_INFO& Value() const { return *_ptr; }
 
@@ -1439,35 +1177,31 @@ class AlternateName
 	public: AlternateNameEntry operator[](size_t i) const { return _ptr->rgAltEntry[i]; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }  
 	// строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags = 0) const; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // BasicConstraints	(2.5.29.10) szOID_BASIC_CONSTRAINTS	 -> CERT_BASIC_CONSTRAINTS_INFO	
-// BasicConstraints	(2.5.29.19) szOID_BASIC_CONSTRAINTS2 -> CERT_BASIC_CONSTRAINTS2_INFO
 ///////////////////////////////////////////////////////////////////////////////
-template <typename T>
-class BasicConstraints 
+class LegacyBasicConstraints 
 { 
-	// используемое значение и необходимость удаления 
-	private: const T* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_BASIC_CONSTRAINTS_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL BasicConstraints(const void* pvEncoded, size_t cbEncoded); 
+	public: WINCRYPT_CALL LegacyBasicConstraints(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: BasicConstraints(const T& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~BasicConstraints() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL LegacyBasicConstraints(const CERT_BASIC_CONSTRAINTS_INFO& value); 
 
 	// оператор преобразования типа
-	public: const T* operator &() const { return _ptr; }
+	public: const CERT_BASIC_CONSTRAINTS_INFO* operator &() const { return _ptr.get(); }
 	// значение 
-	public: const T& Value() const { return *_ptr; }
+	public: const CERT_BASIC_CONSTRAINTS_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const;
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -1477,23 +1211,21 @@ class BasicConstraints
 ///////////////////////////////////////////////////////////////////////////////
 class SubjectKeyIdentifier 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_DATA_BLOB* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_DATA_BLOB> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL SubjectKeyIdentifier(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: SubjectKeyIdentifier(const CRYPT_DATA_BLOB& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~SubjectKeyIdentifier() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL SubjectKeyIdentifier(const CRYPT_DATA_BLOB& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_DATA_BLOB* operator &() const { return _ptr; }
+	public: const CRYPT_DATA_BLOB* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_DATA_BLOB& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -1503,8 +1235,8 @@ class SubjectKeyIdentifier
 ///////////////////////////////////////////////////////////////////////////////
 class KeyUsage 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_BIT_BLOB* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_BIT_BLOB> _ptr; std::vector<uint8_t> _encoded; 
 
 	// закодировать использование ключа
 	public: static std::vector<uint8_t> Encode(DWORD keyUsage); 
@@ -1514,17 +1246,69 @@ class KeyUsage
 	// конструктор
 	public: WINCRYPT_CALL KeyUsage(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: KeyUsage(const CRYPT_BIT_BLOB& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~KeyUsage() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL KeyUsage(const CRYPT_BIT_BLOB& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_BIT_BLOB* operator &() const { return _ptr; }
+	public: const CRYPT_BIT_BLOB* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_BIT_BLOB& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+	// получить строковое представление
+	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SubjectAlternateName	(2.5.29.17) szOID_SUBJECT_ALT_NAME2	-> CERT_ALT_NAME_INFO
+// IssuerAlternateName	(2.5.29.18) szOID_ISSUER_ALT_NAME2	-> CERT_ALT_NAME_INFO
+///////////////////////////////////////////////////////////////////////////////
+class AlternateName 
+{ 
+	// OID, значение и его закодированное представление
+	private: std::string _oid; std::shared_ptr<CERT_ALT_NAME_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL AlternateName(const char* szOID, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
+	// конструктор
+	public: WINCRYPT_CALL AlternateName(const char* szOID, const CERT_ALT_NAME_INFO& value, DWORD dwFlags = 0); 
+
+	// оператор преобразования типа
+	public: const CERT_ALT_NAME_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_ALT_NAME_INFO& Value() const { return *_ptr; }
+
+	// число элементов
+	public: size_t Count() const { return _ptr->cAltEntry; }
+	// отдельный элемент
+	public: AlternateNameEntry operator[](size_t i) const { return _ptr->rgAltEntry[i]; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+	// строковое представление
+	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags = 0) const; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// BasicConstraints	(2.5.29.19) szOID_BASIC_CONSTRAINTS2 -> CERT_BASIC_CONSTRAINTS2_INFO
+///////////////////////////////////////////////////////////////////////////////
+class BasicConstraints 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_BASIC_CONSTRAINTS2_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL BasicConstraints(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL BasicConstraints(const CERT_BASIC_CONSTRAINTS2_INFO& value); 
+
+	// оператор преобразования типа
+	public: const CERT_BASIC_CONSTRAINTS2_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_BASIC_CONSTRAINTS2_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -1532,18 +1316,18 @@ class KeyUsage
 ///////////////////////////////////////////////////////////////////////////////
 // CRLNumber (2.5.29.20) szOID_CRL_NUMBER -> INT 
 ///////////////////////////////////////////////////////////////////////////////
-class CRLNumber { private: int _value; 
+class CRLNumber { private: int _value; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL CRLNumber(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: CRLNumber(int value) : _value(value) {}
+	public: WINCRYPT_CALL CRLNumber(int value); 
 
 	// значение
 	public: int Value() const { return _value; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<BYTE> Encode() const; 
+	public: std::vector<BYTE> Encode() const { return _encoded; } 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1565,174 +1349,241 @@ class CRLReasonCode : public Enumerated
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// CRLDistributionPoints (2.5.29.25)						-> CRL_DIST_POINTS_INFO
-// CRLDistributionPoints (2.5.29.31) szOID_CRL_DIST_POINTS	-> CRL_DIST_POINTS_INFO
-// FreshestCRL			 (2.5.29.46) szOID_FRESHEST_CRL		-> CRL_DIST_POINTS_INFO
-///////////////////////////////////////////////////////////////////////////////
-class CRLDistributionPoints 
-{ 
-	// используемое значение и необходимость удаления 
-	private: std::string _type; const CRL_DIST_POINTS_INFO* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL CRLDistributionPoints(const char* szType, const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
-	// конструктор
-	public: CRLDistributionPoints(const char* szType, const CRL_DIST_POINTS_INFO& value) 
-		
-		// сохранить переданные параметры 
-		: _type(szType), _ptr(&value), _fDelete(false) {}
-
-	// деструктор
-	public: ~CRLDistributionPoints() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CRL_DIST_POINTS_INFO* operator &() const { return _ptr; }
-	// значение 
-	public: const CRL_DIST_POINTS_INFO& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
-	// получить строковое представление
-	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// IssuingDistributionPoint (2.5.29.26)							 -> CRL_ISSUING_DIST_POINT
-// IssuingDistributionPoint (2.5.29.28) szOID_ISSUING_DIST_POINT -> CRL_ISSUING_DIST_POINT
-///////////////////////////////////////////////////////////////////////////////
-class IssuingDistributionPoint 
-{ 
-	// используемое значение и необходимость удаления 
-	private: const CRL_ISSUING_DIST_POINT* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: IssuingDistributionPoint(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
-	// конструктор
-	public: IssuingDistributionPoint(const CRL_ISSUING_DIST_POINT& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~IssuingDistributionPoint() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CRL_ISSUING_DIST_POINT* operator &() const { return _ptr; }
-	// значение 
-	public: const CRL_ISSUING_DIST_POINT& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // DeltaCRLIndicator (2.5.29.27) szOID_DELTA_CRL_INDICATOR -> INT
 ///////////////////////////////////////////////////////////////////////////////
-class DeltaCRLIndicator { private: int _value; 
+class DeltaCRLIndicator { private: int _value; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL DeltaCRLIndicator(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: DeltaCRLIndicator(int value) : _value(value) {}
+	public: WINCRYPT_CALL DeltaCRLIndicator(int value); 
 
 	// значение
 	public: int Value() const { return _value; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 }; 
+
+///////////////////////////////////////////////////////////////////////////////
+// IssuingDistributionPoint (2.5.29.28) szOID_ISSUING_DIST_POINT -> CRL_ISSUING_DIST_POINT
+///////////////////////////////////////////////////////////////////////////////
+class IssuingDistributionPoint 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRL_ISSUING_DIST_POINT> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL IssuingDistributionPoint(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
+	// конструктор
+	public: WINCRYPT_CALL IssuingDistributionPoint(const CRL_ISSUING_DIST_POINT& value, DWORD dwFlags = 0); 
+
+	// оператор преобразования типа
+	public: const CRL_ISSUING_DIST_POINT* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CRL_ISSUING_DIST_POINT& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // NameConstraints (2.5.29.30) szOID_NAME_CONSTRAINTS -> CERT_NAME_CONSTRAINTS_INFO
 ///////////////////////////////////////////////////////////////////////////////
 class NameConstraints 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_NAME_CONSTRAINTS_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_NAME_CONSTRAINTS_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL NameConstraints(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL NameConstraints(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
 	// конструктор
-	public: NameConstraints(const CERT_NAME_CONSTRAINTS_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~NameConstraints() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL NameConstraints(const CERT_NAME_CONSTRAINTS_INFO& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const CERT_NAME_CONSTRAINTS_INFO* operator &() const { return _ptr; }
+	public: const CERT_NAME_CONSTRAINTS_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_NAME_CONSTRAINTS_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// PolicyConstraints (2.5.29.34)						  -> CERT_POLICY_CONSTRAINTS_INFO
+// CRLDistributionPoints (2.5.29.31) szOID_CRL_DIST_POINTS	-> CRL_DIST_POINTS_INFO
+///////////////////////////////////////////////////////////////////////////////
+class CRLDistributionPoints 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRL_DIST_POINTS_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CRLDistributionPoints(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
+	// конструктор
+	public: WINCRYPT_CALL CRLDistributionPoints(const CRL_DIST_POINTS_INFO& value, DWORD dwFlags = 0); 
+
+	// оператор преобразования типа
+	public: const CRL_DIST_POINTS_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CRL_DIST_POINTS_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
+	// получить строковое представление
+	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CertificatePolicies (2.5.29.32) szOID_CERT_POLICIES	  -> CERT_POLICIES_INFO
+///////////////////////////////////////////////////////////////////////////////
+class CertificatePolicyUserNotice
+{
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICY_QUALIFIER_USER_NOTICE> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CertificatePolicyUserNotice(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL CertificatePolicyUserNotice(const CERT_POLICY_QUALIFIER_USER_NOTICE& value); 
+
+	// оператор преобразования типа
+	public: const CERT_POLICY_QUALIFIER_USER_NOTICE* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_POLICY_QUALIFIER_USER_NOTICE& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+}; 
+
+class CertificatePolicies 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICIES_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CertificatePolicies(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL CertificatePolicies(const CERT_POLICIES_INFO& value); 
+	// оператор преобразования типа
+	public: const CERT_POLICIES_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_POLICIES_INFO& Value() const { return *_ptr; }
+
+	// число элементов
+	public: size_t Count() const { return _ptr->cPolicyInfo; }
+	// отдельный элемент
+	public: CertificatePolicy operator[](size_t i) const { return _ptr->rgPolicyInfo[i]; }
+	// получить политику
+	public: const CERT_POLICY_INFO* FindPolicy(const char* szPolicyOID) const
+	{
+		// для всех политик
+		for (DWORD i = 0; i < _ptr->cPolicyInfo; i++)
+		{
+			// перейти на описание политики
+			const CERT_POLICY_INFO& policy = _ptr->rgPolicyInfo[i]; 
+
+			// проверить наличие идентификатора
+			if (!policy.pszPolicyIdentifier || !*policy.pszPolicyIdentifier) continue;  
+			
+			// проверить совпадение идентификатора
+			if (strcmp(policy.pszPolicyIdentifier, szPolicyOID) == 0) return &_ptr->rgPolicyInfo[i]; 
+		}
+		return nullptr; 
+	}
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+	// получить строковое представление
+	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
+
+	// получить уточнение политики
+	public: WINCRYPT_CALL std::wstring GetCertificationPracticeStatementURI(const char* szPolicyOID) const; 
+	// получить уточнение политики
+	public: WINCRYPT_CALL std::shared_ptr<CertificatePolicyUserNotice> GetUserNotice(const char* szPolicyOID) const; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// PolicyMappings (2.5.29.33) szOID_POLICY_MAPPINGS	-> CERT_POLICY_MAPPINGS_INFO
+///////////////////////////////////////////////////////////////////////////////
+class PolicyMapping 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICY_MAPPINGS_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL PolicyMapping(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL PolicyMapping(const CERT_POLICY_MAPPINGS_INFO& value); 
+
+	// оператор преобразования типа
+	public: const CERT_POLICY_MAPPINGS_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_POLICY_MAPPINGS_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// AuthorityKeyIdentifier (2.5.29.35) szOID_AUTHORITY_KEY_IDENTIFIER2 -> CERT_AUTHORITY_KEY_ID2_INFO 
+///////////////////////////////////////////////////////////////////////////////
+class AuthorityKeyIdentifier
+{	
+	// значение 
+	private: std::shared_ptr<CERT_AUTHORITY_KEY_ID2_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL AuthorityKeyIdentifier(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
+	// конструктор
+	public: WINCRYPT_CALL AuthorityKeyIdentifier(const CERT_AUTHORITY_KEY_ID2_INFO& value, DWORD dwFlags = 0); 
+
+	// оператор преобразования типа
+	public: const CERT_AUTHORITY_KEY_ID2_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_AUTHORITY_KEY_ID2_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+	// получить строковое представление
+	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // PolicyConstraints (2.5.29.36) szOID_POLICY_CONSTRAINTS -> CERT_POLICY_CONSTRAINTS_INFO
 ///////////////////////////////////////////////////////////////////////////////
 class PolicyConstraints 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_POLICY_CONSTRAINTS_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_POLICY_CONSTRAINTS_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL PolicyConstraints(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: PolicyConstraints(const CERT_POLICY_CONSTRAINTS_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~PolicyConstraints() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL PolicyConstraints(const CERT_POLICY_CONSTRAINTS_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_POLICY_CONSTRAINTS_INFO* operator &() const { return _ptr; }
+	public: const CERT_POLICY_CONSTRAINTS_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_POLICY_CONSTRAINTS_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // EnhancedKeyUsage	(2.5.29.37) szOID_ENHANCED_KEY_USAGE -> CERT_ENHKEY_USAGE
 ///////////////////////////////////////////////////////////////////////////////
-class EnhancedKeyUsageType 
-{
-#ifdef __WINCRYPT_H__
-	// перечислить зарегистрированные атрибуты
-	public: static WINCRYPT_CALL std::vector<EnhancedKeyUsageType> Enumerate(); 
-
-	// зарегистрировать тип атрибута
-	public: static WINCRYPT_CALL void Register(PCSTR szOID, PCWSTR szName, DWORD dwFlags); 
-	// отменить регистрацию типа атрибута
-	public: static WINCRYPT_CALL void Unregister(PCSTR szOID); 
-#endif 
-	// идентификатор атрибута и его описание 
-	private: std::string _strOID; std::wstring _name; 
-
-	// конструктор
-	public: EnhancedKeyUsageType(const char* szOID, const wchar_t* szName) : _strOID(szOID), _name(szName) {}
-
-	// конструктор
-	public: EnhancedKeyUsageType(const char* szOID) : _strOID(szOID)
-	{
-		// указать отображаемое имя 
-		_name = L"OID."; for (; *szOID; szOID++) _name += (wchar_t)*szOID; 
-	}
-	// идентификатор способа использования
-	public: const char* OID() const { return _strOID.c_str(); }
-	// описание способа использования
-	public: std::wstring Description() const { return _name.c_str(); }
-}; 
-
 class EnhancedKeyUsage 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_ENHKEY_USAGE* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_ENHKEY_USAGE> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL EnhancedKeyUsage(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: EnhancedKeyUsage(const CERT_ENHKEY_USAGE& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~EnhancedKeyUsage() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL EnhancedKeyUsage(const CERT_ENHKEY_USAGE& value); 
 
 	// оператор преобразования типа
-	public: const CERT_ENHKEY_USAGE* operator &() const { return _ptr; }
+	public: const CERT_ENHKEY_USAGE* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_ENHKEY_USAGE& Value() const { return *_ptr; }
 
@@ -1740,12 +1591,35 @@ class EnhancedKeyUsage
 	public: size_t Count() const { return _ptr->cUsageIdentifier; }
 	// отдельный элемент
 	public: const char* operator[](size_t i) const { return _ptr->rgpszUsageIdentifier[i]; }
-
-	// тип отдельного элемента
-	public: WINCRYPT_CALL EnhancedKeyUsageType GetType(size_t i) const; 
+	// отображаемое имя
+	public: WINCRYPT_CALL std::wstring DisplayName(size_t i) const; 
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
+	// получить строковое представление
+	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// FreshestCRL (2.5.29.46) szOID_FRESHEST_CRL -> CRL_DIST_POINTS_INFO
+///////////////////////////////////////////////////////////////////////////////
+class FreshestCRL 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRL_DIST_POINTS_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL FreshestCRL(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
+	// конструктор
+	public: WINCRYPT_CALL FreshestCRL(const CRL_DIST_POINTS_INFO& value, DWORD dwFlags = 0); 
+
+	// оператор преобразования типа
+	public: const CRL_DIST_POINTS_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CRL_DIST_POINTS_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -1753,18 +1627,18 @@ class EnhancedKeyUsage
 ///////////////////////////////////////////////////////////////////////////////
 // InhibitAnyPolicy (2.5.29.54) szOID_INHIBIT_ANY_POLICY -> INT
 ///////////////////////////////////////////////////////////////////////////////
-class InhibitAnyPolicy { private: int _value; 
+class InhibitAnyPolicy { private: int _value; std::vector<uint8_t> _encoded;
 
 	// конструктор
 	public: WINCRYPT_CALL InhibitAnyPolicy(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: InhibitAnyPolicy(int value) : _value(value) {}
+	public: WINCRYPT_CALL InhibitAnyPolicy(int value); 
 
 	// значение
 	public: int Value() const { return _value; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1772,23 +1646,21 @@ class InhibitAnyPolicy { private: int _value;
 ///////////////////////////////////////////////////////////////////////////////
 class AuthorityInfoAccess 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_AUTHORITY_INFO_ACCESS* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_AUTHORITY_INFO_ACCESS> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL AuthorityInfoAccess(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL AuthorityInfoAccess(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
 	// конструктор
-	public: AuthorityInfoAccess(const CERT_AUTHORITY_INFO_ACCESS& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~AuthorityInfoAccess() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL AuthorityInfoAccess(const CERT_AUTHORITY_INFO_ACCESS& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const CERT_AUTHORITY_INFO_ACCESS* operator &() const { return _ptr; }
+	public: const CERT_AUTHORITY_INFO_ACCESS* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_AUTHORITY_INFO_ACCESS& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const;
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const;
 };
@@ -1798,23 +1670,21 @@ class AuthorityInfoAccess
 ///////////////////////////////////////////////////////////////////////////////
 class BiometricExtension 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_BIOMETRIC_EXT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_BIOMETRIC_EXT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL BiometricExtension(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL BiometricExtension(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
 	// конструктор
-	public: BiometricExtension(const CERT_BIOMETRIC_EXT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~BiometricExtension() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL BiometricExtension(const CERT_BIOMETRIC_EXT_INFO& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const CERT_BIOMETRIC_EXT_INFO* operator &() const { return _ptr; }
+	public: const CERT_BIOMETRIC_EXT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_BIOMETRIC_EXT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }  
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1822,23 +1692,21 @@ class BiometricExtension
 ///////////////////////////////////////////////////////////////////////////////
 class QualifiedCertificateStatements 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_QC_STATEMENTS_EXT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_QC_STATEMENTS_EXT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL QualifiedCertificateStatements(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: QualifiedCertificateStatements(const CERT_QC_STATEMENTS_EXT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~QualifiedCertificateStatements() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL QualifiedCertificateStatements(const CERT_QC_STATEMENTS_EXT_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_QC_STATEMENTS_EXT_INFO* operator &() const { return _ptr; }
+	public: const CERT_QC_STATEMENTS_EXT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_QC_STATEMENTS_EXT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1846,23 +1714,21 @@ class QualifiedCertificateStatements
 ///////////////////////////////////////////////////////////////////////////////
 class SubjectInfoAccess 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_SUBJECT_INFO_ACCESS* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_SUBJECT_INFO_ACCESS> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL SubjectInfoAccess(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL SubjectInfoAccess(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
 	// конструктор
-	public: SubjectInfoAccess(const CERT_SUBJECT_INFO_ACCESS& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~SubjectInfoAccess() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL SubjectInfoAccess(const CERT_SUBJECT_INFO_ACCESS& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const CERT_SUBJECT_INFO_ACCESS* operator &() const { return _ptr; }
+	public: const CERT_SUBJECT_INFO_ACCESS* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_SUBJECT_INFO_ACCESS& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -1872,23 +1738,21 @@ class SubjectInfoAccess
 ///////////////////////////////////////////////////////////////////////////////
 class LogotypeExtension 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_LOGOTYPE_EXT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_LOGOTYPE_EXT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL LogotypeExtension(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags); 
+	public: WINCRYPT_CALL LogotypeExtension(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
 	// конструктор
-	public: LogotypeExtension(const CERT_LOGOTYPE_EXT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~LogotypeExtension() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL LogotypeExtension(const CERT_LOGOTYPE_EXT_INFO& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const CERT_LOGOTYPE_EXT_INFO* operator &() const { return _ptr; }
+	public: const CERT_LOGOTYPE_EXT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_LOGOTYPE_EXT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1896,44 +1760,40 @@ class LogotypeExtension
 ///////////////////////////////////////////////////////////////////////////////
 class KeyGenRequestToBeSigned
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_KEYGEN_REQUEST_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_KEYGEN_REQUEST_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL KeyGenRequestToBeSigned(const void* pvEncoded, size_t cbEncoded, bool toBeSigned = true); 
 	// конструктор
-	public: KeyGenRequestToBeSigned(const CERT_KEYGEN_REQUEST_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~KeyGenRequestToBeSigned() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL KeyGenRequestToBeSigned(const CERT_KEYGEN_REQUEST_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_KEYGEN_REQUEST_INFO* operator &() const { return _ptr; }
+	public: const CERT_KEYGEN_REQUEST_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_KEYGEN_REQUEST_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 class KeyGenRequest
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_SIGNED_CONTENT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_SIGNED_CONTENT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL KeyGenRequest(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: KeyGenRequest(const CERT_SIGNED_CONTENT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~KeyGenRequest() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL KeyGenRequest(const CERT_SIGNED_CONTENT_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr; }
+	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_SIGNED_CONTENT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1941,44 +1801,40 @@ class KeyGenRequest
 ///////////////////////////////////////////////////////////////////////////////
 class CertificateRequestToBeSigned
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_REQUEST_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_REQUEST_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL CertificateRequestToBeSigned(const void* pvEncoded, size_t cbEncoded, bool toBeSigned = true); 
 	// конструктор
-	public: CertificateRequestToBeSigned(const CERT_REQUEST_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificateRequestToBeSigned() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL CertificateRequestToBeSigned(const CERT_REQUEST_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_REQUEST_INFO* operator &() const { return _ptr; }
+	public: const CERT_REQUEST_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_REQUEST_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 class CertificateRequest
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_SIGNED_CONTENT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_SIGNED_CONTENT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL CertificateRequest(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: CertificateRequest(const CERT_SIGNED_CONTENT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificateRequest() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL CertificateRequest(const CERT_SIGNED_CONTENT_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr; }
+	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_SIGNED_CONTENT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1986,44 +1842,40 @@ class CertificateRequest
 ///////////////////////////////////////////////////////////////////////////////
 class CertificateToBeSigned
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL CertificateToBeSigned(const void* pvEncoded, size_t cbEncoded, bool toBeSigned = true); 
 	// конструктор
-	public: CertificateToBeSigned(const CERT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificateToBeSigned() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL CertificateToBeSigned(const CERT_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_INFO* operator &() const { return _ptr; }
+	public: const CERT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 class Certificate
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_SIGNED_CONTENT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_SIGNED_CONTENT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Certificate(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Certificate(const CERT_SIGNED_CONTENT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Certificate() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Certificate(const CERT_SIGNED_CONTENT_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr; }
+	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_SIGNED_CONTENT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2031,44 +1883,62 @@ class Certificate
 ///////////////////////////////////////////////////////////////////////////////
 class CRLToBeSigned
 {
-	// используемое значение и необходимость удаления 
-	private: const CRL_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRL_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL CRLToBeSigned(const void* pvEncoded, size_t cbEncoded, bool toBeSigned = true); 
 	// конструктор
-	public: CRLToBeSigned(const CRL_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CRLToBeSigned() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL CRLToBeSigned(const CRL_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CRL_INFO* operator &() const { return _ptr; }
+	public: const CRL_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRL_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 }; 
 
 class CRL
 {
-	// используемое значение и необходимость удаления 
-	private: const CERT_SIGNED_CONTENT_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_SIGNED_CONTENT_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL CRL(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: CRL(const CERT_SIGNED_CONTENT_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CRL() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL CRL(const CERT_SIGNED_CONTENT_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr; }
+	public: const CERT_SIGNED_CONTENT_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_SIGNED_CONTENT_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Список сертификатов и списков отозванных сертификатов 
+///////////////////////////////////////////////////////////////////////////////
+class CertificatesAndCRLs
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_OR_CRL_BUNDLE> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CertificatesAndCRLs(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL CertificatesAndCRLs(const CERT_OR_CRL_BUNDLE& value); 
+
+	// оператор преобразования типа
+	public: const CERT_OR_CRL_BUNDLE* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_OR_CRL_BUNDLE& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 namespace Microsoft
@@ -2076,109 +1946,80 @@ namespace Microsoft
 ///////////////////////////////////////////////////////////////////////////////
 // Расширения Microsoft
 ///////////////////////////////////////////////////////////////////////////////
-class CertificateTemplate 
+class CrossCertificatePair 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CERT_TEMPLATE_EXT* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_PAIR> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
-	public: WINCRYPT_CALL CertificateTemplate(const void* pvEncoded, size_t cbEncoded); 
+	public: WINCRYPT_CALL CrossCertificatePair(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: CertificateTemplate(const CERT_TEMPLATE_EXT& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificateTemplate() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL CrossCertificatePair(const CERT_PAIR& value); 
 
 	// оператор преобразования типа
-	public: const CERT_TEMPLATE_EXT* operator &() const { return _ptr; }
-	// значение 
-	public: const CERT_TEMPLATE_EXT& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
-};
-
-class CertificateBundle 
-{ 
-	// используемое значение и необходимость удаления 
-	private: const CERT_OR_CRL_BUNDLE* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL CertificateBundle(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: CertificateBundle(const CERT_OR_CRL_BUNDLE& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificateBundle() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CERT_OR_CRL_BUNDLE* operator &() const { return _ptr; }
-	// значение 
-	public: const CERT_OR_CRL_BUNDLE& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
-};
-
-class CTL 
-{ 
-	// используемое значение и необходимость удаления 
-	private: const CTL_INFO* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL CTL(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: CTL(const CTL_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CTL() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CTL_INFO* operator &() const { return _ptr; }
-	// значение 
-	public: const CTL_INFO& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(bool sorted = false, DWORD dwFlags = 0) const; 
-};
-
-class CrossCertificateDistributionPoints 
-{
-	// используемое значение и необходимость удаления 
-	private: const CROSS_CERT_DIST_POINTS_INFO* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL CrossCertificateDistributionPoints(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
-	// конструктор
-	public: CrossCertificateDistributionPoints(const CROSS_CERT_DIST_POINTS_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CrossCertificateDistributionPoints() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CROSS_CERT_DIST_POINTS_INFO* operator &() const { return _ptr; }
-	// значение 
-	public: const CROSS_CERT_DIST_POINTS_INFO& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const; 
-};
-
-class CertificatePair 
-{ 
-	// используемое значение и необходимость удаления 
-	private: const CERT_PAIR* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL CertificatePair(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: CertificatePair(const CERT_PAIR& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~CertificatePair() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CERT_PAIR* operator &() const { return _ptr; }
+	public: const CERT_PAIR* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CERT_PAIR& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
+
+class CertificateTemplate 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CERT_TEMPLATE_EXT> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CertificateTemplate(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL CertificateTemplate(const CERT_TEMPLATE_EXT& value); 
+
+	// оператор преобразования типа
+	public: const CERT_TEMPLATE_EXT* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CERT_TEMPLATE_EXT& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
+
+class CrossCertificateDistributionPoints 
+{
+	// значение и его закодированное представление
+	private: std::shared_ptr<CROSS_CERT_DIST_POINTS_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CrossCertificateDistributionPoints(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
+	// конструктор
+	public: WINCRYPT_CALL CrossCertificateDistributionPoints(const CROSS_CERT_DIST_POINTS_INFO& value, DWORD dwFlags = 0); 
+
+	// оператор преобразования типа
+	public: const CROSS_CERT_DIST_POINTS_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CROSS_CERT_DIST_POINTS_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
+
+class CTL 
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CTL_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL CTL(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL CTL(const CTL_INFO& value); 
+
+	// оператор преобразования типа
+	public: const CTL_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CTL_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode(bool sorted = false, DWORD dwFlags = 0) const; 
 };
 }
 }
@@ -2192,23 +2033,21 @@ namespace PKCS
 ///////////////////////////////////////////////////////////////////////////////
 class SMIMECapabilities 
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_SMIME_CAPABILITIES* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_SMIME_CAPABILITIES> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL SMIMECapabilities(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: SMIMECapabilities(const CRYPT_SMIME_CAPABILITIES& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~SMIMECapabilities() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL SMIMECapabilities(const CRYPT_SMIME_CAPABILITIES& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_SMIME_CAPABILITIES* operator &() const { return _ptr; }
+	public: const CRYPT_SMIME_CAPABILITIES* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_SMIME_CAPABILITIES& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 	// получить строковое представление
 	public: WINCRYPT_CALL std::wstring ToString(DWORD dwFlags) const; 
 };
@@ -2218,76 +2057,67 @@ class SMIMECapabilities
 ///////////////////////////////////////////////////////////////////////////////
 class PrivateKeyInfo
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_PRIVATE_KEY_INFO* _ptr; bool _fDelete; 
+	// скопировать значение 
+	public: static WINCRYPT_CALL size_t CopyTo(
+		const CRYPT_PRIVATE_KEY_INFO*, CRYPT_PRIVATE_KEY_INFO*, void*, size_t
+	); 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_PRIVATE_KEY_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL PrivateKeyInfo(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: PrivateKeyInfo(const CRYPT_PRIVATE_KEY_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~PrivateKeyInfo() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// параметры ключа 
-	public: AlgorithmIdentifier Algorithm() const { return _ptr->Algorithm; }
-	// значение личного ключа 
-	public: OctetString PrivateKey() const { return _ptr->PrivateKey; }
+	public: WINCRYPT_CALL PrivateKeyInfo(const CRYPT_PRIVATE_KEY_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_PRIVATE_KEY_INFO* operator &() const { return _ptr; }
+	public: const CRYPT_PRIVATE_KEY_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_PRIVATE_KEY_INFO& Value() const { return *_ptr; }
 
-	// скопировать значение 
-	public: WINCRYPT_CALL size_t CopyTo(CRYPT_PRIVATE_KEY_INFO* pStruct, PVOID pvBuffer, size_t cbBuffer) const; 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 class EncryptedPrivateKeyInfo
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_ENCRYPTED_PRIVATE_KEY_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_ENCRYPTED_PRIVATE_KEY_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL EncryptedPrivateKeyInfo(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: EncryptedPrivateKeyInfo(const CRYPT_ENCRYPTED_PRIVATE_KEY_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~EncryptedPrivateKeyInfo() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL EncryptedPrivateKeyInfo(const CRYPT_ENCRYPTED_PRIVATE_KEY_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_ENCRYPTED_PRIVATE_KEY_INFO* operator &() const { return _ptr; }
+	public: const CRYPT_ENCRYPTED_PRIVATE_KEY_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_ENCRYPTED_PRIVATE_KEY_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Кодирование ContentInfo из PKCS/CMS
 ///////////////////////////////////////////////////////////////////////////////
-template <typename T = CRYPT_CONTENT_INFO_SEQUENCE_OF_ANY> 
+template <typename T> 
 class ContentInfo
 { 
-	// используемое значение и необходимость удаления 
-	private: const T* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<T> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL ContentInfo(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: ContentInfo(const T& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~ContentInfo() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL ContentInfo(const T& value); 
 
 	// оператор преобразования типа
-	public: const T* operator &() const { return _ptr; }
+	public: const T* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const T& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2296,23 +2126,21 @@ class ContentInfo
 template <typename T = CMSG_CMS_SIGNER_INFO> 
 class SignerInfo
 { 
-	// используемое значение и необходимость удаления 
-	private: const T* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<T> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL SignerInfo(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: SignerInfo(const T& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~SignerInfo() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL SignerInfo(const T& value); 
 
 	// оператор преобразования типа
-	public: const T* operator &() const { return _ptr; }
+	public: const T* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const T& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2320,23 +2148,21 @@ class SignerInfo
 ///////////////////////////////////////////////////////////////////////////////
 class TimeRequest
 { 
-	// используемое значение и необходимость удаления 
-	private: const CRYPT_TIME_STAMP_REQUEST_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CRYPT_TIME_STAMP_REQUEST_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL TimeRequest(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: TimeRequest(const CRYPT_TIME_STAMP_REQUEST_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~TimeRequest() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL TimeRequest(const CRYPT_TIME_STAMP_REQUEST_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CRYPT_TIME_STAMP_REQUEST_INFO* operator &() const { return _ptr; }
+	public: const CRYPT_TIME_STAMP_REQUEST_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CRYPT_TIME_STAMP_REQUEST_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -2346,107 +2172,97 @@ namespace OCSP
 {
 class RequestToBeSigned
 { 
-	// используемое значение и необходимость удаления 
-	private: const OCSP_REQUEST_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<OCSP_REQUEST_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL RequestToBeSigned(const void* pvEncoded, size_t cbEncoded, DWORD dwFlags = 0); 
 	// конструктор
-	public: RequestToBeSigned(const OCSP_REQUEST_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~RequestToBeSigned() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL RequestToBeSigned(const OCSP_REQUEST_INFO& value, DWORD dwFlags = 0); 
 
 	// оператор преобразования типа
-	public: const OCSP_REQUEST_INFO* operator &() const { return _ptr; }
+	public: const OCSP_REQUEST_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const OCSP_REQUEST_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode(DWORD dwFlags = 0) const;  
+	public: std::vector<uint8_t> Encode() const { return _encoded; }  
 };
 
 class Request
 { 
-	// используемое значение и необходимость удаления 
-	private: const OCSP_SIGNED_REQUEST_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<OCSP_SIGNED_REQUEST_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Request(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Request(const OCSP_SIGNED_REQUEST_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Request() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Request(const OCSP_SIGNED_REQUEST_INFO& value); 
 
 	// оператор преобразования типа
-	public: const OCSP_SIGNED_REQUEST_INFO* operator &() const { return _ptr; }
+	public: const OCSP_SIGNED_REQUEST_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const OCSP_SIGNED_REQUEST_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 class BasicResponseToBeSigned
 { 
-	// используемое значение и необходимость удаления 
-	private: const OCSP_BASIC_RESPONSE_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<OCSP_BASIC_RESPONSE_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL BasicResponseToBeSigned(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: BasicResponseToBeSigned(const OCSP_BASIC_RESPONSE_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~BasicResponseToBeSigned() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL BasicResponseToBeSigned(const OCSP_BASIC_RESPONSE_INFO& value); 
 
 	// оператор преобразования типа
-	public: const OCSP_BASIC_RESPONSE_INFO* operator &() const { return _ptr; }
+	public: const OCSP_BASIC_RESPONSE_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const OCSP_BASIC_RESPONSE_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 class BasicResponse
 { 
-	// используемое значение и необходимость удаления 
-	private: const OCSP_BASIC_SIGNED_RESPONSE_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<OCSP_BASIC_SIGNED_RESPONSE_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL BasicResponse(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: BasicResponse(const OCSP_BASIC_SIGNED_RESPONSE_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~BasicResponse() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL BasicResponse(const OCSP_BASIC_SIGNED_RESPONSE_INFO& value); 
 
 	// оператор преобразования типа
-	public: const OCSP_BASIC_SIGNED_RESPONSE_INFO* operator &() const { return _ptr; }
+	public: const OCSP_BASIC_SIGNED_RESPONSE_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const OCSP_BASIC_SIGNED_RESPONSE_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 
 class Response
 { 
-	// используемое значение и необходимость удаления 
-	private: const OCSP_RESPONSE_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<OCSP_RESPONSE_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Response(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Response(const OCSP_RESPONSE_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Response() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Response(const OCSP_RESPONSE_INFO& value); 
 
 	// оператор преобразования типа
-	public: const OCSP_RESPONSE_INFO* operator &() const { return _ptr; }
+	public: const OCSP_RESPONSE_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const OCSP_RESPONSE_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; }
 };
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -2454,109 +2270,99 @@ class Response
 ///////////////////////////////////////////////////////////////////////////////
 namespace CMC 
 {
-class Data
-{ 
-	// используемое значение и необходимость удаления 
-	private: const CMC_DATA_INFO* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL Data(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: Data(const CMC_DATA_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Data() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CMC_DATA_INFO* operator &() const { return _ptr; }
-	// значение 
-	public: const CMC_DATA_INFO& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
-};
-
-class Response
-{ 
-	// используемое значение и необходимость удаления 
-	private: const CMC_RESPONSE_INFO* _ptr; bool _fDelete; 
-
-	// конструктор
-	public: WINCRYPT_CALL Response(const void* pvEncoded, size_t cbEncoded); 
-	// конструктор
-	public: Response(const CMC_RESPONSE_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Response() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
-
-	// оператор преобразования типа
-	public: const CMC_RESPONSE_INFO* operator &() const { return _ptr; }
-	// значение 
-	public: const CMC_RESPONSE_INFO& Value() const { return *_ptr; }
-
-	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
-};
-
 class Status
 { 
-	// используемое значение и необходимость удаления 
-	private: const CMC_STATUS_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CMC_STATUS_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL Status(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: Status(const CMC_STATUS_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~Status() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL Status(const CMC_STATUS_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CMC_STATUS_INFO* operator &() const { return _ptr; }
+	public: const CMC_STATUS_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CMC_STATUS_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
+
+class Data
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CMC_DATA_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL Data(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL Data(const CMC_DATA_INFO& value); 
+
+	// оператор преобразования типа
+	public: const CMC_DATA_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CMC_DATA_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
+};
+
+class Response
+{ 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CMC_RESPONSE_INFO> _ptr; std::vector<uint8_t> _encoded; 
+
+	// конструктор
+	public: WINCRYPT_CALL Response(const void* pvEncoded, size_t cbEncoded); 
+	// конструктор
+	public: WINCRYPT_CALL Response(const CMC_RESPONSE_INFO& value); 
+
+	// оператор преобразования типа
+	public: const CMC_RESPONSE_INFO* operator &() const { return _ptr.get(); }
+	// значение 
+	public: const CMC_RESPONSE_INFO& Value() const { return *_ptr; }
+
+	// закодированное представление
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 class AddExtensions
 { 
-	// используемое значение и необходимость удаления 
-	private: const CMC_ADD_EXTENSIONS_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CMC_ADD_EXTENSIONS_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL AddExtensions(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: AddExtensions(const CMC_ADD_EXTENSIONS_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~AddExtensions() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL AddExtensions(const CMC_ADD_EXTENSIONS_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CMC_ADD_EXTENSIONS_INFO* operator &() const { return _ptr; }
+	public: const CMC_ADD_EXTENSIONS_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CMC_ADD_EXTENSIONS_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 
 class AddAttributes
 { 
-	// используемое значение и необходимость удаления 
-	private: const CMC_ADD_ATTRIBUTES_INFO* _ptr; bool _fDelete; 
+	// значение и его закодированное представление
+	private: std::shared_ptr<CMC_ADD_ATTRIBUTES_INFO> _ptr; std::vector<uint8_t> _encoded; 
 
 	// конструктор
 	public: WINCRYPT_CALL AddAttributes(const void* pvEncoded, size_t cbEncoded); 
 	// конструктор
-	public: AddAttributes(const CMC_ADD_ATTRIBUTES_INFO& value) : _ptr(&value), _fDelete(false) {}
-	// деструктор
-	public: ~AddAttributes() { if (_fDelete) Crypto::FreeMemory((void*)_ptr); }
+	public: WINCRYPT_CALL AddAttributes(const CMC_ADD_ATTRIBUTES_INFO& value); 
 
 	// оператор преобразования типа
-	public: const CMC_ADD_ATTRIBUTES_INFO* operator &() const { return _ptr; }
+	public: const CMC_ADD_ATTRIBUTES_INFO* operator &() const { return _ptr.get(); }
 	// значение 
 	public: const CMC_ADD_ATTRIBUTES_INFO& Value() const { return *_ptr; }
 
 	// закодированное представление
-	public: WINCRYPT_CALL std::vector<uint8_t> Encode() const; 
+	public: std::vector<uint8_t> Encode() const { return _encoded; } 
 };
 }
 }

@@ -61,8 +61,10 @@ class ValidationParameters
 ///////////////////////////////////////////////////////////////////////////////
 class Parameters : public IKeyParameters
 {
+	// параметры ключа
+	private: std::shared_ptr<CRYPT_ALGORITHM_IDENTIFIER> _pInfo; 
 	// параметры ключа 		   
-	private: std::string _oid; std::vector<BYTE> _buffer; CERT_X942_DH_PARAMETERS _parameters; 
+	private: std::vector<BYTE> _buffer; CERT_X942_DH_PARAMETERS _parameters; 
 	// параметры проверки
 	private: ValidationParameters _validationParameters; 
 	// дополнительные параметры при импорте
@@ -101,8 +103,8 @@ class Parameters : public IKeyParameters
 		const CRYPT_UINT_REVERSE_BLOB& q, const CRYPT_UINT_REVERSE_BLOB& j, 
 		const ValidationParameters& validationParameters
 	); 
-	// идентификатор ключа
-	public: virtual const char* OID() const override { return _oid.c_str(); }
+	// значение параметров 
+	public: virtual const CRYPT_ALGORITHM_IDENTIFIER& Decoded() const override { return *_pInfo; }
 	// значения параметров 
 	public: virtual const CERT_X942_DH_PARAMETERS& Value() const { return _parameters; }
 
@@ -115,9 +117,6 @@ class Parameters : public IKeyParameters
 
 	// параметры при импорте CNG
 	public: std::shared_ptr<NCryptBufferDesc> ParamsCNG() const; 
-
-	// X.509-представление
-	public: virtual std::vector<BYTE> Encode() const override; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,6 +211,10 @@ class KeyPair : public Extension::KeyPair, public Crypto::IPrivateKey
 	private: std::vector<BYTE> _buffer; CRYPT_UINT_BLOB _y; CRYPT_UINT_BLOB _x;
 
 	// конструктор
+	public: static std::shared_ptr<KeyPair> Decode(
+		const CRYPT_PRIVATE_KEY_INFO& privateInfo, const CERT_PUBLIC_KEY_INFO& publicInfo
+	); 
+	// конструктор
 	public: static std::shared_ptr<KeyPair> Decode(PCSTR szOID, const BLOBHEADER     * pBlob, size_t cbBlob); 
 	public: static std::shared_ptr<KeyPair> Decode(PCSTR szOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob); 
 
@@ -269,20 +272,6 @@ class KeyPair : public Extension::KeyPair, public Crypto::IPrivateKey
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Фабрика ключей 
-///////////////////////////////////////////////////////////////////////////////
-/*
-class KeyFactory : public IKeyFactory
-{
-	// дополнительные параметры при импорте
-	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG() const
-	{
-		// получить дополнительные параметры при импорте
-		return ((const X942::Parameters*)Parameters().get())->ParamsCNG(); 
-	}
-};
-*/
-///////////////////////////////////////////////////////////////////////////////
 // Расширение фабрики ключей 
 ///////////////////////////////////////////////////////////////////////////////
 class KeyFactory : public Extension::KeyFactory
@@ -308,6 +297,23 @@ class KeyFactory : public Extension::KeyFactory
 		// раскодировать открытый ключ
 		return PublicKey::Decode(szKeyOID, pBlob, cbBlob); 
 	}
+	// раскодировать открытый ключ
+	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
+		PCSTR szKeyOID, LPCVOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+	{
+		// раскодировать открытый ключ
+		return PublicKey::Decode(szKeyOID, pBlob, cbBlob); 
+	}
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		const CRYPT_PRIVATE_KEY_INFO& privateInfo, const CERT_PUBLIC_KEY_INFO* pPublicInfo) const override
+	{
+		// проверить наличие информации открытого ключа
+		if (!pPublicInfo) Extension::KeyFactory::DecodeKeyPair(privateInfo, pPublicInfo); 
+
+		// раскодировать пару ключей
+		return KeyPair::Decode(privateInfo, *pPublicInfo); 
+	}
 	// раскодировать пару ключей
 	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
 		PCSTR szKeyOID, const BLOBHEADER* pBlob, size_t cbBlob) const override
@@ -315,12 +321,12 @@ class KeyFactory : public Extension::KeyFactory
 		// раскодировать пару ключей
 		return KeyPair::Decode(szKeyOID, pBlob, cbBlob); 
 	}
-	// раскодировать открытый ключ
-	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
-		PCSTR szKeyOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		PCSTR szKeyOID, LPCVOID, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
 	{
-		// раскодировать открытый ключ
-		return PublicKey::Decode(szKeyOID, pBlob, cbBlob); 
+		// раскодировать пару ключей
+		return KeyPair::Decode(szKeyOID, pBlob, cbBlob); 
 	}
 };
 

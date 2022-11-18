@@ -3,16 +3,6 @@
 #include <memory>       
 #include <string>
 #include <vector>
-#include <map>
-
-///////////////////////////////////////////////////////////////////////////////
-// Определение экспортируемых функций
-///////////////////////////////////////////////////////////////////////////////
-#ifdef WINCRYPT_EXPORTS
-#define WINCRYPT_CALL __declspec(dllexport)
-#else 
-#define WINCRYPT_CALL __declspec(dllimport)
-#endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Тип реализации провайдера 
@@ -165,11 +155,11 @@ struct ISecretKey { virtual ~ISecretKey() {}
 ///////////////////////////////////////////////////////////////////////////////
 struct IKeyParameters { virtual ~IKeyParameters() {}
 
-	// идентификатор ключа
-	virtual const char* OID() const = 0; 
+	// значение параметров 
+	virtual const CRYPT_ALGORITHM_IDENTIFIER& Decoded() const = 0; 
 
 	// закодированное представление параметров
-	virtual std::vector<uint8_t> Encode() const = 0; 
+	virtual std::vector<uint8_t> Encode() const; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -196,9 +186,6 @@ struct IPrivateKey { virtual ~IPrivateKey() {}
 
 	// PKCS8-представление
 	virtual std::vector<uint8_t> Encode(const CRYPT_ATTRIBUTES* pAttributes) const = 0; 
-
-	// PKCS8-представление
-	std::vector<uint8_t> Encode(uint32_t keyUsage) const; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -583,6 +570,9 @@ struct ICipher : IAlgorithm
 ///////////////////////////////////////////////////////////////////////////////
 struct IBlockCipher : ICipher
 { 	
+	// режим шифрования по умолчанию
+	virtual uint32_t GetDefaultMode() const = 0; 
+
 	// создать преобразование зашифрования 
 	virtual std::shared_ptr<ITransform> CreateEncryption() const override
 	{
@@ -813,8 +803,20 @@ struct IProvider { virtual ~IProvider() {}
 	}
 	// получить пару ключей из X.509- и PKCS8-представления 
 	std::shared_ptr<IKeyPair> DecodeKeyPair(const CERT_PUBLIC_KEY_INFO& publicInfo, 
-		const CRYPT_PRIVATE_KEY_INFO& privateInfo) const; 
+		const CRYPT_PRIVATE_KEY_INFO& privateInfo, uint32_t keySpec) const
+	{
+		// получить фабрику кодирования 
+		std::shared_ptr<IKeyFactory> pKeyFactory = GetKeyFactory(privateInfo.Algorithm, keySpec); 
 
+		// проверить наличие фабрики
+		if (!pKeyFactory) return std::shared_ptr<IKeyPair>(); 
+
+		// раскодировать личный ключ
+		return pKeyFactory->ImportKeyPair(
+			publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData, 
+			privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
+		); 
+	}
 	// используемые области видимости
 	virtual const IProviderStore& GetScope(uint32_t type) const = 0; 
 	virtual       IProviderStore& GetScope(uint32_t type)       = 0; 
@@ -839,28 +841,7 @@ struct IEnvironment { virtual ~IEnvironment() {}
 
 	// найти провайдеры для ключа
 	virtual std::vector<std::wstring> FindProviders(
-		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const
-	{
-		// создать список имен
-		std::vector<std::wstring> names;
-
-		// перечислить все провайдеры
-		std::vector<std::wstring> providers = EnumProviders(); 
-
-		// для всех провайдеров
-		for (size_t i = 0; i < providers.size(); i++)
-		{
-			// открыть провайдер
-			std::shared_ptr<IProvider> provider = OpenProvider(providers[i].c_str()); 
-
-			// проверить поддержку ключа
-			std::shared_ptr<IKeyFactory> pFactory = provider->GetKeyFactory(parameters, keySpec); 
-
-			// добавить провайдер в список
-			if (pFactory) names.push_back(providers[i].c_str()); 
-		}
-		return names; 
-	}
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const; 
 }; 
 
 namespace ANSI { 
@@ -1078,7 +1059,7 @@ struct IFunctionExtensionOID { virtual ~IFunctionExtensionOID() {}
 	virtual PCSTR OID         () const = 0;
 
 	// перечислить параметры регистрации
-	virtual std::map<std::wstring, std::shared_ptr<IRegistryValue> > EnumRegistryValues() const = 0; 
+	virtual std::vector<std::wstring> EnumRegistryValues() const = 0; 
 	// получить параметр регистрации
 	virtual std::shared_ptr<IRegistryValue> GetRegistryValue(PCWSTR szName) const = 0; 
 

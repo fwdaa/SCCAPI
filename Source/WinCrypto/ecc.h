@@ -31,6 +31,8 @@ PCWSTR GetCurveName(PCWSTR szAlgName);
 ///////////////////////////////////////////////////////////////////////////////
 class Parameters : public IKeyParameters
 {
+	// параметры ключа
+	private: std::shared_ptr<CRYPT_ALGORITHM_IDENTIFIER> _pInfo; 
 	// имя эллиптичекой кривой 
 	private: std::wstring _curveName; std::string _curveOID; size_t _bits; 
 
@@ -39,8 +41,8 @@ class Parameters : public IKeyParameters
 	// конструктор
 	public: Parameters(PCWSTR szCurveName); Parameters(PCSTR szCurveOID);
 
-	// идентификатор ключа
-	public: virtual const char* OID() const override { return szOID_ECC_PUBLIC_KEY; }
+	// значение параметров 
+	public: virtual const CRYPT_ALGORITHM_IDENTIFIER& Decoded() const override { return *_pInfo; }
 	// имя эллиптической кривой
 	public: PCWSTR CurveName() const { return _curveName.c_str(); }
 
@@ -51,9 +53,6 @@ class Parameters : public IKeyParameters
 
 	// параметры при импорте CNG
 	public: std::shared_ptr<NCryptBufferDesc> ParamsCNG(DWORD keySpec) const; 
-
-	// X.509-представление
-	public: virtual std::vector<BYTE> Encode() const override; 
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,23 +198,6 @@ class KeyPair : public Extension::KeyPair, public Crypto::IPrivateKey
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Фабрика ключей 
-///////////////////////////////////////////////////////////////////////////////
-/*
-class KeyFactory : public IKeyFactory
-{
-	// тип ключа 
-	public: virtual uint32_t KeySpec() const = 0; 
-
-	// дополнительные параметры при импорте
-	public: virtual std::shared_ptr<NCryptBufferDesc> ParamsCNG() const
-	{
-		// получить дополнительные параметры при импорте
-		return ((const X962::Parameters*)Parameters().get())->ParamsCNG(KeySpec()); 
-	}
-};
-*/
-///////////////////////////////////////////////////////////////////////////////
 // Расширение фабрики ключей 
 ///////////////////////////////////////////////////////////////////////////////
 class KeyFactory : public Extension::KeyFactory
@@ -223,6 +205,10 @@ class KeyFactory : public Extension::KeyFactory
 	// тип экспорта CNG
 	public: virtual PCWSTR ExportPublicTypeCNG () const override { return BCRYPT_ECCPUBLIC_BLOB;  }
 	public: virtual PCWSTR ExportPrivateTypeCNG() const override { return BCRYPT_ECCPRIVATE_BLOB; }
+
+	// получить дополнительные данные для описателя
+	virtual std::shared_ptr<void> GetAuxDataCNG(BCRYPT_KEY_HANDLE hKey, ULONG magic) const override; 
+	virtual std::shared_ptr<void> GetAuxDataCNG(NCRYPT_KEY_HANDLE hKey, ULONG magic) const override; 
 
 	// раскодировать открытый ключ
 	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
@@ -233,11 +219,24 @@ class KeyFactory : public Extension::KeyFactory
 	}
 	// раскодировать открытый ключ
 	public: virtual std::shared_ptr<Extension::PublicKey> DecodePublicKey(
-		PCSTR, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+		PCSTR, LPCVOID szCurveName, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
 	{
-		// раскодировать открытый ключ /* TODO */
-		// return PublicKey::Decode(pBlob, cbBlob); 
-		return std::shared_ptr<Extension::PublicKey>(); 
+		// раскодировать открытый ключ
+		return PublicKey::Decode(pBlob, cbBlob, (PCWSTR)szCurveName); 
+	}
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		const CRYPT_PRIVATE_KEY_INFO& privateInfo, const CERT_PUBLIC_KEY_INFO*) const override
+	{
+		// раскодировать пару ключей
+		return KeyPair::Decode(privateInfo); 
+	}
+	// раскодировать пару ключей
+	public: virtual std::shared_ptr<Extension::KeyPair> DecodeKeyPair(
+		PCSTR szCurveOID, LPCVOID szCurveName, const BCRYPT_KEY_BLOB* pBlob, size_t cbBlob) const override
+	{
+		// раскодировать пару ключей 
+		return KeyPair::Decode(pBlob, cbBlob, (PCWSTR)szCurveName); 
 	}
 };
 

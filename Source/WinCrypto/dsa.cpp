@@ -463,6 +463,21 @@ Windows::Crypto::ANSI::X957::Parameters::Parameters(
 	pDest = memcpy(_parameters.p.pbData = pDest, _parameters.p.cbData, p); 
 	pDest = memcpy(_parameters.q.pbData = pDest, _parameters.q.cbData, q); 
 	pDest = memcpy(_parameters.g.pbData = pDest, _parameters.g.cbData, g); 
+
+	// закодировать параметры
+	std::vector<BYTE> encoded = ::Crypto::ANSI::X957::EncodeParameters(_parameters); 
+
+	// выделить буфер требуемого размера 
+	_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+	// указать адрес идентификатора
+	PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_X957_DSA; 
+
+	// скопировать закодированные параметры 
+	memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+	// указать адрес и размер закодированных параметров
+	_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
 }
  
 Windows::Crypto::ANSI::X957::Parameters::Parameters(
@@ -501,6 +516,21 @@ Windows::Crypto::ANSI::X957::Parameters::Parameters(
 	pDest = memrev(_parameters.p.pbData = pDest, _parameters.p.cbData, p); 
 	pDest = memrev(_parameters.q.pbData = pDest, _parameters.q.cbData, q); 
 	pDest = memrev(_parameters.g.pbData = pDest, _parameters.g.cbData, g); 
+
+	// закодировать параметры
+	std::vector<BYTE> encoded = ::Crypto::ANSI::X957::EncodeParameters(_parameters); 
+
+	// выделить буфер требуемого размера 
+	_pInfo = Crypto::AllocateStruct<CRYPT_ALGORITHM_IDENTIFIER>(encoded.size()); 
+
+	// указать адрес идентификатора
+	PBYTE ptr = (PBYTE)(_pInfo.get() + 1); _pInfo->pszObjId = (PSTR)szOID_X957_DSA; 
+
+	// скопировать закодированные параметры 
+	memcpy(ptr, &encoded[0], encoded.size()); _pInfo->Parameters.pbData = ptr; 
+
+	// указать адрес и размер закодированных параметров
+	_pInfo->Parameters.cbData = (DWORD)encoded.size(); 
 }
 
 std::vector<BYTE> Windows::Crypto::ANSI::X957::Parameters::BlobCSP(DWORD bitsX) const
@@ -606,22 +636,6 @@ std::vector<BYTE> Windows::Crypto::ANSI::X957::Parameters::BlobCNG() const
 		// указать параметры для проверки
 		_validationParameters.FillBlobCNG((BCRYPT_DSA_KEY_BLOB_V2*)&pBlob->dwMagic); return blob; 
 	}
-}
-
-std::vector<BYTE> Windows::Crypto::ANSI::X957::Parameters::Encode() const 
-{
-	// закодировать параметры
-	std::vector<BYTE> encoded = ::Crypto::ANSI::X957::EncodeParameters(_parameters); 
-
-	// инициализировать переменные 
-	CRYPT_ALGORITHM_IDENTIFIER info = { (PSTR)OID() }; 
-
-	// указать представление параметров
-	info.Parameters.pbData = &encoded[0]; 
-	info.Parameters.cbData = (DWORD)encoded.size(); 
-
-	// вернуть закодированное представление
-	return ASN1::ISO::AlgorithmIdentifier(info).Encode(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1060,6 +1074,25 @@ std::vector<BYTE> Windows::Crypto::ANSI::X957::PrivateKey::Encode(
 ///////////////////////////////////////////////////////////////////////////////
 // Пара ключей
 ///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Windows::Crypto::ANSI::X957::KeyPair> 
+Windows::Crypto::ANSI::X957::KeyPair::Decode(
+	const CRYPT_PRIVATE_KEY_INFO& privateInfo, const CERT_PUBLIC_KEY_INFO& publicInfo)
+{
+	// раскодировать параметры алгоритма
+	std::shared_ptr<X957::Parameters> pParameters = X957::Parameters::Decode(publicInfo.Algorithm); 
+
+	// раскодировать открытый ключ
+	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X957::DecodePublicKey(
+		publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData
+	); 
+	// раскодировать личный ключ
+	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X957::DecodePrivateKey(
+		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
+	); 
+	// вернуть пару ключей ключ 
+	return std::shared_ptr<KeyPair>(new KeyPair(pParameters, *pY, *pX)); 
+}
+
 std::shared_ptr<Windows::Crypto::ANSI::X957::KeyPair> 
 Windows::Crypto::ANSI::X957::KeyPair::Decode(const BLOBHEADER* pBlob, size_t cbBlob)
 {

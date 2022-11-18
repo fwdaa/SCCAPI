@@ -381,10 +381,61 @@ if (pEnumArg->fAll)
 return TRUE;
 }
 
+NTSTATUS EnumContextFunctions()
+{
+    NTSTATUS status;
+    ULONG uSize = 0;
+    PCRYPT_CONTEXTS pContexts = NULL;
+    
+    // Get the contexts for the local machine. 
+    // CNG will allocate the memory for us.
+    status = BCryptEnumContexts(CRYPT_LOCAL, &uSize, &pContexts);
+    if(NT_SUCCESS(status))
+    {
+        // Enumerate the context identifiers.
+        for(ULONG uContextIndex = 0; 
+            uContextIndex < pContexts->cContexts; 
+            uContextIndex++)
+        {
+            wprintf(L"Context functions for %s:\n", 
+                pContexts->rgpszContexts[uContextIndex]);
+
+            // Get the functions for this context.
+            // CNG will allocate the memory for us.
+            PCRYPT_CONTEXT_FUNCTIONS pContextFunctions = NULL;
+            status = BCryptEnumContextFunctions(
+                CRYPT_LOCAL, 
+                pContexts->rgpszContexts[uContextIndex], 
+                NCRYPT_SCHANNEL_INTERFACE, 
+                &uSize, 
+                &pContextFunctions);
+            if(NT_SUCCESS(status))
+            {
+                // Enumerate the functions.
+                for(ULONG i = 0; 
+                    i < pContextFunctions->cFunctions; 
+                    i++)
+                {
+                    wprintf(L"\t%s\n", 
+                        pContextFunctions->rgpszFunctions[i]);
+                }
+
+                // Free the context functions buffer.
+                BCryptFreeBuffer(pContextFunctions);
+            }
+        }
+
+        // Free the contexts buffer.
+        BCryptFreeBuffer(pContexts);
+    }
+
+    return status;
+}
+
 
 int WINAPI wWinMain(HMODULE hModule, HMODULE, PWSTR szCmdLine, int nShowCmd)
 {
-    Windows::Crypto::RDNAttributeType::Enumerate(); 
+    EnumContextFunctions(); 
 
 
 const BYTE binary[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 

@@ -160,52 +160,6 @@ inline void BufferSetUInt32(BCryptBuffer* pParameter, DWORD paramID, DWORD dwDat
 	BufferSetBinary(pParameter, paramID, &dwData, sizeof(dwData)); 
 }
 
-namespace Windows { namespace Crypto { 
-
-///////////////////////////////////////////////////////////////////////////////
-// Ключ симметричного алгоритма
-///////////////////////////////////////////////////////////////////////////////
-class SecretKey : public ISecretKey
-{
-	// нормализовать значение ключа
-	public: static void Normalize(ALG_ID algID,     void* pvKey, size_t cbKey); 
-	public: static void Normalize(PCWSTR szAlgName, void* pvKey, size_t cbKey); 
-
-	// извлечь значение ключа
-	public: static std::vector<BYTE> FromBlobCSP(const BLOBHEADER* pBlob)
-	{
-		// определить размер ключа
-		PDWORD pcbKey = (PDWORD)(pBlob + 1); std::vector<BYTE> value(*pcbKey, 0); 
-
-		// скопировать значение ключа
-		if (*pcbKey) memcpy(&value[0], pcbKey + 1, *pcbKey); return value; 
-	}
-	// представление ключа для CSP
-	public: static std::vector<BYTE> ToBlobCSP(ALG_ID algID, const std::vector<BYTE>& key); 
-
-	// извлечь значение ключа
-	public: static std::vector<BYTE> FromBlobBCNG(const BCRYPT_KEY_DATA_BLOB_HEADER* pBlob)
-	{
-		// скопировать значение ключа
-		return std::vector<BYTE>((PBYTE)(pBlob + 1), (PBYTE)(pBlob + 1) + pBlob->cbKeyData); 
-	}
-	// представление ключа для CNG
-	public: static std::vector<BYTE> ToBlobBCNG(const std::vector<UCHAR>& key); 
-
-	// извлечь значение ключа
-	public: static std::vector<BYTE> FromBlobNCNG(const NCRYPT_KEY_BLOB_HEADER* pBlob)
-	{
-		// пропустить имя алгоритма
-		PBYTE ptr = (PBYTE)(pBlob + 1) + pBlob->cbAlgName; 
-
-		// вернуть значение ключа
-		return std::vector<BYTE>(ptr, ptr + pBlob->cbKeyData); 
-	}
-	// представление ключа для CNG
-	public: static std::vector<BYTE> ToBlobNCNG(PCWSTR szAlgName, const std::vector<BYTE>& key); 
-};
-}}
-
 namespace Crypto {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -213,8 +167,8 @@ namespace Crypto {
 ///////////////////////////////////////////////////////////////////////////////
 class KeyParameters : public IKeyParameters
 {
-	// идентификатор ключа и закодированное представление
-	private: std::string _oid; std::vector<uint8_t> _encoded; 
+	// параметры ключа
+	private: ASN1::ISO::AlgorithmIdentifier _algorithm; 
 
 	// конструктор
 	public: static std::shared_ptr<IKeyParameters> Create(const CRYPT_ALGORITHM_IDENTIFIER& parameters)
@@ -235,22 +189,15 @@ class KeyParameters : public IKeyParameters
 		return std::shared_ptr<IKeyParameters>(new KeyParameters(encoded)); 
 	}
 	// конструктор
-	private: KeyParameters(const CRYPT_ALGORITHM_IDENTIFIER& parameters) : _oid(parameters.pszObjId) 
-	{
-		// сохранить закодированное представление
-		_encoded = ASN1::ISO::AlgorithmIdentifier(parameters).Encode();  
-	}
+	private: KeyParameters(const CRYPT_ALGORITHM_IDENTIFIER& parameters) : _algorithm(parameters) {}
 	// конструктор
-	private: KeyParameters(const std::vector<uint8_t>& encoded) : _encoded(encoded)
-	{
-		// сохранить идентификатор параметров
-		_oid = ASN1::ISO::AlgorithmIdentifier(&encoded[0], encoded.size()).OID(); 
-	}
-	// идентификатор ключа
-	public: virtual const char* OID() const override { return _oid.c_str(); }
+	private: KeyParameters(const std::vector<uint8_t>& encoded) : _algorithm(&encoded[0], encoded.size()) {}
+
+	// значение параметров 
+	public: virtual const CRYPT_ALGORITHM_IDENTIFIER& Decoded() const override { return _algorithm.Value(); }
 
 	// закодированное представление параметров
-	public: virtual std::vector<uint8_t> Encode() const override { return _encoded; } 
+	public: virtual std::vector<uint8_t> Encode() const override { return _algorithm.Encode(); }
 }; 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -366,5 +313,51 @@ class SignData : public ISignData
 		_signHash->Verify(publicKey, *_hash, value, signature); 
 	}
 }; 
-
 }
+
+namespace Windows { namespace Crypto { 
+
+///////////////////////////////////////////////////////////////////////////////
+// Ключ симметричного алгоритма
+///////////////////////////////////////////////////////////////////////////////
+class SecretKey : public ISecretKey
+{
+	// нормализовать значение ключа
+	public: static void Normalize(ALG_ID algID,     void* pvKey, size_t cbKey); 
+	public: static void Normalize(PCWSTR szAlgName, void* pvKey, size_t cbKey); 
+
+	// извлечь значение ключа
+	public: static std::vector<BYTE> FromBlobCSP(const BLOBHEADER* pBlob)
+	{
+		// определить размер ключа
+		PDWORD pcbKey = (PDWORD)(pBlob + 1); std::vector<BYTE> value(*pcbKey, 0); 
+
+		// скопировать значение ключа
+		if (*pcbKey) memcpy(&value[0], pcbKey + 1, *pcbKey); return value; 
+	}
+	// представление ключа для CSP
+	public: static std::vector<BYTE> ToBlobCSP(ALG_ID algID, const std::vector<BYTE>& key); 
+
+	// извлечь значение ключа
+	public: static std::vector<BYTE> FromBlobBCNG(const BCRYPT_KEY_DATA_BLOB_HEADER* pBlob)
+	{
+		// скопировать значение ключа
+		return std::vector<BYTE>((PBYTE)(pBlob + 1), (PBYTE)(pBlob + 1) + pBlob->cbKeyData); 
+	}
+	// представление ключа для CNG
+	public: static std::vector<BYTE> ToBlobBCNG(const std::vector<UCHAR>& key); 
+
+	// извлечь значение ключа
+	public: static std::vector<BYTE> FromBlobNCNG(const NCRYPT_KEY_BLOB_HEADER* pBlob)
+	{
+		// пропустить имя алгоритма
+		PBYTE ptr = (PBYTE)(pBlob + 1) + pBlob->cbAlgName; 
+
+		// вернуть значение ключа
+		return std::vector<BYTE>(ptr, ptr + pBlob->cbKeyData); 
+	}
+	// представление ключа для CNG
+	public: static std::vector<BYTE> ToBlobNCNG(PCWSTR szAlgName, const std::vector<BYTE>& key); 
+};
+}}
+
