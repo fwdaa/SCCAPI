@@ -9,14 +9,20 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class TC026 extends RefObject implements IRand
 {
+    // функция проверки качества 
+    public static abstract class CheckQuality    
+    {
+        // проверить качество последовательности
+        public abstract boolean invoke(byte[] data); 
+    }; 
     // алгоритм хэширования и текущее состояние
     private final Hash algorithm; private final byte[] U; 
         
     // текущее хэш-значение и номер текущего байта
-    private final byte[] C; private int offset;
+    private final byte[] C; private int offset; private CheckQuality check; 
 
     // конструктор
-    public TC026(Object window, Hash algorithm, byte[] seed)
+    public TC026(Object window, Hash algorithm, byte[] seed, CheckQuality check)
     {
         // определить размер блока функции хэширования
         int blockSize = algorithm.blockSize(); if (blockSize < 64) 
@@ -31,7 +37,10 @@ public class TC026 extends RefObject implements IRand
             throw new IllegalArgumentException();
         }
         // сохранить переданные параметры
-        this.window = window; this.algorithm = RefObject.addRef(algorithm); 
+        this.window = window; this.check = check; 
+        
+        // сохранить алгоритм хэширования 
+        this.algorithm = RefObject.addRef(algorithm); 
 
         // выделить буферы требуемого размера
         U = new byte[blockSize - 1]; C = new byte[algorithm.hashSize()]; 
@@ -72,30 +81,36 @@ public class TC026 extends RefObject implements IRand
         // для всех целых блоков
         for (; dataLen >= C.length; dataLen -= C.length)
         {
-            // выполнить инкремент состояния
-            for (int i = U.length - 1; i >= 0; i--) { if (++U[i] != 0) break; }
+            // сгенерировать новый блок
+            generateNext(); 
 
-            // вычислить хэш-значение
-            algorithm.init(); algorithm.update(U, 0, U.length); 
-
-            // сохранить хэш-значение
-            algorithm.finish(data, dataOff + dataLen - C.length); 
+            // скопировать хэш-значение в выходные данные
+            System.arraycopy(C, 0, data, dataOff + dataLen - C.length, C.length); 
         }
         // для неполного блока
         if (dataLen > 0)
         {
-            // выполнить инкремент состояния
-            for (int i = U.length - 1; i >= 0; i--) { if (++U[i] != 0) break; }
-
-            // вычислить хэш-значение
-            algorithm.init(); algorithm.update(U, 0, U.length); 
-
-            // сохранить хэш-значение
-            algorithm.finish(C, 0); offset = C.length - dataLen; 
-
+            // сгенерировать новый блок
+            generateNext(); offset = C.length - dataLen; 
+                
             // скопировать случайные данные
             System.arraycopy(C, offset, data, dataOff, dataLen); 
         }
+    }
+    private void generateNext() throws IOException
+    {
+        do {
+            // выполнить инкремент состояния
+            for (int i = U.length - 1; i >= 0; i--) { if (++U[i] != 0) break; }
+
+            // захэшировать состояние
+            algorithm.init(); algorithm.update(U, 0, U.length); 
+
+            // вычислить хэш-значение
+            algorithm.finish(C, 0);
+        }
+        // проверить качество последовательности
+        while (check != null && !check.invoke(C)); 
     }
     // описатель окна
     @Override public Object window() { return window; } private final Object window; 

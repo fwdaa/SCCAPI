@@ -19,11 +19,11 @@ std::vector<BYTE> Crypto::ANSI::X957::EncodeParameters(const CERT_DSS_PARAMETERS
 }
 
 std::shared_ptr<CERT_DSS_PARAMETERS> 
-Crypto::ANSI::X957::DecodeParameters(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X957::DecodeParameters(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CERT_DSS_PARAMETERS>(
-		X509_DSS_PARAMETERS, pvEncoded, cbEncoded, 0
+		X509_DSS_PARAMETERS, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -34,11 +34,11 @@ std::vector<BYTE> Crypto::ANSI::X957::EncodePublicKey(const CRYPT_UINT_BLOB& y)
 }
 
 std::shared_ptr<CRYPT_UINT_BLOB> 
-Crypto::ANSI::X957::DecodePublicKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X957::DecodePublicKey(const CRYPT_BIT_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_UINT_BLOB>(
-		X509_DSS_PUBLICKEY, pvEncoded, cbEncoded, 0
+		X509_DSS_PUBLICKEY, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -49,11 +49,11 @@ std::vector<BYTE> Crypto::ANSI::X957::EncodePrivateKey(const CRYPT_UINT_BLOB& x)
 }
 
 std::shared_ptr<CRYPT_UINT_BLOB> 
-Crypto::ANSI::X957::DecodePrivateKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X957::DecodePrivateKey(const CRYPT_DER_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_UINT_BLOB>(
-		X509_MULTI_BYTE_UINT, pvEncoded, cbEncoded, 0
+		X509_MULTI_BYTE_UINT, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -121,29 +121,11 @@ void Windows::Crypto::ANSI::X957::ValidationParameters::FillBlobCNG(BCRYPT_DSA_K
 		pBlob->Count[1] = (pParameters->pgenCounter >> 16) & 0xFF; 
 		pBlob->Count[2] = (pParameters->pgenCounter >>  8) & 0xFF; 
 		pBlob->Count[3] = (pParameters->pgenCounter >>  0) & 0xFF; 
-
-		if (pBlob->cbSeedLength <= 20)
-		{
-			pBlob->standardVersion = DSA_FIPS186_2;
-			pBlob->hashAlgorithm   = DSA_HASH_ALGORITHM_SHA1; 
-		}
-		else if (pBlob->cbSeedLength <= 32)
-		{
-			pBlob->standardVersion = DSA_FIPS186_3;
-			pBlob->hashAlgorithm   = DSA_HASH_ALGORITHM_SHA256; 
-		}
-		else {
-			pBlob->standardVersion = DSA_FIPS186_3;
-			pBlob->hashAlgorithm   = DSA_HASH_ALGORITHM_SHA512; 
-		}
 	}
-	else { pBlob->hashAlgorithm = DSA_HASH_ALGORITHM_SHA1; 
+	else { pBlob->cbSeedLength = 0;
 
 		// указать отсутствие параметров 
 		memset(pBlob->Count, 0xFF, sizeof(pBlob->Count)); 
-
-		// указать отсутствие параметров 
-		pBlob->standardVersion = DSA_FIPS186_2; pBlob->cbSeedLength = 0;
 	}
 }
 
@@ -154,9 +136,8 @@ std::shared_ptr<Windows::Crypto::ANSI::X957::Parameters>
 Windows::Crypto::ANSI::X957::Parameters::Decode(const CRYPT_ALGORITHM_IDENTIFIER& info)
 {
 	// раскодировать параметры 
-	std::shared_ptr<CERT_DSS_PARAMETERS> pParameters = ::Crypto::ANSI::X957::DecodeParameters(
-		info.Parameters.pbData, info.Parameters.cbData
-	); 
+	std::shared_ptr<CERT_DSS_PARAMETERS> pParameters = ::Crypto::ANSI::X957::DecodeParameters(info.Parameters); 
+
 	// вернуть раскодированные параметры
 	return Parameters::Decode(*pParameters, nullptr); 
 }
@@ -632,6 +613,12 @@ std::vector<BYTE> Windows::Crypto::ANSI::X957::Parameters::BlobCNG() const
 		pDest = memrev(pDest, pBlob->cbGroupSize,  _parameters.q); 
 		pDest = memrev(pDest, pBlob->cbKeyLength,  _parameters.p); 
 		pDest = memrev(pDest, pBlob->cbKeyLength,  _parameters.g); 
+
+		// указать алгоритм хэширования 
+		pBlob->hashAlgorithm = (_parameters.q.cbData <= 32) ? DSA_HASH_ALGORITHM_SHA256 : DSA_HASH_ALGORITHM_SHA512; 
+
+		// указать номер стандарта 
+		pBlob->standardVersion = (pBlob->cbKeyLength <= 128) ? DSA_FIPS186_2 : DSA_FIPS186_3; 
 		
 		// указать параметры для проверки
 		_validationParameters.FillBlobCNG((BCRYPT_DSA_KEY_BLOB_V2*)&pBlob->dwMagic); return blob; 
@@ -648,9 +635,8 @@ Windows::Crypto::ANSI::X957::PublicKey::Decode(const CERT_PUBLIC_KEY_INFO& info)
 	std::shared_ptr<X957::Parameters> pParameters = X957::Parameters::Decode(info.Algorithm); 
 
 	// раскодировать открытый ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X957::DecodePublicKey(
-		info.PublicKey.pbData, info.PublicKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X957::DecodePublicKey(info.PublicKey); 
+
 	// вернуть открытый ключ 
 	return std::shared_ptr<PublicKey>(new PublicKey(pParameters, *pY)); 
 }
@@ -889,9 +875,8 @@ Windows::Crypto::ANSI::X957::PrivateKey::Decode(const CRYPT_PRIVATE_KEY_INFO& pr
 	std::shared_ptr<X957::Parameters> pParameters = X957::Parameters::Decode(privateInfo.Algorithm); 
 
 	// раскодировать личный ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X957::DecodePrivateKey(
-		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X957::DecodePrivateKey(privateInfo.PrivateKey); 
+
 	// вернуть пару ключей
 	return std::shared_ptr<PrivateKey>(new PrivateKey(pParameters, *pX)); 
 }
@@ -1082,13 +1067,11 @@ Windows::Crypto::ANSI::X957::KeyPair::Decode(
 	std::shared_ptr<X957::Parameters> pParameters = X957::Parameters::Decode(publicInfo.Algorithm); 
 
 	// раскодировать открытый ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X957::DecodePublicKey(
-		publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X957::DecodePublicKey(publicInfo.PublicKey); 
+
 	// раскодировать личный ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X957::DecodePrivateKey(
-		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X957::DecodePrivateKey(privateInfo.PrivateKey); 
+
 	// вернуть пару ключей ключ 
 	return std::shared_ptr<KeyPair>(new KeyPair(pParameters, *pY, *pX)); 
 }

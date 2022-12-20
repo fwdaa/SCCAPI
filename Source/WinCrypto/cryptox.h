@@ -272,8 +272,6 @@ class SignData : public ISignData
 
 	// имя алгоритма
 	public: virtual PCWSTR Name() const override { return _signHash->Name(); }
-	// режим алгоритма
-	public: virtual uint32_t Mode() const override { return _signHash->Mode(); }
 
 	// инициализировать алгоритм
 	public: virtual void Init() override { _hash->Init(); }

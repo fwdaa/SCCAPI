@@ -460,61 +460,71 @@ std::vector<uint8_t> Crypto::IKeyParameters::Encode() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Пара ключей 
+// Криптографический контейнер
 ///////////////////////////////////////////////////////////////////////////////
-/*
-std::vector<BYTE> Crypto::IPrivateKey::Encode(uint32_t keyUsage) const
-{
-	// указать адрес закодированного значения 
-	CRYPT_ATTR_BLOB blob = { 0 }; PCRYPT_ATTRIBUTES pAttributes = nullptr; 
-		
-	// указать тип атрибута
-	CRYPT_ATTRIBUTE attribute = { (PSTR)szOID_KEY_USAGE, 1, &blob }; 
-
-	// указать набор атрибутов
-	CRYPT_ATTRIBUTES attributes = { 1, &attribute }; 
-
-	// закодировать использование ключа
-	std::vector<BYTE> encodedKeyUsage = ASN1::ISO::PKIX::KeyUsage::Encode(keyUsage); 
-
-	// проверить наличие представления 
-	blob.cbData = (DWORD)encodedKeyUsage.size(); if (blob.cbData != 0)
-	{
-		// указать адрес закодированного значения 
-		blob.pbData = &encodedKeyUsage[0]; pAttributes = &attributes; 
-	}
-	// создать PKCS8-представление
-	return Encode(pAttributes); 
-}
-*/
-///////////////////////////////////////////////////////////////////////////////
-// Фабрика ключей асимметричного алгоритма
-///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Crypto::IKeyPair> Crypto::IKeyFactory::ImportKeyPair(
-	const IPublicKey& publicKey, const IPrivateKey& privateKey) const
+std::shared_ptr<Crypto::IKeyPair> Crypto::IContainer::ImportKeyPair(
+	uint32_t keySpec, const IPublicKey& publicKey, const IPrivateKey& privateKey, uint32_t policyFlags) const
 {
 	// получить X.509-представление
-	std::vector<uint8_t> encodedPublic = publicKey.Encode(); 
+	std::vector<uint8_t> publicEncoded = publicKey.Encode(); 
 
 	// раскодировать X.509-представление
-	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&encodedPublic[0], encodedPublic.size()); 
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&publicEncoded[0], publicEncoded.size()); 
 
 	// получить структуру X.509-представления
 	const CERT_PUBLIC_KEY_INFO& publicInfo = decodedPublicInfo.Value(); 
 
 	// получить PKCS8-представление
-	std::vector<uint8_t> encodedPrivate = privateKey.Encode(nullptr); 
+	std::vector<uint8_t> privateEncoded = privateKey.Encode(nullptr); 
 
 	// раскодировать PKCS8-представление
-	ASN1::ISO::PKCS::PrivateKeyInfo decodedPrivateInfo(&encodedPrivate[0], encodedPrivate.size()); 
+	ASN1::ISO::PKCS::PrivateKeyInfo decodedPrivateInfo(&privateEncoded[0], privateEncoded.size()); 
 
 	// получить структуру PKCS8-представления
 	const CRYPT_PRIVATE_KEY_INFO& privateInfo = decodedPrivateInfo.Value(); 
 
+	// получить фабрику кодирования 
+	std::shared_ptr<IKeyFactory> pKeyFactory = GetKeyFactory(privateInfo.Algorithm, policyFlags); 
+
+	// проверить наличие фабрики
+	if (!pKeyFactory) return std::shared_ptr<IKeyPair>(); 
+
 	// импортировать пару ключей
-	return ImportKeyPair(publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData, 
-		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
-	); 
+	return pKeyFactory->ImportKeyPair(keySpec, publicInfo.PublicKey, privateInfo.PrivateKey); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Криптографический провайдер
+///////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Crypto::IKeyPair> Crypto::IProvider::ImportKeyPair(
+	uint32_t keySpec, const IPublicKey& publicKey, const IPrivateKey& privateKey) const
+{
+	// получить X.509-представление
+	std::vector<uint8_t> publicEncoded = publicKey.Encode(); 
+
+	// раскодировать X.509-представление
+	ASN1::ISO::PKIX::PublicKeyInfo decodedPublicInfo(&publicEncoded[0], publicEncoded.size()); 
+
+	// получить структуру X.509-представления
+	const CERT_PUBLIC_KEY_INFO& publicInfo = decodedPublicInfo.Value(); 
+
+	// получить PKCS8-представление
+	std::vector<uint8_t> privateEncoded = privateKey.Encode(nullptr); 
+
+	// раскодировать PKCS8-представление
+	ASN1::ISO::PKCS::PrivateKeyInfo decodedPrivateInfo(&privateEncoded[0], privateEncoded.size()); 
+
+	// получить структуру PKCS8-представления
+	const CRYPT_PRIVATE_KEY_INFO& privateInfo = decodedPrivateInfo.Value(); 
+
+	// получить фабрику кодирования 
+	std::shared_ptr<IKeyFactory> pKeyFactory = GetKeyFactory(privateInfo.Algorithm); 
+
+	// проверить наличие фабрики
+	if (!pKeyFactory) return std::shared_ptr<IKeyPair>(); 
+
+	// импортировать пару ключей
+	return pKeyFactory->ImportKeyPair(keySpec, publicInfo.PublicKey, privateInfo.PrivateKey); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -544,7 +554,7 @@ void Crypto::SignDataFromHash::Verify(const IPublicKey& publicKey,
 // Криптографический провайдер
 ///////////////////////////////////////////////////////////////////////////////
 std::vector<std::wstring> Crypto::IEnvironment::FindProviders(
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// перечислить все провайдеры
 	std::vector<std::wstring> providers = EnumProviders(); std::vector<std::wstring> names;
@@ -556,7 +566,7 @@ std::vector<std::wstring> Crypto::IEnvironment::FindProviders(
 		std::shared_ptr<IProvider> provider = OpenProvider(providers[i].c_str()); 
 
 		// проверить поддержку ключа
-		std::shared_ptr<IKeyFactory> pFactory = provider->GetKeyFactory(parameters, keySpec); 
+		std::shared_ptr<IKeyFactory> pFactory = provider->GetKeyFactory(parameters); 
 
 		// добавить провайдер в список
 		if (pFactory) names.push_back(providers[i].c_str()); 
@@ -564,3 +574,243 @@ std::vector<std::wstring> Crypto::IEnvironment::FindProviders(
 	return names; 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Наследование ключа X942
+///////////////////////////////////////////////////////////////////////////////
+std::vector<UCHAR> Crypto::ANSI::X942::KeyDerive::DeriveKey(size_t cb, const ISharedSecret& secret) const
+{
+	// получить алгоритм хэширования
+	std::shared_ptr<IHash> pHash = _provider->CreateHash(_hashName.c_str(), 0); 
+
+	// определить размер хэш-значения 
+	if (!pHash) AE_CHECK_HRESULT(NTE_BAD_ALGID); size_t cbHash = pHash->HashSize(); 
+
+	// создать память для ключа 
+	std::vector<uint8_t> key(cb, 0); uint32_t keyBits = (uint32_t)(cb * 8);  
+
+	// инициализировать структуру 
+	CRYPT_X942_OTHER_INFO info = { (char*)_wrapOID.c_str() }; size_t offset = 0; 
+
+	// указать размер ключа в битах
+	memcpy(info.rgbKeyLength, &keyBits, sizeof(info.rgbKeyLength)); 
+
+	// при наличии случайных данных
+	if (_pubInfo.size() != 0) { info.PubInfo.cbData = (uint32_t)_pubInfo.size(); 
+
+		// указать адрес случайных данных
+		info.PubInfo.pbData = (uint8_t*)&_pubInfo[0]; 
+	}
+	// определить размер имени алгоритма
+	size_t cbHashName = (_hashName.size() + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM, _hashName.c_str(), cbHashName }, 
+		{ CRYPTO_KDF_SECRET_APPEND ,           nullptr,          0 } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (DWORD counter = 1; cb != 0; counter++)
+	{
+		// скопировать счетчик 
+		memcpy(info.rgbCounter, &counter, sizeof(info.rgbCounter)); 
+
+		// получить закодированное представление
+		std::vector<uint8_t> append = ANSI::X942::EncodeOtherInfo(info); size_t cbCopied = min(cbHash, cb);
+
+		// указать закодированное представление как параметр
+		parameters[1].pvData = &append[0]; parameters[1].cbData = append.size();
+
+		// создать алгоритм наследования ключа
+		std::shared_ptr<IKeyDerive> pDerive = _provider->CreateDerive(L"HASH", 0, parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = ((IKeyDeriveX*)pDerive.get())->DeriveKey(cbCopied, secret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbCopied); offset += cbCopied; cb -= cbCopied; 
+	}
+	return key; 
+}
+
+std::vector<UCHAR> Crypto::ANSI::X942::KeyDerive::DeriveKey(size_t cb, const void* pvSecret, size_t cbSecret) const
+{
+	// получить алгоритм хэширования
+	std::shared_ptr<IHash> pHash = _provider->CreateHash(_hashName.c_str(), 0); 
+
+	// определить размер хэш-значения 
+	if (!pHash) AE_CHECK_HRESULT(NTE_BAD_ALGID); size_t cbHash = pHash->HashSize(); 
+
+	// создать память для ключа 
+	std::vector<uint8_t> key(cb, 0); uint32_t keyBits = (uint32_t)(cb * 8);  
+
+	// инициализировать структуру 
+	CRYPT_X942_OTHER_INFO info = { (char*)_wrapOID.c_str() }; size_t offset = 0; 
+
+	// указать размер ключа в битах
+	memcpy(info.rgbKeyLength, &keyBits, sizeof(info.rgbKeyLength)); 
+
+	// при наличии случайных данных
+	if (_pubInfo.size() != 0) { info.PubInfo.cbData = (uint32_t)_pubInfo.size(); 
+
+		// указать адрес случайных данных
+		info.PubInfo.pbData = (uint8_t*)&_pubInfo[0]; 
+	}
+	// определить размер имени алгоритма
+	size_t cbHashName = (_hashName.size() + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM, _hashName.c_str(), cbHashName }, 
+		{ CRYPTO_KDF_SECRET_APPEND ,           nullptr,          0 } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbCopied = min(cbHash, cb); cb != 0; counter++, cbCopied = min(cbHash, cb))
+	{
+		// скопировать счетчик 
+		memcpy(info.rgbCounter, &counter, sizeof(info.rgbCounter)); 
+
+		// получить закодированное представление
+		std::vector<uint8_t> append = ANSI::X942::EncodeOtherInfo(info); 
+
+		// указать закодированное представление как параметр
+		parameters[1].pvData = &append[0]; parameters[1].cbData = append.size();
+
+		// создать алгоритм наследования ключа
+		std::shared_ptr<IKeyDerive> pDerive = _provider->CreateDerive(L"HASH", 0, parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = pDerive->DeriveKey(cbCopied, pvSecret, cbSecret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbCopied); offset += cbCopied; cb -= cbCopied; 
+	}
+	return key; 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Наследование ключа X963
+///////////////////////////////////////////////////////////////////////////////
+Crypto::ANSI::X962::KeyDerive::KeyDerive(
+	const std::shared_ptr<IProvider>& provider, const wchar_t* szHashName, 
+	const CRYPT_ALGORITHM_IDENTIFIER& wrapAlgorithm, const std::vector<uint8_t>& random)
+
+	// сохранить переданные параметры 
+	: _provider(provider), _hashName(szHashName), _random(random)
+{
+	// закодировать параметры алгоритма
+	_wrapAlgorithm = Windows::ASN1::EncodeData(X509_ALGORITHM_IDENTIFIER, &wrapAlgorithm, 0); 
+}
+
+std::vector<UCHAR> Crypto::ANSI::X962::KeyDerive::DeriveKey(size_t cb, const ISharedSecret& secret) const
+{
+	// получить алгоритм хэширования
+	std::shared_ptr<IHash> pHash = _provider->CreateHash(_hashName.c_str(), 0); 
+
+	// определить размер хэш-значения 
+	if (!pHash) AE_CHECK_HRESULT(NTE_BAD_ALGID); size_t cbHash = pHash->HashSize(); 
+
+	// раскодировать параметры алгоритма
+	ASN1::ISO::AlgorithmIdentifier decoded(&_wrapAlgorithm[0], _wrapAlgorithm.size()); 
+
+	// создать структуру дополнительных данных 
+	CRYPT_ECC_CMS_SHARED_INFO info = { decoded.Value() }; 
+
+	// при наличии случайных данных
+	if (_random.size() != 0) { info.EntityUInfo.cbData = (uint32_t)_random.size(); 
+
+		// указать адрес случайных данных
+		info.EntityUInfo.pbData = (uint8_t*)&_random[0]; 
+	}
+	// указать размер ключа в битах
+	*(uint32_t*)info.rgbSuppPubInfo = (uint32_t)(cb * 8); BYTE rgbCounter[4]; 
+
+	// закодировать структуру
+	std::vector<uint8_t> encodedInfo = Crypto::ANSI::X962::EncodeSharedInfo(info);
+
+	// создать память для ключа 
+	std::vector<uint8_t> key(cb, 0); size_t offset = 0; 
+
+	// определить размер имени алгоритма
+	size_t cbHashName = (_hashName.size() + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM,  _hashName.c_str(),         cbHashName }, 
+		{ CRYPTO_KDF_SECRET_APPEND , &       rgbCounter, sizeof(rgbCounter) },  
+		{ CRYPTO_KDF_SECRET_APPEND , &   encodedInfo[0], encodedInfo.size() } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbCopied = min(cbHash, cb); cb != 0; counter++, cbCopied = min(cbHash, cb))
+	{
+		// скопировать значение счетчика
+		rgbCounter[0] = (counter >> 24) & 0xFF; rgbCounter[1] = (counter >> 16) & 0xFF; 
+		rgbCounter[2] = (counter >>  8) & 0xFF; rgbCounter[3] = (counter >>  0) & 0xFF; 
+
+		// создать алгоритм наследования ключа
+		std::shared_ptr<IKeyDerive> pDerive = _provider->CreateDerive(L"HASH", 0, parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = ((IKeyDeriveX*)pDerive.get())->DeriveKey(cbCopied, secret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbCopied); offset += cbCopied; cb -= cbCopied; 
+	}
+	return key; 
+}
+
+std::vector<UCHAR> Crypto::ANSI::X962::KeyDerive::DeriveKey(size_t cb, const void* pvSecret, size_t cbSecret) const
+{
+	// получить алгоритм хэширования
+	std::shared_ptr<IHash> pHash = _provider->CreateHash(_hashName.c_str(), 0); 
+
+	// определить размер хэш-значения 
+	if (!pHash) AE_CHECK_HRESULT(NTE_BAD_ALGID); size_t cbHash = pHash->HashSize(); 
+
+	// раскодировать параметры алгоритма
+	ASN1::ISO::AlgorithmIdentifier decoded(&_wrapAlgorithm[0], _wrapAlgorithm.size()); 
+
+	// создать структуру дополнительных данных 
+	CRYPT_ECC_CMS_SHARED_INFO info = { decoded.Value() }; 
+
+	// при наличии случайных данных
+	if (_random.size() != 0) { info.EntityUInfo.cbData = (uint32_t)_random.size(); 
+
+		// указать адрес случайных данных
+		info.EntityUInfo.pbData = (uint8_t*)&_random[0]; 
+	}
+	// указать размер ключа в битах
+	*(uint32_t*)info.rgbSuppPubInfo = (uint32_t)(cb * 8); BYTE rgbCounter[4]; 
+
+	// закодировать структуру
+	std::vector<uint8_t> encodedInfo = Crypto::ANSI::X962::EncodeSharedInfo(info);
+
+	// создать память для ключа 
+	std::vector<uint8_t> key(cb, 0); size_t offset = 0; 
+
+	// определить размер имени алгоритма
+	size_t cbHashName = (_hashName.size() + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM,  _hashName.c_str(),         cbHashName }, 
+		{ CRYPTO_KDF_SECRET_APPEND , &       rgbCounter, sizeof(rgbCounter) },  
+		{ CRYPTO_KDF_SECRET_APPEND , &   encodedInfo[0], encodedInfo.size() } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbCopied = min(cbHash, cb); cb != 0; counter++, cbCopied = min(cbHash, cb))
+	{
+		// скопировать значение счетчика
+		rgbCounter[0] = (counter >> 24) & 0xFF; rgbCounter[1] = (counter >> 16) & 0xFF; 
+		rgbCounter[2] = (counter >>  8) & 0xFF; rgbCounter[3] = (counter >>  0) & 0xFF; 
+
+		// создать алгоритм наследования ключа
+		std::shared_ptr<IKeyDerive> pDerive = _provider->CreateDerive(L"HASH", 0, parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = pDerive->DeriveKey(cbCopied, pvSecret, cbSecret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbCopied); offset += cbCopied; cb -= cbCopied; 
+	}
+	return key; 
+}

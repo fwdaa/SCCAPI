@@ -27,7 +27,7 @@ namespace Aladdin.CAPI.GOST.Rnd
                 rand.Generate(seed, 0, seed.Length); 
 
                 // создать генератор случайных данных
-                this.rand = new TC026(window, hashAlgorithm, seed);
+                this.rand = new TC026(window, hashAlgorithm, seed, null);
             }
         }
         // конструктор
@@ -37,7 +37,7 @@ namespace Aladdin.CAPI.GOST.Rnd
             using (CAPI.Hash hashAlgorithm = new Hash.GOSTR3411_2012(512))
             { 
                 // создать генератор случайных данных
-                rand = new TC026(window, hashAlgorithm, seed); this.seed = seed; 
+                rand = new TC026(window, hashAlgorithm, seed, null); this.seed = seed; 
             }
         }
         // изменить окно для генератора
@@ -50,7 +50,7 @@ namespace Aladdin.CAPI.GOST.Rnd
             using (CAPI.Hash hashAlgorithm = new Hash.GOSTR3411_2012(512))
             { 
                 // создать генератор случайных данных
-                rand = new TC026(null, hashAlgorithm, seed); 
+                rand = new TC026(null, hashAlgorithm, seed, null); 
             }
         }
         // стартовое значение

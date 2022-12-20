@@ -321,10 +321,10 @@ std::vector<uint8_t> Crypto::ANSI::X962::EncodeParameters(const char* szCurveOID
 	// закодировать идентификатор параметров
 	return ASN1::ObjectIdentifier(szCurveOID).Encode(); 
 }
-std::string Crypto::ANSI::X962::DecodeParameters(const void* pvEncoded, size_t cbEncoded)
+std::string Crypto::ANSI::X962::DecodeParameters(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать идентификатор параметров
-	return ASN1::ObjectIdentifier(pvEncoded, cbEncoded).Value(); 
+	return ASN1::ObjectIdentifier(encoded.pbData, encoded.cbData).Value(); 
 }
 
 std::vector<uint8_t> Crypto::ANSI::X962::EncodePublicKey(const CRYPT_ECC_PUBLIC_KEY_INFO& info)
@@ -343,21 +343,20 @@ std::vector<uint8_t> Crypto::ANSI::X962::EncodePublicKey(const CRYPT_ECC_PUBLIC_
 }
 
 std::shared_ptr<CRYPT_ECC_PUBLIC_KEY_INFO> 
-Crypto::ANSI::X962::DecodePublicKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X962::DecodePublicKey(const CRYPT_BIT_BLOB& encoded)
 {
 	// проверить корректность размера
-	if (cbEncoded == 0 || (cbEncoded & 1) != 0 || ((PBYTE)pvEncoded)[0] != 0x04)
+	if (encoded.cbData == 0 || (encoded.cbData & 1) == 0 || ((PBYTE)encoded.pbData)[0] != 0x04)
 	{
 		// при ошибке выбросить исключение 
 		AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); 
 	}
 	// выделить буфер требуемого размера
-	std::shared_ptr<CRYPT_ECC_PUBLIC_KEY_INFO> pInfo = 
-		AllocateStruct<CRYPT_ECC_PUBLIC_KEY_INFO>(cbEncoded - 1); 
+	std::shared_ptr<CRYPT_ECC_PUBLIC_KEY_INFO> pInfo = AllocateStruct<CRYPT_ECC_PUBLIC_KEY_INFO>(encoded.cbData - 1); 
 
 	// указать расположение координат
-	CRYPT_UINT_REVERSE_BLOB x = { (DWORD)(cbEncoded - 1) / 2, (PBYTE)pvEncoded + 1            }; 
-	CRYPT_UINT_REVERSE_BLOB y = { (DWORD)(cbEncoded - 1) / 2, (PBYTE)pvEncoded + 1 + x.cbData }; 
+	CRYPT_UINT_REVERSE_BLOB x = { (DWORD)(encoded.cbData - 1) / 2, (PBYTE)encoded.pbData + 1            }; 
+	CRYPT_UINT_REVERSE_BLOB y = { (DWORD)(encoded.cbData - 1) / 2, (PBYTE)encoded.pbData + 1 + x.cbData }; 
 
 	// указать размеры координат
 	PBYTE pDest = (PBYTE)(pInfo.get() + 1); pInfo->x.cbData = x.cbData; pInfo->y.cbData = y.cbData;
@@ -374,11 +373,11 @@ std::vector<uint8_t> Crypto::ANSI::X962::EncodePrivateKey(const CRYPT_ECC_PRIVAT
 }
 
 std::shared_ptr<CRYPT_ECC_PRIVATE_KEY_INFO> 
-Crypto::ANSI::X962::DecodePrivateKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X962::DecodePrivateKey(const CRYPT_DER_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_ECC_PRIVATE_KEY_INFO>(
-		X509_ECC_PRIVATE_KEY, pvEncoded, cbEncoded, 0
+		X509_ECC_PRIVATE_KEY, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -495,9 +494,8 @@ std::shared_ptr<Windows::Crypto::ANSI::X962::Parameters>
 Windows::Crypto::ANSI::X962::Parameters::Decode(const CRYPT_ALGORITHM_IDENTIFIER& info)
 {
 	// раскодировать идентификатор кривой
-	std::string curveOID = ::Crypto::ANSI::X962::DecodeParameters(
-		info.Parameters.pbData, info.Parameters.cbData
-	); 
+	std::string curveOID = ::Crypto::ANSI::X962::DecodeParameters(info.Parameters); 
+
 	// создать объект параметров
 	return std::shared_ptr<Parameters>(new Parameters(curveOID.c_str())); 
 }
@@ -592,9 +590,8 @@ Windows::Crypto::ANSI::X962::PublicKey::Decode(const CERT_PUBLIC_KEY_INFO& info)
 	std::shared_ptr<X962::Parameters> pParameters = X962::Parameters::Decode(info.Algorithm); 
 
 	// раскодировать открытый ключ
-	std::shared_ptr<CRYPT_ECC_PUBLIC_KEY_INFO> pInfo = ::Crypto::ANSI::X962::DecodePublicKey(
-		info.PublicKey.pbData, info.PublicKey.cbData
-	); 
+	std::shared_ptr<CRYPT_ECC_PUBLIC_KEY_INFO> pInfo = ::Crypto::ANSI::X962::DecodePublicKey(info.PublicKey); 
+
 	// создать открытый ключ
 	return std::shared_ptr<PublicKey>(new PublicKey(pParameters, pInfo->x, pInfo->y)); 
 }
@@ -722,9 +719,8 @@ std::shared_ptr<Windows::Crypto::ANSI::X962::PrivateKey>
 Windows::Crypto::ANSI::X962::PrivateKey::Decode(const CRYPT_PRIVATE_KEY_INFO& info)
 {
 	// раскодировать личный ключ
-	std::shared_ptr<CRYPT_ECC_PRIVATE_KEY_INFO> pInfo = ::Crypto::ANSI::X962::DecodePrivateKey(
-		info.PrivateKey.pbData, info.PrivateKey.cbData
-	); 
+	std::shared_ptr<CRYPT_ECC_PRIVATE_KEY_INFO> pInfo = ::Crypto::ANSI::X962::DecodePrivateKey(info.PrivateKey); 
+
 	// создать личный ключ
 	return PrivateKey::Decode(*pInfo); 
 }
@@ -866,9 +862,8 @@ std::shared_ptr<Windows::Crypto::ANSI::X962::KeyPair>
 Windows::Crypto::ANSI::X962::KeyPair::Decode(const CRYPT_PRIVATE_KEY_INFO& info)
 {
 	// раскодировать личный ключ
-	std::shared_ptr<CRYPT_ECC_PRIVATE_KEY_INFO> pInfo = ::Crypto::ANSI::X962::DecodePrivateKey(
-		info.PrivateKey.pbData, info.PrivateKey.cbData
-	); 
+	std::shared_ptr<CRYPT_ECC_PRIVATE_KEY_INFO> pInfo = ::Crypto::ANSI::X962::DecodePrivateKey(info.PrivateKey); 
+
 	// создать ключевую пару
 	return KeyPair::Decode(*pInfo); 
 }

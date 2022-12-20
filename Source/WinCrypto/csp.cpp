@@ -1135,71 +1135,83 @@ std::vector<BYTE> Windows::Crypto::CSP::KeyPair::Encode(const CRYPT_ATTRIBUTES* 
 ///////////////////////////////////////////////////////////////////////////////
 // Фабрика ключей асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-Crypto::KeyLengths Windows::Crypto::CSP::KeyFactory::KeyBits() const
+ALG_ID Windows::Crypto::CSP::KeyFactory::GetAlgID(uint32_t keySpec) const
+{
+	// найти информацию идентификатора 
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(_pParameters->Decoded().pszObjId, keySpec); 
+
+	// проверить наличие информации
+	if (!pInfo) AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); return pInfo->Algid; 
+}
+
+Crypto::KeyLengths Windows::Crypto::CSP::KeyFactory::KeyBits(uint32_t keySpec) const
 { 
 	// получить описание алгоритма 
-	const PROV_ENUMALGS_EX& info = AlgorithmInfo::Info(); 
+	AlgorithmInfo info(Container(), GetAlgID(keySpec)); 
 
 	// определить идентификатор параметров 
-	DWORD paramID = (KeySpec() == AT_SIGNATURE) ? PP_SIG_KEYSIZE_INC : PP_KEYX_KEYSIZE_INC; 
+	DWORD paramID = (keySpec == AT_SIGNATURE) ? PP_SIG_KEYSIZE_INC : PP_KEYX_KEYSIZE_INC; 
 
 	// получить шаг увеличения размера 
 	DWORD deltaKeyBits = Container().GetUInt32(Container(), paramID, 0); 
 
 	// указать размеры ключей 
-	KeyLengths lengths = { info.dwMinLen, info.dwMaxLen, deltaKeyBits }; 
+	KeyLengths lengths = { info.Info().dwMinLen, info.Info().dwMaxLen, deltaKeyBits }; 
 
 	// скорректировать шаг увеличения размера
-	if (lengths.increment == 0) lengths.increment = info.dwDefaultLen - info.dwMinLen; 
+	if (lengths.increment == 0) lengths.increment = info.Info().dwDefaultLen - info.Info().dwMinLen; 
 
 	// скорректировать шаг увеличения размера
-	if (lengths.increment == 0) lengths.increment = info.dwMaxLen - info.dwMinLen; return lengths; 
+	if (lengths.increment == 0) lengths.increment = info.Info().dwMaxLen - info.Info().dwMinLen; return lengths; 
 }
 
 std::shared_ptr<Crypto::IPublicKey> 
-Windows::Crypto::CSP::KeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
+Windows::Crypto::CSP::KeyFactory::DecodePublicKey(const CRYPT_BIT_BLOB& encoded) const
 {
 	// указать закодированное представление ключа 
-	CERT_PUBLIC_KEY_INFO info = { Parameters()->Decoded(), { (DWORD)cbEncoded, (PBYTE)pvEncoded, 0 }}; 
+	CERT_PUBLIC_KEY_INFO info = { Parameters()->Decoded(), encoded}; 
 
 	// вернуть открытый ключ
 	return std::shared_ptr<IPublicKey>(new PublicKey(info)); 
 }
 
 std::shared_ptr<Crypto::IKeyPair> 
-Windows::Crypto::CSP::KeyFactory::ImportKeyPair(
-	const void* pvPublicKey, size_t cbPublicKey, const void* pvPrivateKey, size_t cbPrivateKey) const
+Windows::Crypto::CSP::KeyFactory::ImportKeyPair(uint32_t keySpec,
+	const CRYPT_BIT_BLOB& publicKey, const CRYPT_DER_BLOB& privateKey) const
 {
+	// получить идентификатор алгоритма
+	ALG_ID algID = GetAlgID(keySpec); 
+
 	// указать закодированные представления ключей
-	CERT_PUBLIC_KEY_INFO   publicInfo  = {   Parameters()->Decoded(), { (DWORD)cbPublicKey,  (PBYTE)pvPublicKey  }}; 
-	CRYPT_PRIVATE_KEY_INFO privateInfo = {0, Parameters()->Decoded(), { (DWORD)cbPrivateKey, (PBYTE)pvPrivateKey }}; 
+	CERT_PUBLIC_KEY_INFO   publicInfo  = {   Parameters()->Decoded(), publicKey }; 
+	CRYPT_PRIVATE_KEY_INFO privateInfo = {0, Parameters()->Decoded(), privateKey}; 
 
 	// импортировать пару ключей в контейнер
-	KeyHandle hKeyPair = KeyHandle::ImportPKCS8(Container(), KeySpec(), &publicInfo, &privateInfo, AlgID(), PolicyFlags()); 
+	KeyHandle hKeyPair = KeyHandle::ImportPKCS8(Container(), keySpec, &publicInfo, &privateInfo, algID, PolicyFlags()); 
 
 	// вернуть пару ключей из контейнера
-	return std::shared_ptr<IKeyPair>(new KeyPair(Container(), Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<IKeyPair>(new KeyPair(Container(), Parameters(), hKeyPair, keySpec)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::CSP::KeyFactory::GenerateKeyPair(size_t keyBits) const
+Windows::Crypto::CSP::KeyFactory::GenerateKeyPair(uint32_t keySpec, size_t keyBits) const
 {
-	// указать используемые флаги
-	DWORD dwFlags = PolicyFlags() | ((DWORD)keyBits << 16); 
+	// получить идентификатор алгоритма и указать используемые флаги
+	ALG_ID algID = GetAlgID(keySpec); DWORD dwFlags = PolicyFlags() | ((DWORD)keyBits << 16); 
 
 	// сгенерировать пару ключей 
-	KeyHandle hKeyPair = KeyHandle::Generate(Container(), AlgorithmInfo::AlgID(), dwFlags); 
+	KeyHandle hKeyPair = KeyHandle::Generate(Container(), algID, dwFlags); 
 
 	// вернуть ключевую пару
-	return std::shared_ptr<IKeyPair>(new KeyPair(Container(), Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<IKeyPair>(new KeyPair(Container(), Parameters(), hKeyPair, keySpec)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::CSP::KeyFactory::ImportKeyPair(
+Windows::Crypto::CSP::KeyFactory::ImportKeyPair(uint32_t keySpec, 
 	const SecretKey* pSecretKey, const std::vector<BYTE>& blob) const 
 {
 	// указать идентификатор алгоритма
-	BLOBHEADER* pBLOB = (BLOBHEADER*)&blob[0]; pBLOB->aiKeyAlg = AlgorithmInfo::AlgID();
+	BLOBHEADER* pBLOB = (BLOBHEADER*)&blob[0]; pBLOB->aiKeyAlg = GetAlgID(keySpec);
 
 	// создать копию ключа
 	KeyHandle hImportKey = (pSecretKey) ? pSecretKey->Duplicate() : KeyHandle(); 
@@ -1208,7 +1220,7 @@ Windows::Crypto::CSP::KeyFactory::ImportKeyPair(
 	KeyHandle hKeyPair = KeyHandle::Import(Container(), hImportKey, blob, PolicyFlags()); 
 
 	// вернуть ключевую пару
-	return std::shared_ptr<IKeyPair>(new KeyPair(Container(), Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<IKeyPair>(new KeyPair(Container(), Parameters(), hKeyPair, keySpec)); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1235,7 +1247,7 @@ size_t Windows::Crypto::CSP::Hash::Init()
 void Windows::Crypto::CSP::Hash::Update(const void* pvData, size_t cbData)
 {
 	// захэшировать данные
-	AE_CHECK_WINAPI(::CryptHashData(_hDigest, (const BYTE*)pvData, (DWORD)cbData, Mode())); 
+	AE_CHECK_WINAPI(::CryptHashData(_hDigest, (const BYTE*)pvData, (DWORD)cbData, Flags())); 
 }
 
 void Windows::Crypto::CSP::Hash::Update(const ::Crypto::ISecretKey& key)
@@ -1247,7 +1259,7 @@ void Windows::Crypto::CSP::Hash::Update(const ::Crypto::ISecretKey& key)
 		const KeyHandle& hKey = ((const SecretKey&)key).Handle(); 
 
 		// захэшировать сеансовый ключ
-		AE_CHECK_WINAPI(::CryptHashSessionKey(_hDigest, hKey, Mode())); 
+		AE_CHECK_WINAPI(::CryptHashSessionKey(_hDigest, hKey, Flags())); 
 	}
 }
 
@@ -1257,7 +1269,7 @@ void Windows::Crypto::CSP::Hash::Update(const SharedSecret& secret)
 	const KeyHandle& hSecret = ((const SecretKey&)secret).Handle(); 
 
 	// захэшировать сеансовый ключ
-	AE_CHECK_WINAPI(::CryptHashSessionKey(_hDigest, hSecret, Mode())); 
+	AE_CHECK_WINAPI(::CryptHashSessionKey(_hDigest, hSecret, Flags())); 
 }
 
 size_t Windows::Crypto::CSP::Hash::Finish(void* pvHash, size_t cbHash)
@@ -1277,7 +1289,7 @@ Windows::Crypto::CSP::Hash::DuplicateValue(
 	const ProviderHandle& hProvider, const std::vector<BYTE>& hash) const
 {
  	// создать алгоритм хэширования 
-	DigestHandle handle(hProvider, NULL, AlgID(), Mode()); 
+	DigestHandle handle(hProvider, NULL, AlgID(), Flags()); 
 	
 	// указать хэш-значение
 	Algorithm::Init(handle); handle.SetBinary(HP_HASHVAL, &hash[0], 0); return handle;
@@ -1310,7 +1322,7 @@ size_t Windows::Crypto::CSP::Mac::Init(const std::vector<uint8_t>& key)
 	_hKey = KeyHandle::FromValue(Provider(), algID, key, dwFlags); Algorithm::Init(_hKey); 
 
  	// создать алгоритм хэширования 
-	_hDigest = DigestHandle(Provider(), _hKey, AlgID(), Mode()); 
+	_hDigest = DigestHandle(Provider(), _hKey, AlgID(), Flags()); 
 
 	// инициализировать дополнительные параметры
 	Algorithm::Init(_hDigest); return _hDigest.GetUInt32(HP_HASHSIZE, 0); 
@@ -1319,7 +1331,7 @@ size_t Windows::Crypto::CSP::Mac::Init(const std::vector<uint8_t>& key)
 void Windows::Crypto::CSP::Mac::Update(const void* pvData, size_t cbData)
 {
 	// захэшировать данные
-	AE_CHECK_WINAPI(::CryptHashData(_hDigest, (const BYTE*)pvData, (DWORD)cbData, Mode())); 
+	AE_CHECK_WINAPI(::CryptHashData(_hDigest, (const BYTE*)pvData, (DWORD)cbData, Flags())); 
 }
 
 void Windows::Crypto::CSP::Mac::Update(const ISecretKey& key)
@@ -1331,7 +1343,7 @@ void Windows::Crypto::CSP::Mac::Update(const ISecretKey& key)
 		const KeyHandle& hKey = ((const SecretKey&)key).Handle(); 
 
 		// захэшировать сеансовый ключ
-		AE_CHECK_WINAPI(::CryptHashSessionKey(_hDigest, hKey, Mode())); 
+		AE_CHECK_WINAPI(::CryptHashSessionKey(_hDigest, hKey, Flags())); 
 	}
 }
 
@@ -1350,8 +1362,20 @@ size_t Windows::Crypto::CSP::Mac::Finish(void* pvHash, size_t cbHash)
 std::shared_ptr<Windows::Crypto::CSP::KeyDerive> Windows::Crypto::CSP::KeyDerive::Create(
 	const ProviderHandle& hProvider, const Parameter* pParameters, size_t cParameters) 
 {
-	// получить имя алгоритма хэширования 
-	PCWSTR szHashName = BufferGetString(pParameters, cParameters, CRYPTO_KDF_HASH_ALGORITHM); 
+	// для всех параметров 
+	PCWSTR szHashName = nullptr; for (size_t i = 0; i < cParameters; i++)
+	{
+		// перейти на параметр
+		const Parameter* pParameter = &pParameters[i]; 
+
+		// проверить тип параметра
+		if (pParameter->type != CRYPTO_KDF_HASH_ALGORITHM) break; 
+
+		// сохранить имя алгоритма
+		szHashName = (const wchar_t*)pParameter->pvData; break; 
+	}
+	// проверить наличие имени алгоритма
+	if (!szHashName) AE_CHECK_HRESULT(E_INVALIDARG); 
 
 	// получить идентификатор алгоритма
 	ALG_ID algID = GetAlgInfo(hProvider, szHashName, ALG_CLASS_HASH, nullptr); 
@@ -1361,6 +1385,13 @@ std::shared_ptr<Windows::Crypto::CSP::KeyDerive> Windows::Crypto::CSP::KeyDerive
 	
 	// создать алгоритм наследования ключа
 	return std::shared_ptr<KeyDerive>(new KeyDerive(hProvider, algID)); 
+}
+
+std::vector<UCHAR> Windows::Crypto::CSP::KeyDerive::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const
+{
+	// операция не поддерживается 
+	AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); return std::vector<UCHAR>(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1555,7 +1586,7 @@ std::vector<BYTE> Windows::Crypto::CSP::KeyxCipher::Encrypt(
 	KeyHandle hPublicKey = ImportPublicKey(publicKey); DWORD cb = (DWORD)cbData; 
 		
 	// определить требуемый размер буфера
-	AE_CHECK_WINAPI(::CryptEncrypt(hPublicKey, NULL, TRUE, Mode(), nullptr, &cb, 0)); 
+	AE_CHECK_WINAPI(::CryptEncrypt(hPublicKey, NULL, TRUE, Flags(), nullptr, &cb, 0)); 
 
 	// выделить буфер требуемого размера
 	std::vector<BYTE> buffer(cb, 0); if (cb == 0) return buffer; 
@@ -1564,7 +1595,7 @@ std::vector<BYTE> Windows::Crypto::CSP::KeyxCipher::Encrypt(
 	memcpy(&buffer[0], pvData, cbData); DWORD cbActual = (DWORD)cbData; 
 
 	// зашифровать данные
-	AE_CHECK_WINAPI(::CryptEncrypt(hPublicKey, NULL, TRUE, Mode(), &buffer[0], &cbActual, cb)); 
+	AE_CHECK_WINAPI(::CryptEncrypt(hPublicKey, NULL, TRUE, Flags(), &buffer[0], &cbActual, cb)); 
 	
 	// указать реальный размер буфера
 	buffer.resize(cbActual); return buffer;
@@ -1583,7 +1614,7 @@ std::vector<BYTE> Windows::Crypto::CSP::KeyxCipher::Decrypt(
 	if (cbData != 0) memcpy(&buffer[0], pvData, cbData); DWORD cbActual = (DWORD)cbData; 
 
 	// зашифровать данные
-	AE_CHECK_WINAPI(::CryptDecrypt(hPrivateKey, NULL, TRUE, Mode(), &buffer[0], &cbActual)); 
+	AE_CHECK_WINAPI(::CryptDecrypt(hPrivateKey, NULL, TRUE, Flags(), &buffer[0], &cbActual)); 
 	
 	// указать реальный размер буфера
 	buffer.resize(cbActual); return buffer;
@@ -1602,7 +1633,7 @@ std::vector<BYTE> Windows::Crypto::CSP::KeyxCipher::WrapKey(
 	KeyHandle hPublicKey = ImportPublicKey(publicKey); 
 
 	// экспортировать ключ
-	std::vector<BYTE> blob = hKey.Export(SIMPLEBLOB, hPublicKey, Mode()); 
+	std::vector<BYTE> blob = hKey.Export(SIMPLEBLOB, hPublicKey, Flags()); 
 
 	// выполнить преобразование типа
 	const BLOBHEADER* pBLOB = (const BLOBHEADER*)&blob[0]; 
@@ -1644,7 +1675,7 @@ std::shared_ptr<Windows::Crypto::ISecretKey> Windows::Crypto::CSP::KeyxCipher::U
 ///////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<Windows::Crypto::ISecretKey> 
 Windows::Crypto::CSP::KeyxAgreement::AgreeKey(
-	const IKeyDerive* pDerive, const Crypto::IPrivateKey& privateKey, 
+	const IKeyDeriveX* pDerive, const Crypto::IPrivateKey& privateKey, 
 	const IPublicKey& publicKey, const ISecretKeyFactory& keyFactory, size_t cbKey) const
 {
 	// проверить использование алгоритма по умолчанию
@@ -1660,7 +1691,7 @@ Windows::Crypto::CSP::KeyxAgreement::AgreeKey(
 	std::vector<BYTE> blob = hPublicKey.Export(PUBLICKEYBLOB, NULL, 0); 
 
 	// согласовать общий ключ
-	std::shared_ptr<SecretKey> secretKey = SecretKey::Import(Provider(), hKeyPair, blob, Mode()); 
+	std::shared_ptr<SecretKey> secretKey = SecretKey::Import(Provider(), hKeyPair, blob, Flags()); 
 
 	// получить идентификатор алгоритма
 	ALG_ID algID = ((const SecretKeyFactory&)keyFactory).AlgID(); 
@@ -1689,13 +1720,13 @@ std::vector<BYTE> Windows::Crypto::CSP::SignHash::Sign(
 	DigestHandle hHash = ((const Hash&)hash).DuplicateValue(cspKeyPair.Provider(), hash); 
 
 	// определить требуемый размер буфера
-	AE_CHECK_WINAPI(::CryptSignHashW(hHash, keySpec, NULL, Mode(), nullptr, &cb)); 
+	AE_CHECK_WINAPI(::CryptSignHashW(hHash, keySpec, NULL, Flags(), nullptr, &cb)); 
 
 	// выделить буфер требуемого размера
 	std::vector<BYTE> buffer(cb, 0); if (cb == 0) return buffer; 
 
 	// подписать хэш-значение
-	AE_CHECK_WINAPI(::CryptSignHashW(hHash, keySpec, NULL, Mode(), &buffer[0], &cb)); 
+	AE_CHECK_WINAPI(::CryptSignHashW(hHash, keySpec, NULL, Flags(), &buffer[0], &cb)); 
 
 	// указать действительный размер
 	buffer.resize(cb); if (_reverse) for (DWORD i = 0; i < cb / 2; i++)
@@ -1723,7 +1754,7 @@ void Windows::Crypto::CSP::SignHash::Verify(
 	DigestHandle hHash = ((const Hash&)hash).DuplicateValue(Provider(), hash); 
 
 	// проверить подпись хэш-значения 
-	AE_CHECK_WINAPI(::CryptVerifySignatureW(hHash, &sign[0], cbSign, hPublicKey, NULL, Mode())); 
+	AE_CHECK_WINAPI(::CryptVerifySignatureW(hHash, &sign[0], cbSign, hPublicKey, NULL, Flags())); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1770,10 +1801,10 @@ std::wstring Windows::Crypto::CSP::Container::UniqueName() const
 
 std::shared_ptr<Windows::Crypto::IKeyFactory> 
 Windows::Crypto::CSP::Container::GetKeyFactory(
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec, uint32_t policyFlags) const 
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t policyFlags) const 
 {
 	// найти информацию идентификатора
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, keySpec); DWORD dwPolicyFlags = 0; 
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, 0); DWORD dwPolicyFlags = 0; 
 	 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IKeyFactory>(); PROV_ENUMALGS_EX info = {0}; 
@@ -1790,28 +1821,22 @@ Windows::Crypto::CSP::Container::GetKeyFactory(
 	if (pInfo->Algid == CALG_RSA_KEYX || pInfo->Algid == CALG_RSA_SIGN)
 	{
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::RSA::KeyFactory(
-			Handle(), pInfo->Algid, dwPolicyFlags
-		)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::RSA::KeyFactory(Handle(), dwPolicyFlags)); 
 	}
 	// в зависимости от алгоритма
 	if (pInfo->Algid == CALG_DH_SF)
 	{
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::X942::KeyFactory(
-			Handle(), parameters, pInfo->Algid, dwPolicyFlags
-		)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::X942::KeyFactory(Handle(), parameters, dwPolicyFlags, FALSE)); 
 	}
 	// в зависимости от алгоритма
 	if (pInfo->Algid == CALG_DSS_SIGN)
 	{
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::X957::KeyFactory(
-			Handle(), parameters, dwPolicyFlags
-		)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::X957::KeyFactory(Handle(), parameters, dwPolicyFlags)); 
 	}
 	// вернуть фабрику ключей
-	return std::shared_ptr<IKeyFactory>(new KeyFactory(Handle(), parameters, pInfo->Algid, dwPolicyFlags)); 
+	return std::shared_ptr<IKeyFactory>(new KeyFactory(Handle(), parameters, dwPolicyFlags)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
@@ -2123,10 +2148,10 @@ std::shared_ptr<Crypto::IKeyDerive> Windows::Crypto::CSP::Provider::CreateDerive
 }
 
 std::shared_ptr<Crypto::IHash> Windows::Crypto::CSP::Provider::CreateHash(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_HASH_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_HASH_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<IHash>(); 
@@ -2135,33 +2160,69 @@ std::shared_ptr<Crypto::IHash> Windows::Crypto::CSP::Provider::CreateHash(
 	return CreateHash(pInfo->pwszName, 0); 
 }
 
-std::shared_ptr<Crypto::ICipher> Windows::Crypto::CSP::Provider::CreateCipher(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+std::shared_ptr<Crypto::IKeyWrap> Windows::Crypto::CSP::Provider::CreateKeyWrap(
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, parameters.pszObjId); 
+
+	// проверить наличие информации
+	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<IKeyWrap>(); 
+
+	// для алгоритма RC2
+	if (pInfo->Algid == CALG_RC2 && strcmp(parameters.pszObjId, szOID_RSA_SMIMEalgCMSRC2wrap) == 0) 
+	{
+		// выделить буфер требуемого размера 
+		DWORD algClass = ALG_CLASS_DATA_ENCRYPT; PROV_ENUMALGS_EX info = {0}; 
+
+		// найти информацию алгоритма
+		if (!GetAlgInfo(Handle(), pInfo->Algid, &info)) return std::shared_ptr<IKeyWrap>(); 
+
+		// раскодировать параметры 
+		ASN1::Integer parametersRC2(parameters.Parameters.pbData, parameters.Parameters.cbData); 
+
+		// в зависимости от номера версии
+		DWORD effectiveBitLength = 0; switch (parametersRC2.Value().pbData[0])
+		{
+		// определить эффективное число битов
+		case CRYPT_RC2_40BIT_VERSION	: effectiveBitLength =  40; break; 
+		case CRYPT_RC2_56BIT_VERSION	: effectiveBitLength =  56; break;
+		case CRYPT_RC2_64BIT_VERSION	: effectiveBitLength =  64; break;
+		case CRYPT_RC2_128BIT_VERSION	: effectiveBitLength = 128; break;
+
+		// используемый размер не поддерживается 
+		default: return std::shared_ptr<IKeyWrap>(); 
+		}
+		// вернуть алгоритм шифрования ключа
+		return ANSI::RC2(Handle(), effectiveBitLength).CreateKeyWrap(); 
+	}
+	// создать алгоритм шифрования 
+	std::shared_ptr<ICipher> pCipher = CreateCipher(pInfo->pwszName, 0); 
+
+	// вернуть алгоритм шифрования ключа 
+	return (pCipher) ? pCipher->CreateKeyWrap() : std::shared_ptr<IKeyWrap>();
+}
+
+std::shared_ptr<Crypto::ICipher> Windows::Crypto::CSP::Provider::CreateCipher(
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
+{
+	// найти информацию идентификатора 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<ICipher>(); 
 
-	// определить размер имени 
-	size_t cch = wcslen(pInfo->pwszName); if (cch >= 4)
-	{
-		// пропустить алгоритмы шифрования ключа
-		if (wcscmp(pInfo->pwszName + cch - 4, L"wrap") == 0) return std::shared_ptr<ICipher>();
-	}
 	// для алгоритма RC2
-	if (pInfo->Algid == CALG_RC2 && strcmp(szAlgOID, szOID_RSA_RC2CBC) == 0) 
+	if (pInfo->Algid == CALG_RC2 && strcmp(parameters.pszObjId, szOID_RSA_RC2CBC) == 0) 
 	{
-		// выделить буфер требуемого размера 
-		DWORD algClass = ALG_CLASS_DATA_ENCRYPT; PROV_ENUMALGS_EX info = {0}; 
+		PROV_ENUMALGS_EX info = {0}; 
 
 		// найти информацию алгоритма
 		if (!GetAlgInfo(Handle(), pInfo->Algid, &info)) return std::shared_ptr<ICipher>(); 
 
 		// раскодировать параметры 
 		std::shared_ptr<CRYPT_RC2_CBC_PARAMETERS> pParameters = 
-			::Crypto::ANSI::RSA::DecodeRC2CBCParameters(pvEncoded, cbEncoded); 
+			::Crypto::ANSI::RSA::DecodeRC2CBCParameters(parameters.Parameters); 
 
 		// проверить наличие синхропосылки
 		if (!pParameters->fIV) return std::shared_ptr<ICipher>(); 
@@ -2204,7 +2265,7 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::CSP::Provider::CreateCipher(
 		case CRYPTO_BLOCK_MODE_CBC: 
 		{
 			// раскодировать параметры 
-			ASN1::OctetString decoded(pvEncoded, cbEncoded); 
+			ASN1::OctetString decoded(parameters.Parameters.pbData, parameters.Parameters.cbData); 
 
 			// получить структуру параметров
 			const CRYPT_DATA_BLOB& parameters = decoded.Value(); 
@@ -2218,7 +2279,7 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::CSP::Provider::CreateCipher(
 		case CRYPTO_BLOCK_MODE_CFB: 
 		{
 			// раскодировать параметры 
-			ASN1::OctetString decoded(pvEncoded, cbEncoded); 
+			ASN1::OctetString decoded(parameters.Parameters.pbData, parameters.Parameters.cbData); 
 
 			// получить структуру параметров
 			const CRYPT_DATA_BLOB& parameters = decoded.Value(); 
@@ -2232,7 +2293,7 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::CSP::Provider::CreateCipher(
 		case CRYPTO_BLOCK_MODE_OFB: 
 		{
 			// раскодировать параметры 
-			ASN1::OctetString decoded(pvEncoded, cbEncoded); 
+			ASN1::OctetString decoded(parameters.Parameters.pbData, parameters.Parameters.cbData); 
 
 			// получить структуру параметров
 			const CRYPT_DATA_BLOB& parameters = decoded.Value(); 
@@ -2248,10 +2309,10 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::CSP::Provider::CreateCipher(
 }
 
 std::shared_ptr<Crypto::IKeyxCipher> Windows::Crypto::CSP::Provider::CreateKeyxCipher(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(szAlgOID, AT_KEYEXCHANGE); PROV_ENUMALGS_EX info = {0};
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_KEYEXCHANGE); PROV_ENUMALGS_EX info = {0};
 
 	// проверить наличие информации
 	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<IKeyxCipher>(); 
@@ -2260,11 +2321,11 @@ std::shared_ptr<Crypto::IKeyxCipher> Windows::Crypto::CSP::Provider::CreateKeyxC
 	if (!GetAlgInfo(Handle(), pInfo->Algid, &info)) return std::shared_ptr<IKeyxCipher>(); 
 
 	// для алгоритма RSA-OAEP
-	if (pInfo->Algid == CALG_RSA_KEYX && strcmp(szAlgOID, szOID_RSAES_OAEP) == 0)
+	if (pInfo->Algid == CALG_RSA_KEYX && strcmp(parameters.pszObjId, szOID_RSAES_OAEP) == 0)
 	{
 		// раскодировать параметры
 		std::shared_ptr<CRYPT_RSAES_OAEP_PARAMETERS> pParameters = 
-			::Crypto::ANSI::RSA::DecodeRSAOAEPParameters(pvEncoded, cbEncoded); 
+			::Crypto::ANSI::RSA::DecodeRSAOAEPParameters(parameters.Parameters); 
 
 		// вернуть алгоритм асимметричного шифрования 
 		return ANSI::RSA::RSA_KEYX_OAEP::Create(Handle(), *pParameters); 
@@ -2274,10 +2335,10 @@ std::shared_ptr<Crypto::IKeyxCipher> Windows::Crypto::CSP::Provider::CreateKeyxC
 }
 
 std::shared_ptr<Crypto::IKeyxAgreement> Windows::Crypto::CSP::Provider::CreateKeyxAgreement(
-	PCSTR szAlgOID, const void*, size_t) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(szAlgOID, AT_KEYEXCHANGE); PROV_ENUMALGS_EX info = {0};
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_KEYEXCHANGE); PROV_ENUMALGS_EX info = {0};
 
 	// проверить наличие информации
 	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<IKeyxAgreement>(); 
@@ -2290,10 +2351,10 @@ std::shared_ptr<Crypto::IKeyxAgreement> Windows::Crypto::CSP::Provider::CreateKe
 }
 
 std::shared_ptr<Crypto::ISignHash> Windows::Crypto::CSP::Provider::CreateSignHash(
-	PCSTR szAlgOID, const void*, size_t) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(szAlgOID, AT_SIGNATURE); PROV_ENUMALGS_EX info = {0};
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_SIGNATURE); PROV_ENUMALGS_EX info = {0};
 
 	// проверить наличие информации
 	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<ISignHash>(); 
@@ -2312,10 +2373,10 @@ std::shared_ptr<Crypto::ISignHash> Windows::Crypto::CSP::Provider::CreateSignHas
 }
 
 std::shared_ptr<Crypto::ISignData> Windows::Crypto::CSP::Provider::CreateSignData(
-	PCSTR szAlgOID, const void*, size_t) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_SIGN_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_SIGN_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<ISignData>(); 
@@ -2362,16 +2423,40 @@ Windows::Crypto::CSP::Provider::GetSecretKeyFactory(PCWSTR szAlgName) const
 
 	// создать фабрику ключей
 	return std::shared_ptr<ISecretKeyFactory>(new SecretKeyFactory(
-		Handle(), info.aiAlgid, std::vector<BYTE>()
+		Handle(), info.aiAlgid, 0, std::vector<BYTE>()
+	)); 
+}
+
+std::shared_ptr<Windows::Crypto::ISecretKeyFactory> 
+Windows::Crypto::CSP::Provider::GetSecretKeyFactory(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
+{
+	// найти информацию идентификатора 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, parameters.pszObjId); 
+
+	// проверить наличие информации
+	if (!pInfo || IS_SPECIAL_OID_INFO_ALGID(pInfo->Algid)) return std::shared_ptr<ISecretKeyFactory>(); 
+
+	// инициализировать переменные 
+	PROV_ENUMALGS_EX info = {0}; size_t keyBits = 0; 
+
+	// найти информацию алгоритма
+	if (!GetAlgInfo(Handle(), pInfo->Algid, &info)) return std::shared_ptr<ISecretKeyFactory>(); 
+
+	// проверить надичие фиксированного размера 
+	if (pInfo->ExtraInfo.cbData > 0) keyBits = *(PDWORD)pInfo->ExtraInfo.pbData; 
+
+	// создать фабрику ключей
+	return std::shared_ptr<ISecretKeyFactory>(new SecretKeyFactory(
+		Handle(), info.aiAlgid, keyBits, std::vector<BYTE>()
 	)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyFactory> 
 Windows::Crypto::CSP::Provider::GetKeyFactory(
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const 
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const 
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, keySpec); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, 0); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IKeyFactory>(); PROV_ENUMALGS_EX info = {0}; 
@@ -2383,28 +2468,22 @@ Windows::Crypto::CSP::Provider::GetKeyFactory(
 	if (pInfo->Algid == CALG_RSA_KEYX || pInfo->Algid == CALG_RSA_SIGN)
 	{
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::RSA::KeyFactory(
-			Handle(), pInfo->Algid, 0
-		)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::RSA::KeyFactory(Handle(), 0)); 
 	}
 	// в зависимости от алгоритма
 	if (pInfo->Algid == CALG_DH_SF || pInfo->Algid == CALG_DH_EPHEM)
 	{
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::X942::KeyFactory(
-			Handle(), parameters, CALG_DH_EPHEM, 0
-		)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::X942::KeyFactory(Handle(), parameters, 0, TRUE)); 
 	}
 	// в зависимости от алгоритма
 	if (pInfo->Algid == CALG_DSS_SIGN)
 	{
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::X957::KeyFactory(
-			Handle(), parameters, 0
-		)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::X957::KeyFactory(Handle(), parameters, 0)); 
 	}
 	// вернуть фабрику ключей
-	return std::shared_ptr<IKeyFactory>(new KeyFactory(Handle(), parameters, pInfo->Algid, 0)); 
+	return std::shared_ptr<IKeyFactory>(new KeyFactory(Handle(), parameters, 0)); 
 } 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2559,16 +2638,16 @@ std::vector<std::wstring> Windows::Crypto::CSP::Environment::EnumProviders() con
 }
 
 std::vector<std::wstring> Windows::Crypto::CSP::Environment::FindProviders(
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, keySpec); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, 0); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::vector<std::wstring>(); 
 
 	// найти провайдеры для ключа
-	return IEnvironment::FindProviders(parameters, keySpec); 
+	return IEnvironment::FindProviders(parameters); 
 }
 
 
@@ -2576,10 +2655,10 @@ std::vector<std::wstring> Windows::Crypto::CSP::Environment::FindProviders(
 // Ключи RSA
 ///////////////////////////////////////////////////////////////////////////////
 Windows::Crypto::CSP::ANSI::RSA::KeyFactory::KeyFactory(
-	const ProviderHandle& hContainer, ALG_ID algID, DWORD policyFlags) 
+	const ProviderHandle& hContainer, DWORD policyFlags) 
 		
 	// сохранить переданные параметры
-	: CSP::KeyFactory(hContainer, Crypto::ANSI::RSA::Parameters::Create(), algID, policyFlags) {} 
+	: CSP::KeyFactory(hContainer, Crypto::ANSI::RSA::Parameters::Create(), policyFlags) {} 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм шифрования RSA
@@ -2631,34 +2710,34 @@ Windows::Crypto::CSP::ANSI::RSA::RSA_KEYX_OAEP::Create(
 // Ключи DH
 ///////////////////////////////////////////////////////////////////////////////
 Windows::Crypto::CSP::ANSI::X942::KeyFactory::KeyFactory(const ProviderHandle& hContainer, 
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, ALG_ID algID, DWORD policyFlags)
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters, DWORD policyFlags, BOOL ephemeral)
 
 	// сохранить переданные параметры
-	: CSP::KeyFactory(hContainer, Crypto::ANSI::X942::Parameters::Decode(parameters), algID, policyFlags) {} 
+	: CSP::KeyFactory(hContainer, Crypto::ANSI::X942::Parameters::Decode(parameters), policyFlags), _ephemeral(ephemeral) {} 
 
 Windows::Crypto::CSP::ANSI::X942::KeyFactory::KeyFactory(const ProviderHandle& hContainer, 
-	const CERT_X942_DH_PARAMETERS& parameters, ALG_ID algID, DWORD policyFlags)
+	const CERT_X942_DH_PARAMETERS& parameters, DWORD policyFlags, BOOL ephemeral)
 
 	// сохранить переданные параметры
-	: CSP::KeyFactory(hContainer, Crypto::ANSI::X942::Parameters::Decode(parameters), algID, policyFlags) {} 
+	: CSP::KeyFactory(hContainer, Crypto::ANSI::X942::Parameters::Decode(parameters), policyFlags), _ephemeral(ephemeral) {} 
 
 Windows::Crypto::CSP::ANSI::X942::KeyFactory::KeyFactory(const ProviderHandle& hContainer, 
-	const CERT_DH_PARAMETERS& parameters, ALG_ID algID, DWORD policyFlags)
+	const CERT_DH_PARAMETERS& parameters, DWORD policyFlags, BOOL ephemeral)
 
 	// сохранить переданные параметры
-	: CSP::KeyFactory(hContainer, Crypto::ANSI::X942::Parameters::Decode(parameters), algID, policyFlags) {} 
+	: CSP::KeyFactory(hContainer, Crypto::ANSI::X942::Parameters::Decode(parameters), policyFlags), _ephemeral(ephemeral) {} 
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::CSP::ANSI::X942::KeyFactory::GenerateKeyPair(size_t) const 
+Windows::Crypto::CSP::ANSI::X942::KeyFactory::GenerateKeyPair(uint32_t keySpec, size_t) const 
 {
 	// выполнить преобразование типа
 	const Crypto::ANSI::X942::Parameters* pParameters = (const Crypto::ANSI::X942::Parameters*)Parameters().get(); 
 
 	// получить представление параметров
-	std::vector<BYTE> blob = pParameters->BlobCSP(0); 
+	std::vector<BYTE> blob = pParameters->BlobCSP(0); ALG_ID algID = GetAlgID(keySpec); 
 
 	// выполнить отложенную генерацию
-	KeyHandle hKeyPair = KeyHandle::Generate(Container(), AlgID(), CRYPT_PREGEN | PolicyFlags()); 
+	KeyHandle hKeyPair = KeyHandle::Generate(Container(), algID, CRYPT_PREGEN | PolicyFlags()); 
 	
 	// установить параметры генерации 
 	if (::CryptSetKeyParam(hKeyPair, KP_PUB_PARAMS, (const BYTE*)&blob[0], 0)) 
@@ -2681,12 +2760,9 @@ Windows::Crypto::CSP::ANSI::X942::KeyFactory::GenerateKeyPair(size_t) const
 	// сгенерировать ключевую пару
 	AE_CHECK_WINAPI(::CryptSetKeyParam(hKeyPair, KP_X, nullptr, 0)); 
 
-	// проверить эфемерность ключа
-	DWORD keySpec = (AlgID() == CALG_DH_SF) ? AT_KEYEXCHANGE : 0; 
-	
 	// вернуть пару ключей
 	return std::shared_ptr<IKeyPair>(new KeyPair(
-		Container(), Parameters(), hKeyPair, keySpec
+		Container(), Parameters(), hKeyPair, _ephemeral ? 0 : keySpec
 	)); 
 }
 
@@ -2697,25 +2773,25 @@ Windows::Crypto::CSP::ANSI::X957::KeyFactory::KeyFactory(const ProviderHandle& h
 	const CRYPT_ALGORITHM_IDENTIFIER& parameters, DWORD policyFlags) 
 		
 	// сохранить переданные параметры
-	: CSP::KeyFactory(hContainer, Crypto::ANSI::X957::Parameters::Decode(parameters), CALG_DSS_SIGN, policyFlags) {}
+	: CSP::KeyFactory(hContainer, Crypto::ANSI::X957::Parameters::Decode(parameters), policyFlags) {}
 
 Windows::Crypto::CSP::ANSI::X957::KeyFactory::KeyFactory(const ProviderHandle& hContainer, 
 	const CERT_DSS_PARAMETERS& parameters, const CERT_DSS_VALIDATION_PARAMS* pValidationParameters, DWORD policyFlags)
 
 	// сохранить переданные параметры
-	: CSP::KeyFactory(hContainer, Crypto::ANSI::X957::Parameters::Decode(parameters, pValidationParameters), CALG_DSS_SIGN, policyFlags) {}
+	: CSP::KeyFactory(hContainer, Crypto::ANSI::X957::Parameters::Decode(parameters, pValidationParameters), policyFlags) {}
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::CSP::ANSI::X957::KeyFactory::GenerateKeyPair(size_t) const 
+Windows::Crypto::CSP::ANSI::X957::KeyFactory::GenerateKeyPair(uint32_t keySpec, size_t) const 
 {
 	// выполнить преобразование типа
 	const Crypto::ANSI::X957::Parameters* pParameters = (const Crypto::ANSI::X957::Parameters*)Parameters().get(); 
 
 	// получить представление параметров
-	std::vector<BYTE> blob = pParameters->BlobCSP(0); 
+	std::vector<BYTE> blob = pParameters->BlobCSP(0); ALG_ID algID = GetAlgID(keySpec); 
 
 	// выполнить отложенную генерацию
-	KeyHandle hKeyPair = KeyHandle::Generate(Container(), AlgID(), CRYPT_PREGEN | PolicyFlags()); 
+	KeyHandle hKeyPair = KeyHandle::Generate(Container(), algID, CRYPT_PREGEN | PolicyFlags()); 
 
 	// установить параметры генерации 
 	if (::CryptSetKeyParam(hKeyPair, KP_PUB_PARAMS, &blob[0], 0)) 
@@ -2741,7 +2817,7 @@ Windows::Crypto::CSP::ANSI::X957::KeyFactory::GenerateKeyPair(size_t) const
 
 	// вернуть пару ключей
 	return std::shared_ptr<IKeyPair>(new KeyPair(
-		Container(), Parameters(), hKeyPair, KeySpec()
+		Container(), Parameters(), hKeyPair, keySpec
 	)); 
 }
 

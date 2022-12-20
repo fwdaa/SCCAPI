@@ -119,5 +119,83 @@ namespace Aladdin.CAPI
             }
             return buffer; 
 		}
+		///////////////////////////////////////////////////////////////////////
+	    // проверить диапазон для псевдослучайных данных
+		///////////////////////////////////////////////////////////////////////
+	    public static bool CheckRange(
+            byte[] data,        // 32-байтовая последовательность
+		    int ones_min,	    // минимальное число единиц                           (   включительно)
+		    int ones_max,	    // максимальное число единиц                          (не включительно)
+		    int changes_min,	// минимальное число изменений битов                  (   включительно)
+		    int changes_max,	// максимальное число изменений битов                 (не включительно)
+		    int max_seq_min,	// минимальная последовательность неизменяемых битов  (   включительно)
+		    int max_seq_max	    // максимальная последовательность неизменяемых битов (не включительно)
+	    ) { 
+            // создать массив для битов 
+            byte[] bits = new byte[data.Length * 8]; int ones = 0; 
+
+	        // для всех байтов
+	        for (int i = 0, index = 0; i < data.Length; i++)
+	        {
+		        // для всех битов байта
+		        for (int mask = 0x80; mask != 0; index++, mask >>= 1)
+		        {
+			        // извлечь требуемый бит
+			        bits[index] = (byte)(((data[i] & mask) != 0) ? 1 : 0);
+
+			        // увеличить число единиц
+			        if (bits[index] != 0) ones++; 
+		        }
+	        }
+	        // проверить число единиц
+	        if (ones < ones_min || ones >= ones_max) return false; int changes = 0;
+
+	        // указать начальные условия
+	        int max_zeroes_seq = 0; int zeroes_seq = 0;
+	        int max_ones_seq   = 0; int ones_seq   = 0;
+
+	        // для всех битов
+	        for (int i = 0; i < bits.Length; i++)
+	        {
+		        // увеличить число изменений 
+		        if (i != 0 && bits[i] != bits[i - 1]) 
+		        {
+			        // проверить на максимальное число
+			        if (++changes >= changes_max) return false; 
+		        }
+		        // при наличии нуля
+		        if (bits[i] == 0) 
+		        { 
+			        // сохранить размер серии единиц
+			        if (ones_seq > max_ones_seq) max_ones_seq = ones_seq;  
+			
+			        // сбросить серию единиц и продолжить серию нулей
+			        ones_seq = 0; zeroes_seq++; 
+
+			        // проверить на максимальное число
+			        if (zeroes_seq >= max_seq_max) return false; 
+		        }
+		        else { 
+			        // сохранить размер серии нулей
+			        if (zeroes_seq > max_zeroes_seq) max_zeroes_seq = zeroes_seq;  
+
+			        // сбросить серию нулей и продолжить серию единиц
+			        zeroes_seq = 0; ones_seq++; 
+
+			        // проверить на максимальное число
+			        if (ones_seq >= max_seq_max) return false; 
+		        }
+	        }
+	        // учесть размер последней серии
+	        if (zeroes_seq > max_zeroes_seq) { max_zeroes_seq = zeroes_seq; }
+	        if (ones_seq   > max_ones_seq  ) { max_ones_seq   = ones_seq  ; }
+
+	        // проверить минимальное значение
+	        if (changes < changes_min) return false; 
+		
+	        // проверить минимальные значения
+	        return (max_zeroes_seq >= max_seq_min && max_ones_seq >= max_seq_min); 
+        }
+
 	}
 }

@@ -26,17 +26,20 @@ public final class TC026_GOSTR3411_2012_256 extends RefObject implements IRand, 
             rand.generate(seed, 0, seed.length); 
 
             // создать генератор случайных данных
-            this.rand = new TC026(null, hashAlgorithm, seed);
+            this.rand = new TC026(null, hashAlgorithm, seed, null);
         }
     }
     // конструктор
-    public TC026_GOSTR3411_2012_256(Object window, byte[] seed) throws IOException
+    public TC026_GOSTR3411_2012_256(Object window, byte[] seed, boolean test) throws IOException
     {
+        // указать функцию проверки диапазона 
+        TC026.CheckQuality check = (test) ? new CheckQuality() : null; 
+        
         // указать алгоритм хэширования
         try (Hash hashAlgorithm = new aladdin.capi.gost.hash.GOSTR3411_2012(256))
         { 
             // создать генератор случайных данных
-            rand = new TC026(window, hashAlgorithm, seed); this.seed = seed; 
+            rand = new TC026(window, hashAlgorithm, seed, check); this.seed = seed; 
         }
     }
     private void writeObject(ObjectOutputStream oos) throws IOException 
@@ -56,7 +59,7 @@ public final class TC026_GOSTR3411_2012_256 extends RefObject implements IRand, 
         try (Hash hashAlgorithm = new aladdin.capi.gost.hash.GOSTR3411_2012(256))
         { 
             // создать генератор случайных данных
-            rand = new TC026(null, hashAlgorithm, seed);
+            rand = new TC026(null, hashAlgorithm, seed, null);
         }
     }
     // стартовое значение
@@ -76,4 +79,16 @@ public final class TC026_GOSTR3411_2012_256 extends RefObject implements IRand, 
     }
     // описатель окна
     @Override public Object window() { return rand.window(); }
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // проверить диапазон для псевдослучайной последовательности
+    ///////////////////////////////////////////////////////////////////////////
+    private static class CheckQuality extends TC026.CheckQuality
+    { 
+        @Override public boolean invoke(byte[] data)
+        {
+            // проверить диапазон для псевдослучайной последовательности
+            return Rand.checkRange(data, 101, 156, 101, 155, 5, 25); 
+        }
+   } 
 }

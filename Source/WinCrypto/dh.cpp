@@ -24,21 +24,21 @@ std::vector<BYTE> Crypto::ANSI::X942::EncodeParameters(const CERT_X942_DH_PARAME
 
 template <> 
 std::shared_ptr<CERT_DH_PARAMETERS> 
-Crypto::ANSI::X942::DecodeParameters<CERT_DH_PARAMETERS>(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X942::DecodeParameters<CERT_DH_PARAMETERS>(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CERT_DH_PARAMETERS>(
-		X509_DH_PARAMETERS, pvEncoded, cbEncoded, 0
+		X509_DH_PARAMETERS, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
 template <> 
 std::shared_ptr<CERT_X942_DH_PARAMETERS> 
-Crypto::ANSI::X942::DecodeParameters<CERT_X942_DH_PARAMETERS>(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X942::DecodeParameters<CERT_X942_DH_PARAMETERS>(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CERT_X942_DH_PARAMETERS>(
-		X942_DH_PARAMETERS, pvEncoded, cbEncoded, 0
+		X942_DH_PARAMETERS, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -49,11 +49,11 @@ std::vector<BYTE> Crypto::ANSI::X942::EncodePublicKey(const CRYPT_UINT_BLOB& y)
 }
 
 std::shared_ptr<CRYPT_UINT_BLOB> 
-Crypto::ANSI::X942::DecodePublicKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X942::DecodePublicKey(const CRYPT_BIT_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_UINT_BLOB>(
-		X509_DH_PUBLICKEY, pvEncoded, cbEncoded, 0
+		X509_DH_PUBLICKEY, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -64,11 +64,11 @@ std::vector<BYTE> Crypto::ANSI::X942::EncodePrivateKey(const CRYPT_UINT_BLOB& x)
 }
 
 std::shared_ptr<CRYPT_UINT_BLOB> 
-Crypto::ANSI::X942::DecodePrivateKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::X942::DecodePrivateKey(const CRYPT_DER_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_UINT_BLOB>(
-		X509_MULTI_BYTE_UINT, pvEncoded, cbEncoded, 0
+		X509_MULTI_BYTE_UINT, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -196,18 +196,16 @@ Windows::Crypto::ANSI::X942::Parameters::Decode(const CRYPT_ALGORITHM_IDENTIFIER
 	{
 		// раскодировать параметры 
 		std::shared_ptr<CERT_X942_DH_PARAMETERS> pParameters = 
-			::Crypto::ANSI::X942::DecodeParameters<CERT_X942_DH_PARAMETERS>(
-				info.Parameters.pbData, info.Parameters.cbData
-		); 
+			::Crypto::ANSI::X942::DecodeParameters<CERT_X942_DH_PARAMETERS>(info.Parameters); 
+
 		// вернуть раскодированные параметры
 		return Parameters::Decode(*pParameters); 
 	}
 	else {
 		// раскодировать параметры 
 		std::shared_ptr<CERT_DH_PARAMETERS> pParameters = 
-			::Crypto::ANSI::X942::DecodeParameters<CERT_DH_PARAMETERS>(
-				info.Parameters.pbData, info.Parameters.cbData
-		); 
+			::Crypto::ANSI::X942::DecodeParameters<CERT_DH_PARAMETERS>(info.Parameters); 
+
 		// вернуть раскодированные параметры
 		return Parameters::Decode(*pParameters); 
 	}
@@ -619,9 +617,8 @@ Windows::Crypto::ANSI::X942::PublicKey::Decode(const CERT_PUBLIC_KEY_INFO& info)
 	std::shared_ptr<X942::Parameters> pParameters = X942::Parameters::Decode(info.Algorithm); 
 
 	// раскодировать открытый ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X942::DecodePublicKey(
-		info.PublicKey.pbData, info.PublicKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X942::DecodePublicKey(info.PublicKey); 
+
 	// вернуть открытый ключ 
 	return std::shared_ptr<PublicKey>(new PublicKey(pParameters, *pY)); 
 }
@@ -808,9 +805,8 @@ Windows::Crypto::ANSI::X942::PrivateKey::Decode(const CRYPT_PRIVATE_KEY_INFO& pr
 	std::shared_ptr<X942::Parameters> pParameters = X942::Parameters::Decode(privateInfo.Algorithm); 
 
 	// раскодировать личный ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X942::DecodePrivateKey(
-		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X942::DecodePrivateKey(privateInfo.PrivateKey); 
+
 	// вернуть личный ключ 
 	return std::shared_ptr<PrivateKey>(new PrivateKey(pParameters, *pX)); 
 }
@@ -974,13 +970,11 @@ Windows::Crypto::ANSI::X942::KeyPair::Decode(
 	std::shared_ptr<X942::Parameters> pParameters = X942::Parameters::Decode(publicInfo.Algorithm); 
 
 	// раскодировать открытый ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X942::DecodePublicKey(
-		publicInfo.PublicKey.pbData, publicInfo.PublicKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pY = ::Crypto::ANSI::X942::DecodePublicKey(publicInfo.PublicKey); 
+
 	// раскодировать личный ключ
-	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X942::DecodePrivateKey(
-		privateInfo.PrivateKey.pbData, privateInfo.PrivateKey.cbData
-	); 
+	std::shared_ptr<CRYPT_UINT_BLOB> pX = ::Crypto::ANSI::X942::DecodePrivateKey(privateInfo.PrivateKey); 
+
 	// вернуть пару ключей ключ 
 	return std::shared_ptr<KeyPair>(new KeyPair(pParameters, *pY, *pX)); 
 }

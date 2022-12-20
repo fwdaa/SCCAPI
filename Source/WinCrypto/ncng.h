@@ -242,10 +242,10 @@ class SecretKeyFactory : public ISecretKeyFactory
 	private: ProviderHandle _hProvider; std::wstring _algName; 
 
 	// конструктор
-	public: SecretKeyFactory(const ProviderHandle& hProvider, PCWSTR szAlgName) 
+	public: SecretKeyFactory(const ProviderHandle& hProvider, PCWSTR szAlgName, size_t keyBits) 
 		
 		// сохранить переданные параметры
-		: _hProvider(hProvider), _algName(szAlgName) {} 
+		: _hProvider(hProvider), _algName(szAlgName), _keyBits(keyBits) {} 
 
 	// описатель провайдера
 	public: const ProviderHandle& Provider() const { return _hProvider; }
@@ -253,7 +253,7 @@ class SecretKeyFactory : public ISecretKeyFactory
 	public: PCWSTR Name() const { return _algName.c_str(); }
 
 	// размер ключей
-	public: virtual KeyLengths KeyBits() const override; 
+	public: virtual KeyLengths KeyBits() const override; private: size_t _keyBits;
 
 	// сгенерировать ключ (начиная с Windows 8)
 	public: virtual std::shared_ptr<ISecretKey> Generate(size_t keySize) const override; 
@@ -332,8 +332,8 @@ class KeyPair : public IKeyPair, public IPrivateKey
 ///////////////////////////////////////////////////////////////////////////////
 class KeyFactory : public IKeyFactory
 { 
-	// описатель провайдера, имя алгоритма и тип ключа
-	private: ProviderHandle _hProvider; std::wstring _algName; uint32_t _keySpec; 
+	// описатель провайдера и имя алгоритма
+	private: ProviderHandle _hProvider; std::wstring _algName; 
 	// имя ключа (контейнера)
 	private: std::wstring _strKeyName; uint32_t _policyFlags; DWORD _dwFlags; 
 	// параметры ключа
@@ -341,20 +341,20 @@ class KeyFactory : public IKeyFactory
 
 	// конструктор
 	public: KeyFactory(const ProviderHandle& hProvider, const CRYPT_ALGORITHM_IDENTIFIER& parameters, 
-		PCWSTR szAlgName, uint32_t keySpec, PCWSTR szKeyName, uint32_t policyFlags, DWORD dwFlags) 
+		PCWSTR szAlgName, PCWSTR szKeyName, uint32_t policyFlags, DWORD dwFlags) 
 		
 		// сохранить переданные параметры
-		: _hProvider(hProvider), _pParameters(KeyParameters::Create(parameters)), _algName(szAlgName), _keySpec(keySpec), 
+		: _hProvider(hProvider), _pParameters(KeyParameters::Create(parameters)), _algName(szAlgName), 
 		
 		// сохранить переданные параметры
 		_strKeyName(szKeyName ? szKeyName : L""), _policyFlags(policyFlags), _dwFlags(dwFlags) {} 
 	
 	// конструктор
 	public: KeyFactory(const ProviderHandle& hProvider, const std::shared_ptr<IKeyParameters>& parameters, 
-		PCWSTR szAlgName, uint32_t keySpec, PCWSTR szKeyName, uint32_t policyFlags, DWORD dwFlags) 
+		PCWSTR szAlgName, PCWSTR szKeyName, uint32_t policyFlags, DWORD dwFlags) 
 		
 		// сохранить переданные параметры
-		: _hProvider(hProvider), _pParameters(parameters), _algName(szAlgName), _keySpec(keySpec), 
+		: _hProvider(hProvider), _pParameters(parameters), _algName(szAlgName), 
 		
 		// сохранить переданные параметры
 		_strKeyName(szKeyName ? szKeyName : L""), _policyFlags(policyFlags), _dwFlags(dwFlags) {} 
@@ -366,23 +366,21 @@ class KeyFactory : public IKeyFactory
 	public: const ProviderHandle& Provider() const { return _hProvider; }
 	// имя алгоритма
 	public: PCWSTR Name() const { return _algName.c_str(); }
-	// указать тип ключа
-	public: virtual uint32_t KeySpec() const { return _keySpec; } 
 
 	// размер ключей
-	public: virtual KeyLengths KeyBits() const override; 
+	public: virtual KeyLengths KeyBits(uint32_t keySpec) const override; 
 
 	// получить открытый ключ из X.509-представления 
-	public: virtual std::shared_ptr<IPublicKey> DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const override; 
+	public: virtual std::shared_ptr<IPublicKey> DecodePublicKey(const CRYPT_BIT_BLOB& encoded) const override; 
 	// получить пару ключей из X.509- и PKCS8-представления 
-	public: virtual std::shared_ptr<IKeyPair> ImportKeyPair(const void*, size_t, const void* pvEncoded, size_t cbEncoded) const override; 
+	public: virtual std::shared_ptr<IKeyPair> ImportKeyPair(uint32_t, const CRYPT_BIT_BLOB&, const CRYPT_DER_BLOB&) const override; 
 
 	// сгенерировать ключевую пару
-	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(size_t keyBits) const override; 
+	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(uint32_t keySpec, size_t keyBits) const override; 
 
 	// импортировать пару ключей 
 	public: virtual std::shared_ptr<IKeyPair> ImportKeyPair(
-		const SecretKey* pSecretKey, const std::vector<BYTE>& blob) const; 
+		uint32_t keySpec, const SecretKey* pSecretKey, const std::vector<BYTE>& blob) const; 
 
 	// экспортировать пару ключей
 	public: virtual std::vector<BYTE> ExportKeyPair(
@@ -393,7 +391,7 @@ class KeyFactory : public IKeyFactory
 	}
 
 	// дополнительные параметры при импорте
-	public: virtual std::shared_ptr<NCryptBufferDesc> ImportParameters() const 
+	public: virtual std::shared_ptr<NCryptBufferDesc> ImportParameters(uint32_t keySpec) const 
 	{
 		// выделить буфер требуемого размера
 		std::shared_ptr<NCryptBufferDesc> pParameters = AllocateStruct<NCryptBufferDesc>(sizeof(NCryptBuffer)); 
@@ -408,7 +406,7 @@ class KeyFactory : public IKeyFactory
 		BufferSetString(&pParameters->pBuffers[0], NCRYPTBUFFER_PKCS_ALG_ID, Name()); return pParameters; 
 	}
 	// создать пару ключей 
-	protected: std::shared_ptr<Crypto::IKeyPair> CreateKeyPair(const ParameterT<PCWSTR>* parameters, size_t count) const
+	protected: std::shared_ptr<Crypto::IKeyPair> CreateKeyPair(uint32_t keySpec, const ParameterT<PCWSTR>* parameters, size_t count) const
 	{
 		// указать имя ключа 
 		PCWSTR szKeyName = (_strKeyName.length() != 0) ? _strKeyName.c_str() : nullptr; 
@@ -417,20 +415,22 @@ class KeyFactory : public IKeyFactory
 		DWORD dwCreateFlags = _dwFlags & (NCRYPT_MACHINE_KEY_FLAG | NCRYPT_OVERWRITE_KEY_FLAG); 
 
 		// начать создание пары ключей
-		KeyHandle hKeyPair = StartCreateKeyPair(szKeyName, dwCreateFlags); 
+		KeyHandle hKeyPair = StartCreateKeyPair(szKeyName, keySpec, dwCreateFlags); 
 
 		// завершить создание пары ключей
-		return FinalizeKeyPair(hKeyPair, parameters, count, szKeyName != nullptr); 
+		FinalizeKeyPair(hKeyPair, parameters, count, szKeyName != nullptr); 
+
+		// вернуть созданную пару ключей
+		return std::shared_ptr<IKeyPair>(new KeyPair(Parameters(), hKeyPair, keySpec)); 
 	}
 	// начать создание пары ключей
-	protected: virtual KeyHandle StartCreateKeyPair(PCWSTR szKeyName, DWORD dwCreateFlags) const
+	protected: virtual KeyHandle StartCreateKeyPair(PCWSTR szKeyName, DWORD keySpec, DWORD dwCreateFlags) const
 	{
 		// начать создание пары ключей
-		return KeyHandle::Create(Provider(), szKeyName, KeySpec(), Name(), dwCreateFlags); 
+		return KeyHandle::Create(Provider(), szKeyName, keySpec, Name(), dwCreateFlags); 
 	}
 	// завершить создание пары ключей
-	protected: std::shared_ptr<Crypto::IKeyPair> FinalizeKeyPair(
-		KeyHandle& hKeyPair, const ParameterT<PCWSTR>* parameters, size_t count, BOOL persist) const; 
+	protected: void FinalizeKeyPair(KeyHandle& hKeyPair, const ParameterT<PCWSTR>* parameters, size_t count, BOOL persist) const; 
 
 	// тип импорта
 	protected: virtual PCWSTR PublicBlobType () const { return BCRYPT_PUBLIC_KEY_BLOB;  }
@@ -457,8 +457,8 @@ class AlgorithmT : public Base
 
 	// имя алгоритма
 	public: virtual PCWSTR Name() const override { return _strName.c_str(); }
-	// поддерживаемые режимы 
-	public: virtual uint32_t Mode() const override { return (uint32_t)_dwFlags; }
+	// флаги алгоритма
+	public: DWORD Flags() const { return _dwFlags; }
 
 	// создать описатель ключа
 	public: KeyHandle CreateKeyHandle(const ISecretKey& key, BOOL modify) const
@@ -495,11 +495,11 @@ class KeyDerive : public AlgorithmT<IKeyDerive>
 		PCWSTR szName, const Parameter* pParameters, size_t cParameters, DWORD dwFlags
 	); 
 	// реализация алгоритма
-	private: std::shared_ptr<Crypto::BCrypt::KeyDerive> _pImpl; 
+	protected: std::shared_ptr<BCrypt::KeyDerive> _pImpl; 
 
 	// конструктор
 	public: KeyDerive(const ProviderHandle& hProvider, 
-		const std::shared_ptr<Crypto::BCrypt::KeyDerive>& pImpl, DWORD dwFlags) 
+		const std::shared_ptr<BCrypt::KeyDerive>& pImpl, DWORD dwFlags) 
 		
 		// сохранить переданные параметры
 		: AlgorithmT<IKeyDerive>(hProvider, pImpl->Name(), dwFlags), _pImpl(pImpl) {} 
@@ -511,29 +511,101 @@ class KeyDerive : public AlgorithmT<IKeyDerive>
 		return _pImpl->Parameters(); 
 	} 
 	// наследовать ключ
-	public: virtual std::shared_ptr<ISecretKey> DeriveKey(
-		const ISecretKeyFactory& keyFactory, size_t cbKey, 
-		const ISharedSecret& secret) const override; 
+	public: using IKeyDerive::DeriveKey; 
+
+	// наследовать ключ
+	public: virtual std::vector<UCHAR> DeriveKey(
+		size_t cb, const void* pvSecret, size_t cbSecret) const override
+	{
+		// наследовать ключ
+		return DeriveKey(cb, pvSecret, cbSecret, 0); 
+	}
+	// наследовать ключ
+	public: virtual std::vector<UCHAR> DeriveKey(
+		size_t cb, const void* pvSecret, size_t cbSecret, DWORD dwFlags) const;  
+}; 
+
+class KeyDeriveX : public IKeyDeriveX, public KeyDerive
+{
+	// создать алгоритм
+	public: static std::shared_ptr<KeyDeriveX> Create(const ProviderHandle& hProvider, 
+		PCWSTR szName, const Parameter* pParameters, size_t cParameters, DWORD dwFlags
+	); 
+	// конструктор
+	public: KeyDeriveX(const ProviderHandle& hProvider, 
+		const std::shared_ptr<BCrypt::KeyDeriveX>& pImpl, DWORD dwFlags) 
+		
+		// сохранить переданные параметры
+		: KeyDerive(hProvider, pImpl, dwFlags) {}
+
+	// получить информацию алгоритма
+	public: virtual PCWSTR Name() const override { return KeyDerive::Name(); }
+
+	// наследовать ключ
+	public: using IKeyDeriveX::DeriveKey; 
+	
+	// наследовать ключ
+	public: virtual std::vector<UCHAR> DeriveKey(
+		size_t cbKey, const ISharedSecret& secret) const override
+	{
+		// наследовать ключ
+		return DeriveKey(cbKey, secret, 0); 
+	}
+	// наследовать ключ
+	public: virtual std::vector<UCHAR> DeriveKey(
+		size_t cbKey, const ISharedSecret& secret, DWORD dwFlags) const; 
 
 	// наследовать ключ
 	public: virtual std::shared_ptr<ISecretKey> DeriveKey(
 		const ISecretKeyFactory& keyFactory, size_t cb, 
-		const void* pvSecret, size_t cbSecret) const override; 
-
-#if (NTDDI_VERSION < 0x06020000)
+		const void* pvSecret, size_t cbSecret) const override
+	{
+		// наследовать ключ
+		return KeyDerive::DeriveKey(keyFactory, cb, pvSecret, cbSecret); 
+	}
 	// наследовать ключ
-	public: virtual std::vector<BYTE> DeriveKey(
+	public: virtual std::vector<UCHAR> DeriveKey(
+		size_t cb, const void* pvSecret, size_t cbSecret) const override
+	{
+		// наследовать ключ
+		return KeyDerive::DeriveKey(cb, pvSecret, cbSecret); 
+	}
+};
+
+class KeyDeriveCAPI : public KeyDerive
+{
+	// конструктор
+	public: KeyDeriveCAPI(const ProviderHandle& hProvider, 
+		const std::shared_ptr<BCrypt::KeyDerive>& pImpl) 
+		
+		// сохранить переданные параметры 
+		: KeyDerive(hProvider, pImpl, 0) {} 
+
+	// наследовать ключ
+	public: virtual std::shared_ptr<ISecretKey> DeriveKey(
+		const ISecretKeyFactory& keyFactory, size_t cb, 
+		const void* pvSecret, size_t cbSecret) const override
+	{
+		// получить имя алгоритма
+		PCWSTR szAlg = ((const SecretKeyFactory&)keyFactory).Name(); 
+
+		// наследовать ключ
+		std::vector<UCHAR> key = DeriveKey(szAlg, cb, pvSecret, cbSecret); 
+
+		// создать ключ
+		return keyFactory.Create(key); 
+	}
+	// наследовать ключ
+	public: std::vector<UCHAR> DeriveKey(
 		PCWSTR szAlg, size_t cb, const void* pvSecret, size_t cbSecret) const
 	{
-		// вызвать базовую реализацию
-		return _pImpl->DeriveKey(szAlg, cb, pvSecret, cbSecret); 
+		// указать используемые флаги
+		ULONG dwFlags = (wcscmp(szAlg, L"AES") == 0 && cb == 16) ? BCRYPT_CAPI_AES_FLAG : 0; 
+
+		// вызвать базовую функцию
+		return KeyDerive::DeriveKey(cb, pvSecret, cbSecret, dwFlags); 
 	}
-#else 
-	// наследовать ключ
-	public: virtual std::vector<BYTE> DeriveKey(
-		PCWSTR szAlg, size_t cb, const void* pvSecret, size_t cbSecret) const; 
-#endif 
-}; 
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм шифрования ключа
@@ -653,19 +725,19 @@ class Cipher : public AlgorithmT<ICipher>
 	protected: virtual std::shared_ptr<Cipher> Duplicate() const
 	{
 		// создать копию алгоритма
-		return std::shared_ptr<Cipher>(new Cipher(Provider(), Name(), Mode())); 
+		return std::shared_ptr<Cipher>(new Cipher(Provider(), Name(), Flags())); 
 	}
 	// создать преобразование зашифрования 
 	public: virtual std::shared_ptr<ITransform> CreateEncryption() const override
 	{
 		// создать преобразование зашифрования 
-		return std::shared_ptr<ITransform>(new Encryption(this, Mode())); 
+		return std::shared_ptr<ITransform>(new Encryption(this, Flags())); 
 	}
 	// создать преобразование расшифрования 
 	public: virtual std::shared_ptr<ITransform> CreateDecryption() const override
 	{
 		// создать преобразование расшифрования 
-		return std::shared_ptr<ITransform>(new Decryption(this, Mode())); 
+		return std::shared_ptr<ITransform>(new Decryption(this, Flags())); 
 	}
 	// создать алгоритм шифрования ключа
 	protected: std::shared_ptr<IKeyWrap> CreateKeyWrap(PCWSTR szExportType, DWORD dwFlags) const 
@@ -799,7 +871,7 @@ class BlockCipher : public AlgorithmT<IBlockCipher>
 	protected: virtual std::shared_ptr<BlockCipher> Duplicate() const
 	{
 		// создать копию алгоритма
-		return std::shared_ptr<BlockCipher>(new BlockCipher(Provider(), Name(), Mode())); 
+		return std::shared_ptr<BlockCipher>(new BlockCipher(Provider(), Name(), Flags())); 
 	}
 	// создать режим дополнения 
 	private: std::shared_ptr<BlockPadding> CreatePadding(uint32_t padding) const 
@@ -817,7 +889,7 @@ class BlockCipher : public AlgorithmT<IBlockCipher>
 		std::shared_ptr<BlockPadding> pPadding = CreatePadding(padding); 
 
 		// создать режим ECB
-		return std::shared_ptr<ICipher>(new ECB(Duplicate(), pPadding, Mode())); 
+		return std::shared_ptr<ICipher>(new ECB(Duplicate(), pPadding, Flags())); 
 	}
 	// создать режим CBC
 	public: virtual std::shared_ptr<ICipher> CreateCBC(
@@ -827,7 +899,7 @@ class BlockCipher : public AlgorithmT<IBlockCipher>
 		std::shared_ptr<BlockPadding> pPadding = CreatePadding(padding); 
 
 		// создать режим CBC
-		return std::shared_ptr<ICipher>(new CBC(Duplicate(), iv, pPadding, Mode())); 
+		return std::shared_ptr<ICipher>(new CBC(Duplicate(), iv, pPadding, Flags())); 
 	}
 	// создать режим OFB
 	public: virtual std::shared_ptr<ICipher> CreateOFB(
@@ -844,7 +916,7 @@ class BlockCipher : public AlgorithmT<IBlockCipher>
 		if (modeBits != 0 && modeBits != iv.size() * 8) return std::shared_ptr<ICipher>(); 
 
 		// создать режим CFB
-		return std::shared_ptr<ICipher>(new CFB(Duplicate(), iv, Mode())); 
+		return std::shared_ptr<ICipher>(new CFB(Duplicate(), iv, Flags())); 
 	}
 	// создать имитовставку CBC-MAC
 	public: virtual std::shared_ptr<IMac> CreateCBC_MAC(const std::vector<BYTE>& iv) const override 
@@ -895,7 +967,7 @@ class KeyxAgreement : public AlgorithmT<IKeyxAgreement>
 		
 	// согласовать общий ключ 
 	public: virtual std::shared_ptr<ISecretKey> AgreeKey(
-		const IKeyDerive* pDerive, const IPrivateKey& privateKey, 
+		const IKeyDeriveX* pDerive, const IPrivateKey& privateKey, 
 		const IPublicKey& publicKey, const ISecretKeyFactory& keyFactory, size_t cbKey) const override; 
 }; 
 
@@ -944,8 +1016,6 @@ class SignHashExtension : public ISignHash
 	} 
 	// имя алгоритма
 	public: virtual PCWSTR Name() const override { return _keyName.c_str(); } 
-	// поддерживаемые режимы 
-	public: virtual uint32_t Mode() const override { return 0; }
 
 	// подписать данные
 	public: virtual std::vector<BYTE> Sign(const IPrivateKey& privateKey, 
@@ -986,8 +1056,7 @@ class Container : public IContainer
 	}
 	// получить фабрику ключей
 	public: virtual std::shared_ptr<IKeyFactory> GetKeyFactory(
-		const CRYPT_ALGORITHM_IDENTIFIER& parameters, 
-		uint32_t keySpec, uint32_t policyFlags) const override; 
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t policyFlags) const override; 
 
 	// получить пару ключей
 	public: virtual std::shared_ptr<IKeyPair> GetKeyPair(uint32_t keySpec) const override; 
@@ -1137,33 +1206,30 @@ class Provider : public ProviderStore<>, public IProvider
 		uint32_t mode, const Parameter* pParameters, size_t cParameters) const override; 
 	
 	// создать алгоритм хэширования 
-	public: virtual std::shared_ptr<IHash> CreateHash(
-		const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const override
+	public: virtual std::shared_ptr<IHash> CreateHash(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override
 	{
 		// алгоритмы хэширования не поддерживаются
 		return std::shared_ptr<IHash>(); 
 	}
+	// создать алгоритм шифрования ключа
+	virtual std::shared_ptr<IKeyWrap> CreateKeyWrap(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 	// создать алгоритм симметричного шифрования 
-	virtual std::shared_ptr<ICipher> CreateCipher(
-		PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const override; 
+	virtual std::shared_ptr<ICipher> CreateCipher(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 	// создать алгоритм асимметричного шифрования 
-	public: virtual std::shared_ptr<IKeyxCipher> CreateKeyxCipher(
-		PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const override; 
+	public: virtual std::shared_ptr<IKeyxCipher> CreateKeyxCipher(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 	// создать алгоритм согласования ключа
-	public: virtual std::shared_ptr<IKeyxAgreement> CreateKeyxAgreement(
-		PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const override; 
+	public: virtual std::shared_ptr<IKeyxAgreement> CreateKeyxAgreement(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 	// создать алгоритм подписи
-	public: virtual std::shared_ptr<ISignHash> CreateSignHash(
-		PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const override; 
+	public: virtual std::shared_ptr<ISignHash> CreateSignHash(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 	// создать алгоритм подписи
-	public: virtual std::shared_ptr<ISignData> CreateSignData(
-		PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const override; 
+	public: virtual std::shared_ptr<ISignData> CreateSignData(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 
 	// получить фабрику ключей
 	public: virtual std::shared_ptr<ISecretKeyFactory> GetSecretKeyFactory(PCWSTR szAlgName) const override; 
 	// получить фабрику ключей
-	public: virtual std::shared_ptr<IKeyFactory> GetKeyFactory(
-		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const override; 
+	public: virtual std::shared_ptr<ISecretKeyFactory> GetSecretKeyFactory(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
+	// получить фабрику ключей
+	public: virtual std::shared_ptr<IKeyFactory> GetKeyFactory(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 	
 	// используемые области видимости
 	public: virtual const IProviderStore& GetScope(uint32_t type) const override
@@ -1202,7 +1268,7 @@ class Environment : public IEnvironment
 	}
 	// найти провайдеры для ключа
 	public: virtual std::vector<std::wstring> FindProviders(
-		const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const override; 
+		const CRYPT_ALGORITHM_IDENTIFIER& parameters) const override; 
 }; 
 
 namespace ANSI 
@@ -1281,7 +1347,7 @@ namespace RSA
 class KeyFactory : public NCrypt::KeyFactory
 { 
 	// конструктор
-	public: KeyFactory(const ProviderHandle& hProvider, DWORD keySpec, PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags); 
+	public: KeyFactory(const ProviderHandle& hProvider, PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags); 
 		
 	// тип импорта
 	protected: virtual PCWSTR PublicBlobType () const override { return BCRYPT_RSAPUBLIC_BLOB;      }
@@ -1407,7 +1473,7 @@ class KeyFactory : public NCrypt::KeyFactory
 		PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags
 	);  
 	// сгенерировать ключевую пару
-	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(size_t) const override; 
+	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(uint32_t, size_t) const override; 
 
 	// тип импорта
 	protected: virtual PCWSTR PublicBlobType () const override { return BCRYPT_DH_PUBLIC_BLOB;  }
@@ -1443,7 +1509,7 @@ class KeyFactory : public NCrypt::KeyFactory
 		PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags
 	);  
 	// сгенерировать ключевую пару
-	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(size_t) const override; 
+	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(uint32_t, size_t) const override; 
 
 	// тип импорта
 	protected: virtual PCWSTR PublicBlobType () const override { return BCRYPT_DSA_PUBLIC_BLOB;  }
@@ -1472,33 +1538,33 @@ class KeyFactory : public NCrypt::KeyFactory
 { 
 	// конструктор
 	public: KeyFactory(const ProviderHandle& hProvider, const CRYPT_ALGORITHM_IDENTIFIER& parameters, 
-		DWORD keySpec, PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags
+		PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags
 	); 
 	// конструктор
 	public: KeyFactory(const ProviderHandle& hProvider, PCWSTR szCurveName, 
-		DWORD keySpec, PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags
+		PCWSTR szKeyName, DWORD policyFlags, DWORD dwFlags
 	); 
 	// сгенерировать ключевую пару
-	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(size_t) const override
+	public: virtual std::shared_ptr<IKeyPair> GenerateKeyPair(uint32_t keySpec, size_t) const override
 	{
 		// создать пару ключей
-		return NCrypt::KeyFactory::CreateKeyPair(nullptr, 0); 
+		return NCrypt::KeyFactory::CreateKeyPair(keySpec, nullptr, 0); 
 	}
 	// тип импорта
 	protected: virtual PCWSTR PublicBlobType () const override { return BCRYPT_ECCPUBLIC_BLOB;  }
 	protected: virtual PCWSTR PrivateBlobType() const override { return BCRYPT_ECCPRIVATE_BLOB; }
 
 	// начать создание пары ключей
-	protected: virtual KeyHandle StartCreateKeyPair(PCWSTR szKeyName, DWORD dwCreateFlags) const override
+	protected: virtual KeyHandle StartCreateKeyPair(PCWSTR szKeyName, DWORD keySpec, DWORD dwCreateFlags) const override
 	{
 		// получить дополнительные параметры при импорте
-		std::shared_ptr<NCryptBufferDesc> parameters = ImportParameters(); 
+		std::shared_ptr<NCryptBufferDesc> parameters = ImportParameters(keySpec); 
 
 		// определить имя алгоритма
 		PCWSTR szAlgName = (PCWSTR)parameters->pBuffers[0].pvBuffer; 
 
 		// начать создание пары ключей
-		KeyHandle hKeyPair = KeyHandle::Create(Provider(), szKeyName, KeySpec(), szAlgName, dwCreateFlags); 
+		KeyHandle hKeyPair = KeyHandle::Create(Provider(), szKeyName, keySpec, szAlgName, dwCreateFlags); 
 
 		// при наличии дополнительных параметров
 		if (parameters->cBuffers > 1)
@@ -1509,7 +1575,7 @@ class KeyFactory : public NCrypt::KeyFactory
 		return hKeyPair; 
 	}
 	// дополнительные параметры при импорте
-	public: virtual std::shared_ptr<NCryptBufferDesc> ImportParameters() const override; 
+	public: virtual std::shared_ptr<NCryptBufferDesc> ImportParameters(uint32_t keySpec) const override; 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1535,7 +1601,6 @@ class ECDSA : public SignHash
 		// сохранить переданные параметры
 		: SignHash(hProvider, NCRYPT_ECDSA_ALGORITHM, 0) {}
 };
-
 }
 }
 }}}

@@ -6,6 +6,7 @@
 #include "dsa.h"
 #include "ecc.h"
 #include <algorithm>
+#include <versionhelpers.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
@@ -190,7 +191,7 @@ BCRYPT_KEY_HANDLE  Windows::Crypto::Extension::KeyFactory::BCryptImportKeyPair(
 ///////////////////////////////////////////////////////////////////////////////
 // Признак поддержки алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-static BOOL SupportsAlgorithm(PCWSTR szProvider, uint32_t type, const wchar_t* szAlgName) 
+static BOOL SupportsAlgorithm(PCWSTR szProvider, ULONG type, const wchar_t* szAlgName) 
 {
 	// инициализировать переменные 
 	PCRYPT_PROVIDER_REFS pEnum = nullptr; ULONG cbEnum = 0; 
@@ -199,7 +200,7 @@ static BOOL SupportsAlgorithm(PCWSTR szProvider, uint32_t type, const wchar_t* s
 	NTSTATUS status = ::BCryptResolveProviders(nullptr, type, szAlgName, szProvider, CRYPT_UM, 0, &cbEnum, &pEnum); 
 
 	// освободить выделенную память 
-	::BCryptFreeBuffer(pEnum); return SUCCEEDED(status) && pEnum->cProviders != 0; 
+	BOOL fOK = SUCCEEDED(status) && pEnum->cProviders != 0; ::BCryptFreeBuffer(pEnum); return fOK; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -611,14 +612,20 @@ Windows::Crypto::BCrypt::KeyHandle Windows::Crypto::BCrypt::SecretKey::CreateHan
 ///////////////////////////////////////////////////////////////////////////////
 Windows::Crypto::KeyLengths Windows::Crypto::BCrypt::SecretKeyFactory::KeyBits() const 
 {  
-	// выделить память для структуры  
+	// проверить наличие фиксированного размера 
+	KeyLengths lengths = { _keyBits, _keyBits, 0 }; if (_keyBits != 0) return lengths;
+
+	// проверить наличие фиксированного размера 
 	BCRYPT_KEY_LENGTHS_STRUCT info = {0}; ULONG cb = sizeof(info); 
 
 	// получить размеры ключей
 	AE_CHECK_NTSTATUS(::BCryptGetProperty(Handle(), BCRYPT_KEY_LENGTHS, (PUCHAR)&info, cb, &cb, 0)); 
 
 	// вернуть размеры ключей
-	KeyLengths lengths = { info.dwMinLength, info.dwMaxLength, info.dwIncrement }; return lengths; 
+	lengths.minLength = info.dwMinLength; lengths.maxLength = info.dwMaxLength; 
+	
+	// вернуть размеры ключей
+	lengths.increment = info.dwIncrement ; return lengths; 
 }
 
 std::shared_ptr<Windows::Crypto::ISecretKey> 
@@ -650,13 +657,13 @@ Windows::Crypto::BCrypt::PublicKey::PublicKey(const CERT_PUBLIC_KEY_INFO& info)
 }
 
 Windows::Crypto::BCrypt::KeyHandle Windows::Crypto::BCrypt::PublicKey::Import(
-	PCWSTR szProvider, DWORD keySpec) const
+	PCWSTR szProvider, ULONG keySpec) const
 {
 	// раскодировать закодированное представление
 	ASN1::ISO::PKIX::PublicKeyInfo publicInfo(&_encoded[0], _encoded.size()); 
 
 	// указать тип ключа
-	DWORD dwFlags = (keySpec == AT_SIGNATURE) ? 
+	ULONG dwFlags = (keySpec == AT_SIGNATURE) ? 
 		CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG : CRYPT_OID_INFO_PUBKEY_ENCRYPT_KEY_FLAG; 
 
 	// импортировать ключ 
@@ -705,71 +712,81 @@ std::vector<BYTE> Windows::Crypto::BCrypt::KeyPair::Encode(const CRYPT_ATTRIBUTE
 ///////////////////////////////////////////////////////////////////////////////
 // Фабрика ключей асимметричного алгоритма
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::KeyLengths Windows::Crypto::BCrypt::KeyFactory::KeyBits() const 
+Windows::Crypto::KeyLengths Windows::Crypto::BCrypt::KeyFactory::KeyBits(uint32_t keySpec) const 
 {  
+	// получить описатель алгоритма
+	AlgorithmHandle hAlgorithm = GetHandle(keySpec); 
+
 	// выделить память для структуры  
 	BCRYPT_KEY_LENGTHS_STRUCT info = {0}; ULONG cb = sizeof(info); 
 
 	// получить размеры ключей
-	AE_CHECK_NTSTATUS(::BCryptGetProperty(Handle(), BCRYPT_KEY_LENGTHS, (PUCHAR)&info, cb, &cb, 0)); 
+	AE_CHECK_NTSTATUS(::BCryptGetProperty(hAlgorithm, BCRYPT_KEY_LENGTHS, (PUCHAR)&info, cb, &cb, 0)); 
 
 	// вернуть размеры ключей
 	KeyLengths lengths = { info.dwMinLength, info.dwMaxLength, info.dwIncrement }; return lengths; 
 }
 
 std::shared_ptr<Crypto::IPublicKey> 
-Windows::Crypto::BCrypt::KeyFactory::DecodePublicKey(const void* pvEncoded, size_t cbEncoded) const
+Windows::Crypto::BCrypt::KeyFactory::DecodePublicKey(const CRYPT_BIT_BLOB& encoded) const
 {
 	// указать закодированное представление ключа 
-	CERT_PUBLIC_KEY_INFO info = { Parameters()->Decoded(), { (DWORD)cbEncoded, (PBYTE)pvEncoded, 0 }}; 
+	CERT_PUBLIC_KEY_INFO info = { Parameters()->Decoded(), encoded}; 
 
 	// вернуть открытый ключ
 	return std::shared_ptr<IPublicKey>(new PublicKey(info)); 
 }
 
 std::shared_ptr<Crypto::IKeyPair> 
-Windows::Crypto::BCrypt::KeyFactory::ImportKeyPair(
-	const void* pvPublicKey, size_t cbPublicKey, const void* pvPrivateKey, size_t cbPrivateKey) const
+Windows::Crypto::BCrypt::KeyFactory::ImportKeyPair(uint32_t keySpec, 
+	const CRYPT_BIT_BLOB& publicKey, const CRYPT_DER_BLOB& privateKey) const
 {
 	// указать закодированные представления ключей
-	CERT_PUBLIC_KEY_INFO   publicInfo  = {   Parameters()->Decoded(), { (DWORD)cbPublicKey,  (PBYTE)pvPublicKey  }}; 
-	CRYPT_PRIVATE_KEY_INFO privateInfo = {0, Parameters()->Decoded(), { (DWORD)cbPrivateKey, (PBYTE)pvPrivateKey }}; 
+	CERT_PUBLIC_KEY_INFO   publicInfo  = {   Parameters()->Decoded(), publicKey }; 
+	CRYPT_PRIVATE_KEY_INFO privateInfo = {0, Parameters()->Decoded(), privateKey}; 
 
 	// указать тип ключа 
-	DWORD dwFlags = (KeySpec() == AT_SIGNATURE) ? CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG : CRYPT_OID_INFO_PUBKEY_ENCRYPT_KEY_FLAG; 
+	ULONG dwFlags = (keySpec == AT_SIGNATURE) ? 
+		CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG : CRYPT_OID_INFO_PUBKEY_ENCRYPT_KEY_FLAG; 
 
 	// импортировать пару ключей в контейнер
 	KeyHandle hKeyPair = KeyHandle::ImportPKCS8(Provider(), &publicInfo, &privateInfo, dwFlags); 
 
 	// вернуть пару ключей из контейнера
-	return std::shared_ptr<IKeyPair>(new KeyPair(Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<IKeyPair>(new KeyPair(Parameters(), hKeyPair, keySpec)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::BCrypt::KeyFactory::GenerateKeyPair(size_t keyBits) const
+Windows::Crypto::BCrypt::KeyFactory::GenerateKeyPair(uint32_t keySpec, size_t keyBits) const
 {
+	// получить описатель алгоритма
+	AlgorithmHandle hAlgorithm = GetHandle(keySpec); 
+
 	// сгенерировать пару ключей
-	KeyHandle hKeyPair = KeyHandle::GeneratePair(Handle(), (ULONG)keyBits, 0); 
+	KeyHandle hKeyPair = KeyHandle::GeneratePair(hAlgorithm, (ULONG)keyBits, 0); 
 
 	// завершить генерацию ключей
 	AE_CHECK_NTSTATUS(::BCryptFinalizeKeyPair(hKeyPair, 0)); 
 
 	// вернуть сгенерированную пару ключей
-	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, keySpec)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
 Windows::Crypto::BCrypt::KeyFactory::ImportKeyPair(
-	const SecretKey* pSecretKey, const std::vector<UCHAR>& blob) const 
+	uint32_t keySpec, const SecretKey* pSecretKey, const std::vector<UCHAR>& blob) const 
 {
+	// получить описатель алгоритма
+	AlgorithmHandle hAlgorithm = GetHandle(keySpec); 
+
 	// получить описатель ключа
 	KeyHandle hImportKey = (pSecretKey) ? pSecretKey->Duplicate() : KeyHandle(); 
 
 	// импортировать ключ для алгоритма
-	KeyHandle hKeyPair = KeyHandle::ImportPair(Handle(), hImportKey, PrivateBlobType(), blob, 0); 
+	KeyHandle hKeyPair = KeyHandle::ImportPair(hAlgorithm, hImportKey, PrivateBlobType(), blob, 0); 
 
 	// вернуть импортированную пару ключей
-	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, keySpec)); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -778,7 +795,7 @@ Windows::Crypto::BCrypt::KeyFactory::ImportKeyPair(
 void Windows::Crypto::BCrypt::Rand::Generate(void* pvBuffer, size_t cbBuffer)
 {
 	// сгенерировать случайные данные
-	AE_CHECK_NTSTATUS(::BCryptGenRandom(Handle(), (PUCHAR)pvBuffer, (ULONG)cbBuffer, Mode())); 
+	AE_CHECK_NTSTATUS(::BCryptGenRandom(Handle(), (PUCHAR)pvBuffer, (ULONG)cbBuffer, Flags())); 
 }
 
 void Windows::Crypto::BCrypt::DefaultRand::Generate(void* pvBuffer, size_t cbBuffer)
@@ -812,7 +829,7 @@ Windows::Crypto::BCrypt::Hash::Hash(PCWSTR szProvider, PCWSTR szAlgID, ULONG dwF
 size_t Windows::Crypto::BCrypt::Hash::Init() 
 {
 	// создать алгоритм
-	_hDigest = DigestHandle(Handle(), std::vector<UCHAR>(), Mode()); 
+	_hDigest = DigestHandle(Handle(), std::vector<UCHAR>(), Flags()); 
 	
 	// инициализировать алгоритм
 	AlgorithmT<IHash>::Init(_hDigest); return Handle().GetUInt32(BCRYPT_HASH_LENGTH, 0); 
@@ -855,7 +872,7 @@ Windows::Crypto::BCrypt::Mac::Mac(PCWSTR szProvider, PCWSTR szAlgName, ULONG dwC
 size_t Windows::Crypto::BCrypt::Mac::Init(const std::vector<UCHAR>& key) 
 {
 	// создать алгоритм
-	_hDigest = DigestHandle(Handle(), key, Mode()); 
+	_hDigest = DigestHandle(Handle(), key, Flags()); 
 
 	// инициализировать алгоритм
 	AlgorithmT<IMac>::Init(_hDigest); return Handle().GetUInt32(BCRYPT_HASH_LENGTH, 0); 
@@ -879,54 +896,22 @@ size_t Windows::Crypto::BCrypt::Mac::Finish(void* pvHash, size_t cbHash)
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм наследования ключа 
 ///////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Windows::Crypto::ISecretKey> 
-Windows::Crypto::BCrypt::KeyDerive::DeriveKey(
-	const ISecretKeyFactory& keyFactory, size_t cb, const ISharedSecret& secret) const 
-{
-	// проверить необходимость действий
-	if (cb == 0) return keyFactory.Create(std::vector<UCHAR>()); 
-
-	// получить параметры алгоритма
-	std::shared_ptr<BCryptBufferDesc> pParameters = Parameters(); 
-
-	// получить описатель секрета
-	const SecretHandle& hSecret = ((const SharedSecret&)secret).Handle(); 
-
-	// выделить память для ключа 
-	std::vector<UCHAR> key(cb, 0); ULONG cbActual = (ULONG)cb; 
-
-	// создать значение ключа
-	AE_CHECK_NTSTATUS(::BCryptDeriveKey(hSecret, Name(), 
-		pParameters.get(), &key[0], cbActual, &cbActual, Flags()
-	)); 
-	// проверить отсутствие ошибок
-	if (cb > cbActual) AE_CHECK_HRESULT(NTE_BAD_LEN); 
-
-	// вернуть ключ
-	return keyFactory.Create(key); 
-}
-
-std::shared_ptr<Windows::Crypto::ISecretKey> 
-Windows::Crypto::BCrypt::KeyDerive::DeriveKey(
-	const ISecretKeyFactory& keyFactory, size_t cb, 
-	const void* pvSecret, size_t cbSecret) const
-{
-	// получить имя алгоритма
-	PCWSTR szAlgName = ((const SecretKeyFactory&)keyFactory).Name(); 
-
-	// наследовать ключ
-	std::vector<UCHAR> key = DeriveKey(szAlgName, cb, pvSecret, cbSecret); 
-
-	// создать ключ
-	return keyFactory.Create(key); 
-}
-
-#if (NTDDI_VERSION >= 0x06020000)
 std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDerive::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
+	size_t cb, const void* pvSecret, size_t cbSecret, ULONG dwFlags) const 
 {
 	// проверить необходимость действий
-	if (cb == 0) return std::vector<UCHAR>(); 
+	if (cb == 0) return std::vector<UCHAR>(); dwFlags |= Flags(); 
+
+	// указать прототип функции
+	typedef NTSTATUS (WINAPI* PFNKEY_DERIVATION)(
+		BCRYPT_KEY_HANDLE, BCryptBufferDesc*, PUCHAR, ULONG, ULONG*, ULONG
+	);
+	// получить адрес функции
+	PFNKEY_DERIVATION pfn = (PFNKEY_DERIVATION)
+		::GetProcAddress(::GetModuleHandleW(L"bcrypt.dll"), "BCryptKeyDerivation"); 
+
+	// проверить наличие функции 
+	if (!pfn) AE_CHECK_HRESULT(NTE_NOT_SUPPORTED); 
 
 	// получить параметры алгоритма
 	std::shared_ptr<BCryptBufferDesc> pParameters = Parameters(); 
@@ -944,13 +929,56 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDerive::DeriveKey(
 	std::vector<UCHAR> key(cb, 0); ULONG cbActual = (ULONG)cb; 
 
 	// создать значение ключа
-	AE_CHECK_NTSTATUS(::BCryptKeyDerivation(
-		hSecretKey, pParameters.get(), &key[0], cbActual, &cbActual, Flags()
-	)); 
+	AE_CHECK_NTSTATUS((*pfn)(hSecretKey, pParameters.get(), &key[0], cbActual, &cbActual, dwFlags)); 
+
 	// проверить отсутствие ошибок
 	if (cb > cbActual) AE_CHECK_HRESULT(NTE_BAD_LEN); return key; 
 } 
-#endif 
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveX::DeriveKey(
+	size_t cb, const ISharedSecret& secret, ULONG dwFlags) const 
+{
+	// проверить необходимость действий
+	if (cb == 0) return std::vector<UCHAR>(); dwFlags |= Flags(); 
+
+	// получить параметры алгоритма
+	std::shared_ptr<BCryptBufferDesc> pParameters = Parameters(); 
+
+	// получить описатель секрета
+	const SecretHandle& hSecret = ((const SharedSecret&)secret).Handle(); 
+
+	// выделить память для ключа 
+	std::vector<UCHAR> key(cb, 0); ULONG cbActual = (ULONG)cb; 
+
+	// создать значение ключа
+	AE_CHECK_NTSTATUS(::BCryptDeriveKey(hSecret, Name(), 
+		pParameters.get(), &key[0], cbActual, &cbActual, dwFlags
+	)); 
+	// проверить отсутствие ошибок
+	if (cb > cbActual) AE_CHECK_HRESULT(NTE_BAD_LEN); return key; 
+}
+
+Windows::Crypto::BCrypt::KeyDeriveCAPI::KeyDeriveCAPI(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры 
+	: KeyDerive(szProvider, L"CAPI_KDF", 0)
+{
+	// для всех параметров 
+	for (size_t i = 0; i < cParameters; i++)
+	{
+		// перейти на параметр
+		const Parameter* pParameter = &pParameters[i]; 
+
+		// проверить тип параметра
+		if (pParameter->type != CRYPTO_KDF_HASH_ALGORITHM) break; 
+
+		// сохранить имя алгоритма
+		_hashName = (const wchar_t*)pParameter->pvData; break; 
+	}
+	// при ошибке выбросить исключение 
+	if (_hashName.length() == 0) AE_CHECK_HRESULT(E_INVALIDARG); 
+}
 
 std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveCAPI::Parameters() const
 {
@@ -968,263 +996,59 @@ std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveCAPI::Parame
 	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, HashName()); return pParameters; 
 }
 
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveTruncate::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
-
-	// наследовать ключ
-	return base_type::DeriveKey(provider, cb, pvSecret, cbSecret); 
-}
-
-std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveHash::Parameters() const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<BCryptBufferDesc> pParameters(
-		new BCryptBufferDesc[4], std::default_delete<BCryptBufferDesc[]>()
-	); 
-	// указать номер версии и число параметров
-	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 3; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, HashName()); 
-	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_SECRET_PREPEND, Prepend ()); 
-	BufferSetBinary(&pParameters->pBuffers[2], CRYPTO_KDF_SECRET_APPEND , Append  ()); return pParameters; 
-}
-
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveHash::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
-
-	// наследовать ключ
-	return Crypto::KeyDeriveHash::DeriveKey(provider, cb, pvSecret, cbSecret); 
-}
-
-std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveHMAC::Parameters() const
-{
-	// получить используемый ключ
-	const std::vector<UCHAR>* pKey = Key(); 
-
-	// выделить буфер требуемого размера
-	std::shared_ptr<BCryptBufferDesc> pParameters(
-		new BCryptBufferDesc[pKey ? 5 : 4], std::default_delete<BCryptBufferDesc[]>()
-	); 
-	// указать номер версии и число параметров
-	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = pKey ? 4 : 3; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, HashName()); 
-	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_SECRET_PREPEND, Prepend ()); 
-	BufferSetBinary(&pParameters->pBuffers[2], CRYPTO_KDF_SECRET_APPEND , Append  ()); 
-	
-	// указать используемый ключ
-	if (pKey) BufferSetBinary(&pParameters->pBuffers[3], CRYPTO_KDF_HMAC_KEY, *pKey); return pParameters; 
-}
-
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveHMAC::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
-
-	// наследовать ключ
-	return base_type::DeriveKey(provider, cb, pvSecret, cbSecret); 
-} 
-
-std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveSP800_56A::Parameters() const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<BCryptBufferDesc> pParameters(
-		new BCryptBufferDesc[3], std::default_delete<BCryptBufferDesc[]>()
-	); 
-	// указать номер версии и число параметров
-	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 2; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM   , HashName()); 
-	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_GENERIC_PARAMETER, Generic ()); return pParameters; 
-}
-
-std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveSP800_108::Parameters() const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<BCryptBufferDesc> pParameters(
-		new BCryptBufferDesc[3], std::default_delete<BCryptBufferDesc[]>()
-	); 
-	// указать номер версии и число параметров
-	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 2; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM   , HashName()); 
-	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_GENERIC_PARAMETER, Generic ()); return pParameters; 
-}
-
-std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDerivePBKDF2::Parameters() const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<BCryptBufferDesc> pParameters(
-		new BCryptBufferDesc[4], std::default_delete<BCryptBufferDesc[]>()
-	); 
-	// указать номер версии и число параметров
-	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 3; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM , HashName  ()); 
-	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_SALT           , Salt      ()); 
-	BufferSetUInt32(&pParameters->pBuffers[2], CRYPTO_KDF_ITERATION_COUNT, Iterations()); return pParameters; 
-}
-
-std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveHKDF::Parameters() const
-{
-	// выделить буфер требуемого размера
-	std::shared_ptr<BCryptBufferDesc> pParameters(
-		new BCryptBufferDesc[4], std::default_delete<BCryptBufferDesc[]>()
-	); 
-	// указать номер версии и число параметров
-	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 3; 
-
-	// указать адрес параметров
-	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
-
-	// указать значения параметров 
-	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, HashName()); 
-	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_HKDF_SALT     , SaltHKDF()); 
-	BufferSetBinary(&pParameters->pBuffers[2], CRYPTO_KDF_HKDF_INFO     , InfoHKDF()); return pParameters; 
-}
-
-#if (NTDDI_VERSION < 0x0A000005)
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveHKDF::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const
-{
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
-
-	// наследовать ключ
-	return base_type::DeriveKey(provider, cb, pvSecret, cbSecret); 
-}
-#if (NTDDI_VERSION < 0x06020000)
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveSP800_56A::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
-
-	// наследовать ключ
-	return base_type::DeriveKey(provider, cb, pvSecret, cbSecret); 
-}
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveSP800_108::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
-
-	// наследовать ключ
-	return base_type::DeriveKey(provider, cb, pvSecret, cbSecret); 
-}
-
-#if (NTDDI_VERSION == 0x06010000)
 std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveCAPI::DeriveKey(
 	PCWSTR szAlg, size_t cb, const void* pvSecret, size_t cbSecret) const 
 { 
-	// создать алгоритм хэширования и захэшировать данные
-	BCrypt::Hash hash(Provider(), HashName(), 0); hash.HashData(pvSecret, cbSecret); 
+	// указать используемые флаги
+	ULONG dwFlags = (wcscmp(szAlg, L"AES") == 0 && cb == 16) ? BCRYPT_CAPI_AES_FLAG : 0; 
 
-	// указать целевой алгоритм
-	BCrypt::AlgorithmHandle hAlgorithm(Provider(), szAlg, 0); 
-		
-	// выделить память для ключа 
-	std::vector<UCHAR> key(cb, 0); ULONG cbActual = (ULONG)cb; 
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return DeriveKey(cb, pvSecret, cbSecret, dwFlags); 
 
-	// создать значение ключа
-	AE_CHECK_NTSTATUS(::BCryptDeriveKeyCapi(hash.Handle(), hAlgorithm, &key[0], cbActual, 0)); return key; 
-}
-
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDerivePBKDF2::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{ 
-	// получить параметры алгоритма
-	std::shared_ptr<BCryptBufferDesc> pParameters = Parameters(); 
-
-	// указать начальные условия 
-	PCWSTR szHashName = nullptr; ULONG iterations = 0; 
-	
-	// указать начальные условия 
-	const void* pvSalt = nullptr; size_t cbSalt = 0; 
-
-	// для всех параметров
-	for (ULONG i = 0; i < pParameters->cBuffers; i++)
+	// указать прототип функции
+	typedef NTSTATUS (WINAPI* PFNKEY_DERIVATION_CAPI)(
+		BCRYPT_HASH_HANDLE, BCRYPT_ALG_HANDLE, PUCHAR, ULONG, ULONG
+	);
+	// получить адрес функции
+	if (PFNKEY_DERIVATION_CAPI pfn = (PFNKEY_DERIVATION_CAPI)
+		::GetProcAddress(::GetModuleHandleW(L"bcrypt.dll"), "BCryptDeriveKeyCapi"))
 	{
-		// получить описание параметра
-		const BCryptBuffer& parameter = pParameters->pBuffers[i]; 
+		// создать алгоритм хэширования 
+		BCrypt::Hash hash(Provider(), HashName(), 0); 
 
-		// при указании алгоритма хэширования 
-		if (parameter.BufferType == CRYPTO_KDF_HASH_ALGORITHM)
-		{
-			// сохранить алгоритм хэширования
-			szHashName = (PCWSTR)parameter.pvBuffer; continue; 
-		}
-		// при указании отдельного параметра
-		if (parameter.BufferType == CRYPTO_KDF_SALT)
-		{
-			// проверить наличие параметра
-			if (parameter.cbBuffer == 0) continue; 
+		// захэшировать данные
+		std::vector<UCHAR> value = hash.HashData(pvSecret, cbSecret); 
 
-			// сохранить адрес параметра
-			pvSalt = parameter.pvBuffer; cbSalt = parameter.cbBuffer; continue; 
-		}
-		// при указании отдельного параметра
-		if (parameter.BufferType == CRYPTO_KDF_ITERATION_COUNT)
-		{
-			// проверить наличие параметра
-			if (parameter.cbBuffer == 0) continue; 
+		// указать целевой алгоритм
+		BCrypt::AlgorithmHandle hAlgorithm(Provider(), szAlg, 0); 
+		
+		// выделить память для ключа 
+		std::vector<UCHAR> key(cb, 0); ULONG cbActual = (ULONG)cb; 
 
-			// скопировать параметр
-			memcpy(&iterations, parameter.pvBuffer, parameter.cbBuffer); continue; 
-		}
+		// создать значение ключа
+		AE_CHECK_NTSTATUS((*pfn)(hash.Handle(), hAlgorithm, &key[0], cbActual, 0)); return key; 
 	}
-	// создать алгоритм HMAC и выделить память для ключа 
-	BCrypt::HMAC mac(Provider(), szHashName, 0); std::vector<UCHAR> key(cb);
-
-	// создать значение ключа
-	AE_CHECK_NTSTATUS(::BCryptDeriveKeyPBKDF2(
-		mac.Handle(), (PUCHAR)pvSecret, (ULONG)cbSecret, 
-		(PUCHAR)pvSalt, (ULONG)cbSalt, iterations, &key[0], (ULONG)cb, 0
-	)); 
-	return key; 
+	// вызвать базовую функцию
+	else return DeriveKey(cb, pvSecret, cbSecret, dwFlags); 
 }
-#else
+
 std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveCAPI::DeriveKey(
-	const wchar_t* szAlg, size_t cb, const void* pvSecret, size_t cbSecret) const 
-{
-	// создать алгоритм хэширования
+	size_t cb, const void* pvSecret, size_t cbSecret, ULONG dwFlags) const 
+{ 
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return KeyDerive::DeriveKey(cb, pvSecret, cbSecret, dwFlags); 
+
+	// создать алгоритм хэширования 
 	BCrypt::Hash hash(Provider(), HashName(), 0); 
 
-	// инициализировать алгоритм хэширования 
-	std::vector<UCHAR> value = hash.HashData(pvSecret, cbSecret);  
+	// захэшировать данные
+	std::vector<UCHAR> value = hash.HashData(pvSecret, cbSecret); 
 
 	// проверить достаточность данных
 	if (value.size() * 2 < cb) AE_CHECK_HRESULT(NTE_BAD_LEN); 
 
 	// указать необходимость дополнения 
-	bool padding = (value.size() < cb); if (wcscmp(szAlg, L"AES") == 0 && cb == 16)
+	bool padding = (value.size() < cb); if (dwFlags & BCRYPT_CAPI_AES_FLAG)
 	{
 		// указать необходимость дополнения 
 		padding = (value.size() == 16 || value.size() == 20); 
@@ -1237,8 +1061,8 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveCAPI::DeriveKey(
 		{
 			// заполнить дополнительные данные
 			pad1[i] = 0x36 ^ (i < value.size() ? value[i] : 0);
-            pad2[i] = 0x5C ^ (i < value.size() ? value[i] : 0);
-        }
+			pad2[i] = 0x5C ^ (i < value.size() ? value[i] : 0);
+		}
 		// выделить память для удвоенного значения
 		value.resize(value.size() * 2); 
 
@@ -1254,30 +1078,460 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveCAPI::DeriveKey(
 	return std::vector<UCHAR>(&value[0], &value[0] + cb); 
 }
 
-std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDerivePBKDF2::DeriveKey(
-	PCWSTR, size_t cb, const void* pvSecret, size_t cbSecret) const
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveTruncate::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const 
 {
-	// указать используемый провайдер
-	BCrypt::Provider provider(Provider()); 
+	// вызвать базовую функцию
+	if (IsWindows8Point1OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret); 
 
 	// наследовать ключ
-	return base_type::DeriveKey(provider, cb, pvSecret, cbSecret); 
+	return Crypto::KeyDeriveTruncate().DeriveKey(cb, pvSecret, cbSecret); 
 }
-#endif 
-#endif 
-#endif
 
-std::shared_ptr<Windows::Crypto::BCrypt::KeyDerive> Windows::Crypto::BCrypt::KeyDerive::Create(
-	PCWSTR szProvider, PCWSTR szName, const Parameter* pParameters, size_t cParameters, ULONG dwFlags)
+Windows::Crypto::BCrypt::KeyDeriveHash::KeyDeriveHash(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры
+	: base_type(szProvider, BCRYPT_KDF_HASH, 0)
 {
-	if (wcscmp(szName, L"TRUNCATE"          ) == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveTruncate (szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"CAPI_KDF"          ) == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveCAPI     (szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"HASH"              ) == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveHash		(szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"HMAC"              ) == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveHMAC		(szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"SP800_56A_CONCAT"  ) == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveSP800_56A(szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"SP800_108_CTR_HMAC") == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveSP800_108(szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"PBKDF2"            ) == 0) return std::shared_ptr<KeyDerive>(new KeyDerivePBKDF2	(szProvider, pParameters, cParameters)); 
-	if (wcscmp(szName, L"HKDF"              ) == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveHKDF		(szProvider, pParameters, cParameters)); 
+	// указать используемый провайдер
+	_pProvider.reset(new BCrypt::Provider(szProvider));
+
+	// указать базовую реализацию
+	_pImpl.reset(new Crypto::KeyDeriveHash(*_pProvider, pParameters, cParameters)); 
+}
+	
+std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveHash::Parameters() const
+{
+	// выделить буфер требуемого размера
+	std::shared_ptr<BCryptBufferDesc> pParameters(
+		new BCryptBufferDesc[4], std::default_delete<BCryptBufferDesc[]>()
+	); 
+	// указать номер версии и число параметров
+	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 3; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, _pImpl->HashName()); 
+	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_SECRET_PREPEND, _pImpl->Prepend ()); 
+	BufferSetBinary(&pParameters->pBuffers[2], CRYPTO_KDF_SECRET_APPEND , _pImpl->Append  ()); return pParameters; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveHash::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const 
+{
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret); 
+
+	// наследовать ключ
+	return _pImpl->DeriveKey(cb, pvSecret, cbSecret); 
+}
+
+Windows::Crypto::BCrypt::KeyDeriveHMAC::KeyDeriveHMAC(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры
+	: base_type(szProvider, BCRYPT_KDF_HMAC, 0)
+{
+	// указать используемый провайдер
+	_pProvider.reset(new BCrypt::Provider(szProvider));
+
+	// указать базовую реализацию
+	_pImpl.reset(new Crypto::KeyDeriveHMAC(*_pProvider, pParameters, cParameters)); 
+}
+	
+std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveHMAC::Parameters() const
+{
+	// получить используемый ключ
+	const std::vector<UCHAR>* pKey = _pImpl->Key(); 
+
+	// выделить буфер требуемого размера
+	std::shared_ptr<BCryptBufferDesc> pParameters(
+		new BCryptBufferDesc[pKey ? 5 : 4], std::default_delete<BCryptBufferDesc[]>()
+	); 
+	// указать номер версии и число параметров
+	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = pKey ? 4 : 3; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, _pImpl->HashName()); 
+	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_SECRET_PREPEND, _pImpl->Prepend ()); 
+	BufferSetBinary(&pParameters->pBuffers[2], CRYPTO_KDF_SECRET_APPEND , _pImpl->Append  ()); 
+	
+	// указать используемый ключ
+	if (pKey) BufferSetBinary(&pParameters->pBuffers[3], CRYPTO_KDF_HMAC_KEY, *pKey); return pParameters; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveHMAC::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret, ULONG dwFlags) const 
+{
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret, dwFlags); 
+
+	// наследовать ключ
+	return _pImpl->DeriveKey(cb, pvSecret, cbSecret); 
+} 
+
+Windows::Crypto::BCrypt::KeyDeriveSP800_56A::KeyDeriveSP800_56A(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры
+	: base_type(szProvider, L"SP800_56A_CONCAT", 0)
+{
+	// указать используемый провайдер
+	_pProvider.reset(new BCrypt::Provider(szProvider));
+
+	// указать базовую реализацию
+	_pImpl.reset(new Crypto::KeyDeriveSP800_56A(*_pProvider, pParameters, cParameters)); 
+}
+	
+std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveSP800_56A::Parameters() const
+{
+	// выделить буфер требуемого размера
+	std::shared_ptr<BCryptBufferDesc> pParameters(
+		new BCryptBufferDesc[3], std::default_delete<BCryptBufferDesc[]>()
+	); 
+	// указать номер версии и число параметров
+	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 2; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM   , _pImpl->HashName()); 
+	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_GENERIC_PARAMETER, _pImpl->Generic ()); return pParameters; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveSP800_56A::DeriveKey(
+	size_t cb, const ISharedSecret& secret) const 
+{
+	// вызвать базовую функцию
+	if (IsWindows7OrGreater()) return base_type::DeriveKey(cb, secret); 
+
+	// определить размер хэш-значения 
+	BCrypt::Hash hash(Provider(), _pImpl->HashName(), 0); size_t cbHash = hash.HashSize(); 
+
+	// получить дополнительные данные
+	const std::vector<UCHAR> generic = _pImpl->Generic(); UCHAR rgbCounter[4]; 
+
+	// создать память для ключа 
+	std::vector<UCHAR> key(cb, 0); size_t offset = 0; 
+
+	// определить размер имени алгоритма
+	size_t cbHashName = (wcslen(hash.Name()) + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM, hash.Name(),         cbHashName }, 
+		{ CRYPTO_KDF_SECRET_PREPEND, &rgbCounter, sizeof(rgbCounter) },  
+		{ CRYPTO_KDF_SECRET_APPEND , &generic[0],     generic.size() } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbPart = min(cbHash, cb); cb != 0; counter++, cbPart = min(cbHash, cb))
+	{
+		// скопировать значение счетчика
+		rgbCounter[0] = (counter >> 24) & 0xFF; rgbCounter[1] = (counter >> 16) & 0xFF; 
+		rgbCounter[2] = (counter >>  8) & 0xFF; rgbCounter[3] = (counter >>  0) & 0xFF; 
+
+		// создать алгоритм наследования ключа
+		KeyDeriveHMAC keyDerive(Provider(), parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = keyDerive.DeriveKey(cbPart, secret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbPart); offset += cbPart; cb -= cbPart; 
+	}
+	return key; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveSP800_56A::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const 
+{
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret); 
+
+	// определить размер хэш-значения 
+	BCrypt::Hash hash(Provider(), _pImpl->HashName(), 0); size_t cbHash = hash.HashSize(); 
+
+	// получить дополнительные данные
+	const std::vector<UCHAR> generic = _pImpl->Generic(); UCHAR rgbCounter[4]; 
+
+	// создать память для ключа 
+	std::vector<UCHAR> key(cb, 0); size_t offset = 0; 
+
+	// определить размер имени алгоритма
+	size_t cbHashName = (wcslen(hash.Name()) + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM, hash.Name(),         cbHashName }, 
+		{ CRYPTO_KDF_SECRET_PREPEND, &rgbCounter, sizeof(rgbCounter) },  
+		{ CRYPTO_KDF_SECRET_APPEND , &generic[0],     generic.size() } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbPart = min(cbHash, cb); cb != 0; counter++, cbPart = min(cbHash, cb))
+	{
+		// скопировать значение счетчика
+		rgbCounter[0] = (counter >> 24) & 0xFF; rgbCounter[1] = (counter >> 16) & 0xFF; 
+		rgbCounter[2] = (counter >>  8) & 0xFF; rgbCounter[3] = (counter >>  0) & 0xFF; 
+
+		// создать алгоритм наследования ключа
+		KeyDeriveHash keyDerive(Provider(), parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = keyDerive.DeriveKey(cbPart, pvSecret, cbSecret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbPart); offset += cbPart; cb -= cbPart; 
+	}
+	return key; 
+}
+
+Windows::Crypto::BCrypt::KeyDeriveSP800_108::KeyDeriveSP800_108(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры
+	: base_type(szProvider, L"SP800_108_CTR_HMAC", 0)
+{
+	// указать используемый провайдер
+	_pProvider.reset(new BCrypt::Provider(szProvider));
+
+	// указать базовую реализацию
+	_pImpl.reset(new Crypto::KeyDeriveSP800_108(*_pProvider, pParameters, cParameters)); 
+}
+	
+std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveSP800_108::Parameters() const
+{
+	// выделить буфер требуемого размера
+	std::shared_ptr<BCryptBufferDesc> pParameters(
+		new BCryptBufferDesc[3], std::default_delete<BCryptBufferDesc[]>()
+	); 
+	// указать номер версии и число параметров
+	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 2; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM   , _pImpl->HashName()); 
+	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_GENERIC_PARAMETER, _pImpl->Generic ()); return pParameters; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveSP800_108::DeriveKey(
+	size_t cb, const ISharedSecret& secret) const 
+{
+	// определить размер хэш-значения 
+	BCrypt::Hash hash(Provider(), _pImpl->HashName(), 0); size_t cbHash = hash.HashSize(); 
+
+	// получить дополнительные данные
+	const std::vector<UCHAR> generic = _pImpl->Generic(); UCHAR rgbCounter[4]; 
+
+	// создать память для ключа 
+	std::vector<UCHAR> key(cb, 0); size_t offset = 0; UCHAR rgbLength[4]; 
+
+	// указать требуемый размер в битах
+	rgbLength[0] = (cb >> 21) & 0xFF; rgbLength[1] = (cb >> 13) & 0xFF;
+	rgbLength[2] = (cb >>  5) & 0xFF; rgbLength[3] = (cb <<  3) & 0xFF;
+
+	// определить размер имени алгоритма
+	size_t cbHashName = (wcslen(hash.Name()) + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM, hash.Name(),         cbHashName }, 
+		{ CRYPTO_KDF_SECRET_PREPEND, &rgbCounter, sizeof(rgbCounter) },  
+		{ CRYPTO_KDF_SECRET_APPEND , &generic[0],     generic.size() }, 
+		{ CRYPTO_KDF_SECRET_APPEND , &rgbLength , sizeof(rgbLength ) } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbPart = min(cbHash, cb); cb != 0; counter++, cbPart = min(cbHash, cb))
+	{
+		// скопировать значение счетчика
+		rgbCounter[0] = (counter >> 24) & 0xFF; rgbCounter[1] = (counter >> 16) & 0xFF; 
+		rgbCounter[2] = (counter >>  8) & 0xFF; rgbCounter[3] = (counter >>  0) & 0xFF; 
+
+		// создать алгоритм наследования ключа
+		KeyDeriveHash keyDerive(Provider(), parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = keyDerive.DeriveKey(cbPart, secret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbPart); offset += cbPart; cb -= cbPart; 
+	}
+	return key; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveSP800_108::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const 
+{
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret); 
+
+	// определить размер хэш-значения 
+	BCrypt::Hash hash(Provider(), _pImpl->HashName(), 0); size_t cbHash = hash.HashSize(); 
+
+	// получить дополнительные данные
+	const std::vector<UCHAR> generic = _pImpl->Generic(); UCHAR rgbCounter[4]; 
+
+	// создать память для ключа 
+	std::vector<UCHAR> key(cb, 0); size_t offset = 0; UCHAR rgbLength[4]; 
+
+	// указать требуемый размер в битах
+	rgbLength[0] = (cb >> 21) & 0xFF; rgbLength[1] = (cb >> 13) & 0xFF;
+	rgbLength[2] = (cb >>  5) & 0xFF; rgbLength[3] = (cb <<  3) & 0xFF;
+
+	// определить размер имени алгоритма
+	size_t cbHashName = (wcslen(hash.Name()) + 1) * sizeof(wchar_t); 
+
+	// указать алгоритм хэширования 
+	Parameter parameters[] = {
+		{ CRYPTO_KDF_HASH_ALGORITHM, hash.Name(),         cbHashName }, 
+		{ CRYPTO_KDF_SECRET_PREPEND, &rgbCounter, sizeof(rgbCounter) },  
+		{ CRYPTO_KDF_SECRET_APPEND , &generic[0],     generic.size() }, 
+		{ CRYPTO_KDF_SECRET_APPEND , &rgbLength , sizeof(rgbLength ) } 
+	}; 
+	// пока не сгенерирован весь ключ
+	for (size_t counter = 1, cbPart = min(cbHash, cb); cb != 0; counter++, cbPart = min(cbHash, cb))
+	{
+		// скопировать значение счетчика
+		rgbCounter[0] = (counter >> 24) & 0xFF; rgbCounter[1] = (counter >> 16) & 0xFF; 
+		rgbCounter[2] = (counter >>  8) & 0xFF; rgbCounter[3] = (counter >>  0) & 0xFF; 
+
+		// создать алгоритм наследования ключа
+		KeyDeriveHash keyDerive(Provider(), parameters, _countof(parameters)); 
+
+		// наследовать часть ключа 
+		std::vector<uint8_t> value = keyDerive.DeriveKey(cbPart, pvSecret, cbSecret); 
+
+		// скопировать часть ключа
+		memcpy(&key[offset], &value[0], cbPart); offset += cbPart; cb -= cbPart; 
+	}
+	return key; 
+}
+
+Windows::Crypto::BCrypt::KeyDerivePBKDF2::KeyDerivePBKDF2(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры
+	: base_type(szProvider, L"PBKDF2", 0)
+{
+	// указать используемый провайдер
+	_pProvider.reset(new BCrypt::Provider(szProvider));
+
+	// указать базовую реализацию
+	_pImpl.reset(new Crypto::KeyDerivePBKDF2(*_pProvider, pParameters, cParameters)); 
+}
+
+std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDerivePBKDF2::Parameters() const
+{
+	// выделить буфер требуемого размера
+	std::shared_ptr<BCryptBufferDesc> pParameters(
+		new BCryptBufferDesc[4], std::default_delete<BCryptBufferDesc[]>()
+	); 
+	// указать номер версии и число параметров
+	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 3; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM , _pImpl->HashName  ()); 
+	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_SALT           , _pImpl->Salt      ()); 
+	BufferSetUInt32(&pParameters->pBuffers[2], CRYPTO_KDF_ITERATION_COUNT, _pImpl->Iterations()); return pParameters; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDerivePBKDF2::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const 
+{ 
+	// вызвать базовую функцию
+	if (IsWindows8OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret); 
+
+	// указать прототип функции
+	typedef NTSTATUS (WINAPI* PFNKEY_DERIVATION)(
+		BCRYPT_ALG_HANDLE, PUCHAR, ULONG, PUCHAR, ULONG, ULONGLONG, PUCHAR, ULONG, ULONG
+	);
+	// получить адрес функции
+	if (PFNKEY_DERIVATION pfn = (PFNKEY_DERIVATION)
+		::GetProcAddress(::GetModuleHandleW(L"bcrypt.dll"), "BCryptDeriveKeyPBKDF2"))
+	{
+		// получить случайное значение и число итераций
+		const std::vector<UCHAR>& salt = _pImpl->Salt(); size_t iterations = _pImpl->Iterations(); 
+
+		// указать адрес случайного значения 
+		const UCHAR* pvSalt = (salt.size() != 0) ? &salt[0] : nullptr; 
+
+		// создать алгоритм HMAC и выделить память для ключа 
+		BCrypt::HMAC mac(Provider(), _pImpl->HashName(), 0); std::vector<UCHAR> key(cb);
+
+		// создать значение ключа
+		AE_CHECK_NTSTATUS((*pfn)( mac.Handle(), (PUCHAR)pvSecret, (ULONG)cbSecret, 
+			(PUCHAR)pvSalt, (ULONG)salt.size(), iterations, &key[0], (ULONG)cb, 0
+		)); 
+		return key; 
+	}
+	// наследовать ключ
+	else return _pImpl->DeriveKey(cb, pvSecret, cbSecret); 
+}
+
+Windows::Crypto::BCrypt::KeyDeriveHKDF::KeyDeriveHKDF(
+	PCWSTR szProvider, const Parameter* pParameters, size_t cParameters) 
+		
+	// сохранить переданные параметры
+	: base_type(szProvider, L"HKDF", 0)
+{
+	// указать используемый провайдер
+	_pProvider.reset(new BCrypt::Provider(szProvider));
+
+	// указать базовую реализацию
+	_pImpl.reset(new Crypto::KeyDeriveHKDF(*_pProvider, pParameters, cParameters)); 
+}
+
+std::shared_ptr<BCryptBufferDesc> Windows::Crypto::BCrypt::KeyDeriveHKDF::Parameters() const
+{
+	// выделить буфер требуемого размера
+	std::shared_ptr<BCryptBufferDesc> pParameters(
+		new BCryptBufferDesc[4], std::default_delete<BCryptBufferDesc[]>()
+	); 
+	// указать номер версии и число параметров
+	pParameters->ulVersion = BCRYPTBUFFER_VERSION; pParameters->cBuffers = 3; 
+
+	// указать адрес параметров
+	pParameters->pBuffers = (BCryptBuffer*)(pParameters.get() + 1); 
+
+	// указать значения параметров 
+	BufferSetString(&pParameters->pBuffers[0], CRYPTO_KDF_HASH_ALGORITHM, _pImpl->HashName()); 
+	BufferSetBinary(&pParameters->pBuffers[1], CRYPTO_KDF_HKDF_SALT     , _pImpl->SaltHKDF()); 
+	BufferSetBinary(&pParameters->pBuffers[2], CRYPTO_KDF_HKDF_INFO     , _pImpl->InfoHKDF()); return pParameters; 
+}
+
+std::vector<UCHAR> Windows::Crypto::BCrypt::KeyDeriveHKDF::DeriveKey(
+	size_t cb, const void* pvSecret, size_t cbSecret) const
+{
+	// вызвать базовую функцию /* TODO NTDDI_WIN10_RS4 */ 
+	if (IsWindows10OrGreater()) return base_type::DeriveKey(cb, pvSecret, cbSecret); 
+
+	// наследовать ключ
+	return _pImpl->DeriveKey(cb, pvSecret, cbSecret); 
+}
+
+std::shared_ptr<Windows::Crypto::BCrypt::KeyDerive> 
+Windows::Crypto::BCrypt::KeyDerive::Create(PCWSTR szProvider, 
+	PCWSTR szName, const Parameter* pParameters, size_t cParameters, ULONG dwFlags)
+{
+	// создать алгоритм наследования ключа, допустимых при согласовании ключа 
+	std::shared_ptr<KeyDeriveX> pKeyDeriveX = KeyDeriveX::Create(szProvider, szName, pParameters, cParameters, dwFlags); 
+
+	// проверить наличие алгоритма 
+	if (pKeyDeriveX) return pKeyDeriveX; 
+
+	if (wcscmp(szName, L"CAPI_KDF") == 0) return std::shared_ptr<KeyDerive>(new KeyDeriveCAPI  (szProvider, pParameters, cParameters)); 
+	if (wcscmp(szName, L"PBKDF2"  ) == 0) return std::shared_ptr<KeyDerive>(new KeyDerivePBKDF2(szProvider, pParameters, cParameters)); 
 
 	// проверить наличие алгоритма
 	if (AlgorithmHandle hAlgorithm = AlgorithmHandle::Create(szProvider, szName, 0))
@@ -1287,6 +1541,21 @@ std::shared_ptr<Windows::Crypto::BCrypt::KeyDerive> Windows::Crypto::BCrypt::Key
 	}
 	// алгоритм не поддерживается 
 	return std::shared_ptr<KeyDerive>(); 
+}
+
+std::shared_ptr<Windows::Crypto::BCrypt::KeyDeriveX> 
+Windows::Crypto::BCrypt::KeyDeriveX::Create(PCWSTR szProvider, 
+	PCWSTR szName, const Parameter* pParameters, size_t cParameters, ULONG dwFlags)
+{
+	if (wcscmp(szName, L"TRUNCATE"          ) == 0) return std::shared_ptr<KeyDeriveX>(new KeyDeriveTruncate (szProvider, pParameters, cParameters)); 
+	if (wcscmp(szName, L"HASH"              ) == 0) return std::shared_ptr<KeyDeriveX>(new KeyDeriveHash	 (szProvider, pParameters, cParameters)); 
+	if (wcscmp(szName, L"HMAC"              ) == 0) return std::shared_ptr<KeyDeriveX>(new KeyDeriveHMAC	 (szProvider, pParameters, cParameters)); 
+	if (wcscmp(szName, L"SP800_56A_CONCAT"  ) == 0) return std::shared_ptr<KeyDeriveX>(new KeyDeriveSP800_56A(szProvider, pParameters, cParameters)); 
+	if (wcscmp(szName, L"SP800_108_CTR_HMAC") == 0) return std::shared_ptr<KeyDeriveX>(new KeyDeriveSP800_108(szProvider, pParameters, cParameters)); 
+	if (wcscmp(szName, L"HKDF"              ) == 0) return std::shared_ptr<KeyDeriveX>(new KeyDeriveHKDF	 (szProvider, pParameters, cParameters)); 
+
+	// алгоритм не поддерживается 
+	return std::shared_ptr<KeyDeriveX>(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1443,14 +1712,14 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::KeyxCipher::Encrypt(
 
 	// определить требуемый размер буфера 
 	AE_CHECK_NTSTATUS(::BCryptEncrypt(hPublicKey, (PUCHAR)pvData, (ULONG)cbData, 
-		(PVOID)PaddingInfo(), nullptr, 0, nullptr, 0, &cb, Mode()
+		(PVOID)PaddingInfo(), nullptr, 0, nullptr, 0, &cb, Flags()
 	)); 
 	// выделить буфер требуемого размера
 	std::vector<UCHAR> buffer(cb, 0); if (cb == 0) return buffer; 
 
 	// зашифровать данные
 	AE_CHECK_NTSTATUS(::BCryptEncrypt(hPublicKey, (PUCHAR)pvData, (ULONG)cbData, 
-		(PVOID)PaddingInfo(), nullptr, 0, &buffer[0], cb, &cb, Mode()
+		(PVOID)PaddingInfo(), nullptr, 0, &buffer[0], cb, &cb, Flags()
 	)); 
 	// указать действительный размер
 	buffer.resize(cb); return buffer; 
@@ -1467,7 +1736,7 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::KeyxCipher::Decrypt(
 
 	// расшифровать данные
 	AE_CHECK_NTSTATUS(::BCryptDecrypt(hKeyPair, (PUCHAR)pvData, (ULONG)cbData, 
-		(PVOID)PaddingInfo(), nullptr, 0, &buffer[0], cb, &cb, Mode()
+		(PVOID)PaddingInfo(), nullptr, 0, &buffer[0], cb, &cb, Flags()
 	)); 
 	// указать действительный размер
 	buffer.resize(cb); return buffer; 
@@ -1478,7 +1747,7 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::KeyxCipher::Decrypt(
 ///////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<Windows::Crypto::ISecretKey> 
 Windows::Crypto::BCrypt::KeyxAgreement::AgreeKey(
-	const IKeyDerive* pDerive, const IPrivateKey& privateKey, 
+	const IKeyDeriveX* pDerive, const IPrivateKey& privateKey, 
 	const IPublicKey& publicKey, const ISecretKeyFactory& keyFactory, size_t cbKey) const
 {
 	// проверить наличие алгоритма
@@ -1491,10 +1760,10 @@ Windows::Crypto::BCrypt::KeyxAgreement::AgreeKey(
 	KeyHandle hKeyPair = ((const KeyPair&)privateKey).Handle();  
 
 	// выполнить преобразование типа
-	const KeyDerive* pDeriveCNG = (const KeyDerive*)pDerive; 
+	const KeyDeriveX* pDeriveCNG = (const KeyDeriveX*)pDerive; 
 
 	// согласовать общий секрет
-	SecretHandle hSecret = SecretHandle::Agreement(hKeyPair, hPublicKey, Mode()); 
+	SecretHandle hSecret = SecretHandle::Agreement(hKeyPair, hPublicKey, Flags()); 
 
 	// согласовать общий ключ 
 	return pDeriveCNG->DeriveKey(keyFactory, cbKey, SharedSecret(hSecret)); 
@@ -1521,7 +1790,7 @@ std::vector<UCHAR> Windows::Crypto::BCrypt::SignHash::Sign(
 
 	// подписать данные
 	AE_CHECK_NTSTATUS(::BCryptSignHash(hKeyPair, pPaddingInfo.get(), 
-		(PUCHAR)&hash[0], (ULONG)hash.size(), &buffer[0], cb, &cb, Mode()
+		(PUCHAR)&hash[0], (ULONG)hash.size(), &buffer[0], cb, &cb, Flags()
 	)); 
 	// указать действительный размер
 	buffer.resize(cb); return buffer; 
@@ -1540,7 +1809,7 @@ void Windows::Crypto::BCrypt::SignHash::Verify(
 	// проверить подпись данных
 	AE_CHECK_NTSTATUS(::BCryptVerifySignature(hPublicKey, 
 		pPaddingInfo.get(), (PUCHAR)&hash[0], (ULONG)hash.size(), 
-		(PUCHAR)&signature[0], (ULONG)signature.size(), Mode()
+		(PUCHAR)&signature[0], (ULONG)signature.size(), Flags()
 	)); 
 }
 
@@ -1717,10 +1986,10 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher
 }
 
 std::shared_ptr<Crypto::IHash> Windows::Crypto::BCrypt::Provider::CreateHash(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_HASH_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_HASH_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IHash>(); 
@@ -1734,21 +2003,31 @@ std::shared_ptr<Crypto::IHash> Windows::Crypto::BCrypt::Provider::CreateHash(
 	return CreateHash(pInfo->pwszCNGAlgid, 0); 
 }
 
-std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+std::shared_ptr<Crypto::IKeyWrap> Windows::Crypto::BCrypt::Provider::CreateKeyWrap(
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, parameters.pszObjId); 
+
+	// проверить наличие информации
+	if (!pInfo) return std::shared_ptr<IKeyWrap>(); 
+
+	// создать алгоритм шифрования 
+	std::shared_ptr<ICipher> pCipher = CreateCipher(pInfo->pwszName, 0); 
+
+	// вернуть алгоритм шифрования ключа 
+	return (pCipher) ? pCipher->CreateKeyWrap() : std::shared_ptr<IKeyWrap>();
+}
+
+std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher(
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
+{
+	// найти информацию идентификатора 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<ICipher>(); 
 
-	// определить размер имени 
-	size_t cch = wcslen(pInfo->pwszName); if (cch >= 4)
-	{
-		// пропустить алгоритмы шифрования ключа
-		if (wcscmp(pInfo->pwszName + cch - 4, L"wrap") == 0) return std::shared_ptr<ICipher>();
-	}
 	// для алгоритма RC2
 	if (wcscmp(pInfo->pwszCNGAlgid, BCRYPT_RC2_ALGORITHM) == 0) 
 	{
@@ -1760,7 +2039,7 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher
 		}
 		// раскодировать параметры 
 		std::shared_ptr<CRYPT_RC2_CBC_PARAMETERS> pParameters = 
-			::Crypto::ANSI::RSA::DecodeRC2CBCParameters(pvEncoded, cbEncoded); 
+			::Crypto::ANSI::RSA::DecodeRC2CBCParameters(parameters.Parameters); 
 
 		// проверить наличие синхропосылки
 		if (!pParameters->fIV) return std::shared_ptr<ICipher>(); 
@@ -1819,7 +2098,7 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher
 		case CRYPTO_BLOCK_MODE_CBC: 
 		{
 			// раскодировать параметры 
-			ASN1::OctetString decoded(pvEncoded, cbEncoded); 
+			ASN1::OctetString decoded(parameters.Parameters.pbData, parameters.Parameters.cbData); 
 
 			// получить структуру параметров
 			const CRYPT_DATA_BLOB& parameters = decoded.Value(); 
@@ -1833,7 +2112,7 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher
 		case CRYPTO_BLOCK_MODE_CFB: 
 		{
 			// раскодировать параметры 
-			ASN1::OctetString decoded(pvEncoded, cbEncoded); 
+			ASN1::OctetString decoded(parameters.Parameters.pbData, parameters.Parameters.cbData); 
 
 			// получить структуру параметров
 			const CRYPT_DATA_BLOB& parameters = decoded.Value(); 
@@ -1849,10 +2128,10 @@ std::shared_ptr<Crypto::ICipher> Windows::Crypto::BCrypt::Provider::CreateCipher
 }
 
 std::shared_ptr<Crypto::IKeyxCipher> Windows::Crypto::BCrypt::Provider::CreateKeyxCipher(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(szAlgOID, AT_KEYEXCHANGE);
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_KEYEXCHANGE);
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IKeyxCipher>(); 
@@ -1874,7 +2153,7 @@ std::shared_ptr<Crypto::IKeyxCipher> Windows::Crypto::BCrypt::Provider::CreateKe
 
 		// раскодировать параметры
 		std::shared_ptr<CRYPT_RSAES_OAEP_PARAMETERS> pParameters = 
-			::Crypto::ANSI::RSA::DecodeRSAOAEPParameters(pvEncoded, cbEncoded); 
+			::Crypto::ANSI::RSA::DecodeRSAOAEPParameters(parameters.Parameters); 
 
 		// вернуть алгоритм асимметричного шифрования
 		return ANSI::RSA::RSA_KEYX_OAEP::Create(_name.c_str(), *pParameters); 
@@ -1908,13 +2187,13 @@ std::shared_ptr<Crypto::IKeyxCipher> Windows::Crypto::BCrypt::Provider::CreateKe
 }
 
 std::shared_ptr<Crypto::IKeyxAgreement> Windows::Crypto::BCrypt::Provider::CreateKeyxAgreement(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// указать тип алгоритма
 	ULONG type = CRYPTO_INTERFACE_ASYMMETRIC_ENCRYPTION; 
 
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(szAlgOID, AT_KEYEXCHANGE);
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_KEYEXCHANGE);
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IKeyxAgreement>(); 
@@ -1958,10 +2237,10 @@ std::shared_ptr<Crypto::IKeyxAgreement> Windows::Crypto::BCrypt::Provider::Creat
 }
 
 std::shared_ptr<Crypto::ISignHash> Windows::Crypto::BCrypt::Provider::CreateSignHash(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(szAlgOID, AT_SIGNATURE);
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_SIGNATURE);
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<ISignHash>(); ULONG type = CRYPTO_INTERFACE_SIGNATURE; 
@@ -2010,14 +2289,14 @@ std::shared_ptr<Crypto::ISignHash> Windows::Crypto::BCrypt::Provider::CreateSign
 		ULONG schemes = hAlgorithm.GetUInt32(BCRYPT_PADDING_SCHEMES, 0); 
 
 		// для алгоритма RSA-PSS
-		if (strcmp(szAlgOID, szOID_RSA_SSA_PSS) == 0)
+		if (strcmp(parameters.pszObjId, szOID_RSA_SSA_PSS) == 0)
 		{
 			// проверить поддержку режима
 			if ((schemes & BCRYPT_SUPPORTED_PAD_PSS) == 0) return std::shared_ptr<ISignHash>(); 
 
 			// раскодировать параметры
 			std::shared_ptr<CRYPT_RSA_SSA_PSS_PARAMETERS> pParameters = 
-				::Crypto::ANSI::RSA::DecodeRSAPSSParameters(pvEncoded, cbEncoded); 
+				::Crypto::ANSI::RSA::DecodeRSAPSSParameters(parameters.Parameters); 
 
 			// создать алгоритм подписи
 			return ANSI::RSA::RSA_SIGN_PSS::CreateSignHash(_name.c_str(), *pParameters); 
@@ -2038,10 +2317,10 @@ std::shared_ptr<Crypto::ISignHash> Windows::Crypto::BCrypt::Provider::CreateSign
 }
 
 std::shared_ptr<Crypto::ISignData> Windows::Crypto::BCrypt::Provider::CreateSignData(
-	PCSTR szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_SIGN_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_SIGN_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<ISignData>(); 
@@ -2053,13 +2332,10 @@ std::shared_ptr<Crypto::ISignData> Windows::Crypto::BCrypt::Provider::CreateSign
 	if (wcscmp(pInfo->pwszCNGAlgid, CRYPT_OID_INFO_HASH_PARAMETERS_ALGORITHM) == 0)
 	{
 		// раскодировать параметры
-		ASN1::ISO::AlgorithmIdentifier decoded(pvEncoded, cbEncoded); pvEncoded = nullptr; 
-
-		// извлечь параметры алгоритма хэширования
-		const CRYPT_OBJID_BLOB& parameters = decoded.Value().Parameters; cbEncoded = 0; 
+		ASN1::ISO::AlgorithmIdentifier decoded(parameters.Parameters.pbData, parameters.Parameters.cbData); 
 
 		// создать алгоритм хэширования
-		pHash = CreateHash(decoded.Value().pszObjId, parameters.pbData, parameters.cbData); 
+		pHash = CreateHash(decoded.Value()); 
 	}
 	// создать алгоритм хэширования
 	else pHash = CreateHash(pInfo->pwszCNGAlgid, 0); 
@@ -2074,17 +2350,21 @@ std::shared_ptr<Crypto::ISignData> Windows::Crypto::BCrypt::Provider::CreateSign
 		return std::shared_ptr<ISignData>(new SignDataFromHash(pHash)); 
 	}
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pSignInfo = Extension::FindPublicKeyOID(szAlgOID, AT_SIGNATURE);
+	PCCRYPT_OID_INFO pSignInfo = Extension::FindPublicKeyOID(parameters.pszObjId, AT_SIGNATURE);
 
 	// создать алгоритм подписи
-	if (pSignInfo) pSignHash = CreateSignHash(szAlgOID, pvEncoded, cbEncoded); 
+	if (pSignInfo) pSignHash = CreateSignHash(parameters); 
 
 	// для обобщенного ECC-алгоритма
 	else if (wcscmp(pInfo->pwszCNGExtraAlgid, CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM) == 0 || 
 		     wcscmp(pInfo->pwszCNGExtraAlgid, BCRYPT_ECDSA_ALGORITHM                 ) == 0)
 	{
+		// указать параметры алгоритма подписи хэш-значения 
+		CRYPT_ALGORITHM_IDENTIFIER signHashParameters = {
+			(PSTR)szOID_ECC_PUBLIC_KEY, parameters.Parameters
+		}; 
 		// создать алгоритм подписи
-		pSignHash = CreateSignHash(szOID_ECC_PUBLIC_KEY, pvEncoded, cbEncoded); 
+		pSignHash = CreateSignHash(signHashParameters); 
 	}
 	else { 
 		// найти информацию идентификатора
@@ -2094,8 +2374,12 @@ std::shared_ptr<Crypto::ISignData> Windows::Crypto::BCrypt::Provider::CreateSign
 		// проверить наличие информации
 		if (!pSignInfo) return std::shared_ptr<ISignData>(); 
 
+		// указать параметры алгоритма подписи хэш-значения 
+		CRYPT_ALGORITHM_IDENTIFIER signHashParameters = {
+			(PSTR)pSignInfo->pszOID, parameters.Parameters
+		}; 
 		// создать алгоритм подписи
-		pSignHash = CreateSignHash(pSignInfo->pszOID, pvEncoded, cbEncoded); 
+		pSignHash = CreateSignHash(signHashParameters); 
 	}
 	// проверить наличие алгоритма хэширования
 	if (!pSignHash) return std::shared_ptr<ISignData>(); 
@@ -2113,15 +2397,39 @@ std::shared_ptr<ISecretKeyFactory> Windows::Crypto::BCrypt::Provider::GetSecretK
 		return std::shared_ptr<ISecretKeyFactory>(); 
 	}
 	// создать фабрику ключей
-	return std::shared_ptr<ISecretKeyFactory>(new SecretKeyFactory(_name.c_str(), szAlgName)); 
+	return std::shared_ptr<ISecretKeyFactory>(new SecretKeyFactory(_name.c_str(), szAlgName, 0)); 
+}
+
+std::shared_ptr<Windows::Crypto::ISecretKeyFactory> 
+Windows::Crypto::BCrypt::Provider::GetSecretKeyFactory(const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
+{
+	// найти информацию идентификатора 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_ENCRYPT_ALG_OID_GROUP_ID, parameters.pszObjId); 
+
+	// проверить наличие информации
+	if (!pInfo) return std::shared_ptr<ISecretKeyFactory>(); size_t keyBits = 0; 
+
+	// проверить поддержку алгоритма
+	if (!SupportsAlgorithm(_name.c_str(), CRYPTO_INTERFACE_CIPHER, pInfo->pwszCNGAlgid)) 
+	{
+		// алгоритм не поддерживается 
+		return std::shared_ptr<ISecretKeyFactory>(); 
+	}
+	// проверить надичие фиксированного размера 
+	if (pInfo->ExtraInfo.cbData > 0) keyBits = *(PDWORD)pInfo->ExtraInfo.pbData; 
+
+	// создать фабрику ключей
+	return std::shared_ptr<ISecretKeyFactory>(new SecretKeyFactory(
+		_name.c_str(), pInfo->pwszCNGAlgid, keyBits
+	)); 
 }
 
 std::shared_ptr<Windows::Crypto::IKeyFactory> 
 Windows::Crypto::BCrypt::Provider::GetKeyFactory(
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, keySpec); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, 0); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IKeyFactory>(); 
@@ -2130,45 +2438,32 @@ Windows::Crypto::BCrypt::Provider::GetKeyFactory(
 	if (wcscmp(pInfo->pwszCNGAlgid, CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM) == 0)
 	{
 		// указать тип интерфейса 
-		if (keySpec == AT_KEYEXCHANGE) { ULONG type = CRYPTO_INTERFACE_SECRET_AGREEMENT; 
+		ULONG typeX = CRYPTO_INTERFACE_SECRET_AGREEMENT; ULONG typeS = CRYPTO_INTERFACE_SIGNATURE;
 
-			// проверить поддержку алгоритма
-			if (!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDH_ALGORITHM     ) &&
-				!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDH_P256_ALGORITHM) &&
-				!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDH_P384_ALGORITHM) &&
-				!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDH_P521_ALGORITHM))
-			{
-				// алгоритм не поддерживается 
-				return std::shared_ptr<IKeyFactory>(); 
-			}
-		}
-		// указать тип интерфейса 
-		else { ULONG type = CRYPTO_INTERFACE_SIGNATURE; 
-
-			// проверить поддержку алгоритма
-			if (!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDSA_ALGORITHM     ) &&
-				!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDSA_P256_ALGORITHM) &&
-				!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDSA_P384_ALGORITHM) &&
-				!SupportsAlgorithm(_name.c_str(), type, BCRYPT_ECDSA_P521_ALGORITHM))
-			{
-				// алгоритм не поддерживается 
-				return std::shared_ptr<IKeyFactory>(); 
-			}
+		// проверить поддержку алгоритма
+		if (!SupportsAlgorithm(_name.c_str(), typeX, BCRYPT_ECDH_ALGORITHM      ) &&
+			!SupportsAlgorithm(_name.c_str(), typeS, BCRYPT_ECDSA_ALGORITHM     ) &&
+			!SupportsAlgorithm(_name.c_str(), typeX, BCRYPT_ECDH_P256_ALGORITHM ) &&
+			!SupportsAlgorithm(_name.c_str(), typeS, BCRYPT_ECDSA_P256_ALGORITHM) &&
+			!SupportsAlgorithm(_name.c_str(), typeX, BCRYPT_ECDH_P384_ALGORITHM ) &&
+			!SupportsAlgorithm(_name.c_str(), typeS, BCRYPT_ECDSA_P384_ALGORITHM) &&
+			!SupportsAlgorithm(_name.c_str(), typeX, BCRYPT_ECDH_P521_ALGORITHM ) &&
+			!SupportsAlgorithm(_name.c_str(), typeS, BCRYPT_ECDSA_P521_ALGORITHM))
+		{
+			// алгоритм не поддерживается 
+			return std::shared_ptr<IKeyFactory>(); 
 		}
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::X962::KeyFactory(_name.c_str(), parameters, keySpec)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::X962::KeyFactory(_name.c_str(), parameters)); 
 	}
 	// для RSA-алгоритма
 	if (wcscmp(pInfo->pwszCNGAlgid, BCRYPT_RSA_ALGORITHM) == 0)
 	{
-		// указать тип интерфейса 
-		ULONG type = (keySpec == AT_KEYEXCHANGE) ? CRYPTO_INTERFACE_ASYMMETRIC_ENCRYPTION : CRYPTO_INTERFACE_SIGNATURE; 
-
 		// проверить поддержку алгоритма
-		if (!SupportsAlgorithm(_name.c_str(), type, pInfo->pwszCNGAlgid)) return std::shared_ptr<IKeyFactory>(); 
+		if (!SupportsAlgorithm(_name.c_str(), 0, pInfo->pwszCNGAlgid)) return std::shared_ptr<IKeyFactory>(); 
 
 		// вернуть фабрику ключей
-		return std::shared_ptr<IKeyFactory>(new ANSI::RSA::KeyFactory(_name.c_str(), keySpec)); 
+		return std::shared_ptr<IKeyFactory>(new ANSI::RSA::KeyFactory(_name.c_str())); 
 	}
 	// для DH-алгоритма
 	if (wcscmp(pInfo->pwszCNGAlgid, BCRYPT_DH_ALGORITHM) == 0)
@@ -2194,41 +2489,19 @@ Windows::Crypto::BCrypt::Provider::GetKeyFactory(
 		// вернуть фабрику ключей
 		return std::shared_ptr<IKeyFactory>(new ANSI::X957::KeyFactory(_name.c_str(), parameters)); 
 	}
-	if (keySpec == AT_KEYEXCHANGE)
+	// проверить поддержку алгоритма
+	if (!SupportsAlgorithm(_name.c_str(), 0, pInfo->pwszCNGAlgid))
 	{
-		// проверить поддержку алгоритма
-		if (!SupportsAlgorithm(_name.c_str(), CRYPTO_INTERFACE_SECRET_AGREEMENT     , pInfo->pwszCNGAlgid) &&  
-		    !SupportsAlgorithm(_name.c_str(), CRYPTO_INTERFACE_ASYMMETRIC_ENCRYPTION, pInfo->pwszCNGAlgid)) 
-		{
-			// алгоритм не поддерживается 
-			return std::shared_ptr<IKeyFactory>(); 
-		}
-	}
-	else { 
-		// проверить поддержку алгоритма
-		if (!SupportsAlgorithm(_name.c_str(), CRYPTO_INTERFACE_SIGNATURE, pInfo->pwszCNGAlgid)) 
-		{
-			// алгоритм не поддерживается 
-			return std::shared_ptr<IKeyFactory>(); 
-		}
+		// алгоритм не поддерживается 
+		return std::shared_ptr<IKeyFactory>(); 
 	}
 	// вернуть фабрику ключей 
-	return std::shared_ptr<IKeyFactory>(new KeyFactoryT(_name.c_str(), parameters, pInfo->pwszCNGAlgid, keySpec));
+	return std::shared_ptr<IKeyFactory>(new KeyFactoryT(_name.c_str(), parameters, pInfo->pwszCNGAlgid));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм контекста среды окружения 
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::BCrypt::ContextAlgorithm::ContextAlgorithm(
-	ULONG dwTable, PCWSTR szContext, ULONG dwInterface, PCWSTR szAlgorithm)
-
-	// сохранить переданные параметры
-	: _dwTable(dwTable), _strContext(szContext), _dwInterface(dwInterface), _strAlgorithm(szAlgorithm)
-{
-	// получить описатель модуля
-	_hModule = GetModuleHandleW(L"bcrypt.dll"); AE_CHECK_WINAPI(_hModule); 
-}
-		
 CRYPT_CONTEXT_FUNCTION_CONFIG Windows::Crypto::BCrypt::ContextAlgorithm::GetConfiguration() const
 {
 	// инициализировать переменные 
@@ -2290,13 +2563,15 @@ std::vector<std::wstring> Windows::Crypto::BCrypt::ContextAlgorithm::EnumProvide
 
 void Windows::Crypto::BCrypt::ContextAlgorithm::RegisterProvider(PCWSTR szProvider, ULONG dwPosition)
 {
+	// CRYPT_PRIORITY_TOP(0), позиция или CRYPT_PRIORITY_BOTTOM(0xFFFFFFFF)
+
 	// указать прототип функции регистрации
 	typedef NTSTATUS (WINAPI* PFNADDPROVIDER)(ULONG, PCWSTR, ULONG, PCWSTR, PCWSTR, ULONG); 
 
 	// найти функцию регистрации
-	PFNADDPROVIDER pfnAddProvider = (PFNADDPROVIDER)
-		GetProcAddress(_hModule, "BCryptAddContextFunctionProvider"); 
-
+	PFNADDPROVIDER pfnAddProvider = (PFNADDPROVIDER)::GetProcAddress(
+		::GetModuleHandleW(L"bcrypt.dll"), "BCryptAddContextFunctionProvider"
+	); 
 	// проверить наличие функции
 	AE_CHECK_WINAPI(pfnAddProvider); 
 
@@ -2310,9 +2585,9 @@ void Windows::Crypto::BCrypt::ContextAlgorithm::UnregisterProvider(PCWSTR szProv
 	typedef NTSTATUS (WINAPI* PFNDELETEPROVIDER)(ULONG, PCWSTR, ULONG, PCWSTR, PCWSTR); 
 
 	// найти функцию регистрации
-	PFNDELETEPROVIDER pfnDeleteProvider = (PFNDELETEPROVIDER)
-		GetProcAddress(_hModule, "BCryptRemoveContextFunctionProvider"); 
-
+	PFNDELETEPROVIDER pfnDeleteProvider = (PFNDELETEPROVIDER)::GetProcAddress(
+		::GetModuleHandleW(L"bcrypt.dll"), "BCryptRemoveContextFunctionProvider"
+	); 
 	// проверить наличие функции
 	AE_CHECK_WINAPI(pfnDeleteProvider); 
 
@@ -2439,12 +2714,6 @@ void Windows::Crypto::BCrypt::Context::DeleteAlgorithm(ULONG dwInterface, PCWSTR
 ///////////////////////////////////////////////////////////////////////////////
 // Регистрация провайдеров
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::BCrypt::Environment::Environment() 
-{
-	// получить описатель модуля
-	_hModule = GetModuleHandleW(L"bcrypt.dll"); AE_CHECK_WINAPI(_hModule); 
-}
-
 HANDLE Windows::Crypto::BCrypt::Environment::RegisterConfigChange() const
 {
 	// подписаться на события изменения 
@@ -2482,10 +2751,10 @@ std::vector<std::wstring> Windows::Crypto::BCrypt::Environment::EnumAlgorithms(U
 }
 
 std::shared_ptr<IHash> Windows::Crypto::BCrypt::Environment::CreateHash(
-	const char* szAlgOID, const void* pvEncoded, size_t cbEncoded) const
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const
 {
 	// найти информацию идентификатора 
-	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_HASH_ALG_OID_GROUP_ID, szAlgOID); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindOIDInfo(CRYPT_HASH_ALG_OID_GROUP_ID, parameters.pszObjId); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::shared_ptr<IHash>(); 
@@ -2503,7 +2772,7 @@ std::shared_ptr<IHash> Windows::Crypto::BCrypt::Environment::CreateHash(
 		std::shared_ptr<IProvider> pProvider = OpenProvider(providers[i].c_str()); 
 		
 		// создать алгоритм хэширования
-		if (std::shared_ptr<IHash> pHash = pProvider->CreateHash(szAlgOID, pvEncoded, cbEncoded)) return pHash;  
+		if (std::shared_ptr<IHash> pHash = pProvider->CreateHash(parameters)) return pHash;  
 	}
 	return std::shared_ptr<IHash>(); 
 }
@@ -2524,16 +2793,16 @@ std::vector<std::wstring> Windows::Crypto::BCrypt::Environment::EnumProviders() 
 }
 
 std::vector<std::wstring> Windows::Crypto::BCrypt::Environment::FindProviders(
-	const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec) const 
+	const CRYPT_ALGORITHM_IDENTIFIER& parameters) const 
 {
 	// найти информацию идентификатора
-	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, keySpec); 
+	PCCRYPT_OID_INFO pInfo = Extension::FindPublicKeyOID(parameters.pszObjId, 0); 
 
 	// проверить наличие информации
 	if (!pInfo) return std::vector<std::wstring>(); 
 
 	// найти провайдеры для ключа
-	return IEnvironment::FindProviders(parameters, keySpec); 
+	return IEnvironment::FindProviders(parameters); 
 }
 
 std::vector<std::wstring> Windows::Crypto::BCrypt::Environment::FindProviders(ULONG dwInterface, PCWSTR szAlgorithm) const
@@ -2571,8 +2840,8 @@ void Windows::Crypto::BCrypt::Environment::RegisterProvider(
 
 	// найти функцию регистрации
 	PFNREGISTERPROVIDER pfnRegisterProvider = (PFNREGISTERPROVIDER)
-		GetProcAddress(_hModule, "BCryptRegisterProvider"); 
-
+		::GetProcAddress(::GetModuleHandleW(L"bcrypt.dll"), "BCryptRegisterProvider"
+	); 
 	// создать список структур интерфейсов
 	AE_CHECK_WINAPI(pfnRegisterProvider); std::vector<CRYPT_INTERFACE_REG> interfaces; 
 
@@ -2655,9 +2924,9 @@ void Windows::Crypto::BCrypt::Environment::UnregisterProvider(PCWSTR szProvider)
 	typedef NTSTATUS (WINAPI* PFNUNREGISTERPROVIDER)(PCWSTR); 
 
 	// найти функцию регистрации
-	PFNUNREGISTERPROVIDER pfnUnregisterProvider = (PFNUNREGISTERPROVIDER)
-		GetProcAddress(_hModule, "BCryptUnregisterProvider"); 
-
+	PFNUNREGISTERPROVIDER pfnUnregisterProvider = (PFNUNREGISTERPROVIDER)::GetProcAddress(
+		::GetModuleHandleW(L"bcrypt.dll"), "BCryptUnregisterProvider"
+	); 
 	// проверить наличие функции
 	AE_CHECK_WINAPI(pfnUnregisterProvider);
 
@@ -2701,10 +2970,10 @@ void Windows::Crypto::BCrypt::Environment::DeleteContext(PCWSTR szContext)
 ///////////////////////////////////////////////////////////////////////////////
 // Ключи RSA
 ///////////////////////////////////////////////////////////////////////////////
-Windows::Crypto::BCrypt::ANSI::RSA::KeyFactory::KeyFactory(PCWSTR szProvider, ULONG keySpec)
+Windows::Crypto::BCrypt::ANSI::RSA::KeyFactory::KeyFactory(PCWSTR szProvider)
 
 	// сохранить переданные параметры
-	: KeyFactoryT(szProvider, Crypto::ANSI::RSA::Parameters::Create(), BCRYPT_RSA_ALGORITHM, keySpec) {}
+	: KeyFactoryT(szProvider, Crypto::ANSI::RSA::Parameters::Create(), BCRYPT_RSA_ALGORITHM) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Алгоритм шифрования RSA
@@ -2781,11 +3050,8 @@ Windows::Crypto::BCrypt::ANSI::RSA::RSA_SIGN_PSS::CreateSignHash(
 		return std::shared_ptr<ISignHash>(); 
 	}
 	// создать алгоритм хэширования
-	std::shared_ptr<IHash> pHash = BCrypt::Provider(szProvider).CreateHash(
-		parameters.HashAlgorithm.pszObjId, 
-		parameters.HashAlgorithm.Parameters.pbData, 
-		parameters.HashAlgorithm.Parameters.cbData
-	); 
+	std::shared_ptr<IHash> pHash = BCrypt::Provider(szProvider).CreateHash(parameters.HashAlgorithm); 
+
 	// проверить наличие алгоритма хэширования
 	if (!pHash) return std::shared_ptr<ISignHash>(); 
 
@@ -2806,11 +3072,8 @@ Windows::Crypto::BCrypt::ANSI::RSA::RSA_SIGN_PSS::CreateSignData(
 	if (!pSignHash) return std::shared_ptr<ISignData>(); 
 
 	// создать алгоритм хэширования
-	std::shared_ptr<IHash> pHash = BCrypt::Provider(szProvider).CreateHash(
-		parameters.HashAlgorithm.pszObjId, 
-		parameters.HashAlgorithm.Parameters.pbData, 
-		parameters.HashAlgorithm.Parameters.cbData
-	); 
+	std::shared_ptr<IHash> pHash = BCrypt::Provider(szProvider).CreateHash(parameters.HashAlgorithm); 
+
 	// проверить наличие алгоритма хэширования
 	if (!pHash) return std::shared_ptr<ISignData>(); 
 
@@ -2825,23 +3088,23 @@ Windows::Crypto::BCrypt::ANSI::X942::KeyFactory::KeyFactory(
 	PCWSTR szProvider, const CRYPT_ALGORITHM_IDENTIFIER& parameters) 
 		
 	// сохранить переданные параметры 
-	: KeyFactoryT(szProvider, Crypto::ANSI::X942::Parameters::Decode(parameters), BCRYPT_DH_ALGORITHM, AT_KEYEXCHANGE) {}
+	: KeyFactoryT(szProvider, Crypto::ANSI::X942::Parameters::Decode(parameters), BCRYPT_DH_ALGORITHM) {}
 
 Windows::Crypto::BCrypt::ANSI::X942::KeyFactory::KeyFactory(
 	PCWSTR szProvider, const CERT_X942_DH_PARAMETERS& parameters) 
 		
 	// сохранить переданные параметры 
-	: KeyFactoryT(szProvider, Crypto::ANSI::X942::Parameters::Decode(parameters), BCRYPT_DH_ALGORITHM, AT_KEYEXCHANGE) {}
+	: KeyFactoryT(szProvider, Crypto::ANSI::X942::Parameters::Decode(parameters), BCRYPT_DH_ALGORITHM) {}
 
 Windows::Crypto::BCrypt::ANSI::X942::KeyFactory::KeyFactory(
 	PCWSTR szProvider, const CERT_DH_PARAMETERS& parameters)  
 		
 	// сохранить переданные параметры 
-	: KeyFactoryT(szProvider, Crypto::ANSI::X942::Parameters::Decode(parameters), BCRYPT_DH_ALGORITHM, AT_KEYEXCHANGE) {}
+	: KeyFactoryT(szProvider, Crypto::ANSI::X942::Parameters::Decode(parameters), BCRYPT_DH_ALGORITHM) {}
 
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::BCrypt::ANSI::X942::KeyFactory::GenerateKeyPair(size_t) const 
+Windows::Crypto::BCrypt::ANSI::X942::KeyFactory::GenerateKeyPair(uint32_t keySpec, size_t) const 
 {
 	// выполнить преобразование типа
 	const Crypto::ANSI::X942::Parameters* pParameters = 
@@ -2861,7 +3124,7 @@ Windows::Crypto::BCrypt::ANSI::X942::KeyFactory::GenerateKeyPair(size_t) const
 	AE_CHECK_NTSTATUS(::BCryptFinalizeKeyPair(hKeyPair, 0)); 
 
 	// вернуть сгенерированную пару ключей
-	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, keySpec)); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2871,17 +3134,17 @@ Windows::Crypto::BCrypt::ANSI::X957::KeyFactory::KeyFactory(
 	PCWSTR szProvider, const CRYPT_ALGORITHM_IDENTIFIER& parameters) 
 		
 	// сохранить переданные параметры
-	: KeyFactoryT(szProvider, Crypto::ANSI::X957::Parameters::Decode(parameters), BCRYPT_DSA_ALGORITHM, AT_SIGNATURE) {} 
+	: KeyFactoryT(szProvider, Crypto::ANSI::X957::Parameters::Decode(parameters), BCRYPT_DSA_ALGORITHM) {} 
 
 Windows::Crypto::BCrypt::ANSI::X957::KeyFactory::KeyFactory(
 	PCWSTR szProvider, const CERT_DSS_PARAMETERS& parameters)  
 		
 	// сохранить переданные параметры
-	: KeyFactoryT(szProvider, Crypto::ANSI::X957::Parameters::Decode(parameters, nullptr), BCRYPT_DSA_ALGORITHM, AT_SIGNATURE) {} 
+	: KeyFactoryT(szProvider, Crypto::ANSI::X957::Parameters::Decode(parameters, nullptr), BCRYPT_DSA_ALGORITHM) {} 
 
 
 std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::BCrypt::ANSI::X957::KeyFactory::GenerateKeyPair(size_t) const 
+Windows::Crypto::BCrypt::ANSI::X957::KeyFactory::GenerateKeyPair(uint32_t keySpec, size_t) const 
 {
 	// выполнить преобразование типа
 	const Crypto::ANSI::X957::Parameters* pParameters = 
@@ -2901,60 +3164,38 @@ Windows::Crypto::BCrypt::ANSI::X957::KeyFactory::GenerateKeyPair(size_t) const
 	AE_CHECK_NTSTATUS(::BCryptFinalizeKeyPair(hKeyPair, 0)); 
 
 	// вернуть сгенерированную пару ключей
-	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, KeySpec())); 
+	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, keySpec)); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Ключи ECC
 ///////////////////////////////////////////////////////////////////////////////
 Windows::Crypto::BCrypt::ANSI::X962::KeyFactory::KeyFactory(
-	PCWSTR szProvider, const CRYPT_ALGORITHM_IDENTIFIER& parameters, uint32_t keySpec)
+	PCWSTR szProvider, const CRYPT_ALGORITHM_IDENTIFIER& parameters)
 
 	// сохранить переданные параметры
-	: BCrypt::KeyFactory(szProvider, Crypto::ANSI::X962::Parameters::Decode(parameters), keySpec) 
-{
-	// выполнить преобразование типа
-	const Crypto::ANSI::X962::Parameters* pParameters = 
-		(const Crypto::ANSI::X962::Parameters*)Parameters().get(); 
-
-	// получить дополнительные параметры при импорте
-	std::shared_ptr<BCryptBufferDesc> cryptParameters = pParameters->ParamsCNG(KeySpec()); 
-
-	// определить имя алгоритма
-	PCWSTR szAlgName = (PCWSTR)cryptParameters->pBuffers[0].pvBuffer; 
-
-	// создать алгоритм
-	_phAlgorithm.reset(new AlgorithmHandle(szProvider, szAlgName, 0)); 
-
-	// при наличии дополнительных параметров
-	if (cryptParameters->cBuffers > 1)
-	{
-		// определить имя алгоритма
-		PCWSTR szCurveName = (PCWSTR)cryptParameters->pBuffers[1].pvBuffer; 
-
-		// указать используемую кривую
-		_phAlgorithm->SetString(BCRYPT_ECC_CURVE_NAME, szCurveName, 0); 
-	}
-}
+	: BCrypt::KeyFactory(szProvider, Crypto::ANSI::X962::Parameters::Decode(parameters)) {}
 
 Windows::Crypto::BCrypt::ANSI::X962::KeyFactory::KeyFactory(
-	PCWSTR szProvider, PCWSTR szCurveName, uint32_t keySpec) 
+	PCWSTR szProvider, PCWSTR szCurveName) 
 
 	// сохранить переданные параметры
-	: BCrypt::KeyFactory(szProvider, std::shared_ptr<IKeyParameters>(new Crypto::ANSI::X962::Parameters(szCurveName)), keySpec) 
+	: BCrypt::KeyFactory(szProvider, std::shared_ptr<IKeyParameters>(new Crypto::ANSI::X962::Parameters(szCurveName))) {}
+
+Windows::Crypto::BCrypt::AlgorithmHandle Windows::Crypto::BCrypt::ANSI::X962::KeyFactory::GetHandle(uint32_t keySpec) const
 {
 	// выполнить преобразование типа
 	const Crypto::ANSI::X962::Parameters* pParameters = 
 		(const Crypto::ANSI::X962::Parameters*)Parameters().get(); 
 
 	// получить дополнительные параметры при импорте
-	std::shared_ptr<BCryptBufferDesc> cryptParameters = pParameters->ParamsCNG(KeySpec()); 
+	std::shared_ptr<BCryptBufferDesc> cryptParameters = pParameters->ParamsCNG(keySpec); 
 
 	// определить имя алгоритма
 	PCWSTR szAlgName = (PCWSTR)cryptParameters->pBuffers[0].pvBuffer; 
 
 	// создать алгоритм
-	_phAlgorithm.reset(new AlgorithmHandle(szProvider, szAlgName, 0)); 
+	AlgorithmHandle hAlgorithm(Provider(), szAlgName, 0); 
 
 	// при наличии дополнительных параметров
 	if (cryptParameters->cBuffers > 1)
@@ -2963,23 +3204,37 @@ Windows::Crypto::BCrypt::ANSI::X962::KeyFactory::KeyFactory(
 		PCWSTR szCurveName = (PCWSTR)cryptParameters->pBuffers[1].pvBuffer; 
 
 		// указать используемую кривую
-		_phAlgorithm->SetString(BCRYPT_ECC_CURVE_NAME, szCurveName, 0); 
+		hAlgorithm.SetString(BCRYPT_ECC_CURVE_NAME, szCurveName, 0); 
 	}
+	return hAlgorithm; 
 }
 	
-std::shared_ptr<Windows::Crypto::IKeyPair> 
-Windows::Crypto::BCrypt::ANSI::X962::KeyFactory::GenerateKeyPair(size_t) const 
-{
-	// сгенерировать пару ключей
-	KeyHandle hKeyPair = KeyHandle::GeneratePair(Handle(), 0, 0); 
-
-	// завершить генерацию ключей
-	AE_CHECK_NTSTATUS(::BCryptFinalizeKeyPair(hKeyPair, 0)); 
-
-	// вернуть сгенерированную пару ключей
-	return std::shared_ptr<Crypto::IKeyPair>(new KeyPair(Parameters(), hKeyPair, KeySpec())); 
-}
-
+///////////////////////////////////////////////////////////////////////////////
+// Регистрация контекстов и BCrypt/NCrypt-провайдеров использует раздел реестра 
+// HKLM\SYSTEM\CurrentControlSet\Control\Cryptography. 
+// 
+// В разделе Providers перечислены разделы провайдеров. Каждый такой 
+// раздел содержит раздел KM (для использования из режима ядра, только для 
+// BCrypt-провайдеров) и раздел UM (для использования из пользовательского 
+// режима). Значение по умолчанию указанных разделов содержит имя модуля 
+// реализации (без пути). Внутри указанных разделов перечислены разделы 
+// (по численному значению) реализованных интерфейсов. Отличия между BCrypt- и 
+// NCrypt-провайдерами заключается только в реализованных ими интерфейсами: 
+// для NCrypt-провайдеров это может быть NCRYPT_KEY_STORAGE_INTERFACE
+// (0x10001), NCRYPT_SCHANNEL_INTERFACE (0x10002), 
+// NCRYPT_SCHANNEL_SIGNATURE_INTERFACE (0x10003) и выше. 
+// 
+// В разделе Configuration содержатся два раздела Local и Domain, 
+// соответствующие таблицам CRYPT_LOCAL и CRYPT_DONAIN. В каждом из таких 
+// разделов содержатся разделы контекстов. Обычно это Default и SSL (для 
+// раздела Local). Каждый раздел контекста содержит разделы интерфейсов 
+// контекста. Каждый раздел интерфейса контекста содержит разделы алгоритмов 
+// контекста (для раздела 0x10001 единственным именем может быть KEY_STORAGE). 
+// Каждый раздел алгоритма контекста содержит в качестве своего значения 
+// список предпочтетельных провайдеров для данного алгоритма. 
+// 
+// !!! Имя для алгоритма подписи RSA - "RSA_SIGN", хотя в документации 
+// указывается, что это имя не используется, а должно использоваться "RSA" !!!
 ///////////////////////////////////////////////////////////////////////////////
 typedef __checkReturn NTSTATUS
 (WINAPI *BCryptOpenAlgorithmProviderFn)(

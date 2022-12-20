@@ -50,11 +50,11 @@ std::vector<BYTE> Crypto::ANSI::RSA::EncodePublicKey(const CRYPT_RSA_PUBLIC_KEY_
 }
 
 std::shared_ptr<CRYPT_RSA_PUBLIC_KEY_INFO> 
-Crypto::ANSI::RSA::DecodePublicKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::RSA::DecodePublicKey(const CRYPT_BIT_BLOB& encoded)
 {
 	// выполнить преобразование формата данных
 	std::shared_ptr<BCRYPT_RSAKEY_BLOB> pBlob = Windows::ASN1::DecodeStruct<BCRYPT_RSAKEY_BLOB>(
-		CNG_RSA_PUBLIC_KEY_BLOB, pvEncoded, cbEncoded, 0
+		CNG_RSA_PUBLIC_KEY_BLOB, encoded.pbData, encoded.cbData, 0
 	); 
 	// указать расположение открытой экспоненты 
 	CRYPT_UINT_REVERSE_BLOB publicExponent = { pBlob->cbPublicExp, (PBYTE)(pBlob.get() + 1) }; 
@@ -124,11 +124,11 @@ std::vector<BYTE> Crypto::ANSI::RSA::EncodePrivateKey(const CRYPT_RSA_PRIVATE_KE
 }
 
 std::shared_ptr<CRYPT_RSA_PRIVATE_KEY_INFO> 
-Crypto::ANSI::RSA::DecodePrivateKey(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::RSA::DecodePrivateKey(const CRYPT_DER_BLOB& encoded)
 {
 	// выполнить преобразование формата данных
 	std::shared_ptr<BCRYPT_RSAKEY_BLOB> pBlob = Windows::ASN1::DecodeStruct<BCRYPT_RSAKEY_BLOB>(
-		CNG_RSA_PRIVATE_KEY_BLOB, pvEncoded, cbEncoded, 0
+		CNG_RSA_PRIVATE_KEY_BLOB, encoded.pbData, encoded.cbData, 0
 	); 
 	// указать расположение открытой экспоненты 
 	CRYPT_UINT_REVERSE_BLOB publicExponent = { pBlob->cbPublicExp, (PBYTE)(pBlob.get() + 1) }; 
@@ -177,11 +177,11 @@ std::vector<BYTE> Crypto::ANSI::RSA::EncodeRC2CBCParameters(
 	return Windows::ASN1::EncodeData(PKCS_RC2_CBC_PARAMETERS, &parameters, 0); 
 }
 std::shared_ptr<CRYPT_RC2_CBC_PARAMETERS> 
-Crypto::ANSI::RSA::DecodeRC2CBCParameters(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::RSA::DecodeRC2CBCParameters(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_RC2_CBC_PARAMETERS>(
-		PKCS_RC2_CBC_PARAMETERS, pvEncoded, cbEncoded, 0
+		PKCS_RC2_CBC_PARAMETERS, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -192,11 +192,11 @@ std::vector<BYTE> Crypto::ANSI::RSA::EncodeRSAOAEPParameters(
 	return Windows::ASN1::EncodeData(PKCS_RSAES_OAEP_PARAMETERS, &parameters, 0); 
 }
 std::shared_ptr<CRYPT_RSAES_OAEP_PARAMETERS> 
-Crypto::ANSI::RSA::DecodeRSAOAEPParameters(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::RSA::DecodeRSAOAEPParameters(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_RSAES_OAEP_PARAMETERS>(
-		PKCS_RSAES_OAEP_PARAMETERS, pvEncoded, cbEncoded, 0
+		PKCS_RSAES_OAEP_PARAMETERS, encoded.pbData, encoded.cbData, 0
 	); 
 }
 
@@ -207,11 +207,11 @@ std::vector<BYTE> Crypto::ANSI::RSA::EncodeRSAPSSParameters(
 	return Windows::ASN1::EncodeData(PKCS_RSA_SSA_PSS_PARAMETERS, &parameters, 0); 
 }
 std::shared_ptr<CRYPT_RSA_SSA_PSS_PARAMETERS> 
-Crypto::ANSI::RSA::DecodeRSAPSSParameters(const void* pvEncoded, size_t cbEncoded)
+Crypto::ANSI::RSA::DecodeRSAPSSParameters(const CRYPT_OBJID_BLOB& encoded)
 {
 	// раскодировать данные
 	return Windows::ASN1::DecodeStruct<CRYPT_RSA_SSA_PSS_PARAMETERS>(
-		PKCS_RSA_SSA_PSS_PARAMETERS, pvEncoded, cbEncoded, 0
+		PKCS_RSA_SSA_PSS_PARAMETERS, encoded.pbData, encoded.cbData, 0
 	); 
 }
 

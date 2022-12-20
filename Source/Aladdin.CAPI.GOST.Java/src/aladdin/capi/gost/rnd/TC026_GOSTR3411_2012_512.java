@@ -26,7 +26,7 @@ public final class TC026_GOSTR3411_2012_512 extends RefObject implements IRand, 
             rand.generate(seed, 0, seed.length); 
 
             // создать генератор случайных данных
-            this.rand = new TC026(null, hashAlgorithm, seed);
+            this.rand = new TC026(null, hashAlgorithm, seed, null);
         }
     }
     // конструктор
@@ -36,7 +36,7 @@ public final class TC026_GOSTR3411_2012_512 extends RefObject implements IRand, 
         try (Hash hashAlgorithm = new aladdin.capi.gost.hash.GOSTR3411_2012(512))
         { 
             // создать генератор случайных данных
-            rand = new TC026(window, hashAlgorithm, seed); this.seed = seed; 
+            rand = new TC026(window, hashAlgorithm, seed, null); this.seed = seed; 
         }
     }
     private void writeObject(ObjectOutputStream oos) throws IOException 
@@ -56,7 +56,7 @@ public final class TC026_GOSTR3411_2012_512 extends RefObject implements IRand, 
         try (Hash hashAlgorithm = new aladdin.capi.gost.hash.GOSTR3411_2012(512))
         { 
             // создать генератор случайных данных
-            rand = new TC026(null, hashAlgorithm, seed);
+            rand = new TC026(null, hashAlgorithm, seed, null);
         }
     }
     // стартовое значение
