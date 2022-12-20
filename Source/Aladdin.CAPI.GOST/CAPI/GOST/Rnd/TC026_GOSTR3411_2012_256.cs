@@ -33,7 +33,7 @@ namespace Aladdin.CAPI.GOST.Rnd
         // конструктор
         public TC026_GOSTR3411_2012_256(object window, byte[] seed, bool test)
         {
-            // проверить диапазон для псевдослучайной последовательности
+            // указать функцию проверки диапазона 
             TC026.CheckQuality check = delegate (byte[] data)
             { 
                 // проверить диапазон для псевдослучайной последовательности
