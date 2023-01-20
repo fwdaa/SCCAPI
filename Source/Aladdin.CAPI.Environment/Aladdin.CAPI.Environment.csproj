@@ -60,6 +60,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Environment\ConfigAuthentications.cs" />
     <Compile Include="Environment\ConfigPlugin.cs" />
     <Compile Include="Environment\ConfigSection.cs" />
     <Compile Include="Environment\ConfigKey.cs" />

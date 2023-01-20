@@ -11,23 +11,20 @@ namespace Aladdin.CAPI.GUI
 	///////////////////////////////////////////////////////////////////////////
     public partial class BioPinMatchDialog : Form
     {
-        // используемый таймер
-        private System.Windows.Forms.Timer timer; 
-
-        // имена отпечатков пальцев
-        private Dictionary<Bio.Finger, String> fingerNames; 
+        // используемый таймер и имена отпечатков пальцев
+        private Timer timer; private Dictionary<Bio.Finger, String> fingerNames; 
 
         // отпечатки в элементе управления и элемент управления захватом отпечатка
         private Bio.Finger[] fingers; private Remoting.RemoteClientControl captureControl; 
 
 		// объект контейнера и шаблон проверки отпечатка
-		private SecurityObject obj; private Bio.MatchTemplate matchTemplate; 
+		private SecurityObject obj; private int attempts; private Bio.MatchTemplate matchTemplate; 
 
         // отобразить диалог
-		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user)
+		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user, int attempts)
 		{
 			// создать диалог ввода пароля
-			BioPinMatchDialog dialog = new BioPinMatchDialog(obj, user); 
+			BioPinMatchDialog dialog = new BioPinMatchDialog(obj, user, attempts); 
 
             // отобразить диалог аутентификации
             DialogResult result = Aladdin.GUI.ModalView.Show(parent, dialog); 
@@ -42,13 +39,13 @@ namespace Aladdin.CAPI.GUI
         private BioPinMatchDialog() { InitializeComponent(); }
 
         // конструктор
-		public BioPinMatchDialog(SecurityObject obj, string user) 
+		public BioPinMatchDialog(SecurityObject obj, string user, int attempts) 
 		{ 
 			// сохранить переданные параметры
-            InitializeComponent(); this.obj = obj; timer = new Timer();
+            InitializeComponent(); this.obj = obj; this.attempts = attempts; 
             
             // создать список имен пальцев
-            fingerNames = new Dictionary<Bio.Finger, String>();
+            fingerNames = new Dictionary<Bio.Finger, String>(); timer = new Timer();
    
             // заполнить список имен пальцев
             fingerNames.Add(Bio.Finger.LeftLittle , (string)comboFinger.Items[0]);  
@@ -117,7 +114,7 @@ namespace Aladdin.CAPI.GUI
 		private void OnPasswordChanged(object sender, EventArgs e)
 		{
 			// изменить доступность элементов управления
-            buttonOK.Enabled = (matchTemplate != null) && (textBoxPIN.Text.Length > 0); 
+            buttonOK.Enabled = (attempts > 0)  && (matchTemplate != null) && (textBoxPIN.Text.Length > 0); 
 		}
         private class FingerComparer : IComparer<Bio.Finger>  
         {
@@ -250,7 +247,7 @@ namespace Aladdin.CAPI.GUI
 			textInfo.Text = message; buttonStop.Enabled = false; 
 
 			// изменить доступность элементов управления
-            buttonOK.Enabled = (matchTemplate != null) && (textBoxPIN.Text.Length > 0); 
+            buttonOK.Enabled = (attempts > 0) && (matchTemplate != null) && (textBoxPIN.Text.Length > 0); 
 
 			// изменить доступность элементов управления
 			buttonStart.Enabled = comboReader.Enabled = comboFinger.Enabled = true; 
@@ -281,7 +278,11 @@ namespace Aladdin.CAPI.GUI
                 DialogResult = DialogResult.OK;
 			}
 			// при ошибке вывести ее описание
-			catch (Exception ex) { Aladdin.GUI.ErrorDialog.Show(this, ex); }
+			catch (Exception ex) { Aladdin.GUI.ErrorDialog.Show(this, ex); 
+
+                // установить недоступной кноку OK
+				if (--attempts <= 0) buttonOK.Enabled = false; 
+            }
 
 			// восстановить состояние курсора
 			finally { Cursor.Current = cursor; }
@@ -295,13 +296,13 @@ namespace Aladdin.CAPI.GUI
         public class BioPinDialogAuthentication : DialogAuthentication
         {
             // описатель родительского окна и тип пользователя
-            private IWin32Window parent; private string user; 
+            private IWin32Window parent; private string user; private int attempts; 
 
             // конструктор
-            public BioPinDialogAuthentication(IWin32Window parent, string user)
+            public BioPinDialogAuthentication(IWin32Window parent, string user, int attempts)
             { 
                 // сохранить переданные параметры
-                this.parent = parent; this.user = user; 
+                this.parent = parent; this.user = user; this.attempts = attempts; 
             }
             // тип пользователя
             public override string User { get { return user; }}
@@ -317,7 +318,7 @@ namespace Aladdin.CAPI.GUI
             protected override Credentials[] LocalAuthenticate(SecurityObject obj)
             {
                 // выполнить локальную аутентификацию
-                return BioPinMatchDialog.Show(parent, obj, user); 
+                return BioPinMatchDialog.Show(parent, obj, user, attempts); 
             }
         }
     }

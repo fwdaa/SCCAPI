@@ -5,6 +5,8 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Athena
 {
 	public ref class Test abstract sealed
 	{
+		public: static initonly int ATTEMPTS = 5; 
+
 		public: static void Entry()
 		{
 			// получить консольное окно
@@ -51,7 +53,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Athena
 				array<int>^ rsaBits = gcnew array<int> { 512, 1024, 1536, 2048 }; 
 
 				// создать контейнер
-				CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info);
+				CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(container, window)); 
@@ -67,7 +69,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Athena
 					}
 				}
 				// удалить контейнер
-				finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info); }
+				finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info, ATTEMPTS); }
 			}
 		}
     };

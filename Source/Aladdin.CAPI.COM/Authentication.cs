@@ -16,10 +16,10 @@ namespace Aladdin.CAPI.COM
         public readonly AuthenticationSelector Selector; 
 
         // конструктор
-        public Authentication(IWin32Window window)
+        public Authentication(IWin32Window window, int attempts)
         {
             // сохранить переданные параметры
-            Selector = new GUI.AuthenticationSelector(window, "USER"); 
+            Selector = new GUI.AuthenticationSelector(window, "USER", attempts); 
         }
         // конструктор
         public Authentication(string password)

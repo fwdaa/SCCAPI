@@ -16,8 +16,8 @@ namespace Aladdin.CAPI
 	public sealed class CryptoEnvironment : ExecutionContext, 
         IDeserializationCallback, IParametersFactory, ICultureFactory
 	{
-        // секция конфигурации
-        private Environment.ConfigSection section; 
+        // секция конфигурации и число аутентификаций
+        private Environment.ConfigSection section; private int attempts; 
 
         // фабрики алгоритмов и криптопровайдеры
 		[NonSerialized] private Factories            factories; 
@@ -79,6 +79,9 @@ namespace Aladdin.CAPI
                 ", Version={0}, Culture=neutral, PublicKeyToken={1}", 
                 assemblyName.Version, assemblyToken.ToLower()
             ); 
+            // прочитать число попыток аутентификации
+            attempts = (section.Authentications != null) ? section.Authentications.Attempts : 5; 
+
 			// создать список фабрик классов
 			List<Factory> factories = new List<Factory>(); 
             
@@ -221,6 +224,9 @@ namespace Aladdin.CAPI
             // получить провайдер PKCS12
             return (PKCS12.CryptoProvider)providers[0]; 
         }
+        // число попыток аутентификации
+        public int AuthenticationAttempts { get { return attempts; }}
+
         ///////////////////////////////////////////////////////////////////////
         // Параметры и отображаемое имя ключа
         ///////////////////////////////////////////////////////////////////////

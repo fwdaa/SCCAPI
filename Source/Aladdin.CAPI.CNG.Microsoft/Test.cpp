@@ -8,6 +8,8 @@ namespace Aladdin { namespace CAPI { namespace CNG { namespace Microsoft
 {
 	public ref class Test abstract sealed
 	{
+		public: static initonly int ATTEMPTS = 5; 
+
 		public: static void TestAllKeys(CAPI::Factory^ factory, SecurityObject^ scope, IRand^ rand)
         {
 			// указать размер ключей RSA в битах
@@ -101,7 +103,7 @@ namespace Aladdin { namespace CAPI { namespace CNG { namespace Microsoft
 				array<SecurityInfo^>^ containersU = provider->EnumerateAllObjects(Scope::User); 
 
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// удалить ключи контейнера
 					containerHKLM->DeleteKeys();
@@ -113,10 +115,10 @@ namespace Aladdin { namespace CAPI { namespace CNG { namespace Microsoft
 					TestAllKeys(provider, containerHKLM, rand.Get()); 		
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// удалить ключи контейнера
 					containerHKCU->DeleteKeys();
@@ -128,7 +130,7 @@ namespace Aladdin { namespace CAPI { namespace CNG { namespace Microsoft
 					TestAllKeys(provider, containerHKCU, rand.Get()); 		
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerSCard(gcnew SCardProvider()); 
@@ -145,7 +147,7 @@ namespace Aladdin { namespace CAPI { namespace CNG { namespace Microsoft
 					Scope::System, "Card\\ARDS JaCarta 0\\CAPI-TEST"
 				); 
 				// создать контейнер
-				CAPI::Container^ containerCard = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoCard);
+				CAPI::Container^ containerCard = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoCard, ATTEMPTS);
 				try {
 					// удалить ключи контейнера
 					containerCard->DeleteKeys(); 
@@ -158,7 +160,7 @@ namespace Aladdin { namespace CAPI { namespace CNG { namespace Microsoft
 					ANSI::Test::TestRSA(provider, containerCard, rand.Get(), true,  KeyFlags::None, 512, KeySizes::Range(16, 32, 8)); 
 				}
 				// удалить контейнер
-				finally { containerCard->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoCard); }
+				finally { containerCard->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoCard, ATTEMPTS); }
 			}
 		}
     };

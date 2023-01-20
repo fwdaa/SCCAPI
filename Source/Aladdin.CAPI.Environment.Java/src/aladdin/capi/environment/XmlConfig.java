@@ -8,6 +8,20 @@ import org.xml.sax.*;
 public class XmlConfig 
 {
     ///////////////////////////////////////////////////////////////////////////
+    // Элемент параметров аутентификации 
+    ///////////////////////////////////////////////////////////////////////////
+    public static ConfigAuthentications readAuthentications(Element element) throws IOException
+    {
+        // получить число попыток
+        String strAttempts = element.getAttribute("name"); 
+        
+        // выполнить преобразование типа
+        int attempts = (strAttempts.length() > 0) ? Integer.parseInt(strAttempts) : 5; 
+        
+        // вернуть элемент описания параметров аутентификации 
+        return new ConfigAuthentications(attempts); 
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // Элемент описания фабрики классов
     ///////////////////////////////////////////////////////////////////////////
     public static ConfigFactory readFactory(Element element) throws IOException
@@ -163,11 +177,25 @@ public class XmlConfig
     // конструктор
     public static ConfigSection readSection(Document document)
     {
+        // указать значение по умолчанию
+        ConfigAuthentications authentications = new ConfigAuthentications(5);
+        
         // создать пустые списки
         List<ConfigFactory    > factories = new ArrayList<ConfigFactory    >(); 
         List<ConfigRandFactory> rands     = new ArrayList<ConfigRandFactory>(); 
         List<ConfigPlugin     > plugins   = new ArrayList<ConfigPlugin     >(); 
         List<ConfigKey        > keys      = new ArrayList<ConfigKey        >(); 
+        
+        // получить элемент для параметров аутентификации
+        NodeList factoriesAuthentications = document.getElementsByTagName("authentications");
+            
+        // проверить наличие элемента
+        if (factoriesAuthentications.getLength() > 0)
+        try {
+            // прочитать значение элемента
+            authentications = readAuthentications((Element)factoriesAuthentications.item(0)); 
+        }
+        catch (Throwable e) {}
         
         // получить элемент для фабрик
         NodeList factoriesNodes = document.getElementsByTagName("factories");
@@ -250,7 +278,7 @@ public class XmlConfig
             catch (Throwable e) {}
         }
         // вернуть параметры
-        return new ConfigSection(
+        return new ConfigSection(authentications, 
             factories.toArray(new ConfigFactory    [factories.size()]), 
             rands    .toArray(new ConfigRandFactory[rands    .size()]), 
             keys     .toArray(new ConfigKey        [keys     .size()]),

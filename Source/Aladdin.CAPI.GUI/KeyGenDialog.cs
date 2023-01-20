@@ -50,8 +50,9 @@ namespace Aladdin.CAPI.GUI
         private void OnLoad(object sender, EventArgs e)
         {
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(this);
-
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+                this, environment.AuthenticationAttempts
+            );
             // открыть хранилище объектов
             using (SecurityStore store = (SecurityStore)selector.OpenObject(
                 provider, storeInfo.Scope, storeInfo.FullName, FileAccess.Read))
@@ -120,7 +121,9 @@ namespace Aladdin.CAPI.GUI
 			checkBoxDataEncipherment    .Checked = false; 
 
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(this);
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+                this, environment.AuthenticationAttempts
+            );
             try { 
                 // открыть хранилище объектов
                 using (SecurityStore store = (SecurityStore)selector.OpenObject(
@@ -175,8 +178,9 @@ namespace Aladdin.CAPI.GUI
                 SecurityInfo containerInfo = new SecurityInfo(storeInfo.Scope, storeInfo.FullName, name); 
 
                 // указать способ выбора аутентификации 
-                AuthenticationSelector selector = AuthenticationSelector.Create(this);
-
+                AuthenticationSelector selector = AuthenticationSelector.Create(
+                    this, environment.AuthenticationAttempts
+                );
                 // создать генератор случайных данных
                 using (IRand rand = selector.CreateRand(provider, null))
                 { 

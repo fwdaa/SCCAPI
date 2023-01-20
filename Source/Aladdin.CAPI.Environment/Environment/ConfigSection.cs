@@ -11,10 +11,17 @@ namespace Aladdin.CAPI.Environment
     [Serializable]
     public class ConfigSection 
     {
-	    // фабрики алгоритмов и генераторы случайных данных
-        private List<ConfigFactory> factories; private List<ConfigRandFactory> rands;
-	    // расширения криптографических культур и идентификаторы ключей
-        private List<ConfigPlugin> plugins; private List<ConfigKey> keys; 
+        private ConfigAuthentications   authentications; // параметры аутентификации
+        private List<ConfigFactory    > factories;       // фабрики алгоритмов
+        private List<ConfigRandFactory> rands;           // генераторы случайных данных
+        private List<ConfigPlugin     > plugins;         // расширения криптографических культур
+        private List<ConfigKey        > keys;            // идентификаторы ключей
+
+        public ConfigAuthentications   Authentications { get { return authentications; }}
+	    public List<ConfigFactory    > Factories       { get { return factories;       }}
+	    public List<ConfigRandFactory> Rands           { get { return rands;           }}
+	    public List<ConfigPlugin     > Plugins         { get { return plugins;         }}
+	    public List<ConfigKey        > Keys            { get { return keys;            }}
 
         // конструктор
         public static ConfigSection FromFile(string fileName)
@@ -59,6 +66,15 @@ namespace Aladdin.CAPI.Environment
             factories = new List<ConfigFactory>(); rands = new List<ConfigRandFactory>(); 
             plugins   = new List<ConfigPlugin >(); keys  = new List<ConfigKey        >(); 
         
+            // получить элемент для параметров аутентификации 
+            XmlNodeList authenticationsNodes = document.GetElementsByTagName("authentications"); 
+
+            // проверить наличие элемента
+            authentications = null; if (authenticationsNodes.Count > 0)
+            {
+                // добавить элемент 
+                authentications = new ConfigAuthentications((XmlElement)authenticationsNodes[0]);
+            }
             // получить элемент для фабрик
             XmlNodeList factoriesNodes = document.GetElementsByTagName("factories");
             
@@ -136,13 +152,5 @@ namespace Aladdin.CAPI.Environment
                 }
             }
         }
-	    // фабрики алгоритмов
-	    public List<ConfigFactory    > Factories { get { return factories; }}
-	    // генераторы случайных данных
-	    public List<ConfigRandFactory> Rands     { get { return rands;     }}
-	    // расширения криптографических культур
-	    public List<ConfigPlugin     > Plugins   { get { return plugins;   }}
-	    // идентификаторы ключей
-	    public List<ConfigKey        > Keys      { get { return keys;      }}
     }
 }

@@ -49,8 +49,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
              
 			// указать способ аутентификации
-			AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+			AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts
+			); 
 			// получить интерфейс клиента
 			using (ClientContainer container = new ClientContainer(provider, containerInfo, selector))
             try { 
@@ -78,8 +79,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
 			// указать способ аутентификации
-			AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+			AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts
+			); 
 			// удалить используемый контейнер
 			selector.DeleteObject(provider, containerInfo.Scope, containerInfo.FullName); 
 		}
@@ -113,7 +115,8 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; bool canChangeLongin = false;
 
             // указать способ выбора аутентификации
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm);
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts);
             try { 
 				// открыть контейнер
 				using (Container obj = (Container)selector.OpenObject(
@@ -160,8 +163,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm;
             try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, containerInfo, selector))
 				{ 
@@ -207,15 +211,17 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm;
 
             // указать способ выбора аутентификации
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm);
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts);
             try { 
 				// открыть контейнер
 				using (Container obj = (Container)selector.OpenObject(
 					provider, containerInfo.Scope, containerInfo.FullName, FileAccess.ReadWrite))
 				{ 
 					// выполнить аутентификацию и изменить аутентификационные данные
-					obj.Authenticate(); AuthenticationDialog.ShowChange(mainForm, obj, selector.User); 
-
+					obj.Authenticate(); AuthenticationDialog.ShowChange(
+						mainForm, obj, selector.User, environment.AuthenticationAttempts
+					); 
 					// получить подтверждение об удалении
 					MessageBox.Show(mainForm, Resource.MessageChangeLogin, 
 						mainForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Information

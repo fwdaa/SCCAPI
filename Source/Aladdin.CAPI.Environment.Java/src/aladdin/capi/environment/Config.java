@@ -47,6 +47,6 @@ public class Config
     };   
     // конфигурация по умолчанию
     public static final ConfigSection DEFAULT = new ConfigSection(
-        FACTORIES, new ConfigRandFactory[0], KEYS, new ConfigPlugin[0]
+        new ConfigAuthentications(5), FACTORIES, new ConfigRandFactory[0], KEYS, new ConfigPlugin[0]
     ); 
 }

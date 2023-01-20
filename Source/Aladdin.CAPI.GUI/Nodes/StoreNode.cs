@@ -49,8 +49,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			List<ConsoleForm.Node> nodes = new List<ConsoleForm.Node>();
             try { 
                 // указать способ выбора аутентификации 
-                AuthenticationSelector selector = AuthenticationSelector.Create(node.MainForm); 
-
+                AuthenticationSelector selector = AuthenticationSelector.Create(
+					node.MainForm, environment.AuthenticationAttempts
+				); 
                 // открыть хранилище объектов
                 using (SecurityStore store = (SecurityStore)selector.OpenObject(
                     provider, storeInfo.Scope, storeInfo.FullName, FileAccess.Read))
@@ -86,7 +87,8 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; bool canChangeLongin = false; 
 
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm);
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts);
             try { 
                 // открыть хранилище объектов
                 using (SecurityStore store = (SecurityStore)selector.OpenObject(
@@ -160,7 +162,8 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm);
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts);
             try { 
                 // открыть хранилище объектов
                 using (SecurityStore store = (SecurityStore)selector.OpenObject(
@@ -200,8 +203,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts
+			); 
             // удалить дочернее хранилище объектов
             selector.DeleteObject(provider, storeInfo.Scope, storeInfo.FullName); 
  		}
@@ -258,15 +262,17 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm;
 
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm);
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts);
             try { 
                 // открыть хранилище объектов
                 using (SecurityStore store = (SecurityStore)selector.OpenObject(
                     provider, storeInfo.Scope, storeInfo.FullName, FileAccess.ReadWrite))
                 { 
                     // выполнить аутентификацию и изменить аутентификационные данные
-                    store.Authenticate(); AuthenticationDialog.ShowChange(mainForm, store, selector.User); 
-
+                    store.Authenticate(); AuthenticationDialog.ShowChange(
+						mainForm, store, selector.User, environment.AuthenticationAttempts
+					); 
 			        // получить подтверждение об удалении
 			        MessageBox.Show(mainForm, Resource.MessageChangeLogin, 
 				        mainForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Information
@@ -285,8 +291,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
             // указать способ выбора аутентификации 
-            AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts
+			); 
             // открыть хранилище объектов
             using (SecurityObject store = selector.OpenObject(
                 provider, storeInfo.Scope, storeInfo.FullName, FileAccess.ReadWrite))

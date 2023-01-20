@@ -11,7 +11,7 @@ namespace Aladdin.CAPI.GUI
     public partial class BioMatchDialog : Form
     {
         // имена отпечатков пальцев
-        private Dictionary<Bio.Finger, String> fingerNames; 
+        private Dictionary<Bio.Finger, String> fingerNames; private int attempts; 
 
         // отпечатки в элементе управления и элемент управления захватом отпечатка
         private Bio.Finger[] fingers; private Remoting.RemoteClientControl captureControl; 
@@ -20,10 +20,10 @@ namespace Aladdin.CAPI.GUI
 		private SecurityObject obj; private Bio.MatchTemplate matchTemplate; 
 
         // отобразить диалог
-		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user)
+		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user, int attempts)
 		{
 			// создать диалог ввода пароля
-			BioMatchDialog dialog = new BioMatchDialog(obj, user); 
+			BioMatchDialog dialog = new BioMatchDialog(obj, user, attempts); 
 
             // отобразить диалог аутентификации
             DialogResult result = Aladdin.GUI.ModalView.Show(parent, dialog); 
@@ -38,10 +38,10 @@ namespace Aladdin.CAPI.GUI
         private BioMatchDialog() { InitializeComponent(); }
 
         // конструктор
-		private BioMatchDialog(SecurityObject obj, string user) 
+		private BioMatchDialog(SecurityObject obj, string user, int attempts) 
 		{ 
 			// сохранить переданные параметры
-            InitializeComponent(); this.obj = obj; 
+            InitializeComponent(); this.obj = obj; this.attempts = attempts; 
 
             // создать список имен пальцев
             fingerNames = new Dictionary<Bio.Finger, String>();
@@ -224,7 +224,7 @@ namespace Aladdin.CAPI.GUI
 			textInfo.Text = message; buttonStop.Enabled = false; 
 
 			// изменить доступность элементов управления
-            buttonOK.Enabled = (matchTemplate != null); 
+            buttonOK.Enabled = (attempts > 0) && (matchTemplate != null); 
 
 			// изменить доступность элементов управления
 			buttonStart.Enabled = comboReader.Enabled = comboFinger.Enabled = true; 
@@ -245,8 +245,11 @@ namespace Aladdin.CAPI.GUI
                 Result = authentication.Authenticate(obj); DialogResult = DialogResult.OK;
 			}
 			// при ошибке вывести ее описание
-			catch (Exception ex) { Aladdin.GUI.ErrorDialog.Show(this, ex); }
+			catch (Exception ex) { Aladdin.GUI.ErrorDialog.Show(this, ex); 
 
+                // установить недоступной кноку OK
+				if (--attempts <= 0) buttonOK.Enabled = false; 
+            }
 			// восстановить состояние курсора
 			finally { Cursor.Current = cursor; }
 		}
@@ -259,13 +262,13 @@ namespace Aladdin.CAPI.GUI
         public class Authentication : DialogAuthentication
         {
             // описатель родительского окна и тип пользователя
-            private IWin32Window parent; private string user; 
+            private IWin32Window parent; private string user; private int attempts; 
 
             // конструктор
-            public Authentication(IWin32Window parent, string user)
+            public Authentication(IWin32Window parent, string user, int attempts)
             { 
                 // сохранить переданные параметры
-                this.parent = parent; this.user = user; 
+                this.parent = parent; this.user = user; this.attempts = attempts; 
             }
             // тип пользователя
             public override string User { get { return user; }}
@@ -280,7 +283,7 @@ namespace Aladdin.CAPI.GUI
             protected override Credentials[] LocalAuthenticate(SecurityObject obj)
             {
                 // выполнить локальную аутентификацию
-                return BioMatchDialog.Show(parent, obj, user); 
+                return BioMatchDialog.Show(parent, obj, user, attempts); 
             }
         }
     }

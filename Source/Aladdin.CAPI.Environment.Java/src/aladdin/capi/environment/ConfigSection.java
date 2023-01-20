@@ -6,29 +6,32 @@ import java.io.*;
 ///////////////////////////////////////////////////////////////////////////
 public class ConfigSection implements Serializable 
 {
-    private static final long serialVersionUID = -8927604509474079208L;
+    private static final long serialVersionUID = 6863973157320566421L;
     
-	// фабрики алгоритмов и генераторы случайных данных
-    private final ConfigFactory[] factories; private final ConfigRandFactory[] rands; 
-	// расширения криптографических культур
-    private final ConfigKey[] keys; private final ConfigPlugin[] plugins; 
+    private final ConfigAuthentications authentications; // параметры аутентификации 
+    private final ConfigFactory     [] factories;        // фабрики алгоритмов
+    private final ConfigRandFactory [] rands;            // генераторы случайных данных
+    private final ConfigKey         [] keys;             // идентификаторы ключей
+    private final ConfigPlugin      [] plugins;          // расширения криптографических культур
 
+	public final ConfigAuthentications authentications() { return authentications;  }
+	public final ConfigFactory      [] factories      () { return factories;        }
+	public final ConfigRandFactory  [] rands          () { return rands;            }
+	public final ConfigKey          [] keys           () { return keys;             }
+	public final ConfigPlugin       [] plugins        () { return plugins;          }
+    
     // конструктор
-    public ConfigSection(ConfigFactory[] factories, ConfigRandFactory[] rands, 
+    public ConfigSection(ConfigAuthentications authentications, 
+        ConfigFactory[] factories, ConfigRandFactory[] rands, 
         ConfigKey[] keys, ConfigPlugin[] plugins)
     {
+        // сохранить переданные параметры
+        this.authentications = authentications; 
+        
         // сохранить переданные параметры
         this.factories = factories; this.rands = rands; 
 
         // сохранить переданные параметры
         this.keys = keys; this.plugins = plugins; 
     }
-	// фабрики алгоритмов
-	public final ConfigFactory[] factories() { return factories; }
-	// генераторы случайных данных
-	public final ConfigRandFactory[] rands() { return rands; }
-	// используемые ключи
-	public final ConfigKey[] keys() { return keys; }
-	// расширения криптографических культур
-	public final ConfigPlugin[] plugins() { return plugins; }
 }

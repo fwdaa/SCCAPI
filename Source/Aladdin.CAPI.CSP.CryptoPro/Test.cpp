@@ -7,6 +7,8 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 {
 	public ref class Test abstract sealed
 	{
+		public: static initonly int ATTEMPTS = 5; 
+
 		public: static void TestContainer2001(IWin32Window^ window, Provider^ provider, SecurityInfo^ info)
         {
 			// указать способ шифрования ключа
@@ -17,7 +19,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
                 CAPI::GOST::Wrap::RFC4357::CProSBoxC | CAPI::GOST::Wrap::RFC4357::CProSBoxD ; 
                 
 			// создать контейнер
-			CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info);
+			CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info, ATTEMPTS);
 			try { 
 				// удалить ключи контейнера
 				container->DeleteKeys();
@@ -245,7 +247,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 				); 
 			}
 			// удалить контейнер
-			finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info); }
+			finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info, ATTEMPTS); }
 		}
 		public: static void TestContainer2012_256(IWin32Window^ window, Provider^ provider, SecurityInfo^ info)
         {
@@ -261,7 +263,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 				CAPI::GOST::Wrap::RFC4357::NoneSBoxZ | CAPI::GOST::Wrap::RFC4357::CProSBoxZ; 
                 
 			// создать контейнер
-			CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info);
+			CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info, ATTEMPTS);
 			try { 
 				// удалить ключи контейнера
 				container->DeleteKeys();
@@ -378,7 +380,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 				); 
 			}
 			// удалить контейнер
-			finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info); }
+			finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info, ATTEMPTS); }
 		}
 		public: static void TestContainer2012_512(IWin32Window^ window, Provider^ provider, SecurityInfo^ info)
         {
@@ -394,7 +396,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 				CAPI::GOST::Wrap::RFC4357::NoneSBoxZ | CAPI::GOST::Wrap::RFC4357::CProSBoxZ; 
                 
 			// создать контейнер
-			CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info);
+			CAPI::Container^ container = GUI::AuthenticationSelector::OpenOrCreate(window, provider, info, ATTEMPTS);
 			try { 
 				// удалить ключи контейнера
 				container->DeleteKeys();
@@ -437,7 +439,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 				); 
 			}
 			// удалить контейнер
-			finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info); }
+			finally { container->Release(); GUI::AuthenticationSelector::Delete(window, provider, info, ATTEMPTS); }
 		}
 		public: static void Entry()
 		{

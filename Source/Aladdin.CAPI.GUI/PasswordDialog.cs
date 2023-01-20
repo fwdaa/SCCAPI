@@ -10,13 +10,13 @@ namespace Aladdin.CAPI.GUI
 	public partial class PasswordDialog : Form
 	{
 		// защищенный объект и используемый таймер 
-		private SecurityObject obj; private System.Windows.Forms.Timer timer;
+		private SecurityObject obj; private Timer timer; private int attempts; 
 
         // отобразить диалог
-		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user)
+		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user, int attempts)
 		{
 			// создать диалог ввода пароля
-			PasswordDialog dialog = new PasswordDialog(obj, user); 
+			PasswordDialog dialog = new PasswordDialog(obj, user, attempts); 
 
             // отобразить диалог аутентификации
             DialogResult result = Aladdin.GUI.ModalView.Show(parent, dialog); 
@@ -31,13 +31,13 @@ namespace Aladdin.CAPI.GUI
 		private PasswordDialog() { InitializeComponent(); }
 
         // конструктор
-		private PasswordDialog(SecurityObject obj, string user) 
+		private PasswordDialog(SecurityObject obj, string user, int attempts) 
 		{ 
 			// сохранить переданные параметры
-			InitializeComponent(); this.obj = obj; Result = null;
+			InitializeComponent(); this.obj = obj; this.attempts = attempts; 
 
             // установить имя провайдера
-			textBoxProvider.Text = obj.Provider.Name; 
+			textBoxProvider.Text = obj.Provider.Name; Result = null;
 
 			// установить имя контейнера
 			textBoxContainer.Text = obj.FullName; buttonOK.Enabled = false;
@@ -69,7 +69,7 @@ namespace Aladdin.CAPI.GUI
 		private void OnPasswordChanged(object sender, EventArgs e)
 		{
 			// указать доступность элемента управления
-			buttonOK.Enabled = textBoxPassword.Text.Length > 0; 
+			buttonOK.Enabled = (attempts > 0) && (textBoxPassword.Text.Length > 0); 
 		}
 		private void OnButtonOK(object sender, EventArgs e)
 		{
@@ -91,6 +91,9 @@ namespace Aladdin.CAPI.GUI
 			{ 
 				// вывести ее описание
 				MessageBox.Show(this, ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error); 
+
+				// установить недоступной кноку OK
+				if (--attempts <= 0) buttonOK.Enabled = false; 
 			}
 			// восстановить форму курсора
 			finally { timer.Start(); Enabled = true; Cursor.Current = cursor; }
@@ -104,13 +107,13 @@ namespace Aladdin.CAPI.GUI
         public class Authentication : DialogAuthentication
         {
             // описатель родительского окна и тип пользователя
-            private IWin32Window parent; private string user;
+            private IWin32Window parent; private string user; private int attempts; 
 
             // конструктор
-            public Authentication(IWin32Window parent, string user)
+            public Authentication(IWin32Window parent, string user, int attempts)
             {  
                 // сохранить переданные параметры
-                this.parent = parent; this.user = user; 
+                this.parent = parent; this.user = user; this.attempts = attempts; 
             } 
             // тип пользователя
             public override string User { get { return user; }}
@@ -125,7 +128,7 @@ namespace Aladdin.CAPI.GUI
             protected override Credentials[] LocalAuthenticate(SecurityObject obj)
             {
                 // выполнить локальную аутентификацию
-                return PasswordDialog.Show(parent, obj, user); 
+                return PasswordDialog.Show(parent, obj, user, attempts); 
             }
         }
     }

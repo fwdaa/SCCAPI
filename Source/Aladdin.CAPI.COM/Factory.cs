@@ -53,7 +53,10 @@ namespace Aladdin.CAPI.COM
 		///////////////////////////////////////////////////////////////////////
 		public virtual IAuthentication PasswordAuthentication(IntPtr hwnd)
 		{
-			return new Authentication(Win32Window.FromHandle(hwnd));
+			// интерактивная парольная аутентификация
+			return new Authentication(Win32Window.FromHandle(hwnd), 
+				environment.AuthenticationAttempts
+			);
 		}
 		///////////////////////////////////////////////////////////////////////
 		// Сгенерировать случайные данные
@@ -328,7 +331,7 @@ namespace Aladdin.CAPI.COM
 
 			// указать способ аутентификации по умолчанию
 			AuthenticationSelector selector = new GUI.AuthenticationSelector(
-				Win32Window.FromHandle(hwnd), "USER"
+				Win32Window.FromHandle(hwnd), "USER", environment.AuthenticationAttempts
 			); 
             try { 
 				// создать список описания личных ключей

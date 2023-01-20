@@ -6,6 +6,8 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Tumar
 {
 	public ref class Test abstract sealed
 	{
+		public: static initonly int ATTEMPTS = 5; 
+
 		public: static void TestProviderRSA(CAPI::CSP::Provider^ provider)
         {
 			ANSI::Test::TestSHA1(provider, nullptr);
@@ -53,8 +55,9 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Tumar
 				ASN1::KZ::OID::gamma_key_rsa_2048, ASN1::KZ::OID::gamma_key_rsa_2048_xch
 			}; 
 			// создать контейнер
-			Using<CAPI::Container^> container(GUI::AuthenticationSelector::OpenOrCreate(window, provider, info));
-
+			Using<CAPI::Container^> container(GUI::AuthenticationSelector::OpenOrCreate(
+				window, provider, info, ATTEMPTS
+			));
 			// создать генератор случайных данных
 			Using<IRand^> rand(provider->CreateRand(container.Get(), window)); 
 
@@ -79,8 +82,9 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Tumar
 			// иногда возникает ошибка "Keyset does not exist"
 
 			// создать контейнер
-			Using<CAPI::Container^> container(GUI::AuthenticationSelector::OpenOrCreate(window, provider, info));
-
+			Using<CAPI::Container^> container(GUI::AuthenticationSelector::OpenOrCreate(
+				window, provider, info, ATTEMPTS
+			));
 			// создать генератор случайных данных
 			Using<IRand^> rand(provider->CreateRand(container.Get(), window)); 
 

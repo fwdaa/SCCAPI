@@ -52,8 +52,9 @@ namespace Aladdin.CAPI.GUI
 			OnSelectedIndexChanged(this, EventArgs.Empty); 
 
 			// указать способ аутентификации
-			AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+			AuthenticationSelector selector = AuthenticationSelector.Create(
+				parent, environment.AuthenticationAttempts
+			); 
 			// получить интерфейс клиента
 			using (ClientContainer container = new ClientContainer(provider, info, selector))
 			try { 
@@ -121,8 +122,9 @@ namespace Aladdin.CAPI.GUI
 			    ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
 				{ 
@@ -168,8 +170,9 @@ namespace Aladdin.CAPI.GUI
             }
             else { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 {
@@ -190,8 +193,9 @@ namespace Aladdin.CAPI.GUI
 		    ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 			try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить криптографическую культуру
 				Culture culture = environment.GetCulture(keyPair.KeyOID); 
 
@@ -246,8 +250,9 @@ namespace Aladdin.CAPI.GUI
 			string file = parent.SelectRequestFile(parent); if (file == null) return;
             try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить криптографическую культуру
 				Culture culture = environment.GetCulture(keyPair.KeyOID); 
 
@@ -294,8 +299,9 @@ namespace Aladdin.CAPI.GUI
 				Certificate[] certificateChain = new Certificate[] { certificate }; 
 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 { 
@@ -335,8 +341,9 @@ namespace Aladdin.CAPI.GUI
 		    ContainerKeyPair keyPair = (ContainerKeyPair)listView.SelectedItems[0].Tag; 
 			try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 { 

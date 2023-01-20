@@ -62,8 +62,9 @@ namespace Aladdin.CAPI.GUI.Nodes
             }
             else { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 {
@@ -85,8 +86,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 
 			// указать способ аутентификации
-			AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+			AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts
+			); 
 			// получить интерфейс клиента
 			using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
             {
@@ -104,8 +106,9 @@ namespace Aladdin.CAPI.GUI.Nodes
             List<ToolStripItem> items = new List<ToolStripItem>(); int check = 0; 
             
 			// указать способ аутентификации
-			AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+			AuthenticationSelector selector = AuthenticationSelector.Create(
+				mainForm, environment.AuthenticationAttempts
+			); 
 			// получить интерфейс клиента
 			using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
             {
@@ -158,8 +161,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 			try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 {
@@ -202,8 +206,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 			try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 {
@@ -239,8 +244,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 			ContainersForm mainForm = (ContainersForm)node.MainForm; 
 			try { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 {
@@ -304,8 +310,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 				string fileName = mainForm.SelectRequestFile(mainForm); if (fileName == null) return;
 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить криптографическую культуру
 				Culture culture = environment.GetCulture(keyPair.KeyOID); 
 
@@ -352,8 +359,9 @@ namespace Aladdin.CAPI.GUI.Nodes
 				Certificate[] certificateChain = new Certificate[] { certificate }; 
 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(mainForm); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					mainForm, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))
                 {

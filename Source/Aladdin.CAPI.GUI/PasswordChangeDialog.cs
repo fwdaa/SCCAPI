@@ -17,13 +17,14 @@ namespace Aladdin.CAPI.GUI
 
         // отобразить диалог для создания
 		public static SecurityObject ShowCreate(IWin32Window parent, 
-            IProvider provider, SecurityInfo info, IRand rand, string user, params object[] parameters)
+            IProvider provider, SecurityInfo info, IRand rand, string user, 
+			int attempts, params object[] parameters)
 		{
             // функция обработки
             Callback callback = delegate (IWin32Window window, string userName, string password)
             {
                 // указать способ выбора аутентификации 
-                AuthenticationSelector selector = new AuthenticationSelector(window, userName); 
+                AuthenticationSelector selector = new AuthenticationSelector(window, userName, attempts); 
 
 				// указать генератор случайных данных
 				using (IRand rebindRand = rand.CreateRand(window))

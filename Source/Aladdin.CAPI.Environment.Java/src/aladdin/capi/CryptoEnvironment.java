@@ -23,7 +23,7 @@ public class CryptoEnvironment extends ExecutionContext
     private List<IRandFactory> randFactories; private boolean hardwareRand; 
         
     // расширения криптографических культур
-    private Map<String, GuiPlugin> plugins; 
+    private Map<String, GuiPlugin> plugins; private int attempts; 
     
     // отображения по идентификаторам ключей
     private Map<String, String > keyNames;       // имена ключей
@@ -43,7 +43,7 @@ public class CryptoEnvironment extends ExecutionContext
         this.section = section; this.pbeParameters = pbeParameters; init(); 
     }
     // конструктор
-    private void init() { hardwareRand = false; 
+    private void init() { hardwareRand = false; attempts = 5; 
         
         // указать загрузчик классов
         ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
@@ -54,6 +54,9 @@ public class CryptoEnvironment extends ExecutionContext
         keyPlugins  = new HashMap<String, String   >();
 	    keyCultures = new HashMap<String, Culture  >();
 
+        // прочитать число попыток аутентификации
+        if (section.authentications() != null) attempts = section.authentications().attempts(); 
+        
 		// создать список фабрик классов
 		List<Factory> factories = new ArrayList<Factory>(); 
             
@@ -205,6 +208,9 @@ public class CryptoEnvironment extends ExecutionContext
         // получить провайдер PKCS12
         return (aladdin.capi.pkcs12.CryptoProvider)providers.get(0); 
     }
+    // число попыток аутентификации
+    public final int authenticationAttempts() { return attempts; }
+    
     ///////////////////////////////////////////////////////////////////////
     // Параметры и отображаемое имя ключа
     ///////////////////////////////////////////////////////////////////////

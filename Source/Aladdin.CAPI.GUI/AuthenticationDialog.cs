@@ -20,7 +20,7 @@ namespace Aladdin.CAPI.GUI
         // отобразить диалог для создания
 		public static SecurityObject ShowCreate(IWin32Window parent, 
             CryptoProvider provider, SecurityInfo info, IRand rand, string user, 
-            Type[] authenticationTypes, params object[] pararameters)
+            Type[] authenticationTypes, int attempts, params object[] pararameters)
 		{
             // функция перечисления аутентификаций 
             AuthenticationCallback authenticationCallback = delegate(string userName)
@@ -32,7 +32,7 @@ namespace Aladdin.CAPI.GUI
             Callback callback = delegate (IWin32Window window, string userName, Type[] types)
             {
                 // указать способ выбора аутентификации 
-                AuthenticationSelector selector = new AuthenticationSelector(window, userName); 
+                AuthenticationSelector selector = new AuthenticationSelector(window, userName, attempts); 
 
                 // указать генератор случайных данных
                 using (IRand rebindRand = rand.CreateRand(window))
@@ -47,7 +47,7 @@ namespace Aladdin.CAPI.GUI
             ); 
 		}
         // отобразить диалог 
-		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user)
+		public static Credentials[] Show(IWin32Window parent, SecurityObject obj, string user, int attempts)
         {
             // функция перечисления аутентификаций 
             AuthenticationCallback authenticationCallback = delegate(string userName)
@@ -71,7 +71,7 @@ namespace Aladdin.CAPI.GUI
             Callback callback = delegate (IWin32Window window, string userName, Type[] authenticationTypes)
             {
                 // указать способ выбора аутентификации 
-                AuthenticationSelector selector = new AuthenticationSelector(window, userName); 
+                AuthenticationSelector selector = new AuthenticationSelector(window, userName, attempts); 
 
                 // выполнить аутентификацию через кэш
                 object result = ExecutionContext.CacheAuthenticate(obj, userName, authenticationTypes); 
@@ -85,7 +85,7 @@ namespace Aladdin.CAPI.GUI
             ); 
         }
         // отобразить диалог для изменения
-		public static void ShowChange(IWin32Window parent, SecurityObject obj, string user)
+		public static void ShowChange(IWin32Window parent, SecurityObject obj, string user, int attempts)
 		{
             // функция перечисления аутентификаций 
             AuthenticationCallback authenticationCallback = delegate(string userName)
@@ -109,7 +109,7 @@ namespace Aladdin.CAPI.GUI
             Callback callback = delegate (IWin32Window window, string userName, Type[] authenticationTypes)
             {
                 // указать способ выбора аутентификации 
-                AuthenticationSelector selector = new AuthenticationSelector(window, userName); 
+                AuthenticationSelector selector = new AuthenticationSelector(window, userName, attempts); 
 
                 // показать диалог смены аутентификации
                 selector.ShowChange(obj, new List<Type>(authenticationTypes)); return null; 
@@ -235,13 +235,13 @@ namespace Aladdin.CAPI.GUI
         public class Authentication : DialogAuthentication
         {
             // описатель родительского окна и тип пользователя
-            private IWin32Window parent; private string user;
+            private IWin32Window parent; private string user; private int attempts; 
 
             // конструктор
-            public Authentication(IWin32Window parent, string user)
+            public Authentication(IWin32Window parent, string user, int attempts)
             {  
                 // сохранить переданные параметры
-                this.parent = parent; this.user = user; 
+                this.parent = parent; this.user = user; this.attempts = attempts; 
             } 
             // тип пользователя
             public override string User { get { return user; }}
@@ -253,7 +253,7 @@ namespace Aladdin.CAPI.GUI
             protected override Credentials[] LocalAuthenticate(SecurityObject obj)
             {
                 // выполнить локальную аутентификацию
-                return AuthenticationDialog.Show(parent, obj, user); 
+                return AuthenticationDialog.Show(parent, obj, user, attempts); 
             }
         }
 	}

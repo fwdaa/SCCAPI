@@ -120,8 +120,9 @@ namespace Aladdin.CAPI.GUI
                     Form form, CryptoProvider keyProvider, ContainerKeyPair keyPair) 
 			    {
 					// указать способ выбора аутентификации 
-					AuthenticationSelector selector = AuthenticationSelector.Create(form);
-
+					AuthenticationSelector selector = AuthenticationSelector.Create(
+						form, environment.AuthenticationAttempts
+					);
 					// создать генератор случайных данных
 					using (IRand rand = selector.CreateRand(keyProvider, null))
 					{ 

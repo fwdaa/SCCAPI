@@ -12,6 +12,8 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 {
 	public ref class Test abstract sealed
 	{
+		public: static initonly int ATTEMPTS = 5; 
+
 		public: static void Entry()
 		{
 			// получить консольное окно
@@ -50,7 +52,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 				ANSI::Test::TestWrapSMIME_TDES(provider, nullptr);
 
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKLM, window)); 
@@ -66,10 +68,10 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKCU, window)); 
@@ -85,7 +87,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerEnhancedRSA(gcnew RSA::EnhancedProvider()); 
@@ -117,7 +119,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 				ANSI::Test::TestWrapTDES		(provider, nullptr); 
 
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKLM, window)); 
@@ -137,10 +139,10 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKCU, window)); 
@@ -160,7 +162,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerStrongRSA(gcnew RSA::StrongProvider()); 
@@ -192,7 +194,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 				ANSI::Test::TestWrapTDES		(provider, nullptr); 
 
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKLM, window)); 
@@ -212,10 +214,10 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKCU, window)); 
@@ -235,7 +237,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerEnhancedAES(gcnew RSA::AESEnhancedProvider()); 
@@ -280,7 +282,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					ANSI::Test::TestHMAC_SHA2_512(provider, nullptr); 
 				}
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKLM, window)); 
@@ -300,10 +302,10 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKCU, window)); 
@@ -323,7 +325,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerBaseDSS(gcnew DSS::BaseProvider()); 
@@ -349,7 +351,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 				ANSI::Test::TestWrapSMIME_TDES	(provider, nullptr);
 
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKLM, window)); 
@@ -365,10 +367,10 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					ANSI::Test::TestDH (provider, containerHKLM, rand.Get(), false, KeyFlags::Exportable); 
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKCU, window)); 
@@ -384,7 +386,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					ANSI::Test::TestDH (provider, containerHKCU, rand.Get(), false, KeyFlags::Exportable); 
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerEnhancedDSS(gcnew DSS::EnhancedProvider()); 
@@ -411,7 +413,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 				ANSI::Test::TestWrapTDES		(provider, nullptr); 
 
 				// создать контейнер
-				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM);
+				CAPI::Container^ containerHKLM = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKLM, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKLM, window)); 
@@ -427,10 +429,10 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					ANSI::Test::TestDH (provider, containerHKLM, rand.Get(), false, KeyFlags::Exportable); 
 				}
 				// удалить контейнер
-				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM); }
+				finally { containerHKLM->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKLM, ATTEMPTS); }
 
 				// создать контейнер
-				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU);
+				CAPI::Container^ containerHKCU = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoHKCU, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerHKCU, window)); 
@@ -446,7 +448,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					ANSI::Test::TestDH (provider, containerHKCU, rand.Get(), false, KeyFlags::Exportable); 
 				}
 				// удалить контейнер
-				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU); }
+				finally { containerHKCU->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoHKCU, ATTEMPTS); }
 			}
 			// указать провайдер
 			Using<Provider^> providerSCardRSA(gcnew RSA::SCardProvider()); 
@@ -494,7 +496,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					ANSI::Test::TestHMAC_SHA2_512(provider, nullptr); 
 				}
 				// создать контейнер
-				CAPI::Container^ containerCard = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoCard);
+				CAPI::Container^ containerCard = GUI::AuthenticationSelector::OpenOrCreate(window, provider, infoCard, ATTEMPTS);
 				try {
 					// создать генератор случайных данных
 					Using<IRand^> rand(provider->CreateRand(containerCard, window)); 
@@ -510,7 +512,7 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Microsoft
 					}
 				}
 				// удалить контейнер
-				finally { containerCard->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoCard); }
+				finally { containerCard->Release(); GUI::AuthenticationSelector::Delete(window, provider, infoCard, ATTEMPTS); }
 			}
 		}
     };

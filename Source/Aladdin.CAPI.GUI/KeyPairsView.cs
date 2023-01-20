@@ -46,8 +46,9 @@ namespace Aladdin.CAPI.GUI
 			OnSelectedIndexChanged(this, EventArgs.Empty); 
 
 			// указать способ аутентификации
-			AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+			AuthenticationSelector selector = AuthenticationSelector.Create(
+				parent, environment.AuthenticationAttempts
+			); 
             // для всех контейнеров
             foreach (SecurityInfo info in provider.EnumerateAllObjects(scope))
             { 
@@ -142,8 +143,9 @@ namespace Aladdin.CAPI.GUI
             }
             else { 
 				// указать способ аутентификации
-				AuthenticationSelector selector = AuthenticationSelector.Create(parent); 
-
+				AuthenticationSelector selector = AuthenticationSelector.Create(
+					parent, environment.AuthenticationAttempts
+				); 
 				// получить интерфейс клиента
 				using (ClientContainer client = new ClientContainer(provider, keyPair.Info, selector))
 				{ 
