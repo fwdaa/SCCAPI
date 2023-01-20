@@ -81,6 +81,6 @@ public class Integer extends AsnObject
     // целое число со знаком
     public final BigInteger value() { return value; } private BigInteger value;
     
-    // целое число со знаком
-	public final int intValue() { return value.intValueExact(); } 
+    // целое число со знаком /* intValueExact - 1.8 */
+	// public final int intValue() { return value.intValueExact(); } 
 }
