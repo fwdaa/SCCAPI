@@ -1,5 +1,5 @@
 ﻿<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask TaskName="Wpp" AssemblyFile="C:\Program Files (x86)\Windows Kits\10\build\bin\Microsoft.DriverKit.Build.Tasks.$(VisualStudioVersion).dll" />
+  <UsingTask TaskName="Wpp" AssemblyFile="C:\Program Files (x86)\Windows Kits\10\build\$(TargetVersion)\bin\Microsoft.DriverKit.Build.Tasks.$(VisualStudioVersion).dll" />
 
   <!-- ****************************************************************************************************** -->
   <!--                            Каталоги по умолчанию                                                       -->

@@ -6,7 +6,7 @@ import java.io.*;
 
 public final class AuthorityInfoAccessSyntax extends Sequence<AccessDescription>
 {
-    // private static final long serialVersionUID = -8178727199716067465L;
+    private static final long serialVersionUID = -7197900988670361767L;
     
 	// конструктор при раскодировании
 	public AuthorityInfoAccessSyntax(IEncodable encodable) throws IOException 

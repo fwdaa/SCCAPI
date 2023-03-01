@@ -9,7 +9,9 @@ import java.io.*;
 
 public class RevokedInfo extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -2848876395479102546L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(GeneralizedTime.class).factory(), Cast.N                 ), 

@@ -10,7 +10,7 @@ import java.io.*;
 
 public final class AccessDescription extends Sequence<IEncodable>
 {
-    // private static final long serialVersionUID = -2430558462928212991L;
+    private static final long serialVersionUID = 3453465195091484041L;
     
 	// информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
@@ -27,5 +27,5 @@ public final class AccessDescription extends Sequence<IEncodable>
 		super(info, accessMethod, accessLocation); 
 	}
 	public final ObjectIdentifier accessMethod  () { return (ObjectIdentifier   )get(0); } 
-	public final IEncodable       accessLocation() { return (IEncodable         )get(1); }
+	public final IEncodable       accessLocation() { return                      get(1); }
 }

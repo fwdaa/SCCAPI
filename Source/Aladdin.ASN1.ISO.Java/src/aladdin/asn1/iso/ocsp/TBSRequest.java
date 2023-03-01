@@ -12,7 +12,9 @@ import java.io.*;
 
 public class TBSRequest extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -1265760254928827535L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator  (aladdin.asn1.Integer.class).factory(), Cast.E , Tag.context(0), new aladdin.asn1.Integer(0)), 
@@ -30,7 +32,8 @@ public class TBSRequest extends Sequence<IEncodable>
 		super(info, version, requestorName, requestList, requestExtensions); 
 	}
 	public final aladdin.asn1.Integer version           () { return (aladdin.asn1.Integer)get(0); } 
-	public final IEncodable           requestorName     () { return (IEncodable          )get(1); }
+	public final IEncodable           requestorName     () { return                       get(1); }
+    @SuppressWarnings({"unchecked"}) 
 	public final Sequence<Request>    requestList       () { return (Sequence<Request>   )get(2); }
 	public final Extensions           requestExtensions () { return (Extensions          )get(2); }
 }

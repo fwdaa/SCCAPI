@@ -12,7 +12,9 @@ import java.io.*;
 
 public class CertID extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -2099888167433843915L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(AlgorithmIdentifier .class).factory(), Cast.N), 

@@ -10,7 +10,9 @@ import java.io.*;
 
 public class Request extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -3057462981192269098L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(CertID    .class).factory(), Cast.N                 ), 

@@ -9,7 +9,9 @@ import java.io.*;
 
 public class OCSPResponse extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -4592579215281690593L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(Enumerated   .class).factory(), Cast.N                 ), 

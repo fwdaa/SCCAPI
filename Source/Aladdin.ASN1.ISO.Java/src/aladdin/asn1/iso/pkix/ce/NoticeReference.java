@@ -26,5 +26,6 @@ public final class NoticeReference extends Sequence<IEncodable>
 		super(info, organization, noticeNumbers); 
 	}
 	public final OctetString                    organization () { return (OctetString                   )get(0); } 
+    @SuppressWarnings({"unchecked"}) 
 	public final Sequence<aladdin.asn1.Integer> noticeNumbers() { return (Sequence<aladdin.asn1.Integer>)get(1); }
 }

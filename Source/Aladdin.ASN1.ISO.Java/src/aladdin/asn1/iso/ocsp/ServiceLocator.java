@@ -11,7 +11,9 @@ import java.io.*;
 
 public class ServiceLocator extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -8912026063745739133L;	
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ChoiceCreator(Name	                  .class).factory(), Cast.N), 
@@ -25,6 +27,6 @@ public class ServiceLocator extends Sequence<IEncodable>
 	{ 
 		super(info, issuer, locator); 
 	}
-	public final IEncodable                 issuer () { return (IEncodable               )get(0); } 
+	public final IEncodable                 issuer () { return                            get(0); } 
 	public final AuthorityInfoAccessSyntax  locator() { return (AuthorityInfoAccessSyntax)get(1); }
 }

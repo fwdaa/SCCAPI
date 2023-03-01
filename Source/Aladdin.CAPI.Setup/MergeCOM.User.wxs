@@ -12,17 +12,24 @@
 
   <?define VC_DIR                     = "..\Microsoft"                                     ?>
   <?if $(var.Configuration)           = "Debug"                                            ?>
-  <?define VC_SUBDIR140               = "Microsoft.VC140.DebugCRT"                         ?>
-  <?define VC_VCRT140                 = "vcruntime140d.dll"                                ?>
-  <?define VC_VCCOR140                = "vccorlib140d.dll"                                 ?>
-  <?define VC_MSVCP140                = "msvcp140d.dll"                                    ?>
-  <?define VC_CONCRT140               = "concrt140d.dll"                                   ?>
+  <?define VC_SUBDIR143               = "Microsoft.VC143.DebugCRT"                         ?>
+  <?define VC_VCRT143                 = "vcruntime140d.dll"                                ?>
+  <?define VC_VCCOR143                = "vccorlib140d.dll"                                 ?>
+  <?define VC_CONCRT143               = "concrt140d.dll"                                   ?>
+  <?define VC_MSVCP143                = "msvcp140d.dll"                                    ?>
+  <?define VC_MSVCP143_1              = "msvcp140_1d.dll"                                  ?>
+  <?define VC_MSVCP143_2              = "msvcp140_2d.dll"                                  ?>
+  <?define VC_MSVCP143_AW             = "msvcp140d_atomic_wait.dll"                        ?>
+  <?define VC_MSVCP143_CVT            = "msvcp140d_codecvt_ids.dll"                        ?>
   <?else                                                                                   ?>
-  <?define VC_SUBDIR140               = "Microsoft.VC140.CRT"                              ?>
-  <?define VC_VCRT140                 = "vcruntime140.dll"                                 ?>
-  <?define VC_VCCOR140                = "vccorlib140.dll"                                  ?>
-  <?define VC_MSVCP140                = "msvcp140.dll"                                     ?>
-  <?define VC_CONCRT140               = "concrt140.dll"                                    ?>
+  <?define VC_VCRT143                 = "vcruntime140.dll"                                 ?>
+  <?define VC_VCCOR143                = "vccorlib140.dll"                                  ?>
+  <?define VC_CONCRT143               = "concrt140.dll"                                    ?>
+  <?define VC_MSVCP143                = "msvcp140.dll"                                     ?>
+  <?define VC_MSVCP143_1              = "msvcp140_1.dll"                                   ?>
+  <?define VC_MSVCP143_2              = "msvcp140_2.dll"                                   ?>
+  <?define VC_MSVCP143_AW             = "msvcp140_atomic_wait.dll"                         ?>
+  <?define VC_MSVCP143_CVT            = "msvcp140_codecvt_ids.dll"                         ?>
   <?endif                                                                                  ?>
 
   <?if $(var.InstallerPlatform)           = "x86"                                          ?>
@@ -63,11 +70,15 @@
                   <File Name="capi.dll"            Source="$(var.BINOPENSSL)\capi.dll"        KeyPath="no"  DiskId="1" />
                 </Component>
                 <Component Id="VC" Guid="$(var.GUID_VC)" SharedDllRefCount="yes">
-                  <File Name="$(var.VC_VCRT140)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_VCRT140) "  KeyPath="yes" DiskId="1" />
-                  <File Name="$(var.VC_VCCOR140)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_VCCOR140)"  KeyPath="no"  DiskId="1" />
-                  <File Name="$(var.VC_MSVCP140)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_MSVCP140)"  KeyPath="no"  DiskId="1" />
-                  <File Name="$(var.VC_CONCRT140)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR140)\$(var.VC_CONCRT140)" KeyPath="no"  DiskId="1" />
-                </Component>
+                  <File Name="$(var.VC_VCRT143)"      Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_VCRT143) "     KeyPath="yes" DiskId="1" />
+                  <File Name="$(var.VC_VCCOR143)"     Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_VCCOR143)"     KeyPath="no"  DiskId="1" />
+                  <File Name="$(var.VC_CONCRT143)"    Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_CONCRT143)"    KeyPath="no"  DiskId="1" />
+                  <File Name="$(var.VC_MSVCP143)"     Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143)"     KeyPath="no"  DiskId="1" />
+				  <File Name="$(var.VC_MSVCP143_1)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_1)"   KeyPath="no"  DiskId="1" />
+				  <File Name="$(var.VC_MSVCP143_2)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_2)"   KeyPath="no"  DiskId="1" />
+				  <File Name="$(var.VC_MSVCP143_AW)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_AW)"  KeyPath="no"  DiskId="1" />
+				  <File Name="$(var.VC_MSVCP143_CVT)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_CVT)" KeyPath="no"  DiskId="1" />
+				</Component>
               </Directory>
             </Directory>
           </Directory>

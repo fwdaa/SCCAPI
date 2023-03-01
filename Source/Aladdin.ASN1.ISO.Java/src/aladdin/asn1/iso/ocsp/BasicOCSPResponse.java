@@ -13,7 +13,9 @@ import java.io.*;
 
 public class BasicOCSPResponse extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -8338637218368601837L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator  (ResponseData       .class).factory(), Cast.N                 ), 
@@ -33,5 +35,6 @@ public class BasicOCSPResponse extends Sequence<IEncodable>
 	public final ResponseData           tbsResponseData   () { return (ResponseData         )get(0); } 
 	public final AlgorithmIdentifier    signatureAlgorithm() { return (AlgorithmIdentifier  )get(1); }
 	public final BitString              signature         () { return (BitString            )get(2); }
+    @SuppressWarnings({"unchecked"}) 
 	public final Sequence<Certificate>  certs             () { return (Sequence<Certificate>)get(3); }
 }

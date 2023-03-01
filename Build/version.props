@@ -1,16 +1,17 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <VERSION                Condition="'$(VERSION)'                == ''">8.0.0.60</VERSION>
-    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == ''">v4.0</TargetFrameworkVersion> 
-    <PlatformToolset        Condition="'$(PlatformToolset)'        == ''">v142</PlatformToolset>				
-    <TargetVersion          Condition="'$(TargetVersion)'          == ''">Windows10</TargetVersion> 
-    <PrecompiledHeaderUse   Condition="'$(PrecompiledHeaderUse)'   == ''">Use</PrecompiledHeaderUse>
+    <VERSION                      Condition="'$(VERSION)'                	== ''">8.1.0.60</VERSION>
+    <TargetFrameworkVersion       Condition="'$(TargetFrameworkVersion)' 	== ''">v4.0</TargetFrameworkVersion> 
+    <PlatformToolset              Condition="'$(PlatformToolset)'        	== ''">v143</PlatformToolset>				
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)'  == ''">10.0</WindowsTargetPlatformVersion>
+    <TargetVersion                Condition="'$(TargetVersion)'          	== ''">10.0.22621.0</TargetVersion> 
+    <PrecompiledHeaderUse         Condition="'$(PrecompiledHeaderUse)'   	== ''">Use</PrecompiledHeaderUse>
   </PropertyGroup>
   <PropertyGroup>
     <VERSION_MAJ>$(VERSION.Split('.')[0])</VERSION_MAJ>
     <VERSION_MIN>$(VERSION.Split('.')[1])</VERSION_MIN>
     <VERSION_SP >$(VERSION.Split('.')[2])</VERSION_SP>
-	<VERSION_BLD>$(VERSION.Split('.')[3])</VERSION_BLD>
+    <VERSION_BLD>$(VERSION.Split('.')[3])</VERSION_BLD>
   </PropertyGroup>
   <PropertyGroup>
 	<BUILD_NUMBER>$(VERSION_BLD)</BUILD_NUMBER>

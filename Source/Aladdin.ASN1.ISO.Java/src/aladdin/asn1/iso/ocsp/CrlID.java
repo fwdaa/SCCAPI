@@ -10,7 +10,9 @@ import java.io.*;
 
 public class CrlID extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = -822429042839216730L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(IA5String              .class).factory(), Cast.EO, Tag.context(0)), 

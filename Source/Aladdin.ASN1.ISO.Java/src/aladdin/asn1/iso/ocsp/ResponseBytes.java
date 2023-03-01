@@ -9,7 +9,9 @@ import java.io.*;
 
 public class ResponseBytes extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = 6131276907103240823L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(ObjectIdentifier.class).factory(), Cast.N), 

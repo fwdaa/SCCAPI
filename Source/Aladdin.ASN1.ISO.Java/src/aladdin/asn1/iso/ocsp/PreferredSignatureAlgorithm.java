@@ -10,7 +10,9 @@ import java.io.*;
 
 public class PreferredSignatureAlgorithm extends Sequence<IEncodable>
 {
-	// информация о структуре
+    private static final long serialVersionUID = 4422999841875621444L;
+
+    // информация о структуре
 	private static final ObjectInfo[] info = new ObjectInfo[] { 
 
 		new ObjectInfo(new ObjectCreator(AlgorithmIdentifier.class).factory(), Cast.N), 

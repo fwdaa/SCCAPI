@@ -6,7 +6,9 @@ import java.io.*;
 
 public final class AcceptableResponses extends Sequence<ObjectIdentifier>
 {
-	// конструктор при раскодировании
+    private static final long serialVersionUID = 6251036942200275071L;
+
+    // конструктор при раскодировании
 	public AcceptableResponses(IEncodable encodable) throws IOException 
 	{
 		super(encodable);

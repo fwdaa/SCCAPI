@@ -6,7 +6,7 @@ import java.io.*;
 
 public final class SubjectInfoAccessSyntax extends Sequence<AccessDescription>
 {
-    // private static final long serialVersionUID = -8178727199716067465L;
+    private static final long serialVersionUID = 5926049918915743372L;
     
 	// конструктор при раскодировании
 	public SubjectInfoAccessSyntax(IEncodable encodable) throws IOException 

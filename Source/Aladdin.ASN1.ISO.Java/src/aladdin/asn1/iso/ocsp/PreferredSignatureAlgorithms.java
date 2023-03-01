@@ -6,7 +6,9 @@ import java.io.*;
 
 public final class PreferredSignatureAlgorithms extends Sequence<PreferredSignatureAlgorithm>
 {
-	// конструктор при раскодировании
+    private static final long serialVersionUID = 7045176381862602231L;
+
+    // конструктор при раскодировании
 	public PreferredSignatureAlgorithms(IEncodable encodable) throws IOException 
 	{
 		super(encodable);
