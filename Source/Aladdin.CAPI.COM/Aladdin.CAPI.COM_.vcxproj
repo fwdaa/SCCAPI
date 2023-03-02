@@ -115,8 +115,8 @@
     </PostBuildEvent>
     <Midl>
       <AdditionalIncludeDirectories>$(SystemRoot)\Microsoft.NET\Framework\v2.0.50727;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TypeLibraryName>..\..\Include\$(TargetName).tlb</TypeLibraryName>
-      <OutputDirectory>.\</OutputDirectory>
+      <TypeLibraryName>$(TargetName).tlb</TypeLibraryName>
+      <OutputDirectory>.</OutputDirectory>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </Midl>
@@ -145,8 +145,8 @@
     </PostBuildEvent>
     <Midl>
       <AdditionalIncludeDirectories>$(SystemRoot)\Microsoft.NET\Framework\v2.0.50727;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TypeLibraryName>..\..\Include\$(TargetName).tlb</TypeLibraryName>
-      <OutputDirectory>.\</OutputDirectory>
+      <TypeLibraryName>$(TargetName).tlb</TypeLibraryName>
+      <OutputDirectory>.</OutputDirectory>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </Midl>
@@ -175,8 +175,8 @@
     </PostBuildEvent>
     <Midl>
       <AdditionalIncludeDirectories>$(SystemRoot)\Microsoft.NET\Framework\v2.0.50727;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TypeLibraryName>..\..\Include\$(TargetName).tlb</TypeLibraryName>
-      <OutputDirectory>.\</OutputDirectory>
+      <TypeLibraryName>$(TargetName).tlb</TypeLibraryName>
+      <OutputDirectory>.</OutputDirectory>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </Midl>
@@ -205,8 +205,8 @@
     </PostBuildEvent>
     <Midl>
       <AdditionalIncludeDirectories>$(SystemRoot)\Microsoft.NET\Framework\v2.0.50727;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TypeLibraryName>..\..\Include\$(TargetName).tlb</TypeLibraryName>
-      <OutputDirectory>.\</OutputDirectory>
+      <TypeLibraryName>$(TargetName).tlb</TypeLibraryName>
+      <OutputDirectory>.</OutputDirectory>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </Midl>
@@ -247,6 +247,7 @@
   </Target>
   <Target Name="AfterBuild" AfterTargets="Build">
     <Copy SourceFiles="Aladdin.CAPI.COM.h" DestinationFolder="..\..\Include" />
+    <Copy SourceFiles="$(TargetName).tlb"  DestinationFolder="..\..\Include" />
   </Target>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

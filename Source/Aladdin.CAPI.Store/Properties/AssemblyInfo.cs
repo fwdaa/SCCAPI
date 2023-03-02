@@ -27,5 +27,5 @@ using System.Security;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("8.0.0.6040")]
-[assembly: AssemblyFileVersion("8.0.0.6040")]
+[assembly: AssemblyVersion("8.1.0.6040")]
+[assembly: AssemblyFileVersion("8.1.0.6040")]

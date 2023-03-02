@@ -102,6 +102,9 @@ public class TargetFrameworkDirs : Task
     private string GetRegistryToolsDir(
         string[] registryKeys, string relativePath)
     {
+        // указать тип аппаратной платформы
+        string platform = (IntPtr.Size == 4) ? "x86" : "x64"; 
+
         // для всех разделов реестра
         foreach (string registryKey in registryKeys)
         {
@@ -118,11 +121,17 @@ public class TargetFrameworkDirs : Task
           	    if (String.IsNullOrEmpty(directory)) continue; 
 
                 // указать полный путь 
-                directory = Path.Combine(directory, relativePath); 
+                directory = Path.Combine(directory, relativePath);
+
+                // указать путь с платформой
+                string platformDirectory = Path.Combine(directory, platform);
 
                 // проверить наличие каталога
-                if (Directory.Exists(directory)) return directory; 
-		    }
+                if (Directory.Exists(platformDirectory)) return platformDirectory;
+
+                // проверить наличие каталога
+                if (Directory.Exists(directory)) return directory;
+            }
         }
         return null; 
     }
@@ -185,7 +194,7 @@ public class TargetFrameworkDirs : Task
         directory = GetRegistryToolsDir(registryKeys, relativePath); 
 
         // проверить наличие значения
-        return (directory != null) ? directory : GetToolsDir35(); 
+        return (directory != null) ? directory : GetToolsDir35();
     }
     private string GetToolsDir45()
     {

@@ -1,48 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
-  <?if $(var.InstallerPlatform) = "x86"                                                                         ?>
-  <?define BIN                = "..\..\Binary\Windows\Win32\$(var.Configuration)"                               ?>
-  <?define BINOPENSSL         = "..\..\Externals\OpenSSL\Binary\openssl\Windows\Win32\$(var.Configuration)"     ?>
-  <?endif                                                                                                       ?>
-  <?if $(var.InstallerPlatform) = "x64"                                                                         ?>
-  <?define BIN                = "..\..\Binary\Windows\x64\$(var.Configuration)"                                 ?>
-  <?define BINOPENSSL         = "..\..\Externals\OpenSSL\Binary\openssl\Windows\x64\$(var.Configuration)"       ?>
-  <?endif                                                                                                       ?>
-
-  <?define VC_DIR                     = "..\Microsoft"                                     ?>
-  <?if $(var.Configuration)           = "Debug"                                            ?>
-  <?define VC_SUBDIR143               = "Microsoft.VC143.DebugCRT"                         ?>
-  <?define VC_VCRT143                 = "vcruntime140d.dll"                                ?>
-  <?define VC_VCCOR143                = "vccorlib140d.dll"                                 ?>
-  <?define VC_CONCRT143               = "concrt140d.dll"                                   ?>
-  <?define VC_MSVCP143                = "msvcp140d.dll"                                    ?>
-  <?define VC_MSVCP143_1              = "msvcp140_1d.dll"                                  ?>
-  <?define VC_MSVCP143_2              = "msvcp140_2d.dll"                                  ?>
-  <?define VC_MSVCP143_AW             = "msvcp140d_atomic_wait.dll"                        ?>
-  <?define VC_MSVCP143_CVT            = "msvcp140d_codecvt_ids.dll"                        ?>
-  <?else                                                                                   ?>
-  <?define VC_VCRT143                 = "vcruntime140.dll"                                 ?>
-  <?define VC_VCCOR143                = "vccorlib140.dll"                                  ?>
-  <?define VC_CONCRT143               = "concrt140.dll"                                    ?>
-  <?define VC_MSVCP143                = "msvcp140.dll"                                     ?>
-  <?define VC_MSVCP143_1              = "msvcp140_1.dll"                                   ?>
-  <?define VC_MSVCP143_2              = "msvcp140_2.dll"                                   ?>
-  <?define VC_MSVCP143_AW             = "msvcp140_atomic_wait.dll"                         ?>
-  <?define VC_MSVCP143_CVT            = "msvcp140_codecvt_ids.dll"                         ?>
-  <?endif                                                                                  ?>
+  <?if $(var.InstallerPlatform) = "x86"                                                              ?>
+  <?define BIN         = "..\..\Binary\Windows\Win32\$(var.Configuration)"                           ?>
+  <?define BINOPENSSL  = "..\..\Externals\OpenSSL\Binary\openssl\Windows\Win32\$(var.Configuration)" ?>
+  <?endif                                                                                            ?>
+  <?if $(var.InstallerPlatform) = "x64"                                                              ?>
+  <?define BIN         = "..\..\Binary\Windows\x64\$(var.Configuration)"                             ?>
+  <?define BINOPENSSL  = "..\..\Externals\OpenSSL\Binary\openssl\Windows\x64\$(var.Configuration)"   ?>
+  <?endif                                                                                            ?>
 
   <?if $(var.InstallerPlatform)           = "x86"                                          ?>
   <?define PACKAGEID                      = "E61D0B6C-6ABF-437A-9C3C-DB956B58DAD0"         ?>
   <?define GUID_Aladdin.CAPI.COM.dll      = "CEEC66D5-087C-40C7-AC60-E3FCCA3C90F5"         ?>
   <?define GUID_Aladdin.CAPI.SO.dll       = "064F9833-BCC5-4B14-BC34-38ADD064F70A"         ?>
-  <?define GUID_VC                        = "D3E2ED6F-AA73-4F9A-83B5-0A91FA9CF10C"         ?>
   <?endif                                                                                  ?>
   <?if $(var.InstallerPlatform)           = "x64"                                          ?>
   <?define PACKAGEID                      = "96A195C6-F994-41EF-BFD3-563651233AFB"         ?>
   <?define GUID_Aladdin.CAPI.COM.dll      = "5FD722C2-BD3D-474C-AF9F-32822868918D"         ?>
   <?define GUID_Aladdin.CAPI.SO.dll       = "2959F9CB-71D4-4E1C-9EDF-BA3EBEFEDCD9"         ?>
-  <?define GUID_VC                        = "DF185667-159A-48D7-BF4D-AA819919299A"         ?>
   <?endif                                                                                  ?>
 
   <Module Id="CAPI" Language="1033" Version="$(var.VERSION)">
@@ -69,16 +45,6 @@
                   <File Name="libcrypto-3.dll"     Source="$(var.BINOPENSSL)\libcrypto-3.dll" KeyPath="no"  DiskId="1" />
                   <File Name="capi.dll"            Source="$(var.BINOPENSSL)\capi.dll"        KeyPath="no"  DiskId="1" />
                 </Component>
-                <Component Id="VC" Guid="$(var.GUID_VC)" SharedDllRefCount="yes">
-                  <File Name="$(var.VC_VCRT143)"      Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_VCRT143) "     KeyPath="yes" DiskId="1" />
-                  <File Name="$(var.VC_VCCOR143)"     Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_VCCOR143)"     KeyPath="no"  DiskId="1" />
-                  <File Name="$(var.VC_CONCRT143)"    Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_CONCRT143)"    KeyPath="no"  DiskId="1" />
-                  <File Name="$(var.VC_MSVCP143)"     Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143)"     KeyPath="no"  DiskId="1" />
-				  <File Name="$(var.VC_MSVCP143_1)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_1)"   KeyPath="no"  DiskId="1" />
-				  <File Name="$(var.VC_MSVCP143_2)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_2)"   KeyPath="no"  DiskId="1" />
-				  <File Name="$(var.VC_MSVCP143_AW)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_AW)"  KeyPath="no"  DiskId="1" />
-				  <File Name="$(var.VC_MSVCP143_CVT)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_CVT)" KeyPath="no"  DiskId="1" />
-				</Component>
               </Directory>
             </Directory>
           </Directory>

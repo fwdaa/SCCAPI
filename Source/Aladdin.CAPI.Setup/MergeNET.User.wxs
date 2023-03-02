@@ -9,61 +9,25 @@
   <?define BINXX       = "..\..\Binary\$(var.TargetFrameworkVersion)\x64\$(var.Configuration)"    ?>
   <?endif                                                                                         ?>
 
-  <?define VC_DIR                     = "..\Microsoft"                                            ?>
-  <?if $(var.Configuration)           = "Debug"                                                   ?>
-  <?define VC_SUBDIR143               = "Microsoft.VC143.DebugCRT"                                ?>
-  <?define VC_VCRT143                 = "vcruntime140d.dll"                                       ?>
-  <?define VC_VCCOR143                = "vccorlib140d.dll"                                        ?>
-  <?define VC_CONCRT143               = "concrt140d.dll"                                          ?>
-  <?define VC_MSVCP143                = "msvcp140d.dll"                                           ?>
-  <?define VC_MSVCP143_1              = "msvcp140_1d.dll"                                         ?>
-  <?define VC_MSVCP143_2              = "msvcp140_2d.dll"                                         ?>
-  <?define VC_MSVCP143_AW             = "msvcp140d_atomic_wait.dll"                               ?>
-  <?define VC_MSVCP143_CVT            = "msvcp140d_codecvt_ids.dll"                               ?>
-  <?define VC_SUBDIR90                = "Microsoft.VC90.DebugCRT"                                 ?>
-  <?define VC_MSVCR90                 = "msvcr90d.dll"                                            ?>
-  <?define VC_MSVCP90                 = "msvcp90d.dll"                                            ?>
-  <?define VC_MSVCM90                 = "msvcm90d.dll"                                            ?>
-  <?else                                                                                          ?>
-  <?define VC_SUBDIR143               = "Microsoft.VC143.CRT"                                     ?>
-  <?define VC_VCRT143                 = "vcruntime140.dll"                                        ?>
-  <?define VC_VCCOR143                = "vccorlib140.dll"                                         ?>
-  <?define VC_CONCRT143               = "concrt140.dll"                                           ?>
-  <?define VC_MSVCP143                = "msvcp140.dll"                                            ?>
-  <?define VC_MSVCP143_1              = "msvcp140_1.dll"                                          ?>
-  <?define VC_MSVCP143_2              = "msvcp140_2.dll"                                          ?>
-  <?define VC_MSVCP143_AW             = "msvcp140_atomic_wait.dll"                                ?>
-  <?define VC_MSVCP143_CVT            = "msvcp140_codecvt_ids.dll"                                ?>
-  <?define VC_SUBDIR90                = "Microsoft.VC90.CRT"                                      ?>
-  <?define VC_MSVCR90                 = "msvcr90.dll"                                             ?>
-  <?define VC_MSVCP90                 = "msvcp90.dll"                                             ?>
-  <?define VC_MSVCM90                 = "msvcm90.dll"                                             ?>
-  <?endif                                                                                         ?>
-
   <?if $(var.TargetFrameworkVersion)  = "v2.0"                                                    ?>
   <?define MsCorLibVersion            = "v2.0.50727"                                              ?>
   <?define ClrVersion                 = "20"                                                      ?>
-  <?define CrtVersion                 = "90"                                                      ?>
   <?endif                                                                                         ?>
   <?if $(var.TargetFrameworkVersion)  = "v3.0"                                                    ?>
   <?define MsCorLibVersion            = "v2.0.50727"                                              ?>
   <?define ClrVersion                 = "30"                                                      ?>
-  <?define CrtVersion                 = "90"                                                      ?>
   <?endif                                                                                         ?>
   <?if $(var.TargetFrameworkVersion)  = "v3.5"                                                    ?>
   <?define MsCorLibVersion            = "v2.0.50727"                                              ?>
   <?define ClrVersion                 = "35"                                                      ?>
-  <?define CrtVersion                 = "90"                                                      ?>
   <?endif                                                                                         ?>
   <?if $(var.TargetFrameworkVersion)  = "v4.0"                                                    ?>
   <?define MsCorLibVersion            = "v4.0.30319"                                              ?>
   <?define ClrVersion                 = "40"                                                      ?>
-  <?define CrtVersion                 = "143"                                                     ?>
   <?endif                                                                                         ?>
   <?if $(var.TargetFrameworkVersion)  = "v4.5"                                                    ?>
   <?define MsCorLibVersion            = "v4.0.30319"                                              ?>
   <?define ClrVersion                 = "45"                                                      ?>
-  <?define CrtVersion                 = "143"                                                     ?>
   <?endif                                                                                         ?>
 
   <?define VERSION_COM_NET                              = "$(var.VERSION)$(var.ClrVersion)"       ?>
@@ -118,7 +82,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "123E2A8D-96A4-44D2-B430-803188BE631C"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "BE2D648C-2D06-4D28-AB62-5850FB23D148"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "9C9319B0-75BB-4161-B8D6-079D04F95AE8"  ?>
-  <?define GUID_VC                                      = "66935409-A16E-4526-B54F-177D28BAACBA"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "9D7ABCDD-0605-47E8-9D8D-4655D7FCE29B"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "36B81701-C556-4C42-9696-4AFD3B7EDF4F"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "DD1F0367-1B32-4D39-8F10-B7A4BA405647"  ?>
@@ -182,7 +145,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "231FB79F-625A-48F9-9E76-9285350DF222"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "E1394BDE-C80B-40CE-99E9-218596B4220B"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "E5797721-62EF-49C6-A964-F4240C776D96"  ?>
-  <?define GUID_VC                                      = "A393E616-3B43-4BB8-AAB4-E7207EFEF41C"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "ED1B0817-6D0F-48F0-A01C-F5F3BCA31BB1"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "E5C5248D-14AD-41DF-BF90-C280EC58E92F"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "4A0B2639-D3A0-4732-A3B8-AABD151E604C"  ?>
@@ -249,7 +211,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "99D90F67-F997-443E-B51C-37EBCDA1D889"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "AE547BE0-EF7E-4CEF-9FBD-4C7CD823F0CC"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "7FF14562-5F79-465C-9DB1-1E9C494CC4FF"  ?>
-  <?define GUID_VC                                      = "6EC71288-3B40-40F9-85F3-EE527281EF05"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "85AF686A-CC1C-4C51-8DC2-A1E6518C27CA"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "AEEFACA7-7A3F-42C3-9A85-2A7A2008179B"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "01AFADDC-6559-4DFF-8D7E-F1AAAC6929D8"  ?>
@@ -313,7 +274,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "26EC231B-CAF5-401C-ADCC-08B94ADD12A6"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "8F025B36-F6AB-4340-8663-4B98C2150CF3"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "2E66C00A-4782-4C54-9C0E-864FEC98D18E"  ?>
-  <?define GUID_VC                                      = "C751581A-8E38-4165-94A9-FCCB336AA828"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "0C993009-3278-4B74-9E30-5C7A3470EBFA"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "5FA721CE-49C2-4557-AF6A-EA088BEB5709"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "7C0AD50F-EF8A-4E1B-B5E2-5988B2B78F2B"  ?>
@@ -380,7 +340,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "0A8E131B-50AF-4BFE-97D5-87CD8E5D1F88"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "9EAC535C-349C-472F-8DAD-93F08C8FD5ED"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "DBD68888-E432-4BF5-887C-12D2BCD16768"  ?>
-  <?define GUID_VC                                      = "A14FB1AB-77DB-46F4-9B7C-DF94264E3725"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "5A6B68D0-6148-4FD2-9FAE-544D33123D72"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "6562EB07-0436-4E3A-A950-C747BB912CD9"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "FA994EF0-A213-4982-A2AF-6871D21D9A34"  ?>
@@ -444,7 +403,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "413A5DB5-1469-4048-B49A-B1D75A5FAA03"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "1AEC60BC-4C55-49D2-99C1-317F497A7813"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "87C80C32-E969-4292-97CD-21B5D2357B4B"  ?>
-  <?define GUID_VC                                      = "DF301CB7-6CFC-4B03-BF26-DFC672490BFD"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "7F421413-AE98-4167-AC7C-A5EC835EF051"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "7FCBB479-7AD9-42B0-839D-FD63C4ABC858"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "F79A06DE-DA23-4F37-ADC9-1F220F2181CA"  ?>
@@ -511,7 +469,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "CF23F2EF-A28A-4113-8BC1-B57D9BCECA73"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "325FB73B-DA11-4B83-9466-255B1ED36866"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "43117038-0900-4788-A840-EAB812E53097"  ?>
-  <?define GUID_VC                                      = "CF92881E-026D-4616-B7D3-167B84DFB26C"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "1A3C5DF2-3D39-4B8E-A7F5-C9045B32B877"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "11076EF2-B4AF-4DB8-AEE9-331AB66B860E"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "293F9D1F-23D1-46C6-85B6-AA22A1DAD0BC"  ?>
@@ -575,7 +532,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "4563B5B9-0078-444F-81CA-71CB783F47BA"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "7C5185CE-B34B-455C-A59F-E14C52E6DA18"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "B7F18434-C469-4660-BA03-4648CCBC4445"  ?>
-  <?define GUID_VC                                      = "5679214C-1F2A-4380-9B47-1F764ADAAAC1"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "036044CA-DF18-4D4C-84F6-E163F7D51688"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "8284A489-0453-4C24-818B-0A9A844520F7"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "2190BA7D-C4E1-4135-93BB-482AC6F95037"  ?>
@@ -642,7 +598,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "3F5A76DE-EFF7-492E-B87C-70489A8BB6F1"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "9970D4AE-BFBA-43B1-8D6D-4224694C35DB"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "49C67262-5D13-4BD2-B16F-2240159659CA"  ?>
-  <?define GUID_VC                                      = "9C678844-BB1E-4342-870F-AE2FD9CC64D9"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "5C449BFF-02FB-482D-9B18-1244050201A5"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "42D0D70E-F001-4E9B-86B8-5F555305D3D2"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "3EA89B31-F1E8-473C-B3C0-66F6F79EC337"  ?>
@@ -706,7 +661,6 @@
   <?define GUID_Aladdin.CAPI.COM.Interop.dll            = "6A15E5F0-7905-453E-B957-6084608D18F6"  ?>
   <?define GUID_Aladdin.CAPI.COM.NET.dll                = "6B209B73-A931-483D-B017-28054F7B3740"  ?>
   <?define GUID_pb_flex_h_net.dll                       = "FE9B21A0-AFB4-4E59-9780-2F6EFAF06216"  ?>
-  <?define GUID_VC                                      = "7CE5B337-E4B4-44DE-B9C4-88E0683B07DF"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.dll                    = "656C4949-9711-4D87-A1A9-B5DDE0C82769"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Sobol.dll              = "4354834E-9DE9-4E92-B463-8374912D25F2"  ?>
   <?define GUID_Aladdin.CAPI.Rnd.Accord.dll             = "2D44BF8C-A062-4272-A8B0-F050928C5C01"  ?>
@@ -726,29 +680,12 @@
   <Module Id="CAPI" Language="1033" Version="$(var.VERSION)">
     <Package Id="$(var.PACKAGEID)" InstallerVersion="300" Manufacturer="Aladdin R.D." Description="CAPI Library" InstallScope="perUser"/>
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="AppDataFolder">
+	  <Directory Id="AppDataFolder">
         <Directory Id="Aladdin" Name="Aladdin">
           <Directory Id="CAPI" Name="CAPI">
             <Directory Id="Platform" Name="$(var.InstallerPlatform)">
               <Directory Id="Version" Name="$(var.VERSION)">
                 <Directory Id="INSTALLDIR" Name="$(var.TargetFrameworkVersion)">
-                  <Component Id="VC" Guid="$(var.GUID_VC)" SharedDllRefCount="yes">
-                    <?if $(var.CrtVersion) = "90"?>
-                    <File Name="$(var.VC_MSVCR90)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR90)\$(var.VC_MSVCR90)" KeyPath="yes" DiskId="1" />
-                    <File Name="$(var.VC_MSVCP90)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR90)\$(var.VC_MSVCP90)" KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_MSVCM90)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR90)\$(var.VC_MSVCM90)" KeyPath="no"  DiskId="1" />
-                    <?endif?>
-                    <?if $(var.CrtVersion) = "143"?>
-                    <File Name="$(var.VC_VCRT143)"      Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_VCRT143) "     KeyPath="yes" DiskId="1" />
-                    <File Name="$(var.VC_VCCOR143)"     Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_VCCOR143)"     KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_CONCRT143)"    Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_CONCRT143)"    KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_MSVCP143)"     Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143)"     KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_MSVCP143_1)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_1)"   KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_MSVCP143_2)"   Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_2)"   KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_MSVCP143_AW)"  Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_AW)"  KeyPath="no"  DiskId="1" />
-                    <File Name="$(var.VC_MSVCP143_CVT)" Source="$(var.VC_DIR)\$(var.InstallerPlatform)\$(var.VC_SUBDIR143)\$(var.VC_MSVCP143_CVT)" KeyPath="no"  DiskId="1" />
-				    <?endif?>
-                  </Component>
                   <Component Id="Aladdin.dll" Guid="$(var.GUID_Aladdin.dll)" SharedDllRefCount="yes">
                     <File Name="Aladdin.dll" Source="$(var.BIN)\Aladdin.dll" KeyPath="yes" DiskId="1" />
                   </Component>
