@@ -6,7 +6,7 @@
       <NetProperties>PlatformToolset=v90;PrecompiledHeaderUse=NotUsing</NetProperties>
     </TargetFramework>
     <TargetFramework Include="v4.0">
-      <NetProperties>PlatformToolset=v142;PrecompiledHeaderUse=Use</NetProperties>
+      <NetProperties>PlatformToolset=v143;PrecompiledHeaderUse=Use</NetProperties>
     </TargetFramework>
   </ItemGroup>  
   <Target Name="CLSID_CAPI_COM" BeforeTargets="BuildNET">
