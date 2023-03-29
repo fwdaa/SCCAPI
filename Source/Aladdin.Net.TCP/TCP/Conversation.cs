@@ -161,7 +161,7 @@ namespace Aladdin.Net.TCP
             if (length < 8) throw new InvalidDataException(); byte[] body = new byte[length - 8]; 
 
             // прочитать данные 
-            if (body.Length > 0) size = socket.Receive(body); 
+            size = (body.Length > 0) ? socket.Receive(body) : 0; 
 
             // проверить размер данных
             if (size != body.Length) throw new InvalidDataException(); 
