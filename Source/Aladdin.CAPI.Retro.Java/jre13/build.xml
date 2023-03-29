@@ -101,7 +101,7 @@
             <fileset dir="lib"><include name="Aladdin.Retro.jar"/></fileset>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.Retro.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.Retro.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
         </manifest>
@@ -116,7 +116,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
         </manifest>
@@ -130,7 +130,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.IO.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.IO.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
         </manifest>
@@ -144,7 +144,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.Net.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.Net.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar"/>
@@ -159,7 +159,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.Net.TCP.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.Net.TCP.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.Net.jar"/>
@@ -174,7 +174,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.Math.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.Math.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar"/>
@@ -189,7 +189,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.ASN1.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.ASN1.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar"/>
@@ -204,7 +204,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.ASN1.ISO.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.ASN1.ISO.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.ASN1.jar"/>
@@ -219,7 +219,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.PKCS11.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.PKCS11.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar"/>
@@ -234,7 +234,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.ISO7816.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.ISO7816.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.ASN1.jar"/>
@@ -249,7 +249,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.PCSC.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.PCSC.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.ISO7816.jar"/>
@@ -272,7 +272,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.IO.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar"/>
@@ -287,7 +287,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.Proxy.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.Proxy.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.CAPI.jar"/>
@@ -302,7 +302,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.SCard.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.SCard.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.PCSC.jar Aladdin.ISO7816.jar Aladdin.CAPI.jar"/>
@@ -317,7 +317,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.PKCS11.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PCSC.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar"/>
@@ -332,7 +332,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.PKCS12.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.PKCS12.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar"/>
@@ -363,7 +363,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.ANSI.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.ANSI.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar"/>
@@ -385,7 +385,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.ANSI.PKCS11.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.ANSI.PKCS11.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar"/>
@@ -414,7 +414,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.GOST.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.GOST.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar"/>
@@ -436,7 +436,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.GOST.PKCS11.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.GOST.PKCS11.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.GOST.jar"/>
@@ -465,7 +465,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.STB.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.STB.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.GOST.jar"/>
@@ -486,7 +486,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.KZ.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.KZ.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.CAPI.Retro.jar Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.GOST.jar"/>
@@ -502,7 +502,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.PKCS11.AKS.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.AKS.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.ANSI.PKCS11.jar"/>
@@ -518,7 +518,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.PKCS11.Athena.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.Athena.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.ANSI.PKCS11.jar"/>
@@ -534,7 +534,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.PKCS11.JaCarta.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.PKCS11.JaCarta.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.Math.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.PKCS11.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS11.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.GOST.jar Aladdin.CAPI.ANSI.PKCS11.jar Aladdin.CAPI.GOST.PKCS11.jar"/>
@@ -550,7 +550,7 @@
             <fileset dir="dist" includes="**/*.jar"/>
         </classpath>
       </retrotranslator13>
-      <jar jarfile="dist/Aladdin.CAPI.Environment.jar" update = "true" compress="yes">
+      <jar jarfile="dist/Aladdin.CAPI.Environment.jar" update = "true" compress="no">
         <manifest>
           <attribute name="Implementation-Version" value="${VERSION}" />
           <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar"/>

@@ -17,15 +17,13 @@ public abstract class OS
         String name = System.getProperty("os.name").toLowerCase(); 
         
         // вернуть операционную систему Windows
-        if (name.indexOf("win") != 0) return new Windows(name); 
+        if (name.contains("win")) return new Windows(name); 
         
-        // вернуть операционную систему Unix
-        if (name.indexOf("nix") != 0) return new Unix(name); 
-        if (name.indexOf("nux") != 0) return new Unix(name); 
-        if (name.indexOf("aix") != 0) return new Unix(name); 
-        
-        // операционная система не поддерживается
-        throw new UnsupportedOperationException(); 
+        // вернуть операционную систему Linux
+        if (!name.contains("mac")) return new Unix(name); 
+            
+        // операционная система Mac не поддерживается 
+        throw new UnsupportedOperationException();
     }
     // конструктор
     protected OS(String name) { this.name = name; } public final String name;
@@ -37,7 +35,7 @@ public abstract class OS
     public String getUserFolder() { return System.getProperty("user.home"); } 
     
     // кодировка операционной системы
-    public abstract String getEncoding(); 
+    public String getEncoding() { return System.getProperty("file.encoding"); }
     
     // запустить процесс
     public Process start(String... parameters) throws IOException
@@ -156,6 +154,9 @@ public abstract class OS
     ///////////////////////////////////////////////////////////////////////
     public static class Unix extends OS
     {
+        // кодировка операционной системы
+        private String encoding; 
+        
         // конструктор
         private Unix(String name) { super(name); encoding = null; 
         
@@ -176,16 +177,16 @@ public abstract class OS
                 }
             }
             catch (Throwable e) {}
-            
-            // кодировка JVM
-            encoding = System.getProperty("file.encoding"); 
         }
         // каталог для всех пользователей
-        @Override public String getSharedFolder() { return "usr/share"; } 
+        @Override public String getSharedFolder() { return "/usr/share"; } 
     
         // кодировка операционной системы
-        @Override public String getEncoding() { return encoding; } private String encoding;
-        
+        @Override public String getEncoding() 
+        { 
+            // вернуть кодировку OC
+            return (encoding != null) ? encoding : super.getEncoding(); 
+        }
         // перечислить процессы
         @Override public Map<Integer, String> listProcesses() throws IOException
         {
