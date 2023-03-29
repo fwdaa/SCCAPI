@@ -45,7 +45,39 @@
                 <id>jar</id>
             </reference>
             <reference>
+                <foreign-project>Aladdin_CAPI_ANSI</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
+            <reference>
+                <foreign-project>Aladdin_CAPI_GOST</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
+            <reference>
+                <foreign-project>Aladdin_CAPI_KZ</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
+            <reference>
                 <foreign-project>Aladdin_CAPI_PKCS12</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
+            <reference>
+                <foreign-project>Aladdin_CAPI_STB</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
                 <target>jar</target>

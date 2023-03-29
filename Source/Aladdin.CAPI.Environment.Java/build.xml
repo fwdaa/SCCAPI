@@ -74,7 +74,7 @@
 <target name="-pre-init">
   <manifest file="MANIFEST.MF">
     <attribute name="Implementation-Version" value="${VERSION}" />
-    <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.PKCS12.jar " />
+    <attribute name="Class-Path" value="Aladdin.jar Aladdin.IO.jar Aladdin.ASN1.jar Aladdin.ASN1.ISO.jar Aladdin.CAPI.jar Aladdin.CAPI.ANSI.jar Aladdin.CAPI.GOST.jar Aladdin.CAPI.STB.jar Aladdin.CAPI.KZ.jar Aladdin.CAPI.PKCS12.jar " />
   </manifest>
 </target>
 <target name="-post-jar">
