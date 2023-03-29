@@ -153,7 +153,10 @@ public class Conversation extends aladdin.net.Conversation
         if (length < 8) throw new IOException(); byte[] body = new byte[length - 8]; 
 
         // прочитать данные
-        size = stream.read(body); if (size != body.length) throw new IOException();
+        if (body.length > 0) size = stream.read(body); 
+        
+        // проверить размер данных
+        if (size != body.length) throw new IOException();
 
         // вернуть сообщение
         return new BinaryMessage<Integer>(type, body); 

@@ -160,8 +160,11 @@ namespace Aladdin.Net.TCP
             // выделить буфер требуемого размера
             if (length < 8) throw new InvalidDataException(); byte[] body = new byte[length - 8]; 
 
-            // прочитать данные
-            size = socket.Receive(body); if (size != body.Length) throw new InvalidDataException(); 
+            // прочитать данные 
+            if (body.Length > 0) size = socket.Receive(body); 
+
+            // проверить размер данных
+            if (size != body.Length) throw new InvalidDataException(); 
 
             // вернуть сообщение
             return new BinaryMessage<Int32>(type, body); 
