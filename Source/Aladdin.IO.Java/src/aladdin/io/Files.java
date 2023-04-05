@@ -1,26 +1,24 @@
 package aladdin.io;
 import java.io.*; 
-import java.util.*; 
-import java.util.zip.*; 
 
 public class Files 
 {
     ///////////////////////////////////////////////////////////////////////////
     // Создать каталог
     ///////////////////////////////////////////////////////////////////////////
-    public static void createDirectory(String directoryName) throws IOException
+    public static void createDirectory(String directory) throws IOException
     {
         // при отсутствии разделителя
-        if (!directoryName.endsWith(java.io.File.separator)) 
+        if (!directory.endsWith(java.io.File.separator)) 
         {
             // добавить разделитель
-            directoryName = directoryName.concat(java.io.File.separator); 
+            directory = directory.concat(java.io.File.separator); 
         }
         // указать объект каталога
-        java.io.File directory = new java.io.File(directoryName); 
+        java.io.File dir = new java.io.File(directory); 
         
         // создать каталог
-        try { if (!directory.exists()) directory.mkdirs(); } 
+        try { if (!dir.exists()) dir.mkdirs(); } 
 
         // обработать возможную ошибку
         catch (SecurityException e) { throw new IOException(e); }
@@ -28,16 +26,16 @@ public class Files
     ///////////////////////////////////////////////////////////////////////////
     // Удалить каталог
     ///////////////////////////////////////////////////////////////////////////
-    public static void deleteDirectory(String directoryName) throws IOException
+    public static void deleteDirectory(String directory) throws IOException
     {
         // при отсутствии разделителя
-        if (!directoryName.endsWith(java.io.File.separator)) 
+        if (!directory.endsWith(java.io.File.separator)) 
         {
             // добавить разделитель
-            directoryName = directoryName.concat(java.io.File.separator); 
+            directory = directory.concat(java.io.File.separator); 
         }
         // удалить каталог
-        deleteDirectory(new java.io.File(directoryName)); 
+        deleteDirectory(new java.io.File(directory)); 
     }
     private static void deleteDirectory(java.io.File directory) throws IOException
     {
@@ -52,7 +50,7 @@ public class Files
             if (childs != null) for(java.io.File child : childs) 
             {
                 // удалить каталог или файл
-                if (child.isDirectory()) deleteDirectory(child);  else child.delete();
+                if (child.isDirectory()) deleteDirectory(child); else child.delete();
             }
             // удалить каталог
             directory.delete();
@@ -63,19 +61,19 @@ public class Files
     ///////////////////////////////////////////////////////////////////////////
     // Создать файл
     ///////////////////////////////////////////////////////////////////////////
-    public static void createFile(String directoryName, String fileName) throws IOException
+    public static void createFile(String directory, String fileName) throws IOException
     {
         // при указании каталога
-        if (directoryName != null)
+        if (directory != null)
         {
             // при отсутствии разделителя
-            if (!directoryName.endsWith(java.io.File.separator)) 
+            if (!directory.endsWith(java.io.File.separator)) 
             {
                 // добавить разделитель
-                directoryName = directoryName.concat(java.io.File.separator); 
+                directory = directory.concat(java.io.File.separator); 
             }
             // указать полное имя файла
-            fileName = directoryName.concat(fileName); 
+            fileName = directory.concat(fileName); 
         }
         // указать объект файла
         java.io.File file = new java.io.File(fileName); 
@@ -89,19 +87,19 @@ public class Files
     ///////////////////////////////////////////////////////////////////////////
     // Удалить файл
     ///////////////////////////////////////////////////////////////////////////
-    public static void deleteFile(String directoryName, String fileName) throws IOException
+    public static void deleteFile(String directory, String fileName) throws IOException
     {
         // при указании каталога
-        if (directoryName != null)
+        if (directory != null)
         {
             // при отсутствии разделителя
-            if (!directoryName.endsWith(java.io.File.separator)) 
+            if (!directory.endsWith(java.io.File.separator)) 
             {
                 // добавить разделитель
-                directoryName = directoryName.concat(java.io.File.separator); 
+                directory = directory.concat(java.io.File.separator); 
             }
             // указать полное имя файла
-            fileName = directoryName.concat(fileName); 
+            fileName = directory.concat(fileName); 
         }
         // указать объект файла
         java.io.File file = new java.io.File(fileName); 
@@ -115,16 +113,22 @@ public class Files
 	///////////////////////////////////////////////////////////////////////////
 	// Прочитать данные файла
 	///////////////////////////////////////////////////////////////////////////
-	public static byte[] readFile(String directory, String name) throws IOException
+	public static byte[] readFile(String directory, String fileName) throws IOException
 	{
-		// определить используемый разделитель
-		String separator = File.separator; if (directory.endsWith(separator))
+        // при указании каталога
+        if (directory != null)
         {
-            // удалить лишний разделитель
-            directory = directory.substring(0, directory.length() - separator.length()); 
+            // при отсутствии разделителя
+            if (!directory.endsWith(java.io.File.separator)) 
+            {
+                // добавить разделитель
+                directory = directory.concat(java.io.File.separator); 
+            }
+            // указать полное имя файла
+            fileName = directory.concat(fileName); 
         }
-		// открыть файл
-		File file = new File(directory + separator + name); 
+        // указать объект файла
+        java.io.File file = new java.io.File(fileName); 
         
 		// определить размер файла
 		long length = file.length(); if (length > Integer.MAX_VALUE) 
@@ -136,84 +140,41 @@ public class Files
         byte[] content = new byte[(int)length]; 
         
 		// указать поток чтения
-		RandomAccessFile stream = new RandomAccessFile(file, "r"); 
-		try { 
+		try (RandomAccessFile stream = new RandomAccessFile(file, "r"))
+		{ 
 			// прочитать данные из файла
-			stream.seek(0); stream.read(content, 0, content.length); 
+			stream.read(content, 0, content.length); return content;  
 		}
-		// закрыть файл
-		finally { stream.close(); } return content;  
 	}
-    ///////////////////////////////////////////////////////////////////////////
-    // Создать Jar-файл
-    ///////////////////////////////////////////////////////////////////////////
-    public static void createJar(String directoryName, String fileName, 
-        String manifest, List<String> names, List<byte[]> contents) throws IOException
-    {
+	///////////////////////////////////////////////////////////////////////////
+	// Записать данные файла
+	///////////////////////////////////////////////////////////////////////////
+	public static void writeFile(String directory, 
+        String fileName, byte[] content) throws IOException
+	{
         // при указании каталога
-        if (directoryName != null)
+        if (directory != null)
         {
             // при отсутствии разделителя
-            if (!directoryName.endsWith(java.io.File.separator)) 
+            if (!directory.endsWith(java.io.File.separator)) 
             {
                 // добавить разделитель
-                directoryName = directoryName.concat(java.io.File.separator); 
+                directory = directory.concat(java.io.File.separator); 
             }
             // указать полное имя файла
-            fileName = directoryName.concat(fileName); 
-            
-            // создать каталог
-            new java.io.File(directoryName).mkdirs();
+            fileName = directory.concat(fileName); 
         }
-        // получить содержимое файла
-        byte[] content = Files.createJar(manifest, 
-            names.toArray(new String[0]), contents.toArray(new byte[0][])
-        ); 
-		// указать поток записи
-		try (FileOutputStream stream = new FileOutputStream(fileName)) 
-        {
-  			// записать данные в файл
-			stream.write(content, 0, content.length); stream.flush();
-        }
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    // Создать Jar-файл
-    ///////////////////////////////////////////////////////////////////////////
-    public static byte[] createJar(String manifest, 
-        String[] names, byte[][] contents) throws IOException
-    {
-        // проверить соответствие параметров
-        if (names.length != contents.length) throw new IllegalArgumentException(); 
+        // указать объект файла
+        java.io.File file = new java.io.File(fileName); 
         
-        // создать динамический байтовый буфер
-        ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+        // создать каталог
+        if (!file.exists()) file.mkdirs(); 
         
-        // создать буфер для архивирования
-        try (ZipOutputStream out = new ZipOutputStream(stream)) 
-        {
-            // при наличии манифеста
-            if (manifest != null)
-            {
-                // закодировать манифест
-                byte[] encoded = manifest.getBytes("UTF-8"); 
-
-                // добавить описание элемента
-                out.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
-
-                // записать содержимое файла
-                out.write(encoded, 0, encoded.length); out.closeEntry();
-            }
-            // для всех внутренних файлов
-            for (int i = 0; i < names.length; i++) 
-            {
-                // добавить описание элемента
-                out.putNextEntry(new ZipEntry(names[i]));
-
-                // записать содержимое файла
-                out.write(contents[i], 0, contents[i].length); out.closeEntry();
-            }
-        }
-        // вернуть байтовое содержимое
-        return stream.toByteArray(); 
+		// указать поток чтения
+		try (RandomAccessFile stream = new RandomAccessFile(file, "rw")) 
+		{ 
+			// записать данные в файл
+			stream.write(content, 0, content.length); 
+		}
     }
 }
