@@ -146,6 +146,40 @@ public class Files
 			stream.read(content, 0, content.length); return content;  
 		}
 	}
+	public static byte[] readFile(String directory, 
+        String fileName, long offset, int length) throws IOException
+	{
+        // при указании каталога
+        if (directory != null)
+        {
+            // при отсутствии разделителя
+            if (!directory.endsWith(java.io.File.separator)) 
+            {
+                // добавить разделитель
+                directory = directory.concat(java.io.File.separator); 
+            }
+            // указать полное имя файла
+            fileName = directory.concat(fileName); 
+        }
+        // указать объект файла
+        java.io.File file = new java.io.File(fileName); 
+        
+		// определить размер файла
+		long size = file.length(); if (offset + length > size)
+        {
+            // указать считываемый размер
+            length = (int)(size - offset); if (length < 0) length = 0; 
+        }
+        // выделить буфер для файла
+        byte[] content = new byte[length]; if (length == 0) return content; 
+        
+		// указать поток чтения
+		try (RandomAccessFile stream = new RandomAccessFile(file, "r"))
+		{ 
+			// прочитать данные из файла
+			stream.seek(offset); stream.read(content, 0, content.length); return content;  
+		}
+	}
 	///////////////////////////////////////////////////////////////////////////
 	// Записать данные файла
 	///////////////////////////////////////////////////////////////////////////
