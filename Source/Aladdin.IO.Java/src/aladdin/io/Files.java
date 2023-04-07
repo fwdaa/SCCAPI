@@ -199,11 +199,11 @@ public class Files
             fileName = directory.concat(fileName); 
         }
         // указать объект файла
-        java.io.File file = new java.io.File(fileName); 
-        
-        // создать каталог
-        if (!file.exists()) file.mkdirs(); 
-        
+        java.io.File file = new java.io.File(fileName); if (!file.exists())
+        { 
+            // создать каталог
+            file.getParentFile().mkdirs(); file.createNewFile(); 
+        }
 		// указать поток чтения
 		try (RandomAccessFile stream = new RandomAccessFile(file, "rw")) 
 		{ 
