@@ -166,8 +166,13 @@ public class Conversation extends aladdin.net.Conversation
     ///////////////////////////////////////////////////////////////////////
     public int getRemoteProcess() throws IOException
     {
+        // получить идентификатор процесса
+        return getRemoteProcess(remotePort()); 
+    }
+    public static int getRemoteProcess(int port) throws IOException
+    {
         // получить строкое представление номера порта
-        String strPort = String.format(":%1$d", remotePort()); 
+        String strPort = String.format(":%1$d", port); 
             
         // создать список строк 
         List<String> lines = new ArrayList<String>(); 
