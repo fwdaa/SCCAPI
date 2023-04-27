@@ -126,7 +126,7 @@ public abstract class Provider extends java.security.Provider implements Closeab
         name = Aliases.convertAlgorithmName(name); 
             
         // получить системный загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try {
             // выполнить распознавание параметров
             if (name.equalsIgnoreCase("RC2")) return new RC2Parameters(this, name);

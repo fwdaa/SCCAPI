@@ -137,7 +137,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
     private boolean isSupportConfig(Scope scope)
     {
         // получить загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try { 
             // проверить наличие класса
             classLoader.loadClass("aladdin.capi.software.ConfigStore"); 
@@ -168,7 +168,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
             "Aladdin%1$sCAPI%2$s%3$s.config", File.separator, File.separator, type
         ); 
         // получить загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try { 
             // загрузить класс
             Class<?> classConfigStore = classLoader.loadClass(
@@ -196,7 +196,7 @@ public abstract class CryptoProvider extends aladdin.capi.CryptoProvider
             "Aladdin%1$sCAPI%2$s%3$s.config", File.separator, File.separator, type
         ); 
         // получить загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try { 
             // загрузить класс
             Class<?> classConfigStore = classLoader.loadClass(

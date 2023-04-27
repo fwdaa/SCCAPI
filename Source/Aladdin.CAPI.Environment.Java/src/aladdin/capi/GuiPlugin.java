@@ -41,7 +41,7 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
             throw new UnsupportedOperationException(); 
         }
         // указать загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try { 
             // загрузить класс
             Class<?> type = classLoader.loadClass(className); 
@@ -71,7 +71,7 @@ public class GuiPlugin extends RefObject implements ICulturePlugin
             throw new UnsupportedOperationException(); 
         }
         // указать загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try { 
             // загрузить класс
             Class<?> type = classLoader.loadClass(className); 

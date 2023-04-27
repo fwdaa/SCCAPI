@@ -22,7 +22,7 @@ public class GuiRandFactory extends RefObject implements IRandFactory
     @Override public IRand createRand(Object window) throws IOException
     {
         // указать загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         try {
             // загрузить класс
             Class<?> type = classLoader.loadClass(className); 

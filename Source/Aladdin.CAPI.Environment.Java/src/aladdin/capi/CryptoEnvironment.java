@@ -46,7 +46,7 @@ public class CryptoEnvironment extends ExecutionContext
     private void init() { hardwareRand = false; attempts = 5; 
         
         // указать загрузчик классов
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
+        ClassLoader classLoader = getClass().getClassLoader(); 
         
         // инициализировать переменные
         plugins     = new HashMap<String, GuiPlugin>();
