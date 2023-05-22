@@ -201,14 +201,51 @@ public class Files
         // указать объект файла
         java.io.File file = new java.io.File(fileName); if (!file.exists())
         { 
-            // создать каталог
+            // создать новый файл
             file.getParentFile().mkdirs(); file.createNewFile(); 
         }
 		// указать поток чтения
 		try (RandomAccessFile stream = new RandomAccessFile(file, "rw")) 
 		{ 
 			// записать данные в файл
-			stream.write(content, 0, content.length); 
+			stream.write(content, 0, content.length); stream.setLength(content.length);
+		}
+    }
+	///////////////////////////////////////////////////////////////////////////
+	// Добавить данные в файл
+	///////////////////////////////////////////////////////////////////////////
+	public static void appendFile(String directory, 
+        String fileName, byte[] content) throws IOException
+	{
+        // при указании каталога
+        if (directory != null)
+        {
+            // при отсутствии разделителя
+            if (!directory.endsWith(java.io.File.separator)) 
+            {
+                // добавить разделитель
+                directory = directory.concat(java.io.File.separator); 
+            }
+            // указать полное имя файла
+            fileName = directory.concat(fileName); 
+        }
+        // указать объект файла
+        java.io.File file = new java.io.File(fileName); if (!file.exists())
+        { 
+            // создать новый файл
+            file.getParentFile().mkdirs(); file.createNewFile(); 
+        }
+        // определить размер файла 
+        long cbFile = file.length(); 
+        
+		// указать поток чтения
+		try (RandomAccessFile stream = new RandomAccessFile(file, "rw")) 
+		{ 
+			// добавить данные в файл
+			stream.seek(cbFile); stream.write(content, 0, content.length); 
+            
+            // установить конец файла 
+            stream.setLength(cbFile + content.length);
 		}
     }
 }

@@ -13,7 +13,7 @@ public final class RelativeDistinguishedNames extends Sequence<RelativeDistingui
     private static IEncodable encodeName(String name) throws IOException
     {
         // указать загрузчик классов
-        ClassLoader classLoader = RelativeDistinguishedNames.class.getClassLoader(); 
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
         try { 
             // найти класс объекта
             Class<?> type = classLoader.loadClass("javax.security.auth.x500.X500Principal"); 
@@ -41,7 +41,7 @@ public final class RelativeDistinguishedNames extends Sequence<RelativeDistingui
     private static String decodeName(IEncodable encodable) throws IOException
     {
         // указать загрузчик классов
-        ClassLoader classLoader = RelativeDistinguishedNames.class.getClassLoader(); 
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader(); 
         try { 
             // найти класс объекта
             Class<?> type = classLoader.loadClass("javax.security.auth.x500.X500Principal"); 
