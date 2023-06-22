@@ -21,7 +21,7 @@ public class RefObject implements IRefObject
         if (obj != null) obj.release(); 
     }
     // счетчик ссылок и стек вызова
-    private int refs; private final String stackTrace; 
+    private int refs; private final String[] stackTrace; 
     
     // признак освобождения
     private boolean disposed; 
@@ -69,8 +69,8 @@ public class RefObject implements IRefObject
             // вывести сообщение об ошибке
             System.out.println(String.format("Class = %1$s, Refs = %2$d", getClass(), refs));
 
-            // вывести сообщение об ошибке
-            System.out.println(stackTrace); 
+            // вывести стек ошибки
+            System.out.println(StackTrace.toString(stackTrace)); 
         }
     }
     // освободить выделенные ресурсы

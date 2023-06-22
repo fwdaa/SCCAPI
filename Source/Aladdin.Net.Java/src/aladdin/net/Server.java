@@ -122,7 +122,7 @@ public abstract class Server extends Client
     public void log(String type, String msg) 
     {
         // получить информацию о вызове
-        String stackTrace = type.equals("FAIL")? StackTrace.getFrame(1) : new String();
+        String[] stackTrace = type.equals("FAIL")? StackTrace.fromCurrent(1) : null;
         
         // выполнить запись в журнал
         try { log(type, stackTrace, msg); } catch (Throwable e) {}
@@ -131,12 +131,12 @@ public abstract class Server extends Client
     public void log(Throwable e)
     {
         // получить описание исключения и стековый фрейм
-        String description = e.toString(); String stackTrace = StackTrace.fromException(e); 
+        String description = e.toString(); String stackTrace[] = StackTrace.fromException(e); 
         
         // вывести информацию в журнал
         try { log("FAIL", stackTrace, description); } catch (Throwable ex) {}
     }
     // запись в журнал
-    protected void log(String type, String caller, String msg) throws Exception {} 
+    protected void log(String type, String[] caller, String msg) throws Exception {} 
     
 }

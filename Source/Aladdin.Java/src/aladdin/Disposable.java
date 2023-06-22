@@ -9,7 +9,7 @@ public class Disposable implements Closeable
     public final boolean REFOBJECT_CHECK = false; 
     
     // признак освобождения и стек вызова
-    private boolean disposed; private final String stackTrace; 
+    private boolean disposed; private final String[] stackTrace; 
          
     // конструктор
     public Disposable() { this.disposed = false; 
@@ -40,13 +40,13 @@ public class Disposable implements Closeable
         if (disposing) { onClose(); disposed = true; }
         
         // при необходимости трассировки
-        else if (stackTrace != null && stackTrace.length() != 0)
+        else if (stackTrace != null && stackTrace.length != 0)
         {
             // вывести сообщение об ошибке
             System.out.println(String.format("Class = %1$s", getClass()));
 
-            // вывести сообщение об ошибке
-            System.out.println(stackTrace); 
+            // вывести стек ошибки
+            System.out.println(StackTrace.toString(stackTrace)); 
         }
     }
     // освободить выделенные ресурсы

@@ -210,7 +210,7 @@ namespace Aladdin.CAPI.Test
                     Form form, CryptoProvider provider, ContainerKeyPair keyPair)
 			    {
                     // указать способ аутентификации
-                    AuthenticationSelector selector = GUI.AuthenticationSelector.Create(form); 
+                    AuthenticationSelector selector = GUI.AuthenticationSelector.Create(form, 5); 
 
                     // создать пользователя
                     using (ClientContainer container = new ClientContainer(provider, keyPair.Info, selector))

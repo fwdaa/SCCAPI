@@ -123,24 +123,18 @@ namespace Aladdin.Net
         public virtual void Log(Exception e) 
         { 
             // выполнить запись в журнал
-            try { Log("FAIL", e.StackTrace, e.Message); } catch {}
+            try { Log("FAIL", new StackTrace(e), e.Message); } catch {}
         }
         // запись в журнал
         public virtual void Log(string type, string msg)
         {
             // проверить тип сообщения
-            string caller = String.Empty; if (type.Equals("FAIL")) 
-            {
-                // получить стековый фрейм вызова функции
-                StackTrace stackTrace = new StackTrace(true); 
-            
-                // указать вызывающую функцию
-                if (stackTrace.FrameCount >= 2) caller = stackTrace.GetFrame(1).ToString(); 
-            }
+            StackTrace caller = (type.Equals("FAIL"))  ? new StackTrace(1, true) : null; 
+
             // выполнить запись в журнал
             try { Log(type, caller, msg); } catch {}
         }
         // выполнить запись в журнал
-        protected virtual void Log(string type, string caller, string msg) {} 
+        protected virtual void Log(string type, StackTrace caller, string msg) {} 
     }
 }
