@@ -17,7 +17,7 @@ namespace Aladdin.Net.TCP
 		internal Conversation(Socket socket, IO.Serialization serialization)
         {
             // указать размер буфера для приема сообщений
-            this.socket = socket; socket.ReceiveBufferSize = 65536; 
+            this.socket = socket; socket.ReceiveBufferSize = 16384; 
 
             // указать способ сериализации данных
             this.serialization = new BinarySerialization<Int32>(serialization); 
@@ -161,11 +161,20 @@ namespace Aladdin.Net.TCP
             if (length < 8) throw new InvalidDataException(); byte[] body = new byte[length - 8]; 
 
             // прочитать данные 
-            size = (body.Length > 0) ? socket.Receive(body) : 0; 
+            size = (body.Length > 0) ? socket.Receive(body, 0, body.Length, SocketFlags.None) : 0; 
 
-            // проверить размер данных
-            if (size != body.Length) throw new InvalidDataException(); 
-
+            // проверить отсутствие ошибок 
+            if (body.Length != 0 && size == 0) throw new InvalidDataException(); 
+        
+            // пока не прочитано все сообщение 
+            while (size != body.Length)
+            {
+                // прочитать данные
+                int cb = socket.Receive(body, size, body.Length - size, SocketFlags.None); 
+            
+                // проверить отсутствие ошибок 
+                if (cb == 0) throw new InvalidDataException(); size += cb;
+            }
             // вернуть сообщение
             return new BinaryMessage<Int32>(type, body); 
         }

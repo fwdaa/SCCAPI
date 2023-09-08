@@ -19,7 +19,7 @@ public class Conversation extends aladdin.net.Conversation
 	protected Conversation(Socket socket, aladdin.io.Serialization serialization) throws IOException
 	{
         // сохранить переданные параметры
-        this.socket = socket; socket.setReceiveBufferSize(65536); closed = false; 
+        this.socket = socket; socket.setReceiveBufferSize(16384); closed = false; 
         
         // указать способ сериализации данных
         this.serialization = new BinarySerialization<Integer>(serialization); 
@@ -155,9 +155,18 @@ public class Conversation extends aladdin.net.Conversation
         // прочитать данные
         size = (body.length > 0) ? stream.read(body) : 0; 
         
-        // проверить размер данных
-        if (size != body.length) throw new IOException();
-
+        // проверить отсутствие ошибок 
+        if (body.length != 0 && size == 0) throw new IOException(); 
+        
+        // пока не прочитано все сообщение 
+        while (size != body.length) 
+        {
+            // прочитать данные
+            int cb = stream.read(body, size, body.length - size); 
+            
+            // проверить отсутствие ошибок 
+            if (cb == 0) throw new IOException(); size += cb;
+        }
         // вернуть сообщение
         return new BinaryMessage<Integer>(type, body); 
     }
