@@ -1,5 +1,5 @@
-// fab54312955d456d3ddd88318877b256 Generated file. Do not edit.
-// File created by WPP compiler version 10.0.19041
+// ec7d591fc7f7f0611d9e643b76f48902 Generated file. Do not edit.
+// File created by WPP compiler version 10.0.22621
 // from template um-default.tpl
 
 #pragma once
@@ -477,28 +477,28 @@ extern "C" {
 #else // WPP_NO_ANNOTATIONS
 
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h192
+#define WPP_PUBLIC_ANNOT_TracePython_h222
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h201
+#define WPP_PUBLIC_ANNOT_TracePython_h239
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h212
+#define WPP_PUBLIC_ANNOT_TracePython_h248
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h224
+#define WPP_PUBLIC_ANNOT_TracePython_h264
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h242
+#define WPP_PUBLIC_ANNOT_TracePython_h270
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h257
+#define WPP_PUBLIC_ANNOT_TracePython_h285
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h272
+#define WPP_PUBLIC_ANNOT_TracePython_h300
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_TracePython_h302
+#define WPP_PUBLIC_ANNOT_TracePython_h330
 #endif
 #ifdef WPP_EMIT_FUNC_NAME
 #define WPP_FUNC_NAME L" FUNC=" _WPPW(__FUNCTION__)
@@ -507,7 +507,7 @@ extern "C" {
 #endif // WPP_EMIT_FUNC_NAME
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h192_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h222_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -516,9 +516,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h192_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h222_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 10 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -526,8 +526,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h192
-# define WPP_ANNOTATE_TracePython_h192 WPP_ANNOTATE_TracePython_h192_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h222
+# define WPP_ANNOTATE_TracePython_h222 WPP_ANNOTATE_TracePython_h222_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -538,18 +538,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h192
-# define WPP_ANNOTATE_TracePython_h192 WPP_ANNOTATE_TracePython_h192_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h222
+# define WPP_ANNOTATE_TracePython_h222 WPP_ANNOTATE_TracePython_h222_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h192", \
+    "TracePython_h222", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h192
+#endif // WPP_PUBLIC_ANNOT_TracePython_h222
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h201_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h239_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -558,9 +558,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h201_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h239_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 11 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -568,8 +568,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h201
-# define WPP_ANNOTATE_TracePython_h201 WPP_ANNOTATE_TracePython_h201_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h239
+# define WPP_ANNOTATE_TracePython_h239 WPP_ANNOTATE_TracePython_h239_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -580,18 +580,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h201
-# define WPP_ANNOTATE_TracePython_h201 WPP_ANNOTATE_TracePython_h201_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h239
+# define WPP_ANNOTATE_TracePython_h239 WPP_ANNOTATE_TracePython_h239_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h201", \
+    "TracePython_h239", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h201
+#endif // WPP_PUBLIC_ANNOT_TracePython_h239
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h212_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h248_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -600,9 +600,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h212_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h248_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 12 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -610,8 +610,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h212
-# define WPP_ANNOTATE_TracePython_h212 WPP_ANNOTATE_TracePython_h212_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h248
+# define WPP_ANNOTATE_TracePython_h248 WPP_ANNOTATE_TracePython_h248_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -622,18 +622,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h212
-# define WPP_ANNOTATE_TracePython_h212 WPP_ANNOTATE_TracePython_h212_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h248
+# define WPP_ANNOTATE_TracePython_h248 WPP_ANNOTATE_TracePython_h248_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h212", \
+    "TracePython_h248", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h212
+#endif // WPP_PUBLIC_ANNOT_TracePython_h248
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h224_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h264_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -642,9 +642,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h224_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h264_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 13 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -652,8 +652,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h224
-# define WPP_ANNOTATE_TracePython_h224 WPP_ANNOTATE_TracePython_h224_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h264
+# define WPP_ANNOTATE_TracePython_h264 WPP_ANNOTATE_TracePython_h264_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -664,18 +664,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h224
-# define WPP_ANNOTATE_TracePython_h224 WPP_ANNOTATE_TracePython_h224_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h264
+# define WPP_ANNOTATE_TracePython_h264 WPP_ANNOTATE_TracePython_h264_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h224", \
+    "TracePython_h264", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h224
+#endif // WPP_PUBLIC_ANNOT_TracePython_h264
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h242_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h270_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -684,9 +684,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h242_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h270_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 14 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -694,8 +694,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h242
-# define WPP_ANNOTATE_TracePython_h242 WPP_ANNOTATE_TracePython_h242_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h270
+# define WPP_ANNOTATE_TracePython_h270 WPP_ANNOTATE_TracePython_h270_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -706,18 +706,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h242
-# define WPP_ANNOTATE_TracePython_h242 WPP_ANNOTATE_TracePython_h242_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h270
+# define WPP_ANNOTATE_TracePython_h270 WPP_ANNOTATE_TracePython_h270_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h242", \
+    "TracePython_h270", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h242
+#endif // WPP_PUBLIC_ANNOT_TracePython_h270
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h257_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h285_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -726,9 +726,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h257_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h285_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 15 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -736,8 +736,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h257
-# define WPP_ANNOTATE_TracePython_h257 WPP_ANNOTATE_TracePython_h257_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h285
+# define WPP_ANNOTATE_TracePython_h285 WPP_ANNOTATE_TracePython_h285_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -748,18 +748,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h257
-# define WPP_ANNOTATE_TracePython_h257 WPP_ANNOTATE_TracePython_h257_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h285
+# define WPP_ANNOTATE_TracePython_h285 WPP_ANNOTATE_TracePython_h285_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h257", \
+    "TracePython_h285", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h257
+#endif // WPP_PUBLIC_ANNOT_TracePython_h285
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h272_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h300_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -768,9 +768,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h272_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h300_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 16 \"%0ERROR %10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR PYTHON=*this" \
@@ -778,8 +778,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h272
-# define WPP_ANNOTATE_TracePython_h272 WPP_ANNOTATE_TracePython_h272_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h300
+# define WPP_ANNOTATE_TracePython_h300 WPP_ANNOTATE_TracePython_h300_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -790,18 +790,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h272
-# define WPP_ANNOTATE_TracePython_h272 WPP_ANNOTATE_TracePython_h272_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h300
+# define WPP_ANNOTATE_TracePython_h300 WPP_ANNOTATE_TracePython_h300_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h272", \
+    "TracePython_h300", \
     L"{", \
     L"WPP_VAR(__LINE__), ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h272
+#endif // WPP_PUBLIC_ANNOT_TracePython_h300
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h302_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h330_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -810,9 +810,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_TracePython_h302_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_TracePython_h330_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"8e192481-360f-3be6-4e2e-e6d51df7e5a0 Trace // SRC=" _WPPW(File) \
+    L"5a0d3375-95ca-3a81-5520-ce753e48dc93 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 17 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
@@ -820,8 +820,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_TracePython_h302
-# define WPP_ANNOTATE_TracePython_h302 WPP_ANNOTATE_TracePython_h302_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_TracePython_h330
+# define WPP_ANNOTATE_TracePython_h330 WPP_ANNOTATE_TracePython_h330_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -832,15 +832,15 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_TracePython_h302
-# define WPP_ANNOTATE_TracePython_h302 WPP_ANNOTATE_TracePython_h302_FINAL( \
+#else // WPP_PUBLIC_ANNOT_TracePython_h330
+# define WPP_ANNOTATE_TracePython_h330 WPP_ANNOTATE_TracePython_h330_FINAL( \
     "TMF:", \
     "TracePython.h", \
-    "TracePython_h302", \
+    "TracePython_h330", \
     L"{", \
     L"message.c_str(), ItemWString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_TracePython_h302
+#endif // WPP_PUBLIC_ANNOT_TracePython_h330
 
 # define WPP_ANNOTATE(x) WPP_ANNOTATE_ ## x,
 
@@ -858,8 +858,8 @@ WPP_LOCAL_MSG_GUID(WPP_USER_MSG_GUID);
 
 #else // WPP_USER_MSG_GUID
 
-#define WPP_LOCAL_TraceGuids WPP_8e192481360f3be64e2ee6d51df7e5a0_Traceguids
-extern const __declspec(selectany) GUID WPP_LOCAL_TraceGuids[] = { {0x8e192481,0x360f,0x3be6,{0x4e,0x2e,0xe6,0xd5,0x1d,0xf7,0xe5,0xa0}}, };
+#define WPP_LOCAL_TraceGuids WPP_5a0d337595ca3a815520ce753e48dc93_Traceguids
+extern const __declspec(selectany) GUID WPP_LOCAL_TraceGuids[] = { {0x5a0d3375,0x95ca,0x3a81,{0x55,0x20,0xce,0x75,0x3e,0x48,0xdc,0x93}}, };
 
 #endif // WPP_USER_MSG_GUID
 
@@ -1212,7 +1212,7 @@ WPP_RECORDER_SF_python(
 #define WPP_INVOKE_WPP_DEBUG(MsgArgs) (void)0
 #endif // WPP_DEBUG
 
-// WPP_CALL_TracePython_h192
+// WPP_CALL_TracePython_h222
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1221,11 +1221,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h192(PYTHON) \
+#define WPP_CALL_TracePython_h222(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h192) 0; \
+        WPP_ANNOTATE(TracePython_h222) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1241,10 +1241,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h192(PYTHON) \
+#define WPP_CALL_TracePython_h222(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h192) \
+    WPP_ANNOTATE(TracePython_h222) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1258,10 +1258,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h192(PYTHON) \
+#define WPP_CALL_TracePython_h222(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h192) \
+    WPP_ANNOTATE(TracePython_h222) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1275,7 +1275,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h201
+// WPP_CALL_TracePython_h239
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1284,11 +1284,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h201(PYTHON) \
+#define WPP_CALL_TracePython_h239(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h201) 0; \
+        WPP_ANNOTATE(TracePython_h239) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1304,10 +1304,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h201(PYTHON) \
+#define WPP_CALL_TracePython_h239(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h201) \
+    WPP_ANNOTATE(TracePython_h239) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1321,10 +1321,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h201(PYTHON) \
+#define WPP_CALL_TracePython_h239(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h201) \
+    WPP_ANNOTATE(TracePython_h239) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1338,7 +1338,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h212
+// WPP_CALL_TracePython_h248
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1347,11 +1347,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h212(PYTHON) \
+#define WPP_CALL_TracePython_h248(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h212) 0; \
+        WPP_ANNOTATE(TracePython_h248) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1367,10 +1367,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h212(PYTHON) \
+#define WPP_CALL_TracePython_h248(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h212) \
+    WPP_ANNOTATE(TracePython_h248) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1384,10 +1384,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h212(PYTHON) \
+#define WPP_CALL_TracePython_h248(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h212) \
+    WPP_ANNOTATE(TracePython_h248) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1401,7 +1401,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h224
+// WPP_CALL_TracePython_h264
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1410,11 +1410,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h224(PYTHON) \
+#define WPP_CALL_TracePython_h264(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h224) 0; \
+        WPP_ANNOTATE(TracePython_h264) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1430,10 +1430,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h224(PYTHON) \
+#define WPP_CALL_TracePython_h264(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h224) \
+    WPP_ANNOTATE(TracePython_h264) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1447,10 +1447,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h224(PYTHON) \
+#define WPP_CALL_TracePython_h264(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h224) \
+    WPP_ANNOTATE(TracePython_h264) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1464,7 +1464,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h242
+// WPP_CALL_TracePython_h270
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1473,11 +1473,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h242(PYTHON) \
+#define WPP_CALL_TracePython_h270(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h242) 0; \
+        WPP_ANNOTATE(TracePython_h270) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1493,10 +1493,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h242(PYTHON) \
+#define WPP_CALL_TracePython_h270(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h242) \
+    WPP_ANNOTATE(TracePython_h270) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1510,10 +1510,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h242(PYTHON) \
+#define WPP_CALL_TracePython_h270(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h242) \
+    WPP_ANNOTATE(TracePython_h270) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1527,7 +1527,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h257
+// WPP_CALL_TracePython_h285
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1536,11 +1536,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h257(PYTHON) \
+#define WPP_CALL_TracePython_h285(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h257) 0; \
+        WPP_ANNOTATE(TracePython_h285) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1556,10 +1556,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h257(PYTHON) \
+#define WPP_CALL_TracePython_h285(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h257) \
+    WPP_ANNOTATE(TracePython_h285) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1573,10 +1573,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h257(PYTHON) \
+#define WPP_CALL_TracePython_h285(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h257) \
+    WPP_ANNOTATE(TracePython_h285) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1590,7 +1590,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h272
+// WPP_CALL_TracePython_h300
 #ifndef WPP_TRACELEVEL_PYTHON_PRE
 #  define WPP_TRACELEVEL_PYTHON_PRE(TRACELEVEL,PYTHON)
 #endif
@@ -1599,11 +1599,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h272(PYTHON) \
+#define WPP_CALL_TracePython_h300(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
     do {\
-        WPP_ANNOTATE(TracePython_h272) 0; \
+        WPP_ANNOTATE(TracePython_h300) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON); \
         if (wppEnabled || recorderEnabled) { \
@@ -1619,10 +1619,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h272(PYTHON) \
+#define WPP_CALL_TracePython_h300(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h272) \
+    WPP_ANNOTATE(TracePython_h300) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_PYTHON_FILTER(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1636,10 +1636,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h272(PYTHON) \
+#define WPP_CALL_TracePython_h300(PYTHON) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PYTHON(TRACE_LEVEL_ERROR, PYTHON), "ERROR %!PYTHON!", WPP_VAR(__LINE__)) \
     WPP_TRACELEVEL_PYTHON_PRE(TRACE_LEVEL_ERROR, PYTHON) \
-    WPP_ANNOTATE(TracePython_h272) \
+    WPP_ANNOTATE(TracePython_h300) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_PYTHON_ENABLED(TRACE_LEVEL_ERROR, PYTHON) \
         ?   WPP_INVOKE_WPP_DEBUG(("ERROR %!PYTHON!", WPP_VAR(__LINE__))), \
@@ -1653,7 +1653,7 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_PYTHON_POST(TRACE_LEVEL_ERROR, PYTHON)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_TracePython_h302
+// WPP_CALL_TracePython_h330
 #ifndef WPP_TRACELEVEL_PRE
 #  define WPP_TRACELEVEL_PRE(TRACELEVEL)
 #endif
@@ -1662,11 +1662,11 @@ WPP_RECORDER_SF_python(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h302(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_TracePython_h330(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
     do {\
-        WPP_ANNOTATE(TracePython_h302) 0; \
+        WPP_ANNOTATE(TracePython_h330) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
         if (wppEnabled || recorderEnabled) { \
@@ -1682,10 +1682,10 @@ WPP_RECORDER_SF_python(
     while(0) \
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_TracePython_h302(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_TracePython_h330(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(TracePython_h302) \
+    WPP_ANNOTATE(TracePython_h330) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
@@ -1699,10 +1699,10 @@ WPP_RECORDER_SF_python(
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_TracePython_h302(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_TracePython_h330(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(TracePython_h302) \
+    WPP_ANNOTATE(TracePython_h330) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
@@ -1717,42 +1717,114 @@ WPP_RECORDER_SF_python(
 #endif // ENABLE_WPP_RECORDER
 
 // Functions
-#undef AE_CHECK_COM
-#define AE_CHECK_COM WPP_(CALL)
-#undef AE_CHECK_HRESULT
-#define AE_CHECK_HRESULT WPP_(CALL)
-#undef AE_CHECK_LIBPQ
-#define AE_CHECK_LIBPQ WPP_(CALL)
-#undef AE_CHECK_NTSTATUS
-#define AE_CHECK_NTSTATUS WPP_(CALL)
-#undef AE_CHECK_OCI
-#define AE_CHECK_OCI WPP_(CALL)
-#undef AE_CHECK_ODBC
-#define AE_CHECK_ODBC WPP_(CALL)
-#undef AE_CHECK_OPENSSL
-#define AE_CHECK_OPENSSL WPP_(CALL)
-#undef AE_CHECK_PKCS11
-#define AE_CHECK_PKCS11 WPP_(CALL)
-#undef AE_CHECK_POSIX
-#define AE_CHECK_POSIX WPP_(CALL)
-#undef AE_CHECK_PYTHON
-#define AE_CHECK_PYTHON WPP_(CALL)
-#undef AE_CHECK_SYSAPI
-#define AE_CHECK_SYSAPI WPP_(CALL)
-#undef AE_CHECK_WINAPI
-#define AE_CHECK_WINAPI WPP_(CALL)
-#undef AE_CHECK_WINERROR
-#define AE_CHECK_WINERROR WPP_(CALL)
-#undef AE_CHECK_WINSOCK
-#define AE_CHECK_WINSOCK WPP_(CALL)
-#undef AE_RAISE_GENERIC
-#define AE_RAISE_GENERIC WPP_(CALL)
 #undef ATRACE
+#ifdef __INTELLISENSE__
+#define ATRACE(TRACELEVEL, MSG, ...) ((void)(MSG, ## __VA_ARGS__))
+#else
 #define ATRACE WPP_(CALL)
+#endif
 #undef DoDebugTrace
+#ifdef __INTELLISENSE__
+#define DoDebugTrace(TRACELEVEL, MSG, ...) ((void)(MSG, ## __VA_ARGS__))
+#else
 #define DoDebugTrace WPP_(CALL)
+#endif
 #undef DoTraceMessage
+#ifdef __INTELLISENSE__
+#define DoTraceMessage(LEVEL, MSG, ...) ((void)(MSG, ## __VA_ARGS__))
+#else
 #define DoTraceMessage WPP_(CALL)
+#endif
+#undef AE_CHECK_COM
+#ifdef __INTELLISENSE__
+#define AE_CHECK_COM(OBJ, IID, HRESULT) ((void)0)
+#else
+#define AE_CHECK_COM WPP_(CALL)
+#endif
+#undef AE_CHECK_HRESULT
+#ifdef __INTELLISENSE__
+#define AE_CHECK_HRESULT(HRESULT) ((void)0)
+#else
+#define AE_CHECK_HRESULT WPP_(CALL)
+#endif
+#undef AE_CHECK_LIBPQ
+#ifdef __INTELLISENSE__
+#define AE_CHECK_LIBPQ(LIBPQ) ((void)0)
+#else
+#define AE_CHECK_LIBPQ WPP_(CALL)
+#endif
+#undef AE_CHECK_NTSTATUS
+#ifdef __INTELLISENSE__
+#define AE_CHECK_NTSTATUS(NTSTATUS) ((void)0)
+#else
+#define AE_CHECK_NTSTATUS WPP_(CALL)
+#endif
+#undef AE_CHECK_OCI
+#ifdef __INTELLISENSE__
+#define AE_CHECK_OCI(CAT, OCI, ERROR) ((void)0)
+#else
+#define AE_CHECK_OCI WPP_(CALL)
+#endif
+#undef AE_CHECK_ODBC
+#ifdef __INTELLISENSE__
+#define AE_CHECK_ODBC(CAT, HANDLE, TYPE, ODBC) ((void)0)
+#else
+#define AE_CHECK_ODBC WPP_(CALL)
+#endif
+#undef AE_CHECK_OPENSSL
+#ifdef __INTELLISENSE__
+#define AE_CHECK_OPENSSL(OPENSSL) ((void)0)
+#else
+#define AE_CHECK_OPENSSL WPP_(CALL)
+#endif
+#undef AE_CHECK_PKCS11
+#ifdef __INTELLISENSE__
+#define AE_CHECK_PKCS11(PKCS11) ((void)0)
+#else
+#define AE_CHECK_PKCS11 WPP_(CALL)
+#endif
+#undef AE_CHECK_POSIX
+#ifdef __INTELLISENSE__
+#define AE_CHECK_POSIX(POSIX) ((void)0)
+#else
+#define AE_CHECK_POSIX WPP_(CALL)
+#endif
+#undef AE_CHECK_PYTHON
+#ifdef __INTELLISENSE__
+#define AE_CHECK_PYTHON(PYTHON) ((void)0)
+#else
+#define AE_CHECK_PYTHON WPP_(CALL)
+#endif
+#undef AE_CHECK_SYSAPI
+#ifdef __INTELLISENSE__
+#define AE_CHECK_SYSAPI(SYSAPI) ((void)0)
+#else
+#define AE_CHECK_SYSAPI WPP_(CALL)
+#endif
+#undef AE_CHECK_WINAPI
+#ifdef __INTELLISENSE__
+#define AE_CHECK_WINAPI(WINAPI) ((void)0)
+#else
+#define AE_CHECK_WINAPI WPP_(CALL)
+#endif
+#undef AE_CHECK_WINERROR
+#ifdef __INTELLISENSE__
+#define AE_CHECK_WINERROR(WINERROR) ((void)0)
+#else
+#define AE_CHECK_WINERROR WPP_(CALL)
+#endif
+#undef AE_CHECK_WINSOCK
+#ifdef __INTELLISENSE__
+#define AE_CHECK_WINSOCK(WINSOCK) ((void)0)
+#else
+#define AE_CHECK_WINSOCK WPP_(CALL)
+#endif
+#undef AE_RAISE_GENERIC
+#ifdef __INTELLISENSE__
+#define AE_RAISE_GENERIC(POSIX, WINERROR) ((void)0)
+#else
+#define AE_RAISE_GENERIC WPP_(CALL)
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

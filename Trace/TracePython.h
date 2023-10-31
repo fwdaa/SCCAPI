@@ -1,43 +1,61 @@
 #pragma once
+#include "patchlevel.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Освобождение объекта 
+///////////////////////////////////////////////////////////////////////////////
+class PyDecrementor
+{
+	// функция освобождения объекта 
+	private: void (*pfn__Py_Dealloc)(PyObject*); 
+
+	// конструктор
+	public: PyDecrementor(void (*pfn__Py_Dealloc)(PyObject*))
+	{
+		// сохранить переданные параметры 
+		this->pfn__Py_Dealloc = pfn__Py_Dealloc; 
+	}
+	// оператор вызова 
+	public: void operator()(PyObject* op) const
+	{
+#if (PY_MAJOR_VERSION >= 3)
+		// уменьшить счетчик ссылок объекта 
+		if (--op->ob_refcnt == 0) (*pfn__Py_Dealloc)(op);
+#else 
+		Py_DECREF(op);
+#endif 
+	}
+}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Категория ошибок Python
 ///////////////////////////////////////////////////////////////////////////////
 class python_error_category : public trace::error_category<PyObject*>
 {
-	// признак наличия ошибки
-	private: PyObject* (*pfn_PyErr_Occurred)(); 
-
-	// функции управления исключениями
-	private: void (*pfn_PyErr_Fetch  )(PyObject**, PyObject**, PyObject**);
-	private: void (*pfn_PyErr_Restore)(PyObject* , PyObject* , PyObject* );
-
-	// размер строк Python
-	private: Py_ssize_t (*pfn_PyString_Size        )(PyObject* obj); 
-	private: Py_ssize_t (*pfn_PyUnicodeUCS2_GetSize)(PyObject* obj); 
-
-	// строковое представление строк Python 
-	private: int        (*pfn_PyString_AsStringAndSize)(PyObject*, char**, Py_ssize_t*);
-	private: Py_ssize_t (*pfn_PyUnicodeUCS2_AsWideChar)(PyObject*, wchar_t*, Py_ssize_t); 
-
-	// преобразование кодировки строки
-	private: PyObject* (*pfn_PyUnicodeUCS2_AsUTF8String)(PyObject*); 
-
-	// строковое представление объекта
-	private: PyObject* (*pfn_PyObject_Unicode)(PyObject*); 
-
 	// конструктор
-	public: python_error_category(HMODULE hModule) 
+	public: python_error_category(HMODULE hModule) : pfn__Py_Dealloc(nullptr) 
 	{
-		(FARPROC&)pfn_PyErr_Occurred			 		= GetProcAddress(hModule, "PyErr_Occurred"					); 
-		(FARPROC&)pfn_PyErr_Fetch				 		= GetProcAddress(hModule, "PyErr_Fetch"	 					); 
-		(FARPROC&)pfn_PyErr_Restore				 		= GetProcAddress(hModule, "PyErr_Restore"					); 
-		(FARPROC&)pfn_PyString_Size						= GetProcAddress(hModule, "PyString_Size"					); 
-		(FARPROC&)pfn_PyUnicodeUCS2_GetSize				= GetProcAddress(hModule, "PyUnicodeUCS2_GetSize"			); 
-		(FARPROC&)pfn_PyString_AsStringAndSize			= GetProcAddress(hModule, "PyString_AsStringAndSize"		); 
-		(FARPROC&)pfn_PyUnicodeUCS2_AsWideChar	 		= GetProcAddress(hModule, "PyUnicodeUCS2_AsWideChar"		); 
-		(FARPROC&)pfn_PyUnicodeUCS2_AsUTF8String		= GetProcAddress(hModule, "PyUnicodeUCS2_AsUTF8String"		); 
-		(FARPROC&)pfn_PyObject_Unicode			 		= GetProcAddress(hModule, "PyObject_Unicode"				); 
+		// инициализировать переменные 
+		pfn_PyUnicode_AsUTF8AndSize = nullptr; pfn_PyString_AsStringAndSize = nullptr;
+		pfn_PyUnicode_AsUTF8String  = nullptr; 
+
+		// определить адреса функций 
+		(FARPROC&)pfn_PyErr_Occurred			 = GetProcAddress(hModule, "PyErr_Occurred"				); 
+		(FARPROC&)pfn_PyErr_Fetch				 = GetProcAddress(hModule, "PyErr_Fetch"	 			); 
+		(FARPROC&)pfn_PyErr_Restore				 = GetProcAddress(hModule, "PyErr_Restore"				); 
+#if (PY_MAJOR_VERSION >= 3)
+		(FARPROC&)pfn__Py_Dealloc				= GetProcAddress(hModule, "_Py_Dealloc"					); 
+		(FARPROC&)pfn_PyUnicode_GetSize			= GetProcAddress(hModule, "PyUnicode_GetSize"			); 
+		(FARPROC&)pfn_PyUnicode_AsWideChar	 	= GetProcAddress(hModule, "PyUnicode_AsWideChar"		); 
+		(FARPROC&)pfn_PyUnicode_AsUTF8AndSize	= GetProcAddress(hModule, "PyUnicode_AsUTF8AndSize"		); 
+		(FARPROC&)pfn_PyObject_Unicode			= GetProcAddress(hModule, "PyObject_Str"				); 
+#else
+		(FARPROC&)pfn_PyString_AsStringAndSize	= GetProcAddress(hModule, "PyString_AsStringAndSize"	); 
+		(FARPROC&)pfn_PyUnicode_GetSize			= GetProcAddress(hModule, "PyUnicodeUCS2_GetSize"		); 
+		(FARPROC&)pfn_PyUnicode_AsWideChar	 	= GetProcAddress(hModule, "PyUnicodeUCS2_AsWideChar"	); 
+		(FARPROC&)pfn_PyUnicode_AsUTF8String	= GetProcAddress(hModule, "PyUnicodeUCS2_AsUTF8String"	); 
+		(FARPROC&)pfn_PyObject_Unicode			= GetProcAddress(hModule, "PyObject_Unicode"			); 
+#endif 
 	}
     // получить сообщение об ошибке
     public: virtual std::string message(PyObject* status) const; 
@@ -46,38 +64,55 @@ class python_error_category : public trace::error_category<PyObject*>
     public: void trace(PyObject* type, PyObject* value, PyObject* traceback) const; 
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Способ освобожденния объекта 
+	///////////////////////////////////////////////////////////////////////////////
+	private: void (*pfn__Py_Dealloc)(PyObject* obj); 
+	public: class PyDecrementor PyDecrementor() const 
+	{
+		// способ освобожденния объекта 
+		return class PyDecrementor(pfn__Py_Dealloc); 
+	}
+	///////////////////////////////////////////////////////////////////////////////
 	// Управление ошибками 
 	///////////////////////////////////////////////////////////////////////////////
 
 	// признак наличия ошибки
+	private: PyObject* (*pfn_PyErr_Occurred)(); 
 	public: PyObject* PyErr_Occurred() const { return (*pfn_PyErr_Occurred)(); }
 
     // получить состояние ошибки
+	private: void (*pfn_PyErr_Fetch)(PyObject**, PyObject**, PyObject**);
     public: void PyErr_Fetch(PyObject** ptype, PyObject** pvalue, PyObject** ptraceback) const
 	{
 		// пулучить состояние ошибки
 		(*pfn_PyErr_Fetch)(ptype, pvalue, ptraceback); 
 	} 
     // установить состояние ошибки
+	private: void (*pfn_PyErr_Restore)(PyObject*, PyObject*, PyObject*);
     public: void PyErr_Restore(PyObject* type, PyObject* value, PyObject* traceback) const
 	{
 		// установить состояние ошибки
 		(*pfn_PyErr_Restore)(type, value, traceback); 
 	} 
 	///////////////////////////////////////////////////////////////////////////////
-	// Управление строками
+	// Управление строками (здесь String - это String для Python2 и Unicode для Python3)
 	///////////////////////////////////////////////////////////////////////////////
-	public: Py_ssize_t PyString_Size (PyObject* obj) const; 
-	public: Py_ssize_t PyUnicode_Size(PyObject* obj) const; 
+	private: int (*pfn_PyString_AsStringAndSize)(PyObject*, char**, Py_ssize_t*);
+	public: std::string PyString_AsUTF8String(PyObject* obj) const; 
 
-	public: std::string  PyString_AsString     (PyObject* obj) const; 
-	public: std::string  PyUnicode_AsUTF8String(PyObject* obj) const; 
+	private: const char* (*pfn_PyUnicode_AsUTF8AndSize)(PyObject*, Py_ssize_t*); 
+	private: PyObject*   (*pfn_PyUnicode_AsUTF8String )(PyObject*); 
+	public: std::string PyUnicode_AsUTF8String(PyObject* obj) const; 
+
+	private: Py_ssize_t (*pfn_PyUnicode_GetSize   )(PyObject*); 
+	private: Py_ssize_t (*pfn_PyUnicode_AsWideChar)(PyObject*, wchar_t*, Py_ssize_t); 
 	public: std::wstring PyUnicode_AsWideString(PyObject* obj) const; 
 
 	////////////////////////////////////////////////////////////////
 	// Строковое представление объекта
 	////////////////////////////////////////////////////////////////
-	public: std::string PyObject_AsUTF8String (PyObject* obj) const; 
+	private: PyObject* (*pfn_PyObject_Unicode)(PyObject*); 
+	public: std::string  PyObject_AsUTF8String(PyObject* obj) const; 
 	public: std::wstring PyObject_AsWideString(PyObject* obj) const;
 };
 
@@ -138,27 +173,15 @@ class python_exception : public trace::exception<PyObject*>
 		// получить описание исключения
 		if (value()) category.PyErr_Fetch(&_type, &_value, &_traceback);
 	}
-	// конструктор копирования
-	public: python_exception(const python_exception& e) : base_type(code(), e.file(), e.line()) 
-	{
-		// увеличить счетчики ссылок
-		_type      = e._type     ; if (_type     ) Py_XINCREF(_type     ); 
-		_value     = e._value    ; if (_value    ) Py_XINCREF(_value    ); 
-		_traceback = e._traceback; if (_traceback) Py_XINCREF(_traceback);
-	}
-	// деструктор
-	public: virtual ~python_exception() 
-	{
-		// уменьшить счетчики ссылок
-		if (_type     ) Py_XDECREF(_type     ); 
-		if (_value    ) Py_XDECREF(_value    ); 
-		if (_traceback) Py_XDECREF(_traceback);
-	}
     // получить дополнительную информацию об ошибке
     public: virtual void trace() const { if (value()) return; 
 
+		// выполнить преобразование типа
+		const python_error_category& category = 
+			(const python_error_category&)code().category(); 
+
 		// получить дополнительную информацию об ошибке
-		((const python_error_category&)code().category()).trace(_type, _value, _traceback); 
+		category.trace(_type, _value, _traceback); 
 	} 
     // выбросить исключение
     public: virtual void raise() const { trace(); 
@@ -183,27 +206,14 @@ class python_exception : public trace::exception<PyObject*>
 ///////////////////////////////////////////////////////////////////////////////
 // Управление строками Python
 ///////////////////////////////////////////////////////////////////////////////
-inline Py_ssize_t python_error_category::PyString_Size(PyObject* obj) const
+inline std::string python_error_category::PyString_AsUTF8String(PyObject* obj) const
 {
-	// определить размер строки
-	Py_ssize_t length = (*pfn_PyString_Size)(obj); 
-
-	// проверить корректность вызова
-	if (length < 0) { AE_CHECK_PYTHON(*this); } return length; 
-} 
-
-inline Py_ssize_t python_error_category::PyUnicode_Size(PyObject* obj) const
-{
-	// определить размер строки
-	Py_ssize_t length = (*pfn_PyUnicodeUCS2_GetSize)(obj); 
-
-	// проверить корректность вызова
-	if (length < 0) { AE_CHECK_PYTHON(*this); } return length; 
-} 
-
-inline std::string python_error_category::PyString_AsString(PyObject* obj) const
-{
-	char* buffer; Py_ssize_t length; 
+#if (PY_MAJOR_VERSION >= 3)
+	// извлечь строковое содержимое
+	return PyUnicode_AsUTF8String(obj); 
+#else 
+	// инициализировать переменные 
+	char* buffer = nullptr; Py_ssize_t length = 0; 
 		
 	// извлечь строку
 	if ((*pfn_PyString_AsStringAndSize)(obj, &buffer, &length) < 0) 
@@ -213,30 +223,48 @@ inline std::string python_error_category::PyString_AsString(PyObject* obj) const
 	}
 	// вернуть строку
 	return std::string(buffer, length); 
+#endif 
 } 
 
 inline std::string python_error_category::PyUnicode_AsUTF8String(PyObject* obj) const
 {
+#if (PY_MAJOR_VERSION >= 3)
+	// инициализировать переменные 
+	const char* buffer = nullptr; Py_ssize_t length = 0; 
+		
+	// извлечь строку
+	buffer = (*pfn_PyUnicode_AsUTF8AndSize)(obj, &length); 
+
+	// при ошибке выбросить исключение
+	if (!buffer) AE_CHECK_PYTHON(*this); 
+
+	// вернуть строку
+	return std::string(buffer, length); 
+#else 
 	// выполнить преобразование кодировки
-	PyObject* str = (*pfn_PyUnicodeUCS2_AsUTF8String)(obj); 
+	PyObject* str = (*pfn_PyUnicode_AsUTF8String)(obj); 
 	
 	// проверить отсутствие ошибок
 	if (!str) { AE_CHECK_PYTHON(*this); } 
 
 	// извлечь строковое содержимое
-	std::string value = PyString_AsString(str); 
+	std::string value = PyString_AsUTF8String(str); 
 
 	// уменьшить счетчик ссылок объекта
-	Py_DECREF(str); return value; 
+	PyDecrementor().operator()(str); return value; 
+#endif 
 } 
 
 inline std::wstring python_error_category::PyUnicode_AsWideString(PyObject* obj) const
 {
 	// определить размер строки
-	Py_ssize_t length = PyUnicode_Size(obj); std::wstring buffer(length, 0);
+	Py_ssize_t length = (*pfn_PyUnicode_GetSize)(obj); 
+
+	// проверить корректность вызова
+	if (length < 0) { AE_CHECK_PYTHON(*this); } std::wstring buffer(length, 0);
 
 	// извлечь строку
-	length = (*pfn_PyUnicodeUCS2_AsWideChar)(obj, &buffer[0], length); 
+	length = (*pfn_PyUnicode_AsWideChar)(obj, &buffer[0], length); 
 
 	// проверить отсутствие ошибок
 	if (length < 0) { AE_CHECK_PYTHON(*this); } 
@@ -260,7 +288,7 @@ inline std::string python_error_category::PyObject_AsUTF8String(PyObject* obj) c
 	std::string value = PyUnicode_AsUTF8String(unicodeObj); 
 
 	// уменьшить счетчик ссылок объекта
-	Py_DECREF(unicodeObj); return value; 
+	PyDecrementor().operator()(unicodeObj); return value; 
 }
 
 inline std::wstring python_error_category::PyObject_AsWideString(PyObject* obj) const
@@ -275,7 +303,7 @@ inline std::wstring python_error_category::PyObject_AsWideString(PyObject* obj) 
 	std::wstring value = PyUnicode_AsWideString(unicodeObj); 
 
 	// уменьшить счетчик ссылок объекта
-	Py_DECREF(unicodeObj); return value; 
+	PyDecrementor().operator()(unicodeObj); return value; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////

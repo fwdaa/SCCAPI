@@ -312,8 +312,14 @@ class Factory : public IFactory
 	public: Factory(PCWSTR szEngine); private: ENGINE* pCAPI; bool loaded;
 #endif 
 	// конструктор/деструктор 
-	public: Factory(); virtual ~Factory(); 
+	public: Factory(ENGINE* pCAPI); Factory(); virtual ~Factory(); 
 
+	// передать указатель другому потоку
+	public: virtual std::shared_ptr<IFactory> Marshal() const override 
+	{ 
+		// увеличить счетчик ссылок 
+		return std::shared_ptr<IFactory>(new Factory(pCAPI)); 
+	}
 	// сгенерировать случайные данные
 	public: virtual void GenerateRandom(void* pvData, size_t cbData) const override; 
 

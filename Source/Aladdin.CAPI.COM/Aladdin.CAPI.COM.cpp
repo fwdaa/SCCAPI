@@ -38,6 +38,42 @@ static bool IsProcessInteractive()
 	return true;
 }
 ///////////////////////////////////////////////////////////////////////////////
+// Реализация IUnknown
+///////////////////////////////////////////////////////////////////////////////
+template <class Interface>
+Aladdin::CAPI::COM::UnknownObject<Interface>::UnknownObject(
+	Interface* pObject, bool registerGIT) : dwCookieGIT(0)
+{
+	// сохранить переданные параметры 
+	this->pObject = pObject; cRef = 1; if (!registerGIT) return; 
+
+	// получить объект таблицы GIT
+	ATL::CComPtr<IGlobalInterfaceTable> pGIT; 
+	AE_CHECK_HRESULT(pGIT.CoCreateInstance(
+		CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER
+	)); 
+	// зарегистрировать объект в таблице 
+	AE_CHECK_HRESULT(pGIT->RegisterInterfaceInGlobal(
+		pObject, GetIID(), &dwCookieGIT
+	)); 
+}
+
+template <class Interface>
+Aladdin::CAPI::COM::UnknownObject<Interface>::~UnknownObject() 
+{ 
+	// проверить необходимость удаления из таблицы 
+	ATLASSERT(cRef == 1); if (dwCookieGIT == 0) return; 
+
+	// получить объект таблицы GIT
+	ATL::CComPtr<IGlobalInterfaceTable> pGIT; 
+	HRESULT hr = pGIT.CoCreateInstance(
+		CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER
+	); 
+	// отменить регистрацию объекта 
+	if (SUCCEEDED(hr)) pGIT->RevokeInterfaceFromGlobal(dwCookieGIT); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Вызов Dispose при освобождении объекта
 ///////////////////////////////////////////////////////////////////////////////
 template <class Interface>
@@ -1293,6 +1329,27 @@ Aladdin::CAPI::COM::Factory::SelectPrivateKeySSL(void* hwnd) const
 	// вернуть выбранный ключ
 	return std::shared_ptr<IPrivateKey>(
 		new PrivateKey(pPrivateKey), Deleter<PrivateKey>()
+	); 
+}
+
+std::shared_ptr<Aladdin::CAPI::IFactory> Aladdin::CAPI::COM::Factory::Marshal() const 
+{
+	// получить объект таблицы GIT
+	ATL::CComPtr<IGlobalInterfaceTable> pGIT; 
+	AE_CHECK_HRESULT(pGIT.CoCreateInstance(
+		CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER
+	)); 
+	// получить объект из таблицы интерфейсов
+	ATL::CComPtr<Aladdin_CAPI_COM::IFactory> pFactory; 
+	HRESULT hr = pGIT->GetInterfaceFromGlobal(
+		dwCookie, __uuidof(Aladdin_CAPI_COM::IFactory), (void**)&pFactory
+	); 
+	// проверить отсутствие ошибок 
+	AE_CHECK_COM(pGIT, __uuidof(IGlobalInterfaceTable), hr);
+
+	// вернуть созданную фабрику
+	return std::shared_ptr<Aladdin::CAPI::IFactory>(
+		new Factory(pFactory, dwCookie), Deleter<Factory>()
 	); 
 }
 

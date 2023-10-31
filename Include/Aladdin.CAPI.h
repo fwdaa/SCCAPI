@@ -169,6 +169,9 @@ struct IPrivateKey { virtual ~IPrivateKey() {}
 ///////////////////////////////////////////////////////////////////////////////
 struct IFactory { virtual ~IFactory() {}
 
+	// передать указатель другому потоку
+	virtual std::shared_ptr<IFactory> Marshal() const = 0; 
+
 	// сгенерировать случайные данные
 	virtual void GenerateRandom(void* pvData, size_t cbData) const = 0; 
 

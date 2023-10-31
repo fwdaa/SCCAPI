@@ -19,26 +19,26 @@ class Deleter
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Вызов Dispose при освобождении объекта
+// Реализация IUnknown
 ///////////////////////////////////////////////////////////////////////////////
 template <class Interface>
 class UnknownObject : public Interface
 {
 	// точка входа в управляемый код и счетчик ссылок
-	private: ATL::CComPtr<Interface> pObject; LONG cRef; 
+	private: ATL::CComPtr<Interface> pObject; LONG cRef; DWORD dwCookieGIT;
 
 	// конструктор
-	public: UnknownObject(Interface* pObject) { this->pObject = pObject; cRef = 1; } 
-
+	public: UnknownObject(Interface* pObject, bool registerGIT = false); 
 	// деструктор
-	public: virtual ~UnknownObject() { ATLASSERT(cRef == 1); }
+	public: virtual ~UnknownObject(); 
 
 	// базовый объект
-	public: Interface* BaseObject()       { return (Interface*)pObject; }
-	public: Interface* BaseObject() const { return (Interface*)pObject; }
-
+	protected: Interface* BaseObject() const { return (Interface*)pObject; }
 	// идентификатор интерфейса
 	protected: REFIID GetIID() const { return __uuidof(Interface); }
+
+	// идентификатор в таблице интерфейсов 
+	protected: DWORD CookieGIT() const { return dwCookieGIT; }
 
 	///////////////////////////////////////////////////////////////////////////
 	// Методы IUnknown
@@ -70,13 +70,16 @@ class UnknownObject : public Interface
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Вызов Dispose при освобождении объекта
+// Реализация IDispatch 
 ///////////////////////////////////////////////////////////////////////////////
 template <class Interface>
 class DispatchObject : public UnknownObject<Interface>
 {
 	// конструктор
-	public: DispatchObject(Interface* pObject) : UnknownObject<Interface>(pObject) {}
+	public: DispatchObject(Interface* pObject, bool registerGIT = false) 
+		
+		// сохранить переданные параметры 
+		: UnknownObject<Interface>(pObject, registerGIT) {}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Методы IDispatch
@@ -121,11 +124,11 @@ class DispatchObject : public UnknownObject<Interface>
 ///////////////////////////////////////////////////////////////////////////////
 class Authentication : public UnknownObject<Aladdin_CAPI_COM::IAuthentication>
 {
+	// тип базового класса 
+	private: typedef UnknownObject<Aladdin_CAPI_COM::IAuthentication> base_type; 
+
 	// конструктор
-	public: Authentication(Aladdin_CAPI_COM::IAuthentication* pObject) 
-		
-		// сохранить переданные параметры
-		: UnknownObject<Aladdin_CAPI_COM::IAuthentication>(pObject) {}
+	public: Authentication(Aladdin_CAPI_COM::IAuthentication* pObject) : base_type(pObject) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -133,14 +136,11 @@ class Authentication : public UnknownObject<Aladdin_CAPI_COM::IAuthentication>
 ///////////////////////////////////////////////////////////////////////////
 class DistinctName : public DispatchObject<Aladdin_CAPI_COM::IDistinctName>, public CAPI::IDistinctName
 {
-	// конструктор
-	public: DistinctName(Aladdin_CAPI_COM::IDistinctName* pDistinctName) 
-		
-		// сохранить переданные параметры
-		: DispatchObject<Aladdin_CAPI_COM::IDistinctName>(pDistinctName) {}
+	// тип базового класса 
+	private: typedef DispatchObject<Aladdin_CAPI_COM::IDistinctName> base_type; 
 
-	// деструктор
-	public: virtual ~DistinctName() {}
+	// конструктор
+	public: DistinctName(Aladdin_CAPI_COM::IDistinctName* pDistinctName) : base_type(pDistinctName) {}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Реализация COM-интерфейса
@@ -162,16 +162,15 @@ class DistinctName : public DispatchObject<Aladdin_CAPI_COM::IDistinctName>, pub
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Освобождаемый сертификат
+// Сертификат
 ///////////////////////////////////////////////////////////////////////////////
 class Certificate : public DispatchObject<Aladdin_CAPI_COM::ICertificate>, public CAPI::ICertificate
 {
-	// конструктор
-	public: Certificate(Aladdin_CAPI_COM::ICertificate* pCertificate) 
-		
-		// сохранить переданные параметры
-		: DispatchObject<Aladdin_CAPI_COM::ICertificate>(pCertificate) {}
+	// тип базового класса 
+	private: typedef DispatchObject<Aladdin_CAPI_COM::ICertificate> base_type; 
 
+	// конструктор
+	public: Certificate(Aladdin_CAPI_COM::ICertificate* pCertificate) : base_type(pCertificate) {}
 	// деструктор
 	public: virtual ~Certificate() { BaseObject()->Dispose(); }
 
@@ -224,16 +223,15 @@ class Certificate : public DispatchObject<Aladdin_CAPI_COM::ICertificate>, publi
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Освобождаемый личный ключ
+// Личный ключ
 ///////////////////////////////////////////////////////////////////////////////
 class PrivateKey : public DispatchObject<Aladdin_CAPI_COM::IPrivateKey>, public CAPI::IPrivateKey
 {
-	// конструктор
-	public: PrivateKey(Aladdin_CAPI_COM::IPrivateKey* pPrivateKey) 
-		
-		// сохранить переданные параметры
-		: DispatchObject<Aladdin_CAPI_COM::IPrivateKey>(pPrivateKey) {}
+	// тип базового класса 
+	private: typedef DispatchObject<Aladdin_CAPI_COM::IPrivateKey> base_type; 
 
+	// конструктор
+	public: PrivateKey(Aladdin_CAPI_COM::IPrivateKey* pPrivateKey) : base_type(pPrivateKey) {}
 	// деструктор
 	public: virtual ~PrivateKey() { BaseObject()->Dispose(); }
 
@@ -301,14 +299,28 @@ class PrivateKey : public DispatchObject<Aladdin_CAPI_COM::IPrivateKey>, public 
 ///////////////////////////////////////////////////////////////////////////
 class Factory : public DispatchObject<Aladdin_CAPI_COM::IFactory>, public CAPI::IFactory
 {
+	// тип базового класса 
+	private: typedef DispatchObject<Aladdin_CAPI_COM::IFactory> base_type; 
+
 	// конструктор
 	public: Factory(Aladdin_CAPI_COM::IFactory* pFactory) 
 		
-		// сохранить переданные параметры
-		: DispatchObject<Aladdin_CAPI_COM::IFactory>(pFactory) {}
+		// сохранить переданные параметры 
+		: base_type(pFactory, true) { dwCookie = CookieGIT(); }
+
+	// конструктор
+	public: Factory(Aladdin_CAPI_COM::IFactory* pFactory, DWORD dwCookie) 
+		
+		// сохранить переданные параметры 
+		: base_type(pFactory, false) { this->dwCookie = dwCookie; }
 
 	// деструктор
-	public: virtual ~Factory() { BaseObject()->Dispose(); }
+	public: virtual ~Factory() { if (!CookieGIT()) BaseObject()->Dispose(); } 
+
+	// передать указатель другому потоку
+	public: virtual std::shared_ptr<CAPI::IFactory> Marshal() const override; 
+
+	private: DWORD dwCookie; 
 
 	///////////////////////////////////////////////////////////////////////////
 	// Реализация COM-интерфейса
@@ -410,11 +422,11 @@ class Factory : public DispatchObject<Aladdin_CAPI_COM::IFactory>, public CAPI::
 ///////////////////////////////////////////////////////////////////////////
 class Entry : public DispatchObject<Aladdin_CAPI_COM::IEntry>
 {
+	// тип базового класса 
+	private: typedef DispatchObject<Aladdin_CAPI_COM::IEntry> base_type; 
+
 	// конструктор
-	public: Entry(Aladdin_CAPI_COM::IEntry* pEntry) 
-		
-		// сохранить переданные параметры
-		: DispatchObject<Aladdin_CAPI_COM::IEntry>(pEntry) {}
+	public: Entry(Aladdin_CAPI_COM::IEntry* pEntry) : base_type(pEntry) {}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Реализация COM-интерфейса

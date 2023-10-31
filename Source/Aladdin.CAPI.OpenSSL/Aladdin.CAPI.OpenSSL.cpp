@@ -988,6 +988,18 @@ EVP_PKEY* Aladdin::CAPI::OpenSSL::PrivateKeySSL::GetPrivateKeyObject() const
 ///////////////////////////////////////////////////////////////////////////////
 // Фабрика ключей
 ///////////////////////////////////////////////////////////////////////////////
+Aladdin::CAPI::OpenSSL::Factory::Factory(ENGINE* pCAPI)
+{$
+	// получить требуемый плагин
+	::ENGINE_up_ref(pCAPI); this->pCAPI = pCAPI; 
+	try {
+		// выполнить инициализацию
+		AE_CHECK_OPENSSL(::ENGINE_init(pCAPI)); 
+	}
+	// освободить выделенные ресурсы
+	catch (...) { ::ENGINE_free(pCAPI); throw; }
+}
+
 #if defined _WIN32
 void Aladdin::CAPI::OpenSSL::Factory::RegisterCAPI(PCWSTR szPath)
 {$
