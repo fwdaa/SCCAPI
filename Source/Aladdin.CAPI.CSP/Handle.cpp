@@ -404,7 +404,7 @@ try {
     if (fOK && ((dwFlags & CRYPT_DELETEKEYSET) == 0)) s_providers[*phProv] = module.second; return fOK; 
 }
 // установить код последней ошибки
-catch (const system_exception& e) { e.SetLastError(); return FALSE; }
+catch (const std::system_error& e) { ::SetLastError(e.code().value()); return FALSE; }
 
 BOOL WINAPI ExCryptReleaseContext(
     IN              BOOL        sspi,
