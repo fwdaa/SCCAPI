@@ -63,7 +63,7 @@ inline std::string _windows_category::message(int code) const
 			std::string msg(szBuffer); ::LocalFree(szBuffer); return msg; 
 		}
         // преобразовать код ошибки 
-        code = (int)RtlNtStatusToDosError(status); flags &= ~FORMAT_MESSAGE_FROM_HMODULE;
+        code = (int)WINERROR_FROM_NTSTATUS(status); flags &= ~FORMAT_MESSAGE_FROM_HMODULE;
     }
     // для ошибки подсистемы Win32
     if (HRESULT_FACILITY(code) == FACILITY_WIN32) code = HRESULT_CODE(code);
