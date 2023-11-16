@@ -40,18 +40,3 @@ using namespace System::Security::Permissions;
 using namespace System::Runtime::InteropServices; 
 using namespace System::Runtime::CompilerServices;
 using namespace System::Windows::Forms;
-
-#define AE_CHECK_CSP_RESULT(code)										\
-													                    \
-	/* проверить код завершения */					                    \
-	try { AE_CHECK_WIN32_RESULT(code); }								\
-																		\
-	/* при возникновении ошибки */					                    \
-	catch (const CAException& e)					                    \
-	{												                    \
-		/* указать код ошибки */										\
-		HRESULT hr = e.Code(); if (SUCCEEDED(hr)) hr = E_FAIL;			\
-																		\
-		/* выбросить исключение */					                    \
-		throw gcnew Win32Exception(hr);									\
-	}													

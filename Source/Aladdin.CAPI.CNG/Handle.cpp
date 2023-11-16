@@ -433,7 +433,7 @@ array<BYTE>^ Aladdin::CAPI::CNG::BKeyHandle::DeriveKey(DWORD keySize, IntPtr par
 	array<BYTE>^ key = gcnew array<BYTE>(keySize + 1); pin_ptr<BYTE> ptrKey = &key[0]; 
 
 	// выполнить наследование ключа
-	AE_CHECK_CNG_RESULT(::BCryptKeyDerivation(Value, pParameters, ptrKey, keySize, &keySize, flags));
+	AE_CHECK_NTSTATUS(::BCryptKeyDerivation(Value, pParameters, ptrKey, keySize, &keySize, flags));
 
 	// изменить размер буфера
 	Array::Resize(key, keySize); return key; 
