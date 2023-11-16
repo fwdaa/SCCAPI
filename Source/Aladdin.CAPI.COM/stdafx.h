@@ -57,3 +57,4 @@
 #define WPP_CONTROL_NAME CAPI
 #define WPP_CONTROL_GUID (9FBE1F94, 4203, 4A56, 862C, 755504BCA37C)
 #include "Trace.h"
+#include "TraceCOM.h"

@@ -35,3 +35,6 @@
 #define WPP_CONTROL_GUID (3B61FCBE, EB57, 47FB, 8DBC, E2A9E8EC8F5C)
 #endif
 #include "Trace.h"
+#if defined _WIN32
+#include "TraceCOM.h"
+#endif

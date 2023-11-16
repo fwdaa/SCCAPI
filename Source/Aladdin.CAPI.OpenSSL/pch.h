@@ -37,4 +37,6 @@
 #endif 
 #include "Trace.h"
 #include "TraceOpenSSL.h"
-
+#if defined _WIN32
+#include "TraceWindows.h"
+#endif 
