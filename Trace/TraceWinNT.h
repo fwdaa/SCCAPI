@@ -31,7 +31,7 @@ inline DWORD WINERROR_FROM_NTSTATUS(NTSTATUS status)
 #define WPP_TRACELEVEL_NTSTATUS_RAISE(FILE, LINE)                           \
     windows_error(HRESULT_FROM_NT(WPP_VAR(LINE))).trace(FILE, LINE);        \
     throw gcnew System::ComponentModel::Win32Exception(                     \
-        HRESULT_FROM_WIN32(WINERROR_FROM_NTSTATUS(WPP_VAR(LINE))).value()    \
+        HRESULT_FROM_WIN32(WINERROR_FROM_NTSTATUS(WPP_VAR(LINE)))           \
     );  
 #elif !defined _NTDDK_
 #define WPP_TRACELEVEL_NTSTATUS_RAISE(FILE, LINE)                           \

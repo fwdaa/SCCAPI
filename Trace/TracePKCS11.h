@@ -141,7 +141,7 @@ class pkcs11_error_code : public trace::error_code<CK_ULONG>
 inline std::string pkcs11_error_category::message(CK_ULONG code) const
 {
 	// вернуть сообщение об ошибке
-	return pkcs11_error(code).name(); 
+	return pkcs11_error_code(code).name(); 
 } 
 ///////////////////////////////////////////////////////////////////////////////
 // Исключение PKCS11
@@ -195,7 +195,7 @@ WPP_FORMAT_TABLE_EXTENSION(PKCS11, format_pkcs11);
 ///////////////////////////////////////////////////////////////////////////////
 #if defined _MANAGED && _MANAGED == 1
 #define WPP_TRACELEVEL_PKCS11_RAISE(FILE, LINE)    	                        \
-    pkcs11_error(WPP_VAR(LINE), FILE, LINE).trace();						\
+    pkcs11_error(WPP_VAR(LINE)).trace(FILE, LINE);							\
     throw gcnew Aladdin::PKCS11::Exception(WPP_VAR(LINE));
 #else 
 #define WPP_TRACELEVEL_PKCS11_RAISE(FILE, LINE)           	                \
