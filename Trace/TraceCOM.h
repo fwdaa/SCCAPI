@@ -1,14 +1,19 @@
 #pragma once
+#include "TraceWindows.h"
+#include <objbase.h>
 #include <unknwn.h>
 #include <oaidl.h>
 #include <oledb.h>
 
 ///////////////////////////////////////////////////////////////////////////////
-// Дополнительные определения трассировки
+// Определение отсутствия возврата из функции
 ///////////////////////////////////////////////////////////////////////////////
-#if defined WPP_CONTROL_GUIDS
-#define WPP_USER_MSG_GUID (B9C9408B, 25C5, 468D, 94B3, FC5CC02A1823)
-#include "TraceCOM.tmh"
+#if defined __GNUC__
+#define _NORETURN	__attribute__((noreturn))
+#elif defined _MSC_VER
+#define _NORETURN	__declspec(noreturn)
+#else 
+#define _NORETURN	[[noreturn]]
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,39 +49,40 @@ inline IErrorInfo* GetErrorInfo(IUnknown* pObj, REFIID iid)
 ///////////////////////////////////////////////////////////////////////////////
 // Исключение COM
 ///////////////////////////////////////////////////////////////////////////////
-class com_exception : public windows_exception
+class com_error : public windows_error
 {
-    // объект и описание ошибки
-    private: IUnknown* pObj; private: IErrorInfo* pErrorInfo; 
+    // описание ошибки
+    private: private: IErrorInfo* pErrorInfo; 
 
     // конструктор
-    public: com_exception(IUnknown* p, REFIID iid, HRESULT code, const char* szFile, int line)
-        
-        // сохранить переданные параметры
-        : windows_exception(hresult_error(code), szFile, line) 
+    public: com_error(IUnknown* p, REFIID iid, HRESULT code) : windows_error(code) 
     { 
         // сохранить переданные параметры
-        pObj = p; pObj->AddRef(); pErrorInfo = ::GetErrorInfo(pObj, iid); 
+        pErrorInfo = ::GetErrorInfo(p, iid); 
     }
     // конструктор
-    public: com_exception(const com_exception& other) : windows_exception(other)
-    {
+    public: com_error(IErrorInfo* pErrorInfo, HRESULT code) : windows_error(code) 
+    { 
         // сохранить переданные параметры
-        pObj = other.pObj; pObj->AddRef(); 
-
+        this->pErrorInfo = pErrorInfo; if (pErrorInfo) pErrorInfo->AddRef(); 
+    }
+    // конструктор
+    public: com_error(const com_error& other) : windows_error(other)
+    {
         // сохранить переданные параметры
         pErrorInfo = other.pErrorInfo; if (pErrorInfo) pErrorInfo->AddRef(); 
     }
     // деструктор
-    public: virtual ~com_exception() 
-    { 
-        // освободить выделенные ресурсы
-        pObj->Release(); if (pErrorInfo) pErrorInfo->Release(); 
-    }
+    public: virtual ~com_error() { if (pErrorInfo) pErrorInfo->Release(); }
+
     // выбросить исключение
-    public: virtual void raise() const { trace(); throw *this; }
+    public: virtual _NORETURN void raise(const char* szFile, int line) const 
+    { 
+        // выбросить исключение
+        trace(szFile, line); throw *this; 
+    }
     // передать сообщение отладчику
-    public: virtual void trace() const;  
+    public: virtual void trace(const char*, int) const;  
 
     // получить интерфейс описания ошибки
     public: IErrorInfo* GetErrorInfo() const 
@@ -101,17 +107,17 @@ class com_exception : public windows_exception
 ///////////////////////////////////////////////////////////////////////////////
 // Передать сообщение отладчику
 ///////////////////////////////////////////////////////////////////////////////
-inline void com_exception::trace() const 
+inline void com_error::trace(const char* szFile, int line) const 
 {
 	// вызвать базовую функцию
-	windows_exception::trace(); if (!pErrorInfo) return; 
+	windows_error::trace(szFile, line); if (!pErrorInfo) return; 
     __try { 
         // получить источник ошибки
         BSTR bstrSource;
         if (SUCCEEDED(pErrorInfo->GetSource(&bstrSource)))
         {
 	        // выполнить запись в журнал
-	        ATRACE(TRACE_LEVEL_ERROR, "Source = %!ARWSTR!", bstrSource); 
+	        trace_format("Source = %ls", bstrSource); 
 
             // освободить выделенные ресурсы
             ::SysFreeString(bstrSource); 
@@ -121,7 +127,7 @@ inline void com_exception::trace() const
         if (SUCCEEDED(pErrorInfo->GetDescription(&bstrDescription)))
         {
 	        // выполнить запись в журнал
-	        ATRACE(TRACE_LEVEL_ERROR, "Description = %!ARWSTR!", bstrDescription); 
+	        trace_format("Description = %ls", bstrDescription); 
 
             // освободить выделенные ресурсы
             ::SysFreeString(bstrDescription); 
@@ -140,20 +146,20 @@ inline void com_exception::trace() const
         }
     }
     // обработать возможное исключение
-    __except (EXCEPTION_EXECUTE_HANDLER) { return; }
+    __except (EXCEPTION_EXECUTE_HANDLER) {}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Описание ошибки COM
 ///////////////////////////////////////////////////////////////////////////////
-inline void com_exception::TraceErrorInfo(PCWSTR szPrefix, IErrorInfo* pError) const 
+inline void com_error::TraceErrorInfo(PCWSTR szPrefix, IErrorInfo* pError) const 
 {
     // получить описание ошибки
     BSTR bstrDescription;
     if (SUCCEEDED(pError->GetDescription(&bstrDescription)))
     {
 	    // выполнить запись в журнал
-	    ATRACE(TRACE_LEVEL_ERROR, "%lsDescription = %!ARWSTR!", szPrefix, bstrDescription); 
+	    trace_format("%lsDescription = %ls", szPrefix, bstrDescription); 
 
         // освободить выделенные ресурсы
         ::SysFreeString(bstrDescription); 
@@ -163,7 +169,7 @@ inline void com_exception::TraceErrorInfo(PCWSTR szPrefix, IErrorInfo* pError) c
     if (SUCCEEDED(pError->GetSource(&bstrSource)))
     {
 	    // выполнить запись в журнал
-	    ATRACE(TRACE_LEVEL_ERROR, "%lsSource = %!ARWSTR!", szPrefix, bstrSource); 
+	    trace_format("%lsSource = %ls", szPrefix, bstrSource); 
 
         // освободить выделенные ресурсы
         ::SysFreeString(bstrSource); 
@@ -173,7 +179,7 @@ inline void com_exception::TraceErrorInfo(PCWSTR szPrefix, IErrorInfo* pError) c
 ///////////////////////////////////////////////////////////////////////////////
 // Описание записей ошибки COM
 ///////////////////////////////////////////////////////////////////////////////
-inline IErrorRecords* com_exception::GetErrorRecords() const 
+inline IErrorRecords* com_error::GetErrorRecords() const 
 {
     // инициализировать указатели на интерфейсы
 	IErrorRecords* pErrorRecords = nullptr; 
@@ -186,7 +192,7 @@ inline IErrorRecords* com_exception::GetErrorRecords() const
     return pErrorRecords; 
 }
 
-inline void com_exception::TraceErrorRecords(IErrorRecords* pErrorRecords) const
+inline void com_error::TraceErrorRecords(IErrorRecords* pErrorRecords) const
 {
 	// указать используемую локализацию
 	LCID lcid = MAKELCID(MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), SORT_DEFAULT); 
@@ -215,7 +221,7 @@ inline void com_exception::TraceErrorRecords(IErrorRecords* pErrorRecords) const
 ///////////////////////////////////////////////////////////////////////////////
 // Описание исключения CLR
 ///////////////////////////////////////////////////////////////////////////////
-inline IDispatch* com_exception::GetClrException() const 
+inline IDispatch* com_error::GetClrException() const 
 {
 	IDispatch* pDispatch = nullptr;
 
@@ -228,17 +234,17 @@ inline IDispatch* com_exception::GetClrException() const
 	    iid, (void**) &pDispatch))) return nullptr; return pDispatch; 
 }
 
-inline void com_exception::TraceClrException(IDispatch* pException) const 
+inline void com_error::TraceClrException(IDispatch* pException) const 
 {
     // указать используемые методы
     LPCOLESTR szMethodNames[] = { L"Message", L"StackTrace" }; 
 
     // выделить память для идентификаторов методов
-    LCID lcid = LOCALE_USER_DEFAULT; DISPID id = 0; 
+    LCID lcid = LOCALE_USER_DEFAULT; DISPID ids[2]; 
 
     // получить идентификатор метода
     if (SUCCEEDED(pException->GetIDsOfNames(
-        IID_NULL, (LPOLESTR*)&szMethodNames[0], 1, lcid, &id)))
+        IID_NULL, (LPOLESTR*)&szMethodNames[0], 1, lcid, &ids[0])))
     {
         // создать место для результата
         VARIANT varMessage; ::VariantInit(&varMessage);
@@ -247,11 +253,11 @@ inline void com_exception::TraceClrException(IDispatch* pException) const
         DISPPARAMS parameters = { nullptr, nullptr, 0, 0 }; 
 
         // получить описание ошибки
-	    if (SUCCEEDED(pException->Invoke(id, IID_NULL, lcid, 
+	    if (SUCCEEDED(pException->Invoke(ids[0], IID_NULL, lcid, 
             DISPATCH_PROPERTYGET, &parameters, &varMessage, nullptr, nullptr)))
         {
 		    // выполнить запись в журнал
-		    ATRACE(TRACE_LEVEL_ERROR, "CLR Message = %!ARWSTR!", varMessage.bstrVal); 
+		    trace_format("CLR Message = %ls", varMessage.bstrVal); 
 
             // освободить выделенные ресурсы
             ::VariantClear(&varMessage);
@@ -259,7 +265,7 @@ inline void com_exception::TraceClrException(IDispatch* pException) const
     }
     // получить идентификатор метода
     if (SUCCEEDED(pException->GetIDsOfNames(
-        IID_NULL, (LPOLESTR*)&szMethodNames[1], 1, lcid, &id)))
+        IID_NULL, (LPOLESTR*)&szMethodNames[1], 1, lcid, &ids[1])))
     {
 	    // создать место для результата
         VARIANT varStack; ::VariantInit(&varStack);
@@ -268,11 +274,11 @@ inline void com_exception::TraceClrException(IDispatch* pException) const
         DISPPARAMS parameters = { nullptr, nullptr, 0, 0 }; 
 
         // получить описание ошибки
-	    if (SUCCEEDED(pException->Invoke(id, IID_NULL, lcid, 
+	    if (SUCCEEDED(pException->Invoke(ids[1], IID_NULL, lcid, 
             DISPATCH_PROPERTYGET, &parameters, &varStack, nullptr, nullptr)))
         {
 		    // выполнить запись в журнал
-		    ATRACE(TRACE_LEVEL_ERROR, "CLR StackTrace ="); 
+		    trace_format("%hs", "CLR StackTrace ="); 
             
 		    // выполнить запись в журнал
             ATRACE_MULTILINE(TRACE_LEVEL_ERROR, varStack.bstrVal);
@@ -284,8 +290,48 @@ inline void com_exception::TraceClrException(IDispatch* pException) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Сбросить идентификатор служебных сообщений
+// Трассировка ошибок COM
 ///////////////////////////////////////////////////////////////////////////////
-#if defined WPP_CONTROL_GUIDS
-#undef WPP_USER_MSG_GUID
+// Возбуждение исключения
+#if defined _MANAGED && _MANAGED == 1
+#define WPP_TRACELEVEL_OBJ_IID_HRESULT_RAISE(OBJ, IID, FILE, LINE)          \
+    com_error(OBJ, IID, WPP_VAR(LINE)).trace(FILE, LINE);                   \
+    throw gcnew System::ComponentModel::Win32Exception(WPP_VAR(LINE));  
+#else
+#define WPP_TRACELEVEL_OBJ_IID_HRESULT_RAISE(OBJ, IID, FILE, LINE)          \
+    com_error(OBJ, IID, WPP_VAR(LINE)).raise(FILE, LINE);
 #endif 
+
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_OBJ_IID_HRESULT(LEVEL, OBJ, IID, HR)        WPP_EX_TRACELEVEL_HRESULT(LEVEL, HR)
+
+// Отсутствие предварительных действий
+#define WPP_TRACELEVEL_OBJ_IID_HRESULT_PRE(LEVEL, OBJ, IID, HR)       WPP_TRACELEVEL_HRESULT_PRE(LEVEL, HR)
+
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_OBJ_IID_HRESULT_ENABLED(LEVEL, OBJ, IID, HR)   WPP_TRACELEVEL_HRESULT_ENABLED(LEVEL, HR)
+
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_OBJ_IID_HRESULT_POST(LEVEL, OBJ, IID, HR)                    \
+    ; if (WPP_TRACELEVEL_OBJ_IID_HRESULT_ENABLED(LEVEL, OBJ, IID, HR)) {            \
+         WPP_TRACELEVEL_OBJ_IID_HRESULT_RAISE(OBJ, IID, __FILE__, __LINE__)         \
+    }}
+
+// Определение трассировки
+#if defined WPP_CONTROL_GUIDS
+#define WPP_TRACELEVEL_OBJ_IID_HRESULT_LOGGER(LEVEL, OBJ, IID, HR)    WPP_TRACELEVEL_HRESULT_LOGGER(LEVEL, HR)
+#else 
+#define AE_CHECK_COM(OBJ, IID, HR)                                                                                                \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_OBJ_IID_HRESULT(TRACE_LEVEL_ERROR, OBJ, IID, HR), "ERROR %!HRESULT!", WPP_VAR(__LINE__))     \
+    WPP_TRACELEVEL_OBJ_IID_HRESULT_PRE(TRACE_LEVEL_ERROR, OBJ, IID, HR)                                                           \
+    (void)((                                                                                                                      \
+        WPP_TRACELEVEL_OBJ_IID_HRESULT_ENABLED(TRACE_LEVEL_ERROR, OBJ, IID, HR)                                                   \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!HRESULT!", WPP_VAR(__LINE__))), 1 : 0                                                    \
+    ))                                                                                                                            \
+    WPP_TRACELEVEL_OBJ_IID_HRESULT_POST(TRACE_LEVEL_ERROR, OBJ, IID, HR)                                  
+#endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Отмена действия макросов
+///////////////////////////////////////////////////////////////////////////////
+#undef _NORETURN

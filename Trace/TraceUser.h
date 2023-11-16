@@ -1,5 +1,5 @@
-// 8144776b194fd0c696946c05805efa1e Generated file. Do not edit.
-// File created by WPP compiler version 10.0.19041
+// 91041d14230f30449586c75758b4862a Generated file. Do not edit.
+// File created by WPP compiler version 10.0.22621
 // from template um-default.tpl
 
 #pragma once
@@ -477,22 +477,10 @@ extern "C" {
 #else // WPP_NO_ANNOTATIONS
 
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1361
+#define WPP_PUBLIC_ANNOT_Trace_h1365
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1367
-#endif
-#ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1383
-#endif
-#ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1384
-#endif
-#ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1385
-#endif
-#ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1386
+#define WPP_PUBLIC_ANNOT_Trace_h1371
 #endif
 #ifdef WPP_PUBLIC_
 #define WPP_PUBLIC_ANNOT_Trace_h1387
@@ -501,22 +489,34 @@ extern "C" {
 #define WPP_PUBLIC_ANNOT_Trace_h1388
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1398
+#define WPP_PUBLIC_ANNOT_Trace_h1389
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1399
+#define WPP_PUBLIC_ANNOT_Trace_h1390
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1400
+#define WPP_PUBLIC_ANNOT_Trace_h1391
 #endif
 #ifdef WPP_PUBLIC_
-#define WPP_PUBLIC_ANNOT_Trace_h1401
+#define WPP_PUBLIC_ANNOT_Trace_h1392
 #endif
 #ifdef WPP_PUBLIC_
 #define WPP_PUBLIC_ANNOT_Trace_h1402
 #endif
 #ifdef WPP_PUBLIC_
 #define WPP_PUBLIC_ANNOT_Trace_h1403
+#endif
+#ifdef WPP_PUBLIC_
+#define WPP_PUBLIC_ANNOT_Trace_h1404
+#endif
+#ifdef WPP_PUBLIC_
+#define WPP_PUBLIC_ANNOT_Trace_h1405
+#endif
+#ifdef WPP_PUBLIC_
+#define WPP_PUBLIC_ANNOT_Trace_h1406
+#endif
+#ifdef WPP_PUBLIC_
+#define WPP_PUBLIC_ANNOT_Trace_h1407
 #endif
 #ifdef WPP_EMIT_FUNC_NAME
 #define WPP_FUNC_NAME L" FUNC=" _WPPW(__FUNCTION__)
@@ -525,7 +525,7 @@ extern "C" {
 #endif // WPP_EMIT_FUNC_NAME
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1361_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1365_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -534,9 +534,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1361_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1365_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 10 \"%0--> %10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
@@ -544,8 +544,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1361
-# define WPP_ANNOTATE_Trace_h1361 WPP_ANNOTATE_Trace_h1361_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1365
+# define WPP_ANNOTATE_Trace_h1365 WPP_ANNOTATE_Trace_h1365_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -556,18 +556,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1361
-# define WPP_ANNOTATE_Trace_h1361 WPP_ANNOTATE_Trace_h1361_FINAL( \
+#else // WPP_PUBLIC_ANNOT_Trace_h1365
+# define WPP_ANNOTATE_Trace_h1365 WPP_ANNOTATE_Trace_h1365_FINAL( \
     "TMF:", \
     "Trace.h", \
-    "Trace_h1361", \
+    "Trace_h1365", \
     L"{", \
     L"szFunction, ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1361
+#endif // WPP_PUBLIC_ANNOT_Trace_h1365
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1367_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1371_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -576,9 +576,9 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1367_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1371_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 11 \"%0<-- %10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
@@ -586,8 +586,8 @@ extern "C" {
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
 
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1367
-# define WPP_ANNOTATE_Trace_h1367 WPP_ANNOTATE_Trace_h1367_FINAL( \
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1371
+# define WPP_ANNOTATE_Trace_h1371 WPP_ANNOTATE_Trace_h1371_FINAL( \
     "TMF:", \
     "Unknown_cxx00", \
     "Unknown_cxx00", \
@@ -598,18 +598,18 @@ extern "C" {
 # ifndef WPP_PUBLIC_TMC
 #  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
 # endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1367
-# define WPP_ANNOTATE_Trace_h1367 WPP_ANNOTATE_Trace_h1367_FINAL( \
+#else // WPP_PUBLIC_ANNOT_Trace_h1371
+# define WPP_ANNOTATE_Trace_h1371 WPP_ANNOTATE_Trace_h1371_FINAL( \
     "TMF:", \
     "Trace.h", \
-    "Trace_h1367", \
+    "Trace_h1371", \
     L"{", \
     L"szFunction, ItemString -- 10" , \
     L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1367
+#endif // WPP_PUBLIC_ANNOT_Trace_h1371
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1383_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1387_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -618,180 +618,12 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1383_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1387_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 12 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_NONE" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1383
-# define WPP_ANNOTATE_Trace_h1383 WPP_ANNOTATE_Trace_h1383_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1383
-# define WPP_ANNOTATE_Trace_h1383 WPP_ANNOTATE_Trace_h1383_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1383", \
-    L"{", \
-    L"trace::_str(sz. cch), ItemPString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1383
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1384_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 13 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1384_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 13 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1384
-# define WPP_ANNOTATE_Trace_h1384 WPP_ANNOTATE_Trace_h1384_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1384
-# define WPP_ANNOTATE_Trace_h1384 WPP_ANNOTATE_Trace_h1384_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1384", \
-    L"{", \
-    L"trace::_str(sz. cch), ItemPString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1384
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1385_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 14 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1385_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 14 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1385
-# define WPP_ANNOTATE_Trace_h1385 WPP_ANNOTATE_Trace_h1385_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1385
-# define WPP_ANNOTATE_Trace_h1385 WPP_ANNOTATE_Trace_h1385_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1385", \
-    L"{", \
-    L"trace::_str(sz. cch), ItemPString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1385
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1386_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 15 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1386_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 15 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1386
-# define WPP_ANNOTATE_Trace_h1386 WPP_ANNOTATE_Trace_h1386_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1386
-# define WPP_ANNOTATE_Trace_h1386 WPP_ANNOTATE_Trace_h1386_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1386", \
-    L"{", \
-    L"trace::_str(sz. cch), ItemPString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1386
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1387_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 16 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1387_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 16 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
@@ -824,16 +656,16 @@ extern "C" {
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
-    L" 17 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    L" 13 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
 # define WPP_ANNOTATE_Trace_h1388_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
-    L" 17 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    L" 13 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
@@ -861,7 +693,175 @@ extern "C" {
 #endif // WPP_PUBLIC_ANNOT_Trace_h1388
 
 #ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1398_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1389_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 14 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1389_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 14 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1389
+# define WPP_ANNOTATE_Trace_h1389 WPP_ANNOTATE_Trace_h1389_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1389
+# define WPP_ANNOTATE_Trace_h1389 WPP_ANNOTATE_Trace_h1389_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1389", \
+    L"{", \
+    L"trace::_str(sz. cch), ItemPString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1389
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1390_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 15 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1390_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 15 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1390
+# define WPP_ANNOTATE_Trace_h1390 WPP_ANNOTATE_Trace_h1390_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1390
+# define WPP_ANNOTATE_Trace_h1390 WPP_ANNOTATE_Trace_h1390_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1390", \
+    L"{", \
+    L"trace::_str(sz. cch), ItemPString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1390
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1391_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 16 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1391_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 16 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1391
+# define WPP_ANNOTATE_Trace_h1391 WPP_ANNOTATE_Trace_h1391_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1391
+# define WPP_ANNOTATE_Trace_h1391 WPP_ANNOTATE_Trace_h1391_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1391", \
+    L"{", \
+    L"trace::_str(sz. cch), ItemPString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1391
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1392_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 17 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1392_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 17 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1392
+# define WPP_ANNOTATE_Trace_h1392 WPP_ANNOTATE_Trace_h1392_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1392
+# define WPP_ANNOTATE_Trace_h1392 WPP_ANNOTATE_Trace_h1392_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1392", \
+    L"{", \
+    L"trace::_str(sz. cch), ItemPString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1392
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1402_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
@@ -870,180 +870,12 @@ extern "C" {
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1398_FINAL(P, File, Name, ...) __annotation( \
+# define WPP_ANNOTATE_Trace_h1402_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
     L" 18 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_NONE" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1398
-# define WPP_ANNOTATE_Trace_h1398 WPP_ANNOTATE_Trace_h1398_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPWString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1398
-# define WPP_ANNOTATE_Trace_h1398 WPP_ANNOTATE_Trace_h1398_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1398", \
-    L"{", \
-    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1398
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1399_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 19 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1399_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 19 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1399
-# define WPP_ANNOTATE_Trace_h1399 WPP_ANNOTATE_Trace_h1399_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPWString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1399
-# define WPP_ANNOTATE_Trace_h1399 WPP_ANNOTATE_Trace_h1399_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1399", \
-    L"{", \
-    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1399
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1400_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 20 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1400_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 20 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1400
-# define WPP_ANNOTATE_Trace_h1400 WPP_ANNOTATE_Trace_h1400_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPWString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1400
-# define WPP_ANNOTATE_Trace_h1400 WPP_ANNOTATE_Trace_h1400_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1400", \
-    L"{", \
-    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1400
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1401_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 21 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1401_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 21 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#endif // WPP_USER_MSG_GUID
-
-#ifdef WPP_PUBLIC_ANNOT_Trace_h1401
-# define WPP_ANNOTATE_Trace_h1401 WPP_ANNOTATE_Trace_h1401_FINAL( \
-    "TMF:", \
-    "Unknown_cxx00", \
-    "Unknown_cxx00", \
-    L"{", \
-    L"Arg, ItemPWString -- 10" , \
-    L"}", \
-    L"PUBLIC_TMF:")
-# ifndef WPP_PUBLIC_TMC
-#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
-# endif
-#else // WPP_PUBLIC_ANNOT_Trace_h1401
-# define WPP_ANNOTATE_Trace_h1401 WPP_ANNOTATE_Trace_h1401_FINAL( \
-    "TMF:", \
-    "Trace.h", \
-    "Trace_h1401", \
-    L"{", \
-    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
-    L"}")
-#endif // WPP_PUBLIC_ANNOT_Trace_h1401
-
-#ifdef WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1402_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 22 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
-    WPP_FUNC_NAME, \
-    __VA_ARGS__)
-#else // WPP_USER_MSG_GUID
-# define WPP_ANNOTATE_Trace_h1402_FINAL(P, File, Name, ...) __annotation( \
-    L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
-    L" MJ= MN=", \
-    L"#typev " _WPPW(Name) \
-    L" 22 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
@@ -1076,16 +908,16 @@ extern "C" {
     WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
-    L" 23 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    L" 19 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #else // WPP_USER_MSG_GUID
 # define WPP_ANNOTATE_Trace_h1403_FINAL(P, File, Name, ...) __annotation( \
     L ## P, \
-    L"01056d4d-ab5f-3412-11c6-0e8778f1f748 Trace // SRC=" _WPPW(File) \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
     L" MJ= MN=", \
     L"#typev " _WPPW(Name) \
-    L" 23 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    L" 19 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_CRITICAL" \
     WPP_FUNC_NAME, \
     __VA_ARGS__)
 #endif // WPP_USER_MSG_GUID
@@ -1112,6 +944,174 @@ extern "C" {
     L"}")
 #endif // WPP_PUBLIC_ANNOT_Trace_h1403
 
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1404_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 20 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1404_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 20 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_ERROR" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1404
+# define WPP_ANNOTATE_Trace_h1404 WPP_ANNOTATE_Trace_h1404_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPWString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1404
+# define WPP_ANNOTATE_Trace_h1404 WPP_ANNOTATE_Trace_h1404_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1404", \
+    L"{", \
+    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1404
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1405_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 21 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1405_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 21 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_WARNING" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1405
+# define WPP_ANNOTATE_Trace_h1405 WPP_ANNOTATE_Trace_h1405_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPWString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1405
+# define WPP_ANNOTATE_Trace_h1405 WPP_ANNOTATE_Trace_h1405_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1405", \
+    L"{", \
+    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1405
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1406_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 22 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1406_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 22 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_INFORMATION" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1406
+# define WPP_ANNOTATE_Trace_h1406 WPP_ANNOTATE_Trace_h1406_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPWString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1406
+# define WPP_ANNOTATE_Trace_h1406 WPP_ANNOTATE_Trace_h1406_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1406", \
+    L"{", \
+    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1406
+
+#ifdef WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1407_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    WPP_GUID_WTEXT WPP_USER_MSG_GUID L"Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 23 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#else // WPP_USER_MSG_GUID
+# define WPP_ANNOTATE_Trace_h1407_FINAL(P, File, Name, ...) __annotation( \
+    L ## P, \
+    L"9826dadb-3a74-3169-194d-26d634b9d168 Trace // SRC=" _WPPW(File) \
+    L" MJ= MN=", \
+    L"#typev " _WPPW(Name) \
+    L" 23 \"%0%10!s!\" //   TRACELEVEL=TRACE_LEVEL_VERBOSE" \
+    WPP_FUNC_NAME, \
+    __VA_ARGS__)
+#endif // WPP_USER_MSG_GUID
+
+#ifdef WPP_PUBLIC_ANNOT_Trace_h1407
+# define WPP_ANNOTATE_Trace_h1407 WPP_ANNOTATE_Trace_h1407_FINAL( \
+    "TMF:", \
+    "Unknown_cxx00", \
+    "Unknown_cxx00", \
+    L"{", \
+    L"Arg, ItemPWString -- 10" , \
+    L"}", \
+    L"PUBLIC_TMF:")
+# ifndef WPP_PUBLIC_TMC
+#  define WPP_PUBLIC_TMC // Adds "PUBLIC_TMF:" to the control guid annotation
+# endif
+#else // WPP_PUBLIC_ANNOT_Trace_h1407
+# define WPP_ANNOTATE_Trace_h1407 WPP_ANNOTATE_Trace_h1407_FINAL( \
+    "TMF:", \
+    "Trace.h", \
+    "Trace_h1407", \
+    L"{", \
+    L"trace::_wstr(sz. cch), ItemPWString -- 10" , \
+    L"}")
+#endif // WPP_PUBLIC_ANNOT_Trace_h1407
+
 # define WPP_ANNOTATE(x) WPP_ANNOTATE_ ## x,
 
 #endif // WPP_NO_ANNOTATIONS
@@ -1128,8 +1128,8 @@ WPP_LOCAL_MSG_GUID(WPP_USER_MSG_GUID);
 
 #else // WPP_USER_MSG_GUID
 
-#define WPP_LOCAL_TraceGuids WPP_01056d4dab5f341211c60e8778f1f748_Traceguids
-extern const __declspec(selectany) GUID WPP_LOCAL_TraceGuids[] = { {0x01056d4d,0xab5f,0x3412,{0x11,0xc6,0x0e,0x87,0x78,0xf1,0xf7,0x48}}, };
+#define WPP_LOCAL_TraceGuids WPP_9826dadb3a743169194d26d634b9d168_Traceguids
+extern const __declspec(selectany) GUID WPP_LOCAL_TraceGuids[] = { {0x9826dadb,0x3a74,0x3169,{0x19,0x4d,0x26,0xd6,0x34,0xb9,0xd1,0x68}}, };
 
 #endif // WPP_USER_MSG_GUID
 
@@ -1564,7 +1564,7 @@ WPP_RECORDER_SF_wstr(
 #define WPP_INVOKE_WPP_DEBUG(MsgArgs) (void)0
 #endif // WPP_DEBUG
 
-// WPP_CALL_Trace_h1361
+// WPP_CALL_Trace_h1365
 #ifndef WPP_TRACELEVEL_PRE
 #  define WPP_TRACELEVEL_PRE(TRACELEVEL)
 #endif
@@ -1573,11 +1573,11 @@ WPP_RECORDER_SF_wstr(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1361(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1365(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
     do {\
-        WPP_ANNOTATE(Trace_h1361) 0; \
+        WPP_ANNOTATE(Trace_h1365) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
         if (wppEnabled || recorderEnabled) { \
@@ -1593,10 +1593,10 @@ WPP_RECORDER_SF_wstr(
     while(0) \
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1361(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1365(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1361) \
+    WPP_ANNOTATE(Trace_h1365) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
@@ -1610,10 +1610,10 @@ WPP_RECORDER_SF_wstr(
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1361(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1365(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1361) \
+    WPP_ANNOTATE(Trace_h1365) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
@@ -1627,7 +1627,7 @@ WPP_RECORDER_SF_wstr(
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #endif // ENABLE_WPP_RECORDER
 
-// WPP_CALL_Trace_h1367
+// WPP_CALL_Trace_h1371
 #ifndef WPP_TRACELEVEL_PRE
 #  define WPP_TRACELEVEL_PRE(TRACELEVEL)
 #endif
@@ -1636,11 +1636,11 @@ WPP_RECORDER_SF_wstr(
 #endif
 #if ENABLE_WPP_RECORDER
 #if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1367(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1371(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
     do {\
-        WPP_ANNOTATE(Trace_h1367) 0; \
+        WPP_ANNOTATE(Trace_h1371) 0; \
         BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
         BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
         if (wppEnabled || recorderEnabled) { \
@@ -1656,10 +1656,10 @@ WPP_RECORDER_SF_wstr(
     while(0) \
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1367(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1371(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1367) \
+    WPP_ANNOTATE(Trace_h1371) \
     (( \
         WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
@@ -1673,268 +1673,16 @@ WPP_RECORDER_SF_wstr(
     WPP_TRACELEVEL_POST(TRACELEVEL)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1367(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1371(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1367) \
+    WPP_ANNOTATE(Trace_h1371) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_SF_s( \
                 WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
                 11, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1383
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1383(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1383) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_str( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     12, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1383(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1383) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_str( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                12, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1383(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1383) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_str( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                12, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1384
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1384(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1384) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_str( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     13, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1384(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1384) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_str( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                13, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1384(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1384) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_str( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                13, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1385
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1385(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1385) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_str( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     14, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1385(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1385) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_str( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                14, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1385(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1385) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_str( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                14, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1386
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1386(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1386) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_str( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     15, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1386(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1386) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_str( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                15, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1386(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1386) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_str( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                15, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -1964,7 +1712,7 @@ WPP_RECORDER_SF_wstr(
                      WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
                      wppEnabled, recorderEnabled, \
                      WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     16, \
+                     12, \
                      WPP_LOCAL_TraceGuids+0, _a10);\
         } \
     } \
@@ -1980,7 +1728,7 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_RECORDER_SF_str( \
                 WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                16, \
+                12, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -1997,7 +1745,7 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_SF_str( \
                 WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                16, \
+                12, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -2027,7 +1775,7 @@ WPP_RECORDER_SF_wstr(
                      WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
                      wppEnabled, recorderEnabled, \
                      WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     17, \
+                     13, \
                      WPP_LOCAL_TraceGuids+0, _a10);\
         } \
     } \
@@ -2043,7 +1791,7 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_RECORDER_SF_str( \
                 WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                17, \
+                13, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -2060,259 +1808,259 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_SF_str( \
                 WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                13, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1389
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1389(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1389) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_str( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     14, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1389(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1389) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_str( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                14, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1389(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1389) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_str( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                14, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1390
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1390(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1390) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_str( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     15, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1390(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1390) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_str( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                15, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1390(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1390) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_str( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                15, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1391
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1391(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1391) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_str( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     16, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1391(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1391) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_str( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                16, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1391(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1391) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_str( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                16, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1392
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1392(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1392) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_str( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     17, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1392(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1392) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_str( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
                 17, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
     )) \
     WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1398
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1398(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1398) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_wstr( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     18, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1398(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1398) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_wstr( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                18, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
 #endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
 #else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1398(TRACELEVEL, MSG, _a10) \
+#define WPP_CALL_Trace_h1392(TRACELEVEL, MSG, _a10) \
     WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
     WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1398) \
+    WPP_ANNOTATE(Trace_h1392) \
     (( \
         WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_wstr( \
+            WPP_SF_str( \
                 WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                18, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1399
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1399(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1399) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_wstr( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     19, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1399(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1399) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_wstr( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                19, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1399(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1399) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_wstr( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                19, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1400
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1400(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1400) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_wstr( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     20, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1400(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1400) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_wstr( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                20, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1400(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1400) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_wstr( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                20, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_RECORDER
-
-// WPP_CALL_Trace_h1401
-#ifndef WPP_TRACELEVEL_PRE
-#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
-#endif
-#ifndef WPP_TRACELEVEL_POST
-#  define WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif
-#if ENABLE_WPP_RECORDER
-#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1401(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    do {\
-        WPP_ANNOTATE(Trace_h1401) 0; \
-        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
-        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
-        if (wppEnabled || recorderEnabled) { \
-            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
-            WPP_RECORDER_AND_TRACE_SF_wstr( \
-                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                     wppEnabled, recorderEnabled, \
-                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     21, \
-                     WPP_LOCAL_TraceGuids+0, _a10);\
-        } \
-    } \
-    while(0) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#define WPP_CALL_Trace_h1401(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1401) \
-    (( \
-        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_RECORDER_SF_wstr( \
-                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                21, \
-                WPP_LOCAL_TraceGuids+0, _a10), \
-            1 \
-        :   0 \
-    )) \
-    WPP_TRACELEVEL_POST(TRACELEVEL)
-#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
-#else  // ENABLE_WPP_RECORDER
-#define WPP_CALL_Trace_h1401(TRACELEVEL, MSG, _a10) \
-    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
-    WPP_TRACELEVEL_PRE(TRACELEVEL) \
-    WPP_ANNOTATE(Trace_h1401) \
-    (( \
-        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
-        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
-            WPP_SF_wstr( \
-                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                21, \
+                17, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -2342,7 +2090,7 @@ WPP_RECORDER_SF_wstr(
                      WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
                      wppEnabled, recorderEnabled, \
                      WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     22, \
+                     18, \
                      WPP_LOCAL_TraceGuids+0, _a10);\
         } \
     } \
@@ -2358,7 +2106,7 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_RECORDER_SF_wstr( \
                 WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                22, \
+                18, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -2375,7 +2123,7 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_SF_wstr( \
                 WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
-                22, \
+                18, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -2405,7 +2153,7 @@ WPP_RECORDER_SF_wstr(
                      WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
                      wppEnabled, recorderEnabled, \
                      WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                     23, \
+                     19, \
                      WPP_LOCAL_TraceGuids+0, _a10);\
         } \
     } \
@@ -2421,7 +2169,7 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_RECORDER_SF_wstr( \
                 WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
-                23, \
+                19, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
         :   0 \
@@ -2438,6 +2186,258 @@ WPP_RECORDER_SF_wstr(
         ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
             WPP_SF_wstr( \
                 WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                19, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1404
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1404(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1404) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_wstr( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     20, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1404(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1404) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_wstr( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                20, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1404(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1404) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_wstr( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                20, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1405
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1405(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1405) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_wstr( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     21, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1405(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1405) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_wstr( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                21, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1405(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1405) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_wstr( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                21, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1406
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1406(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1406) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_wstr( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     22, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1406(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1406) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_wstr( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                22, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1406(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1406) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_wstr( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                22, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_RECORDER
+
+// WPP_CALL_Trace_h1407
+#ifndef WPP_TRACELEVEL_PRE
+#  define WPP_TRACELEVEL_PRE(TRACELEVEL)
+#endif
+#ifndef WPP_TRACELEVEL_POST
+#  define WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif
+#if ENABLE_WPP_RECORDER
+#if ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1407(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    do {\
+        WPP_ANNOTATE(Trace_h1407) 0; \
+        BOOLEAN wppEnabled = WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL); \
+        BOOLEAN recorderEnabled = WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL); \
+        if (wppEnabled || recorderEnabled) { \
+            WPP_INVOKE_WPP_DEBUG((MSG, _a10)); \
+            WPP_RECORDER_AND_TRACE_SF_wstr( \
+                     WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
+                     wppEnabled, recorderEnabled, \
+                     WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                     23, \
+                     WPP_LOCAL_TraceGuids+0, _a10);\
+        } \
+    } \
+    while(0) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#else // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#define WPP_CALL_Trace_h1407(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1407) \
+    (( \
+        WPP_RECORDER_CHECK_INIT WPP_RECORDER_TRACELEVEL_FILTER(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_RECORDER_SF_wstr( \
+                WPP_RECORDER_TRACELEVEL_ARGS(TRACELEVEL), \
+                23, \
+                WPP_LOCAL_TraceGuids+0, _a10), \
+            1 \
+        :   0 \
+    )) \
+    WPP_TRACELEVEL_POST(TRACELEVEL)
+#endif // ENABLE_WPP_TRACE_FILTERING_WITH_WPP_RECORDER
+#else  // ENABLE_WPP_RECORDER
+#define WPP_CALL_Trace_h1407(TRACELEVEL, MSG, _a10) \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL(TRACELEVEL), MSG, _a10) \
+    WPP_TRACELEVEL_PRE(TRACELEVEL) \
+    WPP_ANNOTATE(Trace_h1407) \
+    (( \
+        WPP_CHECK_INIT WPP_TRACELEVEL_ENABLED(TRACELEVEL) \
+        ?   WPP_INVOKE_WPP_DEBUG((MSG, _a10)), \
+            WPP_SF_wstr( \
+                WPP_TRACELEVEL_LOGGER(TRACELEVEL) \
                 23, \
                 WPP_LOCAL_TraceGuids+0, _a10), \
             1 \
@@ -2447,42 +2447,102 @@ WPP_RECORDER_SF_wstr(
 #endif // ENABLE_WPP_RECORDER
 
 // Functions
-#undef AE_CHECK_COM
-#define AE_CHECK_COM WPP_(CALL)
-#undef AE_CHECK_HRESULT
-#define AE_CHECK_HRESULT WPP_(CALL)
-#undef AE_CHECK_LIBPQ
-#define AE_CHECK_LIBPQ WPP_(CALL)
-#undef AE_CHECK_NTSTATUS
-#define AE_CHECK_NTSTATUS WPP_(CALL)
-#undef AE_CHECK_OCI
-#define AE_CHECK_OCI WPP_(CALL)
-#undef AE_CHECK_ODBC
-#define AE_CHECK_ODBC WPP_(CALL)
-#undef AE_CHECK_OPENSSL
-#define AE_CHECK_OPENSSL WPP_(CALL)
-#undef AE_CHECK_PKCS11
-#define AE_CHECK_PKCS11 WPP_(CALL)
-#undef AE_CHECK_POSIX
-#define AE_CHECK_POSIX WPP_(CALL)
-#undef AE_CHECK_PYTHON
-#define AE_CHECK_PYTHON WPP_(CALL)
-#undef AE_CHECK_SYSAPI
-#define AE_CHECK_SYSAPI WPP_(CALL)
-#undef AE_CHECK_WINAPI
-#define AE_CHECK_WINAPI WPP_(CALL)
-#undef AE_CHECK_WINERROR
-#define AE_CHECK_WINERROR WPP_(CALL)
-#undef AE_CHECK_WINSOCK
-#define AE_CHECK_WINSOCK WPP_(CALL)
-#undef AE_RAISE_GENERIC
-#define AE_RAISE_GENERIC WPP_(CALL)
 #undef ATRACE
+#ifdef __INTELLISENSE__
+#define ATRACE(TRACELEVEL, MSG, ...) ((void)(MSG, ## __VA_ARGS__))
+#else
 #define ATRACE WPP_(CALL)
+#endif
 #undef DoDebugTrace
+#ifdef __INTELLISENSE__
+#define DoDebugTrace(TRACELEVEL, MSG, ...) ((void)(MSG, ## __VA_ARGS__))
+#else
 #define DoDebugTrace WPP_(CALL)
+#endif
 #undef DoTraceMessage
+#ifdef __INTELLISENSE__
+#define DoTraceMessage(LEVEL, MSG, ...) ((void)(MSG, ## __VA_ARGS__))
+#else
 #define DoTraceMessage WPP_(CALL)
+#endif
+#undef AE_CHECK_COM
+#ifdef __INTELLISENSE__
+#define AE_CHECK_COM(OBJ, IID, HRESULT) ((void)0)
+#else
+#define AE_CHECK_COM WPP_(CALL)
+#endif
+#undef AE_CHECK_HRESULT
+#ifdef __INTELLISENSE__
+#define AE_CHECK_HRESULT(HRESULT) ((void)0)
+#else
+#define AE_CHECK_HRESULT WPP_(CALL)
+#endif
+#undef AE_CHECK_LIBPQ
+#ifdef __INTELLISENSE__
+#define AE_CHECK_LIBPQ(LIBPQ) ((void)0)
+#else
+#define AE_CHECK_LIBPQ WPP_(CALL)
+#endif
+#undef AE_CHECK_NTSTATUS
+#ifdef __INTELLISENSE__
+#define AE_CHECK_NTSTATUS(NTSTATUS) ((void)0)
+#else
+#define AE_CHECK_NTSTATUS WPP_(CALL)
+#endif
+#undef AE_CHECK_OCI
+#ifdef __INTELLISENSE__
+#define AE_CHECK_OCI(CAT, OCI, ERROR) ((void)0)
+#else
+#define AE_CHECK_OCI WPP_(CALL)
+#endif
+#undef AE_CHECK_ODBC
+#ifdef __INTELLISENSE__
+#define AE_CHECK_ODBC(CAT, HANDLE, TYPE, ODBC) ((void)0)
+#else
+#define AE_CHECK_ODBC WPP_(CALL)
+#endif
+#undef AE_CHECK_OPENSSL
+#ifdef __INTELLISENSE__
+#define AE_CHECK_OPENSSL(OPENSSL) ((void)0)
+#else
+#define AE_CHECK_OPENSSL WPP_(CALL)
+#endif
+#undef AE_CHECK_PKCS11
+#ifdef __INTELLISENSE__
+#define AE_CHECK_PKCS11(PKCS11) ((void)0)
+#else
+#define AE_CHECK_PKCS11 WPP_(CALL)
+#endif
+#undef AE_CHECK_POSIX
+#ifdef __INTELLISENSE__
+#define AE_CHECK_POSIX(POSIX) ((void)0)
+#else
+#define AE_CHECK_POSIX WPP_(CALL)
+#endif
+#undef AE_CHECK_PYTHON
+#ifdef __INTELLISENSE__
+#define AE_CHECK_PYTHON(PYTHON) ((void)0)
+#else
+#define AE_CHECK_PYTHON WPP_(CALL)
+#endif
+#undef AE_CHECK_WINAPI
+#ifdef __INTELLISENSE__
+#define AE_CHECK_WINAPI(WINAPI) ((void)0)
+#else
+#define AE_CHECK_WINAPI WPP_(CALL)
+#endif
+#undef AE_CHECK_WINERROR
+#ifdef __INTELLISENSE__
+#define AE_CHECK_WINERROR(WINERROR) ((void)0)
+#else
+#define AE_CHECK_WINERROR WPP_(CALL)
+#endif
+#undef AE_CHECK_WINSOCK
+#ifdef __INTELLISENSE__
+#define AE_CHECK_WINSOCK(WINSOCK) ((void)0)
+#else
+#define AE_CHECK_WINSOCK WPP_(CALL)
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

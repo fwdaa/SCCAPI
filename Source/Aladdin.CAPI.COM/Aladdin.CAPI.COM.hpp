@@ -315,7 +315,7 @@ class Factory : public DispatchObject<Aladdin_CAPI_COM::IFactory>, public CAPI::
 		: base_type(pFactory, false) { this->dwCookie = dwCookie; }
 
 	// деструктор
-	public: virtual ~Factory() { if (!CookieGIT()) BaseObject()->Dispose(); } 
+	public: virtual ~Factory() { if (CookieGIT()) BaseObject()->Dispose(); } 
 
 	// передать указатель другому потоку
 	public: virtual std::shared_ptr<CAPI::IFactory> Marshal() const override; 

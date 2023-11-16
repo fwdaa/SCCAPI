@@ -1,18 +1,27 @@
 #pragma once
+#include "TraceError.h"
 #include <errno.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение отсутствия возврата из функции
+///////////////////////////////////////////////////////////////////////////////
+#if defined __GNUC__
+#define _NORETURN	__attribute__((noreturn))
+#elif defined _MSC_VER
+#define _NORETURN	__declspec(noreturn)
+#else 
+#define _NORETURN	[[noreturn]]
+#endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Категория ошибок POSIX
 ///////////////////////////////////////////////////////////////////////////////
-#if !defined _MSC_VER || _MSC_VER >= 1600
-inline const _error_category& posix_category() 
+#if defined _MSC_VER && _MSC_VER < 1600
+class _generic_category : public std::error_category
 {
-    // категория ошибок POSIX
-    return std::generic_category(); 
-}
-#else 
-class _posix_category : public _error_category
-{
+    // имя категории ошибки 
+    public: virtual const char* name() const noexcept { return "generic"; }
+
     // получить сообщение об ошибке
     public: virtual std::string message(int code) const 
     {
@@ -20,29 +29,45 @@ class _posix_category : public _error_category
         char msg[4096]; strerror_s(msg, sizeof(msg), code); return msg; 
     }
 };
-inline const _error_category& posix_category() 
+namespace std {
+inline const std::error_category& generic_category() 
 {
     // категория ошибок POSIX
-    static _posix_category posix_category; return posix_category; 
+    static _generic_category category; return category; 
+}
+}
+#endif 
+
+#if defined __linux__
+inline const std::error_category& posix_category() 
+{
+    // категория ошибок POSIX
+    return std::system_category(); 
+}
+#else
+inline const std::error_category& posix_category() 
+{
+    // категория ошибок POSIX
+    return std::generic_category(); 
 }
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Описание ошибки POSIX
 ///////////////////////////////////////////////////////////////////////////////
-class posix_error : public _error_code
+class posix_error_code : public std::error_code
 {
-    // конструктор
-    public: posix_error(const _error_category& category, int value) 
-        
-        // сохранить переданные параметры
-        : _error_code(value, category) {} 
+    // строковое представление по умолчанию
+    private: char _code[16]; 
 
     // конструктор
-    public: posix_error(int value) : _error_code(value, posix_category()) {} 
-
+    public: posix_error_code(int value) : std::error_code(value, posix_category()) 
+    {
+        // отформатировать код ошибки
+        trace::snprintf(_code, sizeof(_code), "%d", value);
+    } 
     // символическое описание ошибки
-    public: std::string name() const
+    public: const char* name() const
     {
     	switch (value())
    		{
@@ -126,35 +151,32 @@ class posix_error : public _error_code
     	case 139               : return "ETXTBSY";          // ETXTBSY        
     	case 140               : return "EWOULDBLOCK";      // EWOULDBLOCK    
     	}
-        // отформатировать код ошибки
-        char str[16]; trace::snprintf(str, sizeof(str), "%d", value()); return str; 
+        return _code; 
     }
 }; 
-// признак наличия ошибки
-inline bool is_posix_error(int code) { return code != 0; }
-
 ///////////////////////////////////////////////////////////////////////////////
 // Исключение POSIX
 ///////////////////////////////////////////////////////////////////////////////
-class posix_exception : public system_exception
+class posix_error : public trace::system_error<>
 {
     // конструктор
-    public: posix_exception(const posix_error& error, const char* szFile, int line)
+    public: posix_error(const posix_error_code& code)
 
         // сохранить переданные параметры
-        : system_exception(error, szFile, line) {}
+        : trace::system_error<>(code) {}
 
     // конструктор
-    public: posix_exception(int code, const char* szFile, int line)
+    public: posix_error(int code)
 
         // сохранить переданные параметры
-        : system_exception(posix_error(code), szFile, line) {}
+        : trace::system_error<>(code, posix_category()) {}
 
     // выбросить исключение
-    public: virtual void raise() const { trace(); throw *this; }
-
-    // сохранить код последней ошибки
-    public: virtual void SetLastError() const { errno = code().value(); }
+    public: virtual _NORETURN void raise(const char* szFile, int line) const 
+    { 
+        // выбросить исключение
+        trace(szFile, line); throw *this; 
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,7 +185,7 @@ class posix_exception : public system_exception
 inline void format_posix(trace::pprintf print, void* context, int level, va_list& args)
 {
 	// извлечь код ошибки
-	posix_error error(va_arg(args, int)); 
+	posix_error_code error(va_arg(args, int)); 
 
 	// получить символическое имя
 	std::string name = error.name(); 
@@ -174,37 +196,43 @@ inline void format_posix(trace::pprintf print, void* context, int level, va_list
 WPP_FORMAT_TABLE_EXTENSION(POSIX, format_posix); 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Получить переменную окружения
+// Трассировка ошибок POSIX
 ///////////////////////////////////////////////////////////////////////////////
-namespace trace {
-inline std::string GetPosixEnvironmentVariable(const char* szName)
-{
-#if !defined _MSC_VER
-    // получить переменную окружения
-    if (const char* szValue = getenv(szName)) return szValue;
+#define WPP_TRACELEVEL_POSIX_RAISE(FILE, LINE)              \
+    posix_error(WPP_VAR(LINE)).raise(FILE, LINE);    
+
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_POSIX(LEVEL, ERRNO)       	    (int, ERRNO, WPP_CAST_BOOL, LEVEL)
+
+// Отсутствие предварительных действий
+#define WPP_TRACELEVEL_POSIX_PRE(LEVEL, ERRNO)      
+
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_POSIX_ENABLED(LEVEL, ERRNO)   	    WPP_VAR(__LINE__)
+
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_POSIX_POST(LEVEL, ERRNO)             \
+    ; if (WPP_TRACELEVEL_POSIX_ENABLED(LEVEL, ERRNO)) {     \
+         WPP_TRACELEVEL_POSIX_RAISE(__FILE__, __LINE__)     \
+    }}
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение трассировки
+///////////////////////////////////////////////////////////////////////////////
+#if defined WPP_CONTROL_GUIDS
+#define WPP_TRACELEVEL_POSIX_LOGGER(LEVEL, ERRNO)   	    WppGetLogger(),
 #else 
-    size_t cch = 0; 
-
-    // определить требуемый размер буфера 
-    if (getenv_s(&cch, 0, 0, szName) != 0 || cch == 0) return std::string(); 
-
-    // выделить буфер требуемого размера 
-    std::string strValue(cch, 0); 
-
-    // получить переменную окружения
-    if (getenv_s(&cch, &strValue[0], cch, szName) == 0)
-    {
-        // вернуть переменную окружения
-        strValue.resize(cch - 1); return strValue; 
-    }
-#endif
-    return std::string(); 
-}
-#if !defined _WIN32
-inline std::string GetEnvironmentVariable(const char* szName)
-{
-    // получить переменную окружения
-    return GetPosixEnvironmentVariable(szName); 
-}
+#define AE_CHECK_POSIX(ERRNO)                                                                     		    \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_POSIX(TRACE_LEVEL_ERROR, ERRNO), "ERROR %!POSIX!", WPP_VAR(__LINE__))  \
+    WPP_TRACELEVEL_POSIX_PRE(TRACE_LEVEL_ERROR, ERRNO)                                            		    \
+    (void)((                                                                                                \
+        WPP_TRACELEVEL_POSIX_ENABLED(TRACE_LEVEL_ERROR, ERRNO)                                    		    \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!POSIX!", WPP_VAR(__LINE__))), 1 : 0                                \
+    ))                                                                                            		    \
+    WPP_TRACELEVEL_POSIX_POST(TRACE_LEVEL_ERROR, ERRNO)                                      
 #endif 
-}
+
+///////////////////////////////////////////////////////////////////////////////
+// Отмена действия макросов
+///////////////////////////////////////////////////////////////////////////////
+#undef _NORETURN

@@ -2,10 +2,10 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\build.targets"/>
   <PropertyGroup Condition="'$(WPP_CONFIG_PATH)' == ''">
-    <TraceWppPresent>false</TraceWppPresent>
+    <TraceWppAlreadyPresent>false</TraceWppAlreadyPresent>
   </PropertyGroup>
-  <Import Project="wpp.props"   Condition="'$(TraceWppPresent)' == 'false'"/>
-  <Import Project="wpp.targets" Condition="'$(TraceWppPresent)' == 'false'"/>
+  <Import Project="wpp.props"   Condition="'$(TraceWppAlreadyPresent)' == 'false'"/>
+  <Import Project="wpp.targets" Condition="'$(TraceWppAlreadyPresent)' == 'false'"/>
   <ItemGroup>
     <CoreCppClean Include="@(CoreCppClean);$(ProjectDir)">
       <FilePatternsToDelete>*.tmh</FilePatternsToDelete>
@@ -18,6 +18,14 @@
       <WppOutputDirectory   Condition="'%(ClCompile.WppOutputDirectory)'  ==''">$(IntDir)</WppOutputDirectory>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\Trace;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="Exists('$(ProjectDir)Trace.ini')">
+    <ClCompile>
+      <WppAdditionalConfigurationFile>$(ProjectDir)Trace.ini</WppAdditionalConfigurationFile>
+    </ClCompile>
+    <OtherWpp>
+      <WppAdditionalConfigurationFile>$(ProjectDir)Trace.ini</WppAdditionalConfigurationFile>
+    </OtherWpp>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(IsKernelModeToolset)' == 'true'">
     <ClCompile>

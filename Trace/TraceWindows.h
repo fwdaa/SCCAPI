@@ -1,186 +1,261 @@
 #pragma once
+#include "TraceWinNT.h"
+
+#if !defined _NTDDK_
+#include "TraceError.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// Категория ошибок Windows (HRESULT)
+// Определение отсутствия возврата из функции
 ///////////////////////////////////////////////////////////////////////////////
-#if !defined _MSC_VER || _MSC_VER >= 1600
-inline const _error_category& windows_category() 
+#if defined __GNUC__
+#define _NORETURN	__attribute__((noreturn))
+#elif defined _MSC_VER
+#define _NORETURN	__declspec(noreturn)
+#else 
+#define _NORETURN	[[noreturn]]
+#endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Категория ошибок Windows (NTSTATUS и подсистема Win32)
+///////////////////////////////////////////////////////////////////////////////
+class _windows_category : public std::error_category
+{
+    // конструктор
+    public: _windows_category(LANGID langID = 0)
+
+        // сохранить переданные параметры 
+        : _langID(langID) {} private: LANGID _langID;  
+    
+    // имя категории ошибки 
+    public: virtual const char* name() const noexcept { return "system"; }
+
+    // получить сообщение об ошибке
+    public: virtual std::string message(int code) const; 
+};
+
+inline const std::error_category& windows_category() 
 {
     // категория ошибок Windows
-    return std::system_category(); 
+    static _windows_category category; return category; 
 }
-#else
-class _windows_category : public _error_category
-{
-    // получить сообщение об ошибке
-    public: virtual std::string message(int code) const 
-    {
-		// указать начальные условия
-		std::string msg = "<UNKNOWN>"; PSTR szBuffer = NULL;  
 
-		// указать режим выполнения
-		DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS; 
+inline std::string _windows_category::message(int code) const 
+{
+    // указать режим выполнения 
+    DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS; 
+
+    // для ошибок NTSTATUS
+    if (HRESULT_FACILITY(code) == FACILITY_NT_BIT)
+    {
+        // извлечь NTSTATUS
+        NTSTATUS status = code & ~FACILITY_NT_BIT; 
+
+	    // указать режим выполнения
+		PSTR szBuffer = nullptr; flags |= FORMAT_MESSAGE_FROM_HMODULE; 
+
+        // указать модуль для поиска 
+        HMODULE hModule = ::GetModuleHandleW(L"ntdll.dll"); 
 
 		// получить сообщение об ошибке
-		if (::FormatMessageA(flags, 0, code, LANG_NEUTRAL, (PSTR)&szBuffer, 0, nullptr))
+		if (::FormatMessageA(flags, hModule, status, _langID, (PSTR)&szBuffer, 0, nullptr))
 		{
-			// освободить выделенный буфер
-			msg = szBuffer; ::LocalFree(szBuffer); 
+		    // вернуть сообщение об ошибке 
+			std::string msg(szBuffer); ::LocalFree(szBuffer); return msg; 
 		}
-        return msg; 
+        // преобразовать код ошибки 
+        code = (int)RtlNtStatusToDosError(status); flags &= ~FORMAT_MESSAGE_FROM_HMODULE;
     }
-};
-inline const _error_category& windows_category() 
+    // для ошибки подсистемы Win32
+    if (HRESULT_FACILITY(code) == FACILITY_WIN32) code = HRESULT_CODE(code);
+    {
+        // указать наличие системной ошибки 
+        PSTR szBuffer = nullptr; flags |= FORMAT_MESSAGE_FROM_SYSTEM; 
+
+        // получить сообщение об ошибке
+	    if (::FormatMessageA(flags, NULL, code, _langID, (PSTR)&szBuffer, 0, nullptr))
+	    {
+            // вернуть сообщение об ошибке 
+		    std::string msg(szBuffer); ::LocalFree(szBuffer); return msg; 
+	    }
+    }
+    return "<UNKNOWN>"; 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Категория ошибок подсистемы Win32
+///////////////////////////////////////////////////////////////////////////////
+#if defined _MSC_VER && _MSC_VER < 1600
+namespace std {
+inline const std::error_category& system_category() 
 {
     // категория ошибок Windows
-    static _windows_category windows_category; return windows_category; 
+    return windows_category(); 
 }
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-// Описание ошибки HRESULT
-///////////////////////////////////////////////////////////////////////////////
-class hresult_error : public _error_code
-{
-    // конструктор
-    public: hresult_error(HRESULT code) 
-        
-        // сохранить код ошибки
-        : _error_code((int)code, windows_category()) {}
-};
-// признак наличия ошибки
-inline bool is_hresult_error(HRESULT hr) { return FAILED(hr); }
-
-///////////////////////////////////////////////////////////////////////////////
-// Описание ошибки Windows
-///////////////////////////////////////////////////////////////////////////////
-class windows_error : public hresult_error
-{
-    // конструктор
-    public: windows_error(DWORD code) 
-        
-        // сохранить код ошибки
-        : hresult_error(HRESULT_FROM_WIN32(code)) {}
-};
-// признак наличия ошибки
-inline bool is_windows_error(DWORD code) { return code != ERROR_SUCCESS; }
-
-///////////////////////////////////////////////////////////////////////////////
-// Описание ошибки Native API
-///////////////////////////////////////////////////////////////////////////////
-inline DWORD WINERROR_FROM_NTSTATUS(NTSTATUS status)
-{
-    // проверить наличие ошибки
-    if (!FAILED(status)) return ERROR_SUCCESS; 
-
-    // указать прототип функции
-	typedef DWORD (WINAPI* PfnRtlNtStatusToDosError)(NTSTATUS);
-
-	// определить адрес модуля
-    HMODULE hModule = ::GetModuleHandleW(L"ntdll.dll");
-
-	// получить адрес функции
-	FARPROC pfn = ::GetProcAddress(hModule, "RtlNtStatusToDosError");
-																			
-	// преобразовать код ошибки 
-	return (*(PfnRtlNtStatusToDosError)pfn)(status);
 }
-
-// Описание ошибки Native API
-class native_error : public windows_error
-{
-    // конструктор
-    public: native_error(NTSTATUS status) 
-        
-        // сохранить код ошибки
-        : windows_error(WINERROR_FROM_NTSTATUS(status)) {}
-};
-// признак наличия ошибки
-inline bool is_native_error(NTSTATUS ret) { return FAILED(ret); }
+#endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Исключение Windows
 ///////////////////////////////////////////////////////////////////////////////
-class windows_exception : public system_exception
+class windows_error : public trace::system_error<>
 {
     // конструктор
-    public: windows_exception(const hresult_error& code, const char* szFile, int line)
+    public: windows_error(DWORD code)
 
         // сохранить переданные параметры
-        : system_exception(code, szFile, line) {}
+        : trace::system_error<>((int)code, windows_category()) {}
 
     // выбросить исключение
-    public: virtual void raise() const { trace(); throw *this; }
-
-    // сохранить код последней ошибки
-    public: virtual void SetLastError() const { ::SetLastError(code().value()); }
+    public: virtual _NORETURN void raise(const char* szFile, int line) const 
+    { 
+        // выбросить исключение
+        trace(szFile, line); throw *this; 
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Признак сервиса Windows
+// Трассировка ошибок Windows 
 ///////////////////////////////////////////////////////////////////////////////
-inline bool IsWindowsService()
-{
-    // получить описатель процесса
-    HANDLE hProcess = ::GetCurrentProcess(); HANDLE hToken = NULL; 
+#if defined _MANAGED && _MANAGED == 1
+#define WPP_TRACELEVEL_WINERROR_RAISE(FILE, LINE)                           \
+    windows_error(HRESULT_FROM_WIN32(WPP_VAR(LINE))).trace(FILE, LINE);     \
+    throw gcnew System::ComponentModel::Win32Exception(                     \
+        HRESULT_FROM_WIN32(WPP_VAR(LINE))                                   \
+    );
+#else
+#define WPP_TRACELEVEL_WINERROR_RAISE(FILE, LINE)                           \
+    windows_error(HRESULT_FROM_WIN32(WPP_VAR(LINE))).raise(FILE, LINE);
+#endif 
 
-    // открыть контекст процесса
-    if (!::OpenProcessToken(hProcess, TOKEN_QUERY, &hToken)) return false; 
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_WINERROR(LEVEL, ERROR)    (DWORD, ERROR, WPP_CAST_BOOL, LEVEL)
 
-    // выделить памчть для идентификатора сеанса
-    DWORD sessionID; DWORD cb = sizeof(sessionID); 
+// Сохранение кода ошибки
+#define WPP_TRACELEVEL_WINERROR_PRE(LEVEL, ERROR)       
 
-    // получить идентификатор сеанса
-    if (!::GetTokenInformation(hToken, TokenSessionId, &sessionID, cb, &cb)) cb = 0; 
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_WINERROR_ENABLED(LEVEL, ERROR)   WPP_VAR(__LINE__)
 
-    // закрыть контекст процесса
-    ::CloseHandle(hToken); return (cb > 0) && (sessionID == 0); 
-}
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_WINERROR_POST(LEVEL, ERROR)                          \
+    ; if (WPP_TRACELEVEL_WINERROR_ENABLED(LEVEL, ERROR)) {                  \
+         WPP_TRACELEVEL_WINERROR_RAISE(__FILE__, __LINE__)                  \
+    }}
 
 ///////////////////////////////////////////////////////////////////////////////
-// Получить переменную окружения
+// Трассировка ошибок WinAPI
 ///////////////////////////////////////////////////////////////////////////////
-namespace trace {
-inline std::string GetServiceEnvironmentVariable(const char* szName)
-{
-    // инициализировать переменные
-    std::string value; HKEY hKey; DWORD cbValue = 0; 
 
-    // указать имя раздела реестра
-    PCSTR szRegistryKey = "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"; 
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_WINAPI(LEVEL, RET)        (DWORD, (RET) ? ERROR_SUCCESS : ::GetLastError(), WPP_CAST_BOOL, LEVEL)
 
-    // открыть раздел реестра
-    LSTATUS status = ::RegOpenKeyExA(HKEY_LOCAL_MACHINE, szRegistryKey, 0, KEY_QUERY_VALUE, &hKey); 
+// Отсутствие дополнительных действий
+#define WPP_TRACELEVEL_WINAPI_PRE(LEVEL, RET)       
 
-    // проверить отсутствие ошибок
-    if (status != ERROR_SUCCESS) return value;  
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_WINAPI_ENABLED(LEVEL, RET)       WPP_VAR(__LINE__)
 
-    // определить размер значения
-    status = ::RegQueryValueExA(hKey, szName, nullptr, nullptr, nullptr, &cbValue); 
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_WINAPI_POST(LEVEL, RET)                              \
+    ; if (WPP_TRACELEVEL_WINAPI_ENABLED(LEVEL, RET)) {                      \
+         WPP_TRACELEVEL_WINERROR_RAISE(__FILE__, __LINE__)                  \
+    }}
 
-    // выделить буфер требуемого размера
-    if (status == ERROR_SUCCESS) { value.resize((size_t)cbValue + 1);  
+///////////////////////////////////////////////////////////////////////////////
+// Трассировка ошибок WinSock
+///////////////////////////////////////////////////////////////////////////////
 
-        // получить значение
-        status = ::RegQueryValueExA(hKey, szName, nullptr, nullptr, (PBYTE)&value[0], &cbValue); 
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_WINSOCK(LEVEL, RET)       (DWORD, ((RET) >= 0) ? ERROR_SUCCESS : ::WSAGetLastError(), WPP_CAST_BOOL, LEVEL)
 
-        // установить действительный размер значения
-        value.resize(status == ERROR_SUCCESS ? strlen(value.c_str()) : 0); 
-    }
-    // закрыть раздел реестра
-    ::RegCloseKey(hKey); return value;
-}
+// Отсутствие дополнительных действий
+#define WPP_TRACELEVEL_WINSOCK_PRE(LEVEL, RET)       
 
-inline std::string GetEnvironmentVariable(const char* szName)
-{
-    // получить переменную окружения
-    if (!IsWindowsService()) return GetPosixEnvironmentVariable(szName); 
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_WINSOCK_ENABLED(LEVEL, RET)      WPP_VAR(__LINE__)
 
-    // получить переменную окружения
-    std::string value = GetServiceEnvironmentVariable(szName); 
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_WINSOCK_POST(LEVEL, RET)                            \
+    ; if (WPP_TRACELEVEL_WINSOCK_ENABLED(LEVEL, RET)) {                    \
+         WPP_TRACELEVEL_WINERROR_RAISE(__FILE__, __LINE__)                 \
+    }}
 
-    // установить переменную окружения
-    ::SetEnvironmentVariableA(szName, value.empty() ? nullptr : value.c_str()); return value;
-}
-}
+///////////////////////////////////////////////////////////////////////////////
+// Трассировка ошибок HRESULT
+///////////////////////////////////////////////////////////////////////////////
+#if defined _MANAGED && _MANAGED == 1
+#define WPP_TRACELEVEL_HRESULT_RAISE(FILE, LINE)                            \
+    windows_error(WPP_VAR(LINE)).trace(FILE, LINE);                         \
+    throw gcnew System::ComponentModel::Win32Exception(WPP_VAR(LINE));  
+#else
+#define WPP_TRACELEVEL_HRESULT_RAISE(FILE, LINE)                            \
+    windows_error(WPP_VAR(LINE)).raise(FILE, LINE);
+#endif 
+
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_HRESULT(LEVEL, HR)        (HRESULT, HR, FAILED, LEVEL)
+
+// Отсутствие предварительных действий
+#define WPP_TRACELEVEL_HRESULT_PRE(LEVEL, HR)       
+
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_HRESULT_ENABLED(LEVEL, HR)   		FAILED(WPP_VAR(__LINE__))
+
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_HRESULT_POST(LEVEL, HR)                              \
+    ; if (WPP_TRACELEVEL_HRESULT_ENABLED(LEVEL, HR)) {                      \
+         WPP_TRACELEVEL_HRESULT_RAISE(__FILE__, __LINE__)                   \
+    }}
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение трассировки
+///////////////////////////////////////////////////////////////////////////////
+#if defined WPP_CONTROL_GUIDS
+#define WPP_TRACELEVEL_WINERROR_LOGGER(LEVEL, ERROR)    WppGetLogger(),
+#define WPP_TRACELEVEL_WINAPI_LOGGER(LEVEL,   RET  )    WppGetLogger(),
+#define WPP_TRACELEVEL_WINSOCK_LOGGER(LEVEL,  RET  )    WppGetLogger(),
+#define WPP_TRACELEVEL_HRESULT_LOGGER(LEVEL,  HR   )    WppGetLogger(),
+#else 
+#define AE_CHECK_WINERROR(ERROR)                                                                                    \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_WINERROR(TRACE_LEVEL_ERROR, ERROR), "ERROR %!WINERROR!", WPP_VAR(__LINE__))    \
+    WPP_TRACELEVEL_WINERROR_PRE(TRACE_LEVEL_ERROR, ERROR)                                                           \
+    (void)((                                                                                                        \
+        WPP_TRACELEVEL_WINERROR_ENABLED(TRACE_LEVEL_ERROR, ERROR)                                                   \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!WINERROR!", WPP_VAR(__LINE__))), 1 : 0                                     \
+    ))                                                                                                              \
+    WPP_TRACELEVEL_WINERROR_POST(TRACE_LEVEL_ERROR, ERROR)                                      
+
+#define AE_CHECK_WINAPI(RET)                                                                                        \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_WINAPI(TRACE_LEVEL_ERROR, RET), "ERROR %!WINERROR!", WPP_VAR(__LINE__))        \
+    WPP_TRACELEVEL_WINAPI_PRE(TRACE_LEVEL_ERROR, RET)                                                               \
+    (void)((                                                                                                        \
+        WPP_TRACELEVEL_WINAPI_ENABLED(TRACE_LEVEL_ERROR, RET)                                                       \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!WINERROR!", WPP_VAR(__LINE__))), 1 : 0                                     \
+    ))                                                                                                              \
+    WPP_TRACELEVEL_WINAPI_POST(TRACE_LEVEL_ERROR, RET)                                      
+
+#define AE_CHECK_WINSOCK(RET)                                                                                 	    \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_WINSOCK(TRACE_LEVEL_ERROR, RET), "ERROR %!WINERROR!", WPP_VAR(__LINE__))       \
+    WPP_TRACELEVEL_WINSOCK_PRE(TRACE_LEVEL_ERROR, RET)                                                              \
+    (void)((                                                                                                        \
+        WPP_TRACELEVEL_WINSOCK_ENABLED(TRACE_LEVEL_ERROR, RET)                                                      \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!WINERROR!", WPP_VAR(__LINE__)), 1 : 0                                	    \
+    ))                                                                                                              \
+    WPP_TRACELEVEL_WINSOCK_POST(TRACE_LEVEL_ERROR, RET)                                      
+
+#define AE_CHECK_HRESULT(HR)                                                                                        \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_HRESULT(TRACE_LEVEL_ERROR, HR), "ERROR %!HRESULT!", WPP_VAR(__LINE__))         \
+    WPP_TRACELEVEL_HRESULT_PRE(TRACE_LEVEL_ERROR, HR)                                                               \
+    (void)((                                                                                                        \
+        WPP_TRACELEVEL_HRESULT_ENABLED(TRACE_LEVEL_ERROR, HR)                                                       \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!HRESULT!", WPP_VAR(__LINE__))), 1 : 0                                      \
+    ))                                                                                                              \
+    WPP_TRACELEVEL_HRESULT_POST(TRACE_LEVEL_ERROR, HR)                                  
+
+#endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Отмена действия макросов
+///////////////////////////////////////////////////////////////////////////////
+#undef _NORETURN
+#endif 

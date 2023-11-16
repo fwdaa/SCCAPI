@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
 ///////////////////////////////////////////////////////////////////////////////
+#include "TraceCOM.h"
 #ifdef WPP_CONTROL_GUIDS
 #include "dllmain.tmh"
 #endif 
@@ -96,7 +97,7 @@ try {$
     catch (const std::exception&) { delete obj; throw; }
 }
 // обработать возможную ошибку
-catch (const system_exception& ex) { return ex.value(); }
+catch (const std::system_error& ex) { return ex.code().value(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Регистрация компонента
@@ -116,7 +117,7 @@ try {$
 	return S_OK; 
 }
 // обработать возможную ошибку
-catch (const system_exception& ex) { return ex.value(); }
+catch (const std::system_error& ex) { return ex.code().value(); }
 
 EXTERN_C STDMETHODIMP DllUnregisterServer()
 try {$
@@ -128,4 +129,4 @@ try {$
     UnregisterComObject(bstrCLSID); return S_OK; 
 }
 // обработать возможную ошибку
-catch (const system_exception& ex) { return ex.value(); }
+catch (const std::system_error& ex) { return ex.code().value(); }

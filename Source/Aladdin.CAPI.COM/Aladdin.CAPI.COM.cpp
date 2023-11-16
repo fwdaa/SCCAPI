@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Дополнительные определения трассировки
 ///////////////////////////////////////////////////////////////////////////////
+#include "TraceUTF.h"
+#include "TraceCOM.h"
 #ifdef WPP_CONTROL_GUIDS
 #include "Aladdin.CAPI.COM.tmh"
 #endif 
@@ -710,7 +712,7 @@ std::wstring Aladdin::CAPI::COM::Factory::PasswordAuthenticate(
 			return szUser ? std::wstring(szUserName) : std::wstring(L"\0", 1); 
 		}
 		// при возникновении ошибки
-		catch (const com_exception& e) { code = e.value(); error = L""; 
+		catch (const com_error& e) { code = e.code().value(); error = L""; 
 
 			// получить интерфейс описания ошибки
 			if (IErrorInfo* pErrorInfo = e.GetErrorInfo())
@@ -729,7 +731,7 @@ std::wstring Aladdin::CAPI::COM::Factory::PasswordAuthenticate(
 			if (error.empty()) error = to_unicode(e.what()); if (i == 1) throw; 
 		}
 		// при возникновении ошибки
-		catch (const system_exception& e) { code = e.value(); 
+		catch (const std::system_error& e) { code = e.code().value(); 
 
 			// сохранить сообщение об ошибке
 			error = to_unicode(e.what()); if (i == 1) throw; 
@@ -1342,7 +1344,7 @@ std::shared_ptr<Aladdin::CAPI::IFactory> Aladdin::CAPI::COM::Factory::Marshal() 
 	// получить объект из таблицы интерфейсов
 	ATL::CComPtr<Aladdin_CAPI_COM::IFactory> pFactory; 
 	HRESULT hr = pGIT->GetInterfaceFromGlobal(
-		dwCookie, __uuidof(Aladdin_CAPI_COM::IFactory), (void**)&pFactory
+		dwCookie, GetIID(), (void**)&pFactory
 	); 
 	// проверить отсутствие ошибок 
 	AE_CHECK_COM(pGIT, __uuidof(IGlobalInterfaceTable), hr);
@@ -1423,7 +1425,7 @@ HRESULT STDMETHODCALLTYPE Aladdin::CAPI::COM::ClassFactoryNET::CreateInstance(
 		((IUnknown*)*ppvObject)->Release(); *ppvObject = pEntry; return hr; 
 	}
 	// обработать возможную ошибку
-	catch (const windows_exception& e) { hr = e.value(); } catch (...) { hr = E_FAIL; }
+	catch (const std::system_error& e) { hr = e.code().value(); } catch (...) { hr = E_FAIL; }
 
 	// освободить выделенные ресурсы
 	((IUnknown*)*ppvObject)->Release(); return hr; 

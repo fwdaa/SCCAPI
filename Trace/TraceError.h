@@ -1,4 +1,5 @@
 #pragma once
+#if !defined _NTDDK_
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -9,73 +10,74 @@
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Дополнительные определения трассировки
+// Запрет встраивания функций
 ///////////////////////////////////////////////////////////////////////////////
-#if defined WPP_CONTROL_GUIDS
-#define WPP_USER_MSG_GUID (0CEACA83, 9CF5, 4D89, A342, 6C3E7FAC62E5)
-#include "TraceError.tmh"
+#if defined __GNUC__
+#define _NOINLINE      __attribute__((noinline)) 
+#elif defined _MSC_VER
+#define _NOINLINE      __declspec(noinline)
+#endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение используемых имен 
+///////////////////////////////////////////////////////////////////////////////
+#if !defined _MSC_VER || _MSC_VER >= 1600
+#define _ERROR_CATEGORY _error_category 
+#define _ERROR_CODE     _error_code
+#else 
+#define _ERROR_CATEGORY error_category 
+#define _ERROR_CODE     error_code
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Категория ошибки
 ///////////////////////////////////////////////////////////////////////////////
-#if !defined _MSC_VER || _MSC_VER >= 1600
-typedef std::error_category _error_category;   // категория ошибки
-#else 
-class _error_category 
-{
-    // деструктор
-    public: virtual ~_error_category() {} 
-
-    // получить сообщение об ошибке
-    public: virtual std::string message(int code) const = 0; 
-};
-#endif 
-
 namespace trace {
-template <typename T> class error_category 
+template <typename T = int> class _ERROR_CATEGORY 
 {
     // деструктор
-    public: virtual ~error_category() {} 
+    public: virtual ~_ERROR_CATEGORY() {} 
 
     // получить сообщение об ошибке
     public: virtual std::string message(T code) const = 0; 
 };
 }
+
+#if !defined _MSC_VER || _MSC_VER >= 1600
+namespace trace {
+template <typename T> struct _error_category_traits
+{
+    // указать тип 
+    typedef typename _ERROR_CATEGORY<T> type; 
+}; 
+template <> struct _error_category_traits<int>
+{
+    // указать тип 
+    typedef std::error_category type; 
+}; 
+template <typename T>
+using error_category = typename _error_category_traits<T>::type; 
+}
+#else 
+namespace std {
+typedef trace::_ERROR_CATEGORY<> error_category; 
+}
+#endif 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Описание ошибки 
 ///////////////////////////////////////////////////////////////////////////////
-#if !defined _MSC_VER || _MSC_VER >= 1600
-typedef std::error_code     _error_code;       // описание ошибки
-#else 
-class _error_code 
-{
-    // категория и код ошибки
-    private: const _error_category* _category; int _value; 
-
-    // конструктор
-    public: _error_code(int value, const _error_category& category) 
-        
-        // сохранить переданные параметры
-        : _category(&category), _value(value) {}
-
-    // категория ошибки
-    public: const _error_category& category() const { return *_category; }
-    // код ошибки
-    public: int value() const { return _value;  }
-
-    // сообщение об ошибке
-    public: std::string message() const { return category().message(value()); }
-};
-#endif 
 namespace trace {
-template <typename T> class error_code 
+template <typename T = int> class _ERROR_CODE 
 {
-    // категория и код ошибки
+    // категория и код ошибки (порядок расположения важен для va_list)
     private: const error_category<T>* _category; T _value; 
 
+    // конструктор по умолчанию
+    public: _ERROR_CODE() : _value(0), _category(std::system_category()) {}
+
     // конструктор
-    public: error_code(T value, const error_category<T>& category) 
+    public: _ERROR_CODE(T value, const error_category<T>& category) 
         
         // сохранить переданные параметры
         : _category(&category), _value(value) {}
@@ -90,124 +92,115 @@ template <typename T> class error_code
 }; 
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Исключение операционной системы
-///////////////////////////////////////////////////////////////////////////////
 #if !defined _MSC_VER || _MSC_VER >= 1600
-typedef std::system_error   _system_error;     // исключение при ошибке
-#else 
-class _system_error : public std::runtime_error
+namespace trace {
+template <typename T> struct _error_code_traits
 {
-    // возникшая ошибка и ее описание
-    private: _error_code _code; std::string _what; 
-
-    // конструктор
-    public: _system_error(int value, const _error_category& category) 
-        
-        // сохранить переданные параметры
-        : std::runtime_error(""), _code(value, category), _what(category.message(value)) {}
-
-    // конструктор
-    public: _system_error(const _error_code& code) 
-        
-        // сохранить переданные параметры
-        : std::runtime_error(""), _code(code), _what(code.message()) {}
-
-    // возникшая ошибка
-    public: const _error_code& code() const { return _code; }
-
-    // описание ошибки
-    public: virtual const char* what() const { return _what.c_str(); }
+    // указать тип 
+    typedef typename _ERROR_CODE<T> type; 
 }; 
+template <> struct _error_code_traits<int>
+{
+    // указать тип 
+    typedef std::error_code type; 
+}; 
+template <typename T>
+using error_code = typename _error_code_traits<T>::type; 
+}
+#else 
+namespace std {
+typedef trace::_ERROR_CODE<> error_code; 
+}
 #endif 
 
-class system_exception : public _system_error
-{
-    // имя файла и номер строки
-    private: std::string _file; private: int _line; 
-
-    // конструктор
-    public: system_exception(const _error_category& category, int value, const char* szFile, int line)
-
-        // сохранить переданные параметры
-        : _system_error(value, category), _file(szFile), _line(line) {} 
-
-    // конструктор
-    public: system_exception(const _error_code& code, const char* szFile, int line)
-
-        // сохранить переданные параметры
-        : _system_error(code), _file(szFile), _line(line) {} 
-
-	// идентификатор ошибки
-	public: int value() const { return code().value(); }	
-
-    // имя файла
-    public: const char* file() const { return _file.c_str(); }
-    // номер строки
-    public: int line() const { return _line; }
-
-    // сохранить код последней ошибки
-    public: virtual void SetLastError() const = 0; 
-
-	// вывести дополнительные данные ошибки
-	public: virtual WPP_NOINLINE void trace() const 
-    {
-		// вывести дополнительные данные ошибки
-		ATRACE(TRACE_LEVEL_ERROR, "Message = %hs", what()); 	
-	} 	
-};
-
 ///////////////////////////////////////////////////////////////////////////////
-// Исключение времени выполнения
+// Исключение времени выполнения 
 ///////////////////////////////////////////////////////////////////////////////
 namespace trace {
-template <typename T>
-class exception : public std::runtime_error
+template <typename T = int>
+class _system_error : public std::runtime_error
 {
-    // возникшая ошибка и ее описание
-    private: error_code<T> _code; std::string _what; 
-    // имя файла и номер строки
-    private: std::string _file; private: int _line;
+    // возникшая ошибка
+    private: error_code<T> _code; 
 
     // конструктор
-    public: exception(const error_category<T>& category, T value, const char* szFile, int line)
-
+    public: _system_error(T value, const error_category<T>& category) 
+        
         // сохранить переданные параметры
-        : std::runtime_error(""), _code(value, category), _what(category.message(value)), _file(szFile), _line(line) {} 
+        : std::runtime_error(category.message(value)), _code(value, category) {}
 
     // конструктор
-    public: exception(const error_code<T>& code, const char* szFile, int line)
-
+    public: _system_error(const error_code<T>& code) 
+        
         // сохранить переданные параметры
-        : std::runtime_error(""), _code(code), _what(code.message()), _file(szFile), _line(line) {} 
+        : std::runtime_error(code.message()), _code(code) {}
 
     // возникшая ошибка
     public: const error_code<T>& code() const { return _code; }
-	// идентификатор ошибки
-	public: T value() const { return code().value(); }	
+}; 
 
-    // описание ошибки
-    public: virtual const char* what() const throw() { return _what.c_str(); }
+template <typename T> struct _system_error_traits
+{
+    // указать тип 
+    typedef typename _system_error<T> type; 
+}; 
+}
 
-    // имя файла
-    public: const char* file() const { return _file.c_str(); }
-    // номер строки
-    public: int line() const { return _line; }
+#if !defined _MSC_VER || _MSC_VER >= 1600
+namespace trace {
+template <> struct _system_error_traits<int>
+{
+    // указать тип 
+    typedef std::system_error type; 
+}; 
+}
+#else 
+namespace std {
+typedef trace::_system_error<> system_error; 
+}
+#endif 
 
+namespace trace {
+template <typename T = int>
+class system_error : public _system_error_traits<T>::type
+{
+    // указать тип базового класса
+    private: typedef typename _system_error_traits<T>::type base_type; 
+
+    // конструктор
+    public: system_error(T value, const error_category<T>& category) 
+        
+        // сохранить переданные параметры
+        : base_type(value, category) {}
+
+    // конструктор
+    public: system_error(const error_code<T>& code) : base_type(code) {} 
+        
 	// вывести дополнительные данные ошибки
-	public: virtual WPP_NOINLINE void trace() const 
+	public: virtual _NOINLINE void trace(const char*, int) const 
     {
 		// вывести дополнительные данные ошибки
-		ATRACE(TRACE_LEVEL_ERROR, "Message = %hs", what()); 	
-	} 	
-	// выбросить исключение
-	public: virtual void raise() const { trace(); throw *this; }
-};
+		trace_format("Message = %hs", base_type::what()); 	
+	}
+	// вывести дополнительную строку
+	protected: _NOINLINE void trace_format(const char* szFormat, ...) const 
+    {
+        // перейти на переданные аргументы
+        va_list args; va_start(args, szFormat);
+
+		// отформатировать ошибку
+		std::string message = trace::vsprintf(szFormat, args); 
+
+		// вывести дополнительные данные ошибки
+		ATRACESTR(TRACE_LEVEL_ERROR, message.c_str()); va_end(args);
+	}
+}; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Сбросить идентификатор служебных сообщений
+// Отмена действия макросов
 ///////////////////////////////////////////////////////////////////////////////
-#if defined WPP_CONTROL_GUIDS
-#undef WPP_USER_MSG_GUID
+#undef _ERROR_CATEGORY
+#undef _ERROR_CODE    
+#undef _NOINLINE
 #endif 

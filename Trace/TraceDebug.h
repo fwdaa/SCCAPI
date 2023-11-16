@@ -1,38 +1,13 @@
 #pragma once
+#if !defined _NTDDK_
+#include <locale>
+#endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // ѕрефикс вывода сообщений 
 ///////////////////////////////////////////////////////////////////////////////
-namespace trace {
-#if defined _NTDDK_
-inline const char* GetDebugPrefix() 
-{ 
-	// способ форматировани€ префикса
-	return "[%9!d!]%8!04X!.%3!04X!::%4!016I64X! [%1!s!] %2!s! "; 
-}
-#else 
-inline const char* GetDebugPrefix() 
-{
-	// получить параметры управлени€
-	if (const ControlParameters* pControlParameters = GetControlParameters())
-	{
-		// получить способ форматировани€ префикса
-		if (const char* szPrefix = pControlParameters->DebugPrefix()) 
-		{
-			// пропустить начальные пробелы
-			szPrefix = szPrefix + strspn(szPrefix, " "); 
+namespace trace { const char* GetDebugPrefix(); } 
 
-			// проверить указание префикса
-			if (strcmp(szPrefix, "%0") != 0) return szPrefix; 
-
-			// указать значение префикса по умолчанию
-			return "[%9!d!]%8!04X!.%3!04X!::%4!s! [%1!s!] %2!s! "; 
-		}
-	}
-	return nullptr; 
-}
-#endif
-}
 ///////////////////////////////////////////////////////////////////////////////
 // ¬ывод сообщени€ в отладчик
 ///////////////////////////////////////////////////////////////////////////////

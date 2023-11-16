@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "TraceUTF.h"
 #include "Aladdin.CAPI.OpenSSL.hpp"
 
 #if defined _WIN32
@@ -13,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // ƒополнительные определени€ трассировки
 ///////////////////////////////////////////////////////////////////////////////
+#include "TraceWindows.h"
 #ifdef WPP_CONTROL_GUIDS
 #include "capi.tmh"
 #endif 

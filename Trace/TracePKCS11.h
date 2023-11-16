@@ -1,4 +1,16 @@
 #pragma once
+#include "TraceError.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение отсутствия возврата из функции
+///////////////////////////////////////////////////////////////////////////////
+#if defined __GNUC__
+#define _NORETURN	__attribute__((noreturn))
+#elif defined _MSC_VER
+#define _NORETURN	__declspec(noreturn)
+#else 
+#define _NORETURN	[[noreturn]]
+#endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Категория ошибок PKCS11
@@ -8,6 +20,7 @@ class pkcs11_error_category : public trace::error_category<CK_ULONG>
     // получить сообщение об ошибке
     public: virtual std::string message(CK_ULONG code) const; 
 };
+
 inline const class pkcs11_error_category& pkcs11_category() 
 {
     // категория ошибок PKCS11
@@ -17,22 +30,22 @@ inline const class pkcs11_error_category& pkcs11_category()
 ///////////////////////////////////////////////////////////////////////////////
 // Описание ошибки PKCS11
 ///////////////////////////////////////////////////////////////////////////////
-class pkcs11_error : public trace::error_code<CK_ULONG>
+class pkcs11_error_code : public trace::error_code<CK_ULONG>
 {
     // код ошибки
     private: char _code[16]; 
 
     // конструктор
-    public: pkcs11_error(CK_ULONG code) 
+    public: pkcs11_error_code(CK_ULONG code) 
         
         // сохранить переданные параметры
         : trace::error_code<CK_ULONG>(code, pkcs11_category()) 
 	{
         // отформатировать код ошибки
-        sprintf_s(_code, sizeof(_code), "%d", code); 
+        trace::snprintf(_code, sizeof(_code), "%08lX", code); 
 	} 
    	// символическое описание ошибки
-   	public: std::string name() const
+   	public: const char* name() const
    	{
    		// код ошибки
    		switch (value())
@@ -122,8 +135,7 @@ class pkcs11_error : public trace::error_code<CK_ULONG>
 		case CKR_MUTEX_NOT_LOCKED					: return "CKR_MUTEX_NOT_LOCKED";
 		case CKR_VENDOR_DEFINED					    : return "CKR_VENDOR_DEFINED";
 		}
-        // отформатировать код ошибки
-        char str[16]; trace::snprintf(str, sizeof(str), "%08lX", value()); return str; 
+		return _code; 
 	}
 }; 
 inline std::string pkcs11_error_category::message(CK_ULONG code) const
@@ -131,22 +143,35 @@ inline std::string pkcs11_error_category::message(CK_ULONG code) const
 	// вернуть сообщение об ошибке
 	return pkcs11_error(code).name(); 
 } 
-// признак наличия ошибки
-inline bool is_pkcs11_error(const CK_ULONG& code) { return code != CKR_OK; }
-
 ///////////////////////////////////////////////////////////////////////////////
 // Исключение PKCS11
 ///////////////////////////////////////////////////////////////////////////////
-class pkcs11_exception : public trace::exception<CK_ULONG>
+class pkcs11_error : public trace::system_error<CK_ULONG>
 {
     // конструктор
-    public: pkcs11_exception(CK_ULONG code, const char* szFile, int line)
+    public: pkcs11_error(const pkcs11_error_code& code)
 
         // сохранить переданные параметры
-        : trace::exception<CK_ULONG>(pkcs11_error(code), szFile, line) {}
+        : trace::system_error<CK_ULONG>(code) {}
+
+    // конструктор
+    public: pkcs11_error(CK_ULONG code)
+
+        // сохранить переданные параметры
+        : trace::system_error<CK_ULONG>(code, pkcs11_category()) {}
 
     // выбросить исключение
-    public: void raise() const { trace(); throw *this; }
+    public: virtual _NORETURN void raise(const char* szFile, int line) const 
+	{ 
+		// выбросить исключение
+		trace(szFile, line); throw *this; 
+	}
+	// имя ошибки 
+	public: std::string name() const 
+	{
+		// вернуть имя ошибки 
+		return code().category().message(code().value()); 
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -155,7 +180,7 @@ class pkcs11_exception : public trace::exception<CK_ULONG>
 inline void format_pkcs11(trace::pprintf print, void* context, int level, va_list& args)
 {
 	// извлечь код ошибки
-	pkcs11_error error(va_arg(args, CK_ULONG)); 
+	pkcs11_error_code error(va_arg(args, CK_ULONG)); 
 
 	// определить имя ошибки
 	std::string name = error.name(); 
@@ -164,3 +189,51 @@ inline void format_pkcs11(trace::pprintf print, void* context, int level, va_lis
 	(*print)(context, level, "%hs", name.c_str()); 
 }
 WPP_FORMAT_TABLE_EXTENSION(PKCS11, format_pkcs11);
+
+///////////////////////////////////////////////////////////////////////////////
+// Трассировка ошибок PKCS11
+///////////////////////////////////////////////////////////////////////////////
+#if defined _MANAGED && _MANAGED == 1
+#define WPP_TRACELEVEL_PKCS11_RAISE(FILE, LINE)    	                        \
+    pkcs11_error(WPP_VAR(LINE), FILE, LINE).trace();						\
+    throw gcnew Aladdin::PKCS11::Exception(WPP_VAR(LINE));
+#else 
+#define WPP_TRACELEVEL_PKCS11_RAISE(FILE, LINE)           	                \
+    pkcs11_error(WPP_VAR(LINE)).raise(FILE, LINE);    
+#endif 
+
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_PKCS11(LEVEL, CODE)       	(CK_ULONG, CODE, WPP_CAST_BOOL, LEVEL)
+
+// Отсутствие предварительных действий
+#define WPP_TRACELEVEL_PKCS11_PRE(LEVEL, CODE)      
+
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_PKCS11_ENABLED(LEVEL, CODE)   	WPP_VAR(__LINE__)
+
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_PKCS11_POST(LEVEL, CODE)                             \
+    ; if (WPP_TRACELEVEL_PKCS11_ENABLED(LEVEL, CODE)) {                     \
+         WPP_TRACELEVEL_PKCS11_RAISE(__FILE__, __LINE__)                    \
+    }}
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение трассировки
+///////////////////////////////////////////////////////////////////////////////
+#if defined WPP_CONTROL_GUIDS
+#define WPP_TRACELEVEL_PKCS11_LOGGER(LEVEL, CODE)   	WppGetLogger(),
+#else 
+#define AE_CHECK_PKCS11(CODE)                                                               			    	\
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_PKCS11(TRACE_LEVEL_ERROR, CODE), "ERROR %!PKCS11!", WPP_VAR(__LINE__))   	\
+    WPP_TRACELEVEL_PKCS11_PRE(TRACE_LEVEL_ERROR, CODE)                               	            			\
+    (void)((                                                                                      			    \
+        WPP_TRACELEVEL_PKCS11_ENABLED(TRACE_LEVEL_ERROR, CODE)                       	            			\
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!PKCS11!", WPP_VAR(__LINE__))), 1 : 0                                	\
+    ))                                                                                      					\
+    WPP_TRACELEVEL_PKCS11_POST(TRACE_LEVEL_ERROR, CODE)                                      
+#endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Отмена действия макросов
+///////////////////////////////////////////////////////////////////////////////
+#undef _NORETURN

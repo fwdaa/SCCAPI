@@ -1,5 +1,17 @@
 #pragma once
+#include "TraceError.h"
 #include "openssl/err.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение отсутствия возврата из функции
+///////////////////////////////////////////////////////////////////////////////
+#if defined __GNUC__
+#define _NORETURN	__attribute__((noreturn))
+#elif defined _MSC_VER
+#define _NORETURN	__declspec(noreturn)
+#else 
+#define _NORETURN	[[noreturn]]
+#endif 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Категория ошибок OpenSSL
@@ -20,54 +32,62 @@ inline const _openssl_category& openssl_category()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Описание ошибки OpenSSL
-///////////////////////////////////////////////////////////////////////////////
-class openssl_error : public trace::error_code<unsigned long>
-{
-    // конструктор
-    public: openssl_error(unsigned long code) 
-        
-        // сохранить код ошибки
-        : trace::error_code<unsigned long>(code, openssl_category()) {}
-
-    // символическое описание ошибки
-    public: std::string name() const
-    {	
-        // отформатировать код ошибки
-        char str[16]; trace::snprintf(str, sizeof(str), "%lu", value()); return str; 
-	}
-
-};
-// признак наличия ошибки
-inline bool is_openssl_error(unsigned long code) { return code != 0; }
-
-///////////////////////////////////////////////////////////////////////////////
 // Исключение OpenSSL
 ///////////////////////////////////////////////////////////////////////////////
-class openssl_exception : public trace::exception<unsigned long>
+class openssl_error : public trace::system_error<unsigned long>
 {
     // конструктор
-    public: openssl_exception(unsigned long code, const char* szFile, int line)
+    public: openssl_error(unsigned long code)
 
         // сохранить переданные параметры
-        : trace::exception<unsigned long>(openssl_error(code), szFile, line) {}
+        : trace::system_error<unsigned long>(code, openssl_category()) {}
 
     // выбросить исключение
-    public: void raise() const { trace(); throw *this; }
+    public: virtual _NORETURN void raise(const char* szFile, int line) const 
+    { 
+        // выбросить исключение
+        trace(szFile, line); throw *this; 
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Добавление способа форматирования
+// Трассировка ошибок OpenSSL
 ///////////////////////////////////////////////////////////////////////////////
-inline void format_openssl(trace::pprintf print, void* context, int level, va_list& args)
-{
-	// извлечь код ошибки
-	openssl_error error(va_arg(args, unsigned long)); 
+#define WPP_TRACELEVEL_OPENSSL_RAISE(FILE, LINE)                            \
+    openssl_error(WPP_VAR(LINE)).raise(FILE, LINE);    
 
-	// получить символическое имя
-	std::string name = error.name(); 
+// Параметры трассировки для отладчика
+#define WPP_EX_TRACELEVEL_OPENSSL(LEVEL, RET)       	(unsigned long, (RET) ? 0 : ERR_get_error(), WPP_CAST_BOOL, LEVEL)
 
-	// вывести символическое имя
-	(*print)(context, level, "%hs", name.c_str()); 
-}
-WPP_FORMAT_TABLE_EXTENSION(OPENSSL, format_openssl); 
+// Отсутствие предварительных действий
+#define WPP_TRACELEVEL_OPENSSL_PRE(LEVEL, RET)      
+
+// Проверка наличия трассировки
+#define WPP_TRACELEVEL_OPENSSL_ENABLED(LEVEL, RET)   	WPP_VAR(__LINE__)
+
+// Проверка наличия ошибки
+#define WPP_TRACELEVEL_OPENSSL_POST(LEVEL, RET)                             \
+    ; if (WPP_TRACELEVEL_OPENSSL_ENABLED(LEVEL, RET)) {                     \
+         WPP_TRACELEVEL_OPENSSL_RAISE(__FILE__, __LINE__)                   \
+    }}
+
+///////////////////////////////////////////////////////////////////////////////
+// Определение трассировки
+///////////////////////////////////////////////////////////////////////////////
+#if defined WPP_CONTROL_GUIDS
+#define WPP_TRACELEVEL_OPENSSL_LOGGER(LEVEL, RET)   	WppGetLogger(),
+#else 
+#define AE_CHECK_OPENSSL(RET)                                                                     		        \
+    WPP_LOG_ALWAYS(WPP_EX_TRACELEVEL_OPENSSL(TRACE_LEVEL_ERROR, RET), "ERROR %!ULONG!", WPP_VAR(__LINE__))      \
+    WPP_TRACELEVEL_OPENSSL_PRE(TRACE_LEVEL_ERROR, RET)                                            		        \
+    (void)((                                                                                                    \
+        WPP_TRACELEVEL_OPENSSL_ENABLED(TRACE_LEVEL_ERROR, RET)                                    		        \
+        ? WPP_INVOKE_WPP_DEBUG(("ERROR %!ULONG!", WPP_VAR(__LINE__))), 1 : 0                                    \
+    ))                                                                                            		        \
+    WPP_TRACELEVEL_OPENSSL_POST(TRACE_LEVEL_ERROR, RET)                                      
+#endif 
+
+///////////////////////////////////////////////////////////////////////////////
+// Отмена действия макросов
+///////////////////////////////////////////////////////////////////////////////
+#undef _NORETURN

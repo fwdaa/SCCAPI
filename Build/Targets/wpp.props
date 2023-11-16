@@ -2,6 +2,10 @@
   <!-- ****************************************************************************************************** -->
   <!--                            Режим использования утилиты                                                 -->
   <!-- ****************************************************************************************************** -->
+  <!-- Для всех файлов из наборов @(ClCompile) и @(OtherWpp) устанавливаются свойства 						  -->
+  <!--     WppKernelMode при сборке для режима ядра;      							  						  -->
+  <!--     WppDllMacro   при сборке для пользовательского ядра;      							  		      -->
+  <!-- ****************************************************************************************************** -->
   <ItemDefinitionGroup>
     <ClCompile>
       <WppKernelMode Condition="'$(IsKernelModeToolset)' == 'true'">true</WppKernelMode>
@@ -15,6 +19,11 @@
   <!-- ****************************************************************************************************** -->
   <!--                            Способ сборки утилиты                                                       -->
   <!-- ****************************************************************************************************** -->
+  <!-- Для всех файлов из наборов @(ClCompile) и @(OtherWpp) устанавливаются свойства 						  -->
+  <!--     WppEnabled                    = false (при его отсутствии);      							  	  -->
+  <!--     WppMinimalRebuildFromTracking = true  (при его отсутствии);      							      -->
+  <!--     WppEnableOutputDirectory      = true  (при его отсутствии);      							      -->
+  <!-- ****************************************************************************************************** -->
   <ItemDefinitionGroup>
     <ClCompile>
       <WppEnabled                    Condition="'%(ClCompile.WppEnabled)'                    == ''">false</WppEnabled>
@@ -23,12 +32,16 @@
     </ClCompile>
     <OtherWpp>
       <WppEnabled                    Condition="'%(OtherWpp.WppEnabled)'                    == ''">false</WppEnabled>
-      <WppEnableOutputDirectory      Condition="'%(OtherWpp.WppEnableOutputDirectory)'      == ''">true</WppEnableOutputDirectory>
       <WppMinimalRebuildFromTracking Condition="'%(OtherWpp.WppMinimalRebuildFromTracking)' == ''">true</WppMinimalRebuildFromTracking>
+      <WppEnableOutputDirectory      Condition="'%(OtherWpp.WppEnableOutputDirectory)'      == ''">true</WppEnableOutputDirectory>
     </OtherWpp>
   </ItemDefinitionGroup>
   <!-- ****************************************************************************************************** -->
   <!--                            Использование каталогов утилитой                                            -->
+  <!-- ****************************************************************************************************** -->
+  <!-- Для всех файлов из наборов @(ClCompile) и @(OtherWpp) устанавливаются свойства 						  -->
+  <!--     WppTrackerLogDirectory = $(TLogLocation) (при его отсутствии);      							  	  -->
+  <!--     WppOutputDirectory     = $(IntDir)       (при его отсутствии);      							  	  -->
   <!-- ****************************************************************************************************** -->
   <ItemDefinitionGroup>
     <ClCompile>
@@ -42,6 +55,10 @@
   </ItemDefinitionGroup>
   <!-- ****************************************************************************************************** -->
   <!--                            Имя модуля, связанного с сообщениями трассировки                            -->
+  <!-- ****************************************************************************************************** -->
+  <!-- Для всех файлов из наборов @(ClCompile) и @(OtherWpp), для которых присутствует свойство               -->
+  <!-- WppAddAlternateNameToMessageGUID, устанавливается свойство 						  				      -->
+  <!--     WppModuleName = %(WppAddAlternateNameToMessageGUID) (при его отсутствии)							  -->
   <!-- ****************************************************************************************************** -->
   <ItemDefinitionGroup>
     <ClCompile       Condition="'%(ClCompile.WppAddAlternateNameToMessageGUID)' != ''">

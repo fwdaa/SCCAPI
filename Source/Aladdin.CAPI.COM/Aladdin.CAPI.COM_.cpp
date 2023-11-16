@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // ƒополнительные определени€ трассировки
 ///////////////////////////////////////////////////////////////////////////////
+#include "TraceCOM.h" 
 #ifdef WPP_CONTROL_GUIDS
 #include "Aladdin.CAPI.COM_.tmh"
 #endif 
@@ -110,7 +111,7 @@ try {$
 	*ppEntry = pEntry.Detach(); return S_OK; 
 }
 // обработать возможную ошибку
-catch (const windows_exception& e) { return e.value(); }
+catch (const std::system_error& e) { return (HRESULT)e.code().value(); }
 
 HRESULT Aladdin::CAPI::COM::CreateFactory(
 	PCWSTR szRuntime, PCWSTR szFileName, Aladdin_CAPI_COM::IFactory** ppFactory)
@@ -139,7 +140,7 @@ try {$
 catch (const ATL::CAtlException& e) { return (HRESULT)e; }
 
 // обработать возможную ошибку
-catch (const windows_exception& e) { return e.value(); }
+catch (const std::system_error& e) { return (HRESULT)e.code().value(); }
 
 std::shared_ptr<Aladdin::CAPI::IFactory> Aladdin::CAPI::COM::CreateFactory(
 	PCWSTR szRuntime, PCWSTR szFileName)
