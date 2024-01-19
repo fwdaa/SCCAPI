@@ -27,16 +27,18 @@
   </PropertyGroup>
 -->
   <PropertyGroup Label="SHA256-Signature">
-    <PfxPathSHA256>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA256.pfx</PfxPathSHA256>
-    <PfxPasswordSHA256>1234567890</PfxPasswordSHA256>
-    <ThumbprintSHA256>7ca64c2d1a416cea1f78b4140212f31ef5eb42ec</ThumbprintSHA256>
+    <PfxPathSHA256>$(MSBuildThisFileDirectory)Sign\EV_2023-2026.pfx</PfxPathSHA256>
+    <PfxPasswordSHA256>Qq1234567890</PfxPasswordSHA256>
+    <ThumbprintSHA256>a4b261bfdc29fec598ef3a83443a1b22fb92950e</ThumbprintSHA256>
     <CrossCertificateSHA256>$(MSBuildThisFileDirectory)Sign\GlobalSignRootR3-SHA256-MS.cer</CrossCertificateSHA256>
     <TimestampServerSHA256>http://rfc3161timestamp.globalsign.com/advanced</TimestampServerSHA256>
   </PropertyGroup>
   <PropertyGroup Label="SHA256EV-Signature">
-    <PfxPathSHA256EV>$(MSBuildThisFileDirectory)Sign\Aladdin-SHA256EV.pfx</PfxPathSHA256EV>
-    <PfxPasswordSHA256EV>1234567890</PfxPasswordSHA256EV>
-    <ThumbprintSHA256EV>7ca64c2d1a416cea1f78b4140212f31ef5eb42ec</ThumbprintSHA256EV>
+    <PfxPathSHA256EV>$(MSBuildThisFileDirectory)Sign\EV_2023-2026.pfx</PfxPathSHA256EV>
+    <PfxPasswordSHA256EV>Qq1234567890</PfxPasswordSHA256EV>
+    <ThumbprintSHA256EV>a4b261bfdc29fec598ef3a83443a1b22fb92950e</ThumbprintSHA256EV>
+    <CrossCertificateSHA256EV>$(MSBuildThisFileDirectory)Sign\GlobalSignRootR3-SHA256-MS.cer</CrossCertificateSHA256EV>
+    <TimestampServerSHA256EV>http://rfc3161timestamp.globalsign.com/advanced</TimestampServerSHA256EV>
   </PropertyGroup>
   <!-- 
   /////////////////////////////////////////////////////////////////////////////////////////////
