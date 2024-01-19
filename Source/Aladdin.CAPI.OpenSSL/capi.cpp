@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Aladdin.CAPI.OpenSSL.hpp"
-#include "TraceUTF.h"
+#include "codecvt.h"
 
 #if defined _WIN32
 ///////////////////////////////////////////////////////////////////////////////

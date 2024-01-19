@@ -1,6 +1,6 @@
 #pragma once
 #include "Aladdin.CAPI.OpenSSL.h"
-#include "TraceUTF.h"
+#include "codecvt.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Определения OpenSSL

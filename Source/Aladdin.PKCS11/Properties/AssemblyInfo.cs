@@ -14,7 +14,7 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Aladdin R.D.")]
 [assembly: AssemblyProduct("Aladdin.CAPI")]
-[assembly: AssemblyCopyright("Copyright © Aladdin R.D. 2021")]
+[assembly: AssemblyCopyright("Copyright © Aladdin R.D. 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

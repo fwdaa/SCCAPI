@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Aladdin.CryptoDB")]
-[assembly: AssemblyCopyright("Copyright © Aladdin R.D. 2021")]
+[assembly: AssemblyCopyright("Copyright © Aladdin R.D. 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

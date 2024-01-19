@@ -11,7 +11,7 @@
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("Aladdin.R.D.")];
 [assembly:AssemblyProductAttribute("Aladdin.CAPI")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) Aladdin R.D. 2015")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) Aladdin R.D. 2024")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 [assembly:AssemblyKeyFile("keypair.snk")]
