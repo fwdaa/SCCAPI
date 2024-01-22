@@ -53,41 +53,46 @@ public abstract class OS
     public String[] exec(String... parameters) throws IOException
     {
         // запустить процесс
-        Process process = start(parameters); 
-        
-        // получить поток выходных данных
-        InputStream outputStream = process.getInputStream(); Reader streamReader; 
- 
-        // указать используемую кодировку
-        String encoding = getEncoding(); if (encoding == null) 
-        {
-            // указать кодировку по умолчанию
-            streamReader = new InputStreamReader(outputStream);
-        }
-        else {
-            // указать кодировку потока выходных данных
-            try { streamReader = new InputStreamReader(outputStream, encoding); }
+        Process process = start(parameters); Reader streamReader; 
 
-            // проверить корректность кодировки
-            catch (UnsupportedEncodingException e)
-            {
-                // указать кодировку потока выходных данных по умолчанию
-                streamReader = new InputStreamReader(outputStream); 
-            }
-        }
         // создать список выходных строк
         List<String> lines = new ArrayList<String>(); 
+        try { 
+            // получить поток выходных данных
+            InputStream outputStream = process.getInputStream(); 
+
+            // указать используемую кодировку
+            String encoding = getEncoding(); if (encoding == null) 
+            {
+                // указать кодировку по умолчанию
+                streamReader = new InputStreamReader(outputStream);
+            }
+            else {
+                // указать кодировку потока выходных данных
+                try { streamReader = new InputStreamReader(outputStream, encoding); }
+
+                // проверить корректность кодировки
+                catch (UnsupportedEncodingException e)
+                {
+                    // указать кодировку потока выходных данных по умолчанию
+                    streamReader = new InputStreamReader(outputStream); 
+                }
+            }
         
-        // получить поток выходных данных
-        try (BufferedReader output = new BufferedReader(streamReader))
-        {
-            // для всех строк
-            for (String line = output.readLine(); line != null; 
-                
-                // добавить строку в список
-                line = output.readLine()) lines.add(line);
+            // получить поток выходных данных
+            try (BufferedReader output = new BufferedReader(streamReader))
+            {
+                // для всех строк
+                for (String line = output.readLine(); line != null; 
+
+                    // добавить строку в список
+                    line = output.readLine()) lines.add(line);
+            }
         }
-        // вернуть список строк
+        // удалить процесс
+        finally { try { process.destroy(); } catch (Throwable e) {} } 
+        
+        // вернуть список строк 
         return lines.toArray(new String[0]); 
     }
     // перечислить процессы
