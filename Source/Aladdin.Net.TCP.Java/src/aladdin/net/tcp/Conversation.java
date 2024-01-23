@@ -77,7 +77,7 @@ public class Conversation extends aladdin.net.Conversation
         String error = SerialException.toString(exception, false); 
         
         // передать сообщение о завершении
-        send(-1, error.getBytes("UTF-8"), timeout); 
+        send(-1, error.getBytes("UTF-8"), timeout); close(); 
     }
     public void end() throws IOException
     {
@@ -85,7 +85,7 @@ public class Conversation extends aladdin.net.Conversation
         if (inactive()) return; int timeout = 0; 
         
         // передать сообщение о завершении
-        send(0, new byte[0], timeout); 
+        send(0, new byte[0], timeout); close();
     }
 	///////////////////////////////////////////////////////////////////////
 	// Передать сообщение

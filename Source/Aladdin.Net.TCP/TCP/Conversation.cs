@@ -68,7 +68,7 @@ namespace Aladdin.Net.TCP
             string error = SerialException.ToString(exception, false); 
         
             // передать сообщение о завершении
-            Send(-1, Encoding.UTF8.GetBytes(error), timeout); 
+            Send(-1, Encoding.UTF8.GetBytes(error), timeout); Close(); 
         }
         public void End()
         {
@@ -76,7 +76,7 @@ namespace Aladdin.Net.TCP
             if (Inactive) return; TimeSpan timeout = new TimeSpan(0); 
             
             // передать сообщение о завершении
-            Send(0, new byte[0], timeout); 
+            Send(0, new byte[0], timeout); Close();
         }
 		///////////////////////////////////////////////////////////////////////
 		// Передать сообщение

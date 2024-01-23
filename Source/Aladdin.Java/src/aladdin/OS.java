@@ -1,4 +1,5 @@
 package aladdin;
+import java.lang.reflect.*;
 import java.io.*; 
 import java.util.*; 
 
@@ -52,30 +53,30 @@ public abstract class OS
     // выполнить процесс
     public String[] exec(String... parameters) throws IOException
     {
-        // запустить процесс
-        Process process = start(parameters); Reader streamReader; 
-
         // создать список выходных строк
         List<String> lines = new ArrayList<String>(); 
+        
+        // запустить процесс
+        Process process = start(parameters); 
         try { 
             // получить поток выходных данных
-            InputStream outputStream = process.getInputStream(); 
+            InputStream stream = process.getInputStream(); Reader streamReader; 
 
             // указать используемую кодировку
             String encoding = getEncoding(); if (encoding == null) 
             {
                 // указать кодировку по умолчанию
-                streamReader = new InputStreamReader(outputStream);
+                streamReader = new InputStreamReader(stream);
             }
             else {
                 // указать кодировку потока выходных данных
-                try { streamReader = new InputStreamReader(outputStream, encoding); }
+                try { streamReader = new InputStreamReader(stream, encoding); }
 
                 // проверить корректность кодировки
                 catch (UnsupportedEncodingException e)
                 {
                     // указать кодировку потока выходных данных по умолчанию
-                    streamReader = new InputStreamReader(outputStream); 
+                    streamReader = new InputStreamReader(stream); 
                 }
             }
         
@@ -89,9 +90,19 @@ public abstract class OS
                     line = output.readLine()) lines.add(line);
             }
         }
-        // удалить процесс
-        finally { try { process.destroy(); } catch (Throwable e) {} } 
-        
+        finally { 
+            // освободить выделенные ресурсы 
+            try (OutputStream stream = process.getOutputStream()) {}
+            try (InputStream  stream = process.getErrorStream ()) {}
+            try { 
+                // получить описание метода 
+                Method method = process.getClass().getDeclaredMethod("finalize"); 
+
+                // вызвать метод очистки 
+                method.setAccessible(true); method.invoke(process); 
+            }
+            catch (Throwable e) {}
+        } 
         // вернуть список строк 
         return lines.toArray(new String[0]); 
     }
