@@ -90,21 +90,41 @@ public abstract class OS
                     line = output.readLine()) lines.add(line);
             }
         }
-        finally { 
-            // освободить выделенные ресурсы 
-            try (OutputStream stream = process.getOutputStream()) {}
-            try (InputStream  stream = process.getErrorStream ()) {}
-            try { 
-                // получить описание метода 
-                Method method = process.getClass().getDeclaredMethod("finalize"); 
+        // освободить выделенные ресурсы и вернуть список строк
+        finally { closeProcess(process); } return lines.toArray(new String[0]);
+    }
+    @SuppressWarnings({"try"}) 
+    private void closeProcess(Process process) throws IOException
+    {
+        // освободить выделенные ресурсы 
+        try (OutputStream stream = process.getOutputStream()) {}
+        try (InputStream  stream = process.getErrorStream ()) {}
+        
+        // получить класс процесса
+        Class<?> processClass = process.getClass(); 
+        try {
+            // получить описание метода 
+            Method method = processClass.getDeclaredMethod("closeHandle", long.class); 
+                
+            // получить описание поля 
+            Field field = processClass.getDeclaredField("handle"); 
+            
+            // изменить доступность метода и поля 
+            method.setAccessible(true); field.setAccessible(true); 
+            
+            // вызвать метод очистки 
+            method.invoke(null, field.getLong(process)); return;
+        }
+        catch (Throwable e) {}
+        try { 
+            // получить описание метода 
+            Method method = processClass.getDeclaredMethod("finalize"); 
 
-                // вызвать метод очистки 
-                method.setAccessible(true); method.invoke(process); 
-            }
-            catch (Throwable e) {}
-        } 
-        // вернуть список строк 
-        return lines.toArray(new String[0]); 
+            // вызвать метод очистки 
+            method.setAccessible(true); method.invoke(process); return; 
+        }
+        // выполнить сборку мусора 
+        catch (Throwable ex) {} /*System.gc();*/
     }
     // перечислить процессы
     public abstract Map<Integer, String> listProcesses() throws IOException; 
