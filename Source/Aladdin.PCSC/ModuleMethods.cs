@@ -82,9 +82,14 @@ namespace Aladdin.PCSC
             string multiGroups = Encoding.EncodeMultiString(groups); 
 
             // перечислить группы считывателей
-            Exception.Check(NativeMethods.SCardListReaders(
+            uint code = NativeMethods.SCardListReaders(
                 new UIntPtr(hContext), multiGroups, out ptr, ref cchReaders
-            )); 
+            ); 
+            // проверить код ошибки 
+            if (code == API.SCARD_E_NO_READERS_AVAILABLE) return new string[0]; 
+
+            // проверить код ошибки 
+            else Exception.Check(code); 
             try {
                 // извлечь мультистроку
                 string multiString = Marshal.PtrToStringUni(ptr, cchReaders); 

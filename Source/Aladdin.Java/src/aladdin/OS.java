@@ -81,50 +81,24 @@ public abstract class OS
             }
         
             // получить поток выходных данных
-            try (BufferedReader output = new BufferedReader(streamReader))
-            {
-                // для всех строк
-                for (String line = output.readLine(); line != null; 
+            BufferedReader output = new BufferedReader(streamReader); 
+            
+            // для всех строк
+            for (String line = output.readLine(); line != null; 
 
-                    // добавить строку в список
-                    line = output.readLine()) lines.add(line);
-            }
+                // добавить строку в список
+                line = output.readLine()) lines.add(line);
         }
         // освободить выделенные ресурсы и вернуть список строк
         finally { closeProcess(process); } return lines.toArray(new String[0]);
     }
-    @SuppressWarnings({"try"}) 
-    private void closeProcess(Process process) throws IOException
+    @SuppressWarnings({"try"})     
+    public void closeProcess(Process process) throws IOException 
     {
         // освободить выделенные ресурсы 
+        try (InputStream  stream = process.getInputStream ()) {}
         try (OutputStream stream = process.getOutputStream()) {}
         try (InputStream  stream = process.getErrorStream ()) {}
-        
-        // получить класс процесса
-        Class<?> processClass = process.getClass(); 
-        try {
-            // получить описание метода 
-            Method method = processClass.getDeclaredMethod("closeHandle", long.class); 
-                
-            // получить описание поля 
-            Field field = processClass.getDeclaredField("handle"); 
-            
-            // изменить доступность метода и поля 
-            method.setAccessible(true); field.setAccessible(true); 
-            
-            // вызвать метод очистки 
-            method.invoke(null, field.getLong(process)); return;
-        }
-        catch (Throwable e) {}
-        try { 
-            // получить описание метода 
-            Method method = processClass.getDeclaredMethod("finalize"); 
-
-            // вызвать метод очистки 
-            method.setAccessible(true); method.invoke(process); return; 
-        }
-        // выполнить сборку мусора 
-        catch (Throwable ex) {} /*System.gc();*/
     }
     // перечислить процессы
     public abstract Map<Integer, String> listProcesses() throws IOException; 
@@ -183,6 +157,34 @@ public abstract class OS
                 processes.put(Integer.parseInt(pid), process); 
             }
             return processes; 
+        }
+        @Override 
+        public void closeProcess(Process process) throws IOException
+        {
+            // вызвать базовую функцию
+            Class<?> processClass = process.getClass(); super.closeProcess(process);
+            try {
+                // получить описание метода
+                Method method = processClass.getDeclaredMethod("closeHandle", long.class); 
+
+                // получить описание поля
+                Field field = processClass.getDeclaredField("handle"); 
+
+                // изменить доступность метода и поля 
+                method.setAccessible(true); field.setAccessible(true); 
+
+                // вызвать метод очистки 
+                method.invoke(null, field.getLong(process)); return;
+            }
+            catch (Throwable e) {}
+            try { 
+                // получить описание метода
+                Method method = processClass.getDeclaredMethod("finalize"); 
+
+                // вызвать метод очистки 
+                method.setAccessible(true); method.invoke(process); return; 
+            }
+            catch (Throwable e) {} 
         }
     }
     ///////////////////////////////////////////////////////////////////////

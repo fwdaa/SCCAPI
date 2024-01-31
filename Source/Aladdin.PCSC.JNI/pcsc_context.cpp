@@ -127,8 +127,14 @@ try {
 		DWORD cchReaders = SCARD_AUTOALLOCATE; LPWSTR szReaders;
 
 		// получить список считывателей
-		Check(env, (*pFunctions->scardListReadersW)(
-			hContext, strGroups.c_str(), (LPWSTR)&szReaders, &cchReaders));
+		LONG status = (*pFunctions->scardListReadersW)(
+			hContext, strGroups.c_str(), (LPWSTR)&szReaders, &cchReaders
+		); 
+		// проверить отсутствие ошибок 
+		if (status != SCARD_E_NO_READERS_AVAILABLE) Check(env, status);
+		
+		// обработать отсутствие считывателей
+		else return MultiStringToStringArray(env, L""); 
 		try {
 			// преобразовать мультистроку в список
 			jobjectArray jReaders = MultiStringToStringArray(env, szReaders); 
