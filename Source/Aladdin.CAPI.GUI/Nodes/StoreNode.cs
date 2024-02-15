@@ -45,20 +45,24 @@ namespace Aladdin.CAPI.GUI.Nodes
 		// перечислить дочерние объекты 
         public override ConsoleForm.Node[] PopulateChilds(ConsoleNode node) 
 		{ 
+			// определить основное окно
+			ContainersForm mainForm = (ContainersForm)node.MainForm; 
+
 			// создать список дочерних элементов
 			List<ConsoleForm.Node> nodes = new List<ConsoleForm.Node>();
+
+            // указать способ выбора аутентификации 
+            AuthenticationSelector selector = AuthenticationSelector.Create(
+				node.MainForm, environment.AuthenticationAttempts
+			); 
             try { 
-                // указать способ выбора аутентификации 
-                AuthenticationSelector selector = AuthenticationSelector.Create(
-					node.MainForm, environment.AuthenticationAttempts
-				); 
                 // открыть хранилище объектов
                 using (SecurityStore store = (SecurityStore)selector.OpenObject(
                     provider, storeInfo.Scope, storeInfo.FullName, FileAccess.Read))
                 {
 			        // для каждого дочернего объекта
 			        foreach (string name in store.EnumerateObjects())
-			        {
+			        try {
                         // для хранилища контейнеров
                         if (typeof(ContainerStore).IsAssignableFrom(storeType))
                         {
@@ -75,16 +79,20 @@ namespace Aladdin.CAPI.GUI.Nodes
 				            nodes.Add(new StoreNode(environment, provider, obj.GetType(), obj.Info)); 
                         }
 			        }
+					catch {}
                 }
             }
-            // вернуть список узлов
-			catch {} return nodes.ToArray(); 
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); } return nodes.ToArray(); 
 		}
 		// элементы контекстного меню для узла
 		public override ToolStripItem[] GetContextMenuItems(ConsoleNode node) 
 		{ 
 			// определить основное окно
-			ContainersForm mainForm = (ContainersForm)node.MainForm; bool canChangeLongin = false; 
+			ContainersForm mainForm = (ContainersForm)node.MainForm; 
+
+			// список элементов меню 
+			List<ToolStripItem> items = new List<ToolStripItem>(); bool canChangeLongin = false; 
 
             // указать способ выбора аутентификации 
             AuthenticationSelector selector = AuthenticationSelector.Create(
@@ -96,7 +104,7 @@ namespace Aladdin.CAPI.GUI.Nodes
                 { 
                     // для всех поддерживаемых типов аутентификации
                     foreach (Type authenticationType in store.GetAuthenticationTypes(selector.User))
-                    {
+                    try {
                         // получить сервис аутентификации
                         AuthenticationService service = store.GetAuthenticationService(
                             selector.User, authenticationType
@@ -104,11 +112,12 @@ namespace Aladdin.CAPI.GUI.Nodes
                         // добавить тип используемой аутентификации
                         if (service.CanChange) { canChangeLongin = true; break; }
                     }
+					catch {}
                 }
             }
-			// список элементов меню 
-			catch {} List<ToolStripItem> items = new List<ToolStripItem>(); 
-            
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); return items.ToArray(); } 
+
             // для хранилища контейнеров
             if (typeof(ContainerStore).IsAssignableFrom(storeType))
             { 
@@ -194,7 +203,8 @@ namespace Aladdin.CAPI.GUI.Nodes
                     }
                 }
             }
-            catch {}
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); } 
         }
 		// удалить объект
 		public override void DeleteObject(ConsoleNode node) 
@@ -294,17 +304,21 @@ namespace Aladdin.CAPI.GUI.Nodes
             AuthenticationSelector selector = AuthenticationSelector.Create(
 				mainForm, environment.AuthenticationAttempts
 			); 
-            // открыть хранилище объектов
-            using (SecurityObject store = selector.OpenObject(
-                provider, storeInfo.Scope, storeInfo.FullName, FileAccess.ReadWrite))
-            {
-			    // создать диалог управления каталогами
-			    DirectoriesDialog dialogDirectories = new DirectoriesDialog(
-                    mainForm, (Software.DirectoriesStore)store
-                ); 
-			    // показать диалог управления каталогами
-			    if (dialogDirectories.ShowDialog(mainForm) == DialogResult.OK) node.Refresh();
-            }
+			try { 
+				// открыть хранилище объектов
+				using (SecurityObject store = selector.OpenObject(
+					provider, storeInfo.Scope, storeInfo.FullName, FileAccess.ReadWrite))
+				{
+					// создать диалог управления каталогами
+					DirectoriesDialog dialogDirectories = new DirectoriesDialog(
+						mainForm, (Software.DirectoriesStore)store
+					); 
+					// показать диалог управления каталогами
+					if (dialogDirectories.ShowDialog(mainForm) == DialogResult.OK) node.Refresh();
+				}
+			}
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); }
 		}
 	}
 }

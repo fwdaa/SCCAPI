@@ -112,7 +112,10 @@ namespace Aladdin.CAPI.GUI.Nodes
 		public override ToolStripItem[] GetContextMenuItems(ConsoleNode node) 
 		{ 
 			// определить основное окно
-			ContainersForm mainForm = (ContainersForm)node.MainForm; bool canChangeLongin = false;
+			ContainersForm mainForm = (ContainersForm)node.MainForm; 
+
+            // создать список элементов меню
+			List<ToolStripItem> items = new List<ToolStripItem>(); bool canChangeLongin = false;
 
             // указать способ выбора аутентификации
             AuthenticationSelector selector = AuthenticationSelector.Create(
@@ -124,7 +127,7 @@ namespace Aladdin.CAPI.GUI.Nodes
 				{
 					// для всех поддерживаемых типов аутентификации
 					foreach (Type authenticationType in obj.GetAuthenticationTypes(selector.User))
-					{
+					try {
 						// получить сервис аутентификации
 						AuthenticationService service = obj.GetAuthenticationService(
 							selector.User, authenticationType
@@ -132,10 +135,11 @@ namespace Aladdin.CAPI.GUI.Nodes
 						// добавить тип используемой аутентификации
 						if (service.CanChange) { canChangeLongin = true; break; }
 					}
+					catch {}
 				}
             }
-            // создать список элементов меню
-            catch {} List<ToolStripItem> items = new List<ToolStripItem>();
+			// при ошибке вывести ее описание
+			catch (Exception ex) { ErrorDialog.Show(mainForm, ex); return items.ToArray(); }
 
 			// добавить элементы контекстного меню
             items.Add(new ToolStripMenuItem(Resource.MenuGenerateKeyPair, null, 
