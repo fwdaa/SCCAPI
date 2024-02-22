@@ -26,6 +26,9 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace CryptoPro
 			// сохранить переданные параметры
 			: Container(store, name, mode) {}
 
+		// проверить наличие исключения аутентификации
+		public: virtual bool IsAuthenticationRequired(Exception^ e) override; 
+
 		// вернуть протокол аутентификации
 		public: virtual AuthenticationService^ GetAuthenticationService(
 			String^ user, Type^ authenticationType) override; 

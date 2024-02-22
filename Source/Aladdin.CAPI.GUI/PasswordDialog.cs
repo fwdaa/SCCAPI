@@ -66,11 +66,11 @@ namespace Aladdin.CAPI.GUI
 			// установить абревиатуру языка
 			textBoxLang.Text = cultureInfo.TwoLetterISOLanguageName.ToUpper(); 
 		}
-		private void OnPasswordChanged(object sender, EventArgs e)
-		{
-			// указать доступность элемента управления
-			buttonOK.Enabled = (attempts > 0) && (textBoxPassword.Text.Length > 0); 
-		}
+        private void OnPasswordChanged(object sender, EventArgs e)
+        {
+			// проверить наличие пароля 
+			buttonOK.Enabled = (attempts > 0 && textBoxPassword.Text.Length > 0); 
+        }
 		private void OnButtonOK(object sender, EventArgs e)
 		{
 			// изменить форму курсора

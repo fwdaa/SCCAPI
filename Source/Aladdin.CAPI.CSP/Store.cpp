@@ -287,11 +287,13 @@ array<String^>^ Aladdin::CAPI::CSP::SCardStores::EnumerateObjects()
 	// для каждой смарт-карты
 	for (int i = 0; i < readers->Length; i++) 
 	try {
-		// проверить наличие смарт-карты добаить имя считывателя
-		if (readers[i]->GetState() != PCSC::ReaderState::Card) continue; 
+		// проверить наличие смарт-карты добаить имя считывателя. 
+		// !!! Некоторые виртуальные среды не пробрасывают 
+		// смарт-карту в считыватель !!!
+		// if (readers[i]->GetState() != PCSC::ReaderState::Card) continue; 
 
 		// открыть хранилище
-		Using<SecurityObject^> store(OpenObject(readers[i]->Name, FileAccess::Read)); 
+		// Using<SecurityObject^> store(OpenObject(readers[i]->Name, FileAccess::Read)); 
 
 		// добавить имя в список
 		names->Add(readers[i]->Name);

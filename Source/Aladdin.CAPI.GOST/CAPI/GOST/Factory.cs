@@ -458,6 +458,27 @@ namespace Aladdin.CAPI.GOST
             // для алгоритма шифрования
 		    else if (type == typeof(CAPI.Cipher))
             {
+                // добавлено для предварительного перехода от CP 4.0 к CP 5.0
+	            if (oid == ASN1.GOST.OID.gostR3412_64)
+    	        {
+                    // создать алгоритм шифрования блока
+                    using (CAPI.Cipher engine = new Engine.GOSTR3412_M(SBoxZ)) 
+                    {
+                        // создать режим шифрования
+                        return new Mode.GOSTR3412.ECB(engine, PaddingMode.Any); 
+                    }
+
+                }
+                // добавлено для предварительного перехода от CP 4.0 к CP 5.0
+		        if (oid == ASN1.GOST.OID.gostR3412_128)
+		        {
+                    // создать алгоритм шифрования блока
+                    using (CAPI.Cipher engine = new Engine.GOSTR3412_K())
+                    {
+                        // создать режим шифрования
+                        return new Mode.GOSTR3412.ECB(engine, PaddingMode.Any); 
+                    }
+                }
                 if (oid == ASN1.GOST.OID.gostR3412_64_ctr_acpkm)
                 {
                     // извлечь синхропосылку из параметров

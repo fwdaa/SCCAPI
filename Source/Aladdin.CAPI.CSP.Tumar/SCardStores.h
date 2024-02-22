@@ -14,9 +14,6 @@ namespace Aladdin { namespace CAPI { namespace CSP { namespace Tumar
 			// сохранить переданные параметры
 			: CAPI::CSP::ProviderStore(provider, scope, "Card", Container::typeid, 0) {}
 
-		// признак отсутствия аутентификации
-		public: virtual property bool HasAuthentication { bool get() override { return false; }}
-
 		// определить имя контейнера для провайдера
 		public: virtual String^ GetNativeContainerName(String^ name) override; 
 		// перечисление контейнеров
